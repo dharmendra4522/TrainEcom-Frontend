@@ -1,0 +1,20 @@
+<mat-card class="product-card" appearance="outlined">
+    <img mat-card-image [src]="product.images[0]" [alt]="product.title">
+
+    <mat-card-header>
+        <mat-card-title>{{ product.title }}</mat-card-title>
+        <mat-card-subtitle>{{ product.category }} | {{ product.brand }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <p>{{ product.description | slice:0:50 }}...</p>
+        <h2 style="color: #3f51b5; margin-top: 8px;">{{ product.price | currency:'USD' }}</h2>
+    </mat-card-content>
+
+    <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px;">
+        <button mat-button color="primary">Details</button>
+        <button mat-raised-button color="accent">
+            <mat-icon>shopping_cart</mat-icon> Add
+        </button>
+    </mat-card-actions>
+</mat-card>

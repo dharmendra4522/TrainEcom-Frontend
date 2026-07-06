@@ -1,0 +1,38 @@
+.header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 28px;
+  height: 28px;
+  width: 28px;
+}
+
+.logo-text {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+
+.nav-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.active-link {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-bottom: 2px solid #fff;
+  border-radius: 4px 4px 0 0;
+}
