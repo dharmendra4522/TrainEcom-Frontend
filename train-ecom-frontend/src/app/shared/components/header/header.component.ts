@@ -13,7 +13,16 @@ export class HeaderComponent {
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
+  cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
+
+
+  // function to handle add to card count
+
+
+
   onLogout(): void {
     this.store.dispatch(AuthActions.logout());
   }
+
+
 }

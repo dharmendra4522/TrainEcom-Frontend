@@ -12,4 +12,8 @@ export class ProductCardComponent {
   
 
   constructor() { }
+
+  addToCart(product: Product): void {
+    console.log('Adding product to cart:', product);
+  }
 }

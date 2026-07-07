@@ -54,3 +54,17 @@ button {
 .redirect-text a:hover {
   text-decoration: underline;
 }
+
+.register-card-header{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.subtitle{
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}

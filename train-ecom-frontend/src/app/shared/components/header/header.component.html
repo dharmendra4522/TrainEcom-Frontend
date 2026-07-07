@@ -1,31 +1,65 @@
-<mat-toolbar color="primary" class="header-toolbar">
-    <span class="logo-container" routerLink="/home">
-        <span class="logo-text">TrainEcom</span>
-    </span>
+<app-top-promo-bar></app-top-promo-bar>
 
+<mat-toolbar class="main-header">
 
-    <div class="nav-links">
-        <button mat-button routerLink="/home" class="hide-on-mobile">
-            <mat-icon>home</mat-icon> Home
-        </button>
+    <button mat-icon-button class="mobile-menu-btn" aria-label="Menu" [matMenuTriggerFor]="mobileMenu">
+        <mat-icon>menu</mat-icon>
+    </button>
 
-        <button mat-icon-button routerLink="/cart" aria-label="Cart">
-            <mat-icon matBadge="0" matBadgeColor="accent">shopping_cart</mat-icon>
+    <mat-menu #mobileMenu="matMenu">
+        <a mat-menu-item routerLink="/home">
+            <mat-icon>home</mat-icon>
+            <span>Home</span>
+        </a>
+        <a mat-menu-item routerLink="/contact">
+            <mat-icon>mail</mat-icon>
+            <span>Contact</span>
+        </a>
+        <a mat-menu-item routerLink="/about">
+            <mat-icon>info</mat-icon>
+            <span>About</span>
+        </a>
+
+        <ng-container *ngIf="!(isLoggedIn$ | async)">
+            <mat-divider></mat-divider>
+            <a mat-menu-item routerLink="/login">
+                <mat-icon>login</mat-icon>
+                <span>Login</span>
+            </a>
+        </ng-container>
+    </mat-menu>
+
+    <span class="logo-text" routerLink="/home">TrainEcom</span>
+
+    <span class="spacer"></span>
+
+    <div class="nav-links hide-on-mobile">
+        <a mat-button routerLink="/home" routerLinkActive="active-link">Home</a>
+        <a mat-button routerLink="/contact">Contact</a>
+        <a mat-button routerLink="/about">About</a>
+    </div>
+
+    <span class="spacer"></span>
+
+    <div class="action-icons">
+
+        <button mat-icon-button routerLink="/cart" aria-label="View Cart">
+            <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
         </button>
 
         <ng-container *ngIf="!(isLoggedIn$ | async)">
-            <button mat-button routerLink="/login" class="hide-on-mobile">
-                <mat-icon>login</mat-icon> Login
-            </button>
-            <button mat-raised-button color="accent" routerLink="/register" class="auth-btn">
-                <mat-icon>person_add</mat-icon> Register
-            </button>
+            <a mat-button routerLink="/login" class="login-btn hide-on-mobile">Login</a>
+            <a mat-raised-button color="primary" routerLink="/register" class="signup-btn">
+                Sign Up
+            </a>
         </ng-container>
 
         <ng-container *ngIf="isLoggedIn$ | async">
-            <button mat-button (click)="onLogout()">
-                <mat-icon>logout</mat-icon> Logout
+            <button mat-icon-button (click)="onLogout()" matTooltip="Logout">
+                <mat-icon>logout</mat-icon>
             </button>
         </ng-container>
+
     </div>
+
 </mat-toolbar>

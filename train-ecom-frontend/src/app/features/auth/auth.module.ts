@@ -8,6 +8,9 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from "../../shared/shared.module";
 import { AuthRoutingModule } from './auth-routing.module';
 
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from '../../core/store/auth/auth.effects';
+
 @NgModule({
   declarations: [
     LoginComponent,
@@ -20,7 +23,8 @@ import { AuthRoutingModule } from './auth-routing.module';
     ReactiveFormsModule,
     RouterModule,
     SharedModule,
-    AuthRoutingModule
+    AuthRoutingModule,
+    EffectsModule.forFeature([AuthEffects])
 ]
 })
 export class AuthModule { }

@@ -1,21 +1,37 @@
-import { loginRequest, loginResponse } from "../../../models/auth.model";
+import { loginRequest, loginResponse, registerRequest } from "../../../models/auth.model";
 import { createAction, props } from "@ngrx/store";
 
 export const loginReq = createAction(
     '[Auth API] Login Request',
-    props<{request: loginRequest}>()
+    props<{ request: loginRequest }>()
 );
 
 export const loginSuccess = createAction(
     '[Auth API] Login Success',
-    props<{response: loginResponse}>()
+    props<{ response: loginResponse }>()
 );
 
 export const loginFailure = createAction(
     '[Auth API] Login Failure',
-    props<{error: string}>()
+    props<{ error: string }>()
 );
 
 export const logout = createAction(
     '[Auth API] Logout'
+);
+
+
+export const registerReq = createAction(
+    '[Auth API] Register Request',
+    props<{ request: registerRequest }>()
+);
+
+export const registerSuccess = createAction(
+    '[Auth API] Register Success',
+    props<{ response: any }>()
+)
+
+export const registerFailure = createAction(
+    '[Auth API] Register Failure',
+    props<{ error: string }>()
 )

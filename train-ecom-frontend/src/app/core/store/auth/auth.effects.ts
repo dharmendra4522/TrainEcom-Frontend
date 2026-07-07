@@ -28,7 +28,7 @@ export class AuthEffects {
         );
     });
 
-    loginSuccess$ = createEffect(() => 
+    loginSuccess$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.loginSuccess),
             tap((action) => {
@@ -39,7 +39,7 @@ export class AuthEffects {
         { dispatch: false }
     );
 
-    logout$ = createEffect(() => 
+    logout$ = createEffect(() =>
         this.actions$.pipe(
             ofType(AuthActions.logout),
             tap(() => {
@@ -48,5 +48,40 @@ export class AuthEffects {
             })
         ),
         { dispatch: false }
+    );
+
+    register$ = createEffect(() => {
+        return this.actions$.pipe(
+            ofType(AuthActions.registerReq),
+            exhaustMap((action) =>
+                this.authService.register(action.request).pipe(
+                    map((response) => AuthActions.registerSuccess({ response })),
+                    catchError((error) => of(AuthActions.registerFailure({ error: error.message || 'Registration Failed' })))
+                )
+            )
+        );
+    });
+
+    registerSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.registerSuccess),
+            tap(() => {
+                console.log('Registration Successful! Redirecting to login...');
+                this.router.navigate(['/login']);
+            })
+        ),
+        { dispatch: false }
+    );
+
+    registerFailure$ = createEffect(() =>
+
+        this.actions$.pipe(
+            ofType(AuthActions.registerFailure),
+            tap((action) => {
+                console.error('Registration Failed:', action.error);
+            })
+        ),
+        { dispatch: false }
     )
+
 }

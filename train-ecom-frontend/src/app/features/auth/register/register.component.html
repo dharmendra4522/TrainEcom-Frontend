@@ -2,8 +2,9 @@
 
 <div class="container">
     <mat-card>
-        <mat-card-header>
-            <mat-card-title>Register</mat-card-title>
+        <mat-card-header class="register-card-header">
+            <mat-card-title>Create an account</mat-card-title>
+            <span class="subtitle">Please fill in the form to create an account.</span>
         </mat-card-header>
 
         <mat-card-content>
@@ -32,6 +33,17 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput type="tel" formControlName="phoneNumber" placeholder="Ex. 123-456-7890">
+                    <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('required')">
+                        Phone number is required.
+                    </mat-error>
+                    <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('pattern')">
+                        Please enter a valid phone number.
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Password</mat-label>
                     <input matInput type="password" formControlName="password">
                     <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
@@ -48,6 +60,7 @@
                     <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('required')">
                         Confirm password is required.
                     </mat-error>
+
                     <mat-error *ngIf="registerForm.get('confirmPassword')?.hasError('passwordMismatch')">
                         Passwords do not match.
                     </mat-error>
@@ -60,4 +73,4 @@
             </form>
         </mat-card-content>
     </mat-card>
-</div>  
+</div>

@@ -40,3 +40,35 @@ mat-card {
   display: block;
   text-align: center;
 }
+
+.login-card-header{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin-bottom: 10px;
+  gap: 5px;
+}
+
+.subtitle{
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.redirect-text {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+.redirect-text a {
+  color: #3f51b5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.redirect-text a:hover {
+  text-decoration: underline;
+}

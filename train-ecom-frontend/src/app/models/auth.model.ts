@@ -8,19 +8,19 @@ export interface loginResponse{
     access_token: string;
 }
 
+export enum Role{
+    Admin = 'Admin',
+    Customer = 'Customer',
+}
 export interface registerRequest{
     name: string;
     email: string;
     password: string;
     confirmPassword: string;
-    role?: string;
-    avtar?: string;
+    phoneNumber: string;
+    role: Role;
 }
 
-export interface registerResponse{
-    access_token: string;
-    refersh_token: string;
-}
 
 export interface Product{
     id: number;

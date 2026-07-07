@@ -2,8 +2,9 @@
 
 <div class="container">
     <mat-card>
-        <mat-card-header>
-            <mat-card-title>Login</mat-card-title>
+        <mat-card-header class="login-card-header">
+            <mat-card-title>Login in to TrainEcom</mat-card-title>
+            <span class="subtitle">Please enter your details </span>
         </mat-card-header>
 
         <mat-card-content>
@@ -44,8 +45,7 @@
 
                 <button type="submit" mat-raised-button color="primary" class="full-width"
                     [disabled]="loginForm.invalid">Login</button>
-
-                <a routerLink="/auth/register" class="register-link">Don't have an account? Register here</a>
+                 <p class="redirect-text">Don't have an account? <a routerLink="/auth/register">Register here</a></p>
             </form>
         </mat-card-content>
     </mat-card>

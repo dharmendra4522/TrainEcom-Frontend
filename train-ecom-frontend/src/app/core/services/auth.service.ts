@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { loginRequest, loginResponse } from '../../models/auth.model';
+import { loginRequest, loginResponse, registerRequest } from '../../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -9,11 +9,16 @@ import { loginRequest, loginResponse } from '../../models/auth.model';
 export class AuthService {
 
   private loginAPI = 'https://api.escuelajs.co/api/v1/auth/login';
+  private registerAPI = 'http://localhost:3000/customers';
 
   private http = inject(HttpClient);
 
   login(credentials: loginRequest): Observable<loginResponse> {
     return this.http.post<loginResponse>(this.loginAPI, credentials);
+  }
+
+  register(userData: registerRequest): Observable<any> {
+    return this.http.post<any>(this.registerAPI, userData);
   }
 
 }
