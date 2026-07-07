@@ -1,19 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { Store } from '@ngrx/store';
+import { selectAuthError } from '../../../core/store/auth/auth.selectors';
+import * as AuthActions from '../../../core/store/auth/auth.actions'; // Action import kiya
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  private store = inject(Store);
+  private fb = inject(FormBuilder);
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
-
-  }
+  error$ = this.store.select(selectAuthError);
 
   ngOnInit() {
     this.validateForm();
@@ -28,19 +29,8 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.loginForm.invalid) {
-      console.log('Form is invalid');
       return;
     }
-
-    console.log(this.loginForm.value);
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        console.log('Login successful:', response);
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        console.error('Login failed:', error);
-      }
-    })
+    this.store.dispatch(AuthActions.loginReq({ request: this.loginForm.value }));
   }
 }

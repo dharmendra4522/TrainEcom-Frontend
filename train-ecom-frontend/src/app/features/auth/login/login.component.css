@@ -9,7 +9,7 @@
 mat-card {
   width: 100%;
   max-width: 400px;
-  padding: 24px; 
+  padding: 24px;
 }
 
 .login-form {
@@ -33,4 +33,10 @@ mat-card {
 
 .register-link:hover {
   text-decoration: underline;
+}
+
+.server-error {
+  margin-bottom: 15px;
+  display: block;
+  text-align: center;
 }

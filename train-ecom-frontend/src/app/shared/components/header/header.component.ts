@@ -1,34 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../../../core/store/auth/auth.actions';
+import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+  private readonly store = inject(Store);
 
-  authService = inject(AuthService);
-  router = inject(Router);
-
-  isUserLoggedIn: boolean = false;
-
-  ngOnInit() {
-    this.isLoggedIn();
-  }
-
-  isLoggedIn(): void {
-    this.authService.isLoggedIn$.subscribe({
-      next: (status) => {
-        this.isUserLoggedIn = status;
-      }
-    })
-  }
+  isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
   onLogout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth']);
+    this.store.dispatch(AuthActions.logout());
   }
-
 }
