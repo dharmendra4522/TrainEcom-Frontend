@@ -1,4 +1,4 @@
-import { loginRequest, loginResponse, registerRequest } from "../../../models/auth.model";
+import { loginRequest, loginResponse, registerRequest, registerResponse } from "../../../models/auth.model";
 import { createAction, props } from "@ngrx/store";
 
 export const loginReq = createAction(
@@ -28,7 +28,7 @@ export const registerReq = createAction(
 
 export const registerSuccess = createAction(
     '[Auth API] Register Success',
-    props<{ response: any }>()
+    props<{ response: registerResponse }>()
 )
 
 export const registerFailure = createAction(

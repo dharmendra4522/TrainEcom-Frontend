@@ -6,13 +6,14 @@ import { AppComponent } from './app.component';
 import { HomeModule } from './features/home/home.module';
 import { AuthModule } from './features/auth/auth.module';
 import { SharedModule } from './shared/shared.module';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { authReducer } from './core/store/auth/auth.reducer';
 import { AuthEffects } from './core/store/auth/auth.effects';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { AuthEffects } from './core/store/auth/auth.effects';
   providers: [
     provideAnimations(),
     provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

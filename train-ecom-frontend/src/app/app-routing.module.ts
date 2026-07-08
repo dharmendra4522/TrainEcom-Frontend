@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 // import { authGuard } from './core/guards/auth.guard'; // Ise future Checkout ke liye import karke rakhein
 
 const routes: Routes = [
@@ -23,7 +24,7 @@ const routes: Routes = [
   { path: 'login', redirectTo: 'auth', pathMatch: 'full' },
   { path: 'register', redirectTo: 'auth/register', pathMatch: 'full' },
 
-  { path: '**', redirectTo: 'home', pathMatch: 'full' }
+  { path: '**', component: NotFoundComponent, pathMatch: 'full' }
 ];
 
 @NgModule({

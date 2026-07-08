@@ -5,12 +5,16 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { TopPromoBarComponent } from './components/top-promo-bar/top-promo-bar.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 @NgModule({
   declarations: [
     HeaderComponent,
     ProductCardComponent,
-    TopPromoBarComponent
+    TopPromoBarComponent,
+    FooterComponent,
+    NotFoundComponent
   ],
   imports: [
     CommonModule,
@@ -23,6 +27,7 @@ import { TopPromoBarComponent } from './components/top-promo-bar/top-promo-bar.c
     ProductCardComponent,
     MaterialModule,
     TopPromoBarComponent,
+    FooterComponent
   ]
 })
 export class SharedModule { }

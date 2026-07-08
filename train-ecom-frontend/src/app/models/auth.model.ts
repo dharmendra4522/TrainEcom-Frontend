@@ -21,6 +21,12 @@ export interface registerRequest{
     role: Role;
 }
 
+export interface registerResponse{
+    success: boolean;
+    message: string;
+}
+
+
 
 export interface Product{
     id: number;

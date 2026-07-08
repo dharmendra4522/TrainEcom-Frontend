@@ -2,31 +2,44 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
+  padding: 60px 20px; 
+  background-color: transparent; 
+  height: 100%;
 }
 
+/* 2. Card Styling: Premium soft shadow */
 mat-card {
   width: 100%;
   max-width: 450px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 32px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.register-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 24px;
 }
 
 mat-card-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
-  margin-bottom: 16px;
-  text-align: center;
-  width: 100%;
+  margin-bottom: 8px;
+  color: #000;
 }
 
+.subtitle {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 4. Form Spacing */
 .register-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 16px;
 }
 
 .full-width {
@@ -34,37 +47,25 @@ mat-card-title {
 }
 
 button {
-  padding: 8px 0;
+  padding: 24px 0;
   font-size: 16px;
+  font-weight: 500;
+  margin-top: 10px;
 }
 
 .redirect-text {
   text-align: center;
-  margin-top: 16px;
+  margin-top: 24px;
   font-size: 14px;
   color: #666;
 }
 
 .redirect-text a {
-  color: #3f51b5;
+  color: #db4444; 
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .redirect-text a:hover {
   text-decoration: underline;
-}
-
-.register-card-header{
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  margin-bottom: 10px;
-}
-
-.subtitle{
-  display: block;
-  text-align: center;
-  font-size: 14px;
-  color: #666;
 }
