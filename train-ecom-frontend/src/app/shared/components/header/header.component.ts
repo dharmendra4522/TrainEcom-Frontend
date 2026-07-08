@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
@@ -14,10 +14,7 @@ export class HeaderComponent {
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
   cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
-
-
-  // function to handle add to card count
-
+  @Input() isAdmin: boolean = false;
 
 
   onLogout(): void {

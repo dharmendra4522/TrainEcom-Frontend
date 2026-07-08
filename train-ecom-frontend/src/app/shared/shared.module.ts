@@ -7,6 +7,8 @@ import { ProductCardComponent } from './components/product-card/product-card.com
 import { TopPromoBarComponent } from './components/top-promo-bar/top-promo-bar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
@@ -14,12 +16,15 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
     ProductCardComponent,
     TopPromoBarComponent,
     FooterComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    MainLayoutComponent,
+    SidebarComponent
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
+    
     
   ],
   exports: [
@@ -27,7 +32,8 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
     ProductCardComponent,
     MaterialModule,
     TopPromoBarComponent,
-    FooterComponent
+    FooterComponent,
+    MainLayoutComponent
   ]
 })
 export class SharedModule { }

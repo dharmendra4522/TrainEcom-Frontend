@@ -1,0 +1,19 @@
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 140px);
+}
+
+.main-container {
+  flex: 1; 
+  background-color: transparent;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: #1e293b;
+}
+
+.content-area {
+  padding: 0; 
+}

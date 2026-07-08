@@ -26,8 +26,6 @@ export interface registerResponse{
     message: string;
 }
 
-
-
 export interface Product{
     id: number;
     title: string;

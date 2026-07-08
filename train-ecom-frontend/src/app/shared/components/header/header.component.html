@@ -1,31 +1,33 @@
-<app-top-promo-bar></app-top-promo-bar>
+<app-top-promo-bar *ngIf="!isAdmin"></app-top-promo-bar>
 
 <mat-toolbar class="main-header">
 
-    <button mat-icon-button class="mobile-menu-btn" aria-label="Menu" [matMenuTriggerFor]="mobileMenu">
+    <button *ngIf="!isAdmin" mat-icon-button class="mobile-menu-btn" aria-label="Menu" [matMenuTriggerFor]="mobileMenu">
         <mat-icon>menu</mat-icon>
     </button>
 
     <mat-menu #mobileMenu="matMenu">
-        <a mat-menu-item routerLink="/home">
-            <mat-icon>home</mat-icon>
-            <span>Home</span>
-        </a>
-        <a mat-menu-item routerLink="/contact">
-            <mat-icon>mail</mat-icon>
-            <span>Contact</span>
-        </a>
-        <a mat-menu-item routerLink="/about">
-            <mat-icon>info</mat-icon>
-            <span>About</span>
-        </a>
-
-        <ng-container *ngIf="!(isLoggedIn$ | async)">
-            <mat-divider></mat-divider>
-            <a mat-menu-item routerLink="/login">
-                <mat-icon>login</mat-icon>
-                <span>Login</span>
+        <ng-container *ngIf="!isAdmin">
+            <a mat-menu-item routerLink="/home">
+                <mat-icon>home</mat-icon>
+                <span>Home</span>
             </a>
+            <a mat-menu-item routerLink="/contact">
+                <mat-icon>mail</mat-icon>
+                <span>Contact</span>
+            </a>
+            <a mat-menu-item routerLink="/about">
+                <mat-icon>info</mat-icon>
+                <span>About</span>
+            </a>
+
+            <ng-container *ngIf="!(isLoggedIn$ | async)">
+                <mat-divider></mat-divider>
+                <a mat-menu-item routerLink="/login">
+                    <mat-icon>login</mat-icon>
+                    <span>Login</span>
+                </a>
+            </ng-container>
         </ng-container>
     </mat-menu>
 
@@ -33,7 +35,7 @@
 
     <span class="spacer"></span>
 
-    <div class="nav-links hide-on-mobile">
+    <div class="nav-links hide-on-mobile" *ngIf="!isAdmin">
         <a mat-button routerLink="/home" routerLinkActive="active-link">Home</a>
         <a mat-button routerLink="/contact">Contact</a>
         <a mat-button routerLink="/about">About</a>
@@ -43,18 +45,34 @@
 
     <div class="action-icons">
 
-        <button mat-icon-button routerLink="/cart" aria-label="View Cart">
-            <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
-        </button>
+        <ng-container *ngIf="!isAdmin">
+            <button mat-icon-button routerLink="/cart" aria-label="View Cart">
+                <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
+            </button>
 
-        <ng-container *ngIf="!(isLoggedIn$ | async)">
-            <a mat-button routerLink="/login" class="login-btn hide-on-mobile">Login</a>
-            <a mat-raised-button color="primary" routerLink="/register" class="signup-btn">
-                Sign Up
-            </a>
+            <ng-container *ngIf="!(isLoggedIn$ | async)">
+                <a mat-button routerLink="/login" class="login-btn hide-on-mobile">Login</a>
+                <a mat-raised-button color="primary" routerLink="/signup" class="signup-btn">
+                    Sign Up
+                </a>
+            </ng-container>
+
+            <ng-container *ngIf="isLoggedIn$ | async">
+                <button mat-icon-button (click)="onLogout()" matTooltip="Logout">
+                    <mat-icon>logout</mat-icon>
+                </button>
+            </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="isLoggedIn$ | async">
+        <ng-container *ngIf="isAdmin">
+            <button mat-icon-button matTooltip="Notifications">
+                <mat-icon>notifications</mat-icon>
+            </button>
+
+            <button mat-icon-button matTooltip="Admin Profile">
+                <mat-icon>account_circle</mat-icon>
+            </button>
+
             <button mat-icon-button (click)="onLogout()" matTooltip="Logout">
                 <mat-icon>logout</mat-icon>
             </button>

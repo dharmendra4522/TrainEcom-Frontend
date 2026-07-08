@@ -3,8 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeModule } from './features/home/home.module';
-import { AuthModule } from './features/auth/auth.module';
+
 import { SharedModule } from './shared/shared.module';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
@@ -22,9 +21,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HomeModule,
-    AuthModule,
-    SharedModule,
+    SharedModule, //
 
     StoreModule.forRoot({auth: authReducer}),
     EffectsModule.forRoot([AuthEffects]),
@@ -32,8 +29,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
   ],
   providers: [
     provideAnimations(),
-    provideHttpClient(),
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor])) 
   ],
   bootstrap: [AppComponent]
 })

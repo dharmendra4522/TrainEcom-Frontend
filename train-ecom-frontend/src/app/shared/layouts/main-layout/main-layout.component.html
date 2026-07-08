@@ -1,0 +1,22 @@
+<app-header [isAdmin]="isAdminRole"></app-header>
+
+<div class="layout-wrapper">
+  <mat-sidenav-container class="main-container">
+    
+    <mat-sidenav mode="side" [opened]="isAdminRole" class="dynamic-sidebar">
+      
+      <app-sidebar 
+        [title]="sidebarTitle" 
+        [menuItems]="currentMenuItems">
+      </app-sidebar>
+
+    </mat-sidenav>
+
+    <mat-sidenav-content class="content-area">
+      <router-outlet></router-outlet> 
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+</div>
+
+<app-footer *ngIf="!isAdminRole"></app-footer>
