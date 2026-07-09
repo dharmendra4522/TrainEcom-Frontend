@@ -9,23 +9,19 @@
     <mat-menu #mobileMenu="matMenu">
         <ng-container *ngIf="!isAdmin">
             <a mat-menu-item routerLink="/home">
-                <mat-icon>home</mat-icon>
-                <span>Home</span>
+                <mat-icon>home</mat-icon> <span>Home</span>
             </a>
             <a mat-menu-item routerLink="/contact">
-                <mat-icon>mail</mat-icon>
-                <span>Contact</span>
+                <mat-icon>mail</mat-icon> <span>Contact</span>
             </a>
             <a mat-menu-item routerLink="/about">
-                <mat-icon>info</mat-icon>
-                <span>About</span>
+                <mat-icon>info</mat-icon> <span>About</span>
             </a>
 
             <ng-container *ngIf="!(isLoggedIn$ | async)">
                 <mat-divider></mat-divider>
                 <a mat-menu-item routerLink="/login">
-                    <mat-icon>login</mat-icon>
-                    <span>Login</span>
+                    <mat-icon>login</mat-icon> <span>Login</span>
                 </a>
             </ng-container>
         </ng-container>
@@ -52,9 +48,6 @@
 
             <ng-container *ngIf="!(isLoggedIn$ | async)">
                 <a mat-button routerLink="/login" class="login-btn hide-on-mobile">Login</a>
-                <a mat-raised-button color="primary" routerLink="/signup" class="signup-btn">
-                    Sign Up
-                </a>
             </ng-container>
 
             <ng-container *ngIf="isLoggedIn$ | async">
@@ -68,11 +61,9 @@
             <button mat-icon-button matTooltip="Notifications">
                 <mat-icon>notifications</mat-icon>
             </button>
-
             <button mat-icon-button matTooltip="Admin Profile">
                 <mat-icon>account_circle</mat-icon>
             </button>
-
             <button mat-icon-button (click)="onLogout()" matTooltip="Logout">
                 <mat-icon>logout</mat-icon>
             </button>

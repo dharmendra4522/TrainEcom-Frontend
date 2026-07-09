@@ -9,6 +9,8 @@ import { FooterComponent } from './components/footer/footer.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+
 
 @NgModule({
   declarations: [
@@ -18,7 +20,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     FooterComponent,
     NotFoundComponent,
     MainLayoutComponent,
-    SidebarComponent
+    SidebarComponent,
+    AuthLayoutComponent
   ],
   imports: [
     CommonModule,

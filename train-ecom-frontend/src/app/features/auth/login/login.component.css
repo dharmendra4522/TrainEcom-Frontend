@@ -55,7 +55,7 @@ mat-card-title {
   margin-bottom: 15px;
   display: block;
   text-align: center;
-  color: #DB4444; 
+  color: #db4444;
 }
 
 .redirect-text {
@@ -66,7 +66,7 @@ mat-card-title {
 }
 
 .redirect-text a {
-  color: #DB4444;
+  color: #db4444;
   text-decoration: none;
   font-weight: 600;
 }
@@ -75,18 +75,18 @@ mat-card-title {
   text-decoration: underline;
 }
 
-.forgot-password-container{
+.forgot-password-container {
   display: flex;
   justify-content: flex-end;
   margin-top: -8px;
 }
 
-.forgot-password{
+.forgot-password {
   font-size: 14px;
-  color: #DB4444;
+  color: #db4444;
   cursor: pointer;
 }
 
-.forgot-password:hover{
+.forgot-password:hover {
   text-decoration: underline;
 }

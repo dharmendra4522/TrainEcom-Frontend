@@ -2,8 +2,20 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.component';
+import { AuthLayoutComponent } from './shared/layouts/auth-layout/auth-layout.component';
 
 const routes: Routes = [
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/auth/auth.module').then((m) => m.AuthModule),
+      },
+    ],
+  },
   {
     path: '',
     component: MainLayoutComponent,
@@ -11,23 +23,21 @@ const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       {
         path: 'home',
-        loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule)
-      },
-      {
-        path: '',
-        loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
+        loadChildren: () =>
+          import('./features/home/home.module').then((m) => m.HomeModule),
       },
       {
         path: 'admin',
-        loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
+        loadChildren: () =>
+          import('./features/admin/admin.module').then((m) => m.AdminModule),
       },
-      { path: '**', component: NotFoundComponent }
-    ]
-  }
+      { path: '**', component: NotFoundComponent },
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
