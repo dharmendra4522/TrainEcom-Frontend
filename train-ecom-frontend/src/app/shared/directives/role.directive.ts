@@ -1,22 +1,49 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, inject, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { selectUserRole } from '../../core/store/auth/auth.selectors';
 
 @Directive({
   selector: '[appRole]'
 })
 export class RoleDirective {
 
-  constructor(
-    private templateRef: TemplateRef<any>,
-    private viewContainer: ViewContainerRef
-  ) { }
+  private templateRef = inject(TemplateRef<any>);
+  private viewContainer = inject(ViewContainerRef);
+  private store = inject(Store);
 
-  @Input() set appRole(role: string){
-    const currentUserRole = 'customer'; // hardcoded current
+  private requiredRole: string = '';
+  private currentUserRole: string | null = null;
+  private roleSubscription!: Subscription;
 
-    if(currentUserRole === role){
+  constructor() { }
+
+  @Input() set appRole(role: string) {
+    this.requiredRole = role;
+    this.updateView();
+  }
+
+  ngOnInit() {
+      this.roleSubscription = this.store.select(selectUserRole).subscribe(role => {
+        this.currentUserRole = role;
+        this.updateView();
+      });
+  }
+
+
+
+  private updateView() {
+    this.viewContainer.clear();
+
+    if (this.currentUserRole && this.currentUserRole === this.requiredRole) {
       this.viewContainer.createEmbeddedView(this.templateRef);
-    } else{
-      this.viewContainer.clear();
     }
   }
+
+  ngOnDestroy() {
+    if (this.roleSubscription) {
+      this.roleSubscription.unsubscribe();
+    }
+  }
+
 }

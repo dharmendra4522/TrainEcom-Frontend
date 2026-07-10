@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MenuItem } from '../../models/menu-item.model';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-main-layout',
@@ -7,6 +8,9 @@ import { MenuItem } from '../../models/menu-item.model';
   styleUrl: './main-layout.component.css',
 })
 export class MainLayoutComponent {
+
+  private store = inject(Store);
+  
   sidebarTitle: string = '';
 
   currentMenuItems: MenuItem[] = [];

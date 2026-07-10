@@ -21,7 +21,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    SharedModule, //
+    SharedModule, 
 
     StoreModule.forRoot({auth: authReducer}),
     EffectsModule.forRoot([AuthEffects]),

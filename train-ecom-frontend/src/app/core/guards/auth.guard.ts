@@ -1,26 +1,24 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../store/auth/auth.selectors';
-import { take } from 'rxjs/internal/operators/take';
-import { map } from 'rxjs/internal/operators/map';
+import { take, map } from 'rxjs/operators';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const store = inject(Store);
-  const token = localStorage.getItem('token');
+  
+  const token = localStorage.getItem('accessToken'); 
 
-  return store.pipe(
-    select(selectIsLoggedIn),
+  return store.select(selectIsLoggedIn).pipe(
     take(1),
     map((isLoggedIn) => {
       if (isLoggedIn || token) {
         return true;
       } else {
-        router.navigate(['/login']);
+        router.navigate(['/login']); 
         return false;
       }
     })
-  )
-
+  );
 };

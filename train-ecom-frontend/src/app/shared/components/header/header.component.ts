@@ -1,7 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
-import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
+import { selectIsLoggedIn, selectUserRole } from '../../../core/store/auth/auth.selectors';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +12,7 @@ export class HeaderComponent {
   private readonly store = inject(Store);
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
+  userRole$ = this.store.select(selectUserRole);  
 
   cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
 

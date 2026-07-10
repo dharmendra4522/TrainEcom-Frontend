@@ -8,9 +8,8 @@ import { loginRequest, loginResponse, registerRequest, registerResponse } from '
 })
 export class AuthService {
 
-  private loginAPI = 'https://api.escuelajs.co/api/v1/auth/login';
-  private registerAPI = 'http://localhost:3000/customers';
-  private refreshAPI = 'https://api.escuelajs.co/api/v1/auth/refresh-token';
+  private loginAPI = 'http://192.168.3.177:7112/api/Auth/login';
+  private registerAPI = 'http://192.168.3.177:7112/api/Auth/register';
 
   private http = inject(HttpClient);
 
@@ -20,11 +19,6 @@ export class AuthService {
 
   register(userData: registerRequest): Observable<registerResponse> {
     return this.http.post<registerResponse>(this.registerAPI, userData);
-  }
-
-  refreshToken(): Observable<loginResponse> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    return this.http.post<loginResponse>(this.refreshAPI, { refresh_token: refreshToken });
   }
 
 }

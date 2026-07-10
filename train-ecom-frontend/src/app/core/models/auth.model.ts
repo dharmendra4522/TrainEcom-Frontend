@@ -6,9 +6,14 @@ export interface loginRequest{
     password: string;
 }
 
-export interface loginResponse{
-    refresh_token: string;
-    access_token: string;
+export interface loginResponse {
+    accessToken: string; 
+    accessTokenExpiresAt: string;
+}
+
+export interface UserSessionPayload{
+    token: string;
+    role: Role | null;
 }
 
 export interface registerRequest{
@@ -17,7 +22,6 @@ export interface registerRequest{
     password: string;
     confirmPassword: string;
     phoneNumber: string;
-    role: Role;
 }
 
 export interface registerResponse{

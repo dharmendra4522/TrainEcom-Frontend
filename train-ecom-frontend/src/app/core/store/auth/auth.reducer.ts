@@ -5,14 +5,14 @@ import { state } from '@angular/animations';
 export interface AuthState {
     isLoggedIn: boolean;
     accessToken: string | null;
-    refreshToken: string | null;
+    userRole: string | null;
     error: string | null;
 }
 
 export const initialAuthState: AuthState = {
     isLoggedIn: false,
     accessToken: null,
-    refreshToken: null,
+    userRole: null,
     error: null,
 }
 
@@ -20,11 +20,11 @@ export const authReducer = createReducer(
     initialAuthState,
 
     // for successful login
-    on(AuthActions.loginSuccess, (state, { response }) => ({
+    on(AuthActions.loginSuccess, (state, { payload }) => ({
         ...state,
         isLoggedIn: true,
-        accessToken: response.access_token,
-        refreshToken: response.refresh_token,
+        accessToken: payload.token,
+        userRole: payload.role,
         error: null,
     })),
 
@@ -32,7 +32,7 @@ export const authReducer = createReducer(
         ...state,
         isLoggedIn: false,
         accessToken: null,
-        refreshToken: null,
+        userRole: null,
         error: error,
     })),
 

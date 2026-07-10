@@ -14,6 +14,11 @@ export const selectAccessToken = createSelector(
     (state: AuthState) => state.accessToken
 );
 
+export const selectUserRole = createSelector(
+    selectAuthState,
+    (state: AuthState) => state.userRole
+)
+
 export const selectAuthError = createSelector(
     selectAuthState,
     (state: AuthState) => state.error

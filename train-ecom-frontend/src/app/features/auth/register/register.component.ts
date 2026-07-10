@@ -6,14 +6,14 @@ import * as AuthActions from '../../../core/store/auth/auth.actions';
 
 export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
-  const confirmPasswordControl = control.get('confirmPassword'); 
+  const confirmPasswordControl = control.get('confirmPassword');
 
   if (password && confirmPasswordControl?.value && password !== confirmPasswordControl.value) {
     confirmPasswordControl.setErrors({ passwordMismatch: true });
     return { passwordMismatch: true };
   } else {
     if (confirmPasswordControl?.hasError('passwordMismatch')) {
-        confirmPasswordControl.setErrors(null);
+      confirmPasswordControl.setErrors(null);
     }
     return null;
   }
@@ -55,9 +55,9 @@ export class RegisterComponent {
       console.log('Form is invalid');
       return;
     }
-    const { confirmPassword, ...requestData } = this.registerForm.value;
+
+    const requestData = this.registerForm.value;
     console.log('Validation Passed Dispatching to Store...', requestData);
     this.store.dispatch(AuthActions.registerReq({ request: requestData }));
-    this.routes.navigate(['/login']);
   }
 }
