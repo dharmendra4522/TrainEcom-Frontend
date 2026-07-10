@@ -1,13 +1,13 @@
-<app-top-promo-bar *ngIf="!isAdmin"></app-top-promo-bar>
+<app-top-promo-bar *appRole="'customer'"></app-top-promo-bar>
 
 <mat-toolbar class="main-header">
 
-    <button *ngIf="!isAdmin" mat-icon-button class="mobile-menu-btn" aria-label="Menu" [matMenuTriggerFor]="mobileMenu">
+    <button *appRole="'customer'" mat-icon-button class="mobile-menu-btn" aria-label="Menu" [matMenuTriggerFor]="mobileMenu">
         <mat-icon>menu</mat-icon>
     </button>
 
     <mat-menu #mobileMenu="matMenu">
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *appRole="'customer'">
             <a mat-menu-item routerLink="/home">
                 <mat-icon>home</mat-icon> <span>Home</span>
             </a>
@@ -31,7 +31,7 @@
 
     <span class="spacer"></span>
 
-    <div class="nav-links hide-on-mobile" *ngIf="!isAdmin">
+    <div class="nav-links hide-on-mobile" *appRole="'customer'">
         <a mat-button routerLink="/home" routerLinkActive="active-link">Home</a>
         <a mat-button routerLink="/contact">Contact</a>
         <a mat-button routerLink="/about">About</a>
@@ -41,7 +41,7 @@
 
     <div class="action-icons">
 
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *appRole="'customer'">
             <button mat-icon-button routerLink="/cart" aria-label="View Cart">
                 <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
             </button>
@@ -57,7 +57,7 @@
             </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="isAdmin">
+            <ng-container *appRole="'admin'">
             <button mat-icon-button matTooltip="Notifications">
                 <mat-icon>notifications</mat-icon>
             </button>

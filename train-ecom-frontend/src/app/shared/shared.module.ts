@@ -10,6 +10,7 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { RoleDirective } from './directives/role.directive';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
     NotFoundComponent,
     MainLayoutComponent,
     SidebarComponent,
-    AuthLayoutComponent
+    AuthLayoutComponent,
+    RoleDirective
   ],
   imports: [
     CommonModule,
@@ -36,7 +38,8 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
     MaterialModule,
     TopPromoBarComponent,
     FooterComponent,
-    MainLayoutComponent
+    MainLayoutComponent,
+    RoleDirective,
   ]
 })
 export class SharedModule { }

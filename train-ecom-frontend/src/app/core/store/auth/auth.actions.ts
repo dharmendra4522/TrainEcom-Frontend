@@ -1,4 +1,4 @@
-import { loginRequest, loginResponse, registerRequest, registerResponse } from "../../../models/auth.model";
+import { loginRequest, loginResponse, registerRequest, registerResponse } from "../../models/auth.model";
 import { createAction, props } from "@ngrx/store";
 
 export const loginReq = createAction(

@@ -1,3 +1,6 @@
+import { Role } from "./app.model";
+
+
 export interface loginRequest{
     email: string;
     password: string;
@@ -8,10 +11,6 @@ export interface loginResponse{
     access_token: string;
 }
 
-export enum Role{
-    Admin = 'Admin',
-    Customer = 'Customer',
-}
 export interface registerRequest{
     name: string;
     email: string;

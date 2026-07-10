@@ -58,6 +58,6 @@ export class RegisterComponent {
     const { confirmPassword, ...requestData } = this.registerForm.value;
     console.log('Validation Passed Dispatching to Store...', requestData);
     this.store.dispatch(AuthActions.registerReq({ request: requestData }));
-    this.routes.navigate(['/auth/login']);
+    this.routes.navigate(['/login']);
   }
 }

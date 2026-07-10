@@ -14,7 +14,6 @@ export class HeaderComponent {
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
   cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
-  @Input() isAdmin: boolean = false;
 
 
   onLogout(): void {

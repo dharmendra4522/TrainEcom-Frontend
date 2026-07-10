@@ -1,9 +1,9 @@
-<app-header [isAdmin]="isAdminRole"></app-header>
+<app-header></app-header>
 
 <div class="layout-wrapper">
   <mat-sidenav-container class="main-container">
     
-    <mat-sidenav mode="side" [opened]="isAdminRole" class="dynamic-sidebar">
+    <mat-sidenav mode="side" *appRole="'admin'" class="dynamic-sidebar">
       
       <app-sidebar 
         [title]="sidebarTitle" 
@@ -19,4 +19,4 @@
   </mat-sidenav-container>
 </div>
 
-<app-footer *ngIf="!isAdminRole"></app-footer>
+<app-footer *appRole="'customer'"></app-footer>

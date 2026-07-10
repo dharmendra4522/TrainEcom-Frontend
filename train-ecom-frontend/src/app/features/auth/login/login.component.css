@@ -1,10 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 60px 20px;
-  background-color: transparent;
-  height: 100%;
+  padding: 60px 20px; 
+  background-color: transparent; 
+  min-height: 100vh; /* 💡 height: 100% ki jagah ye use karo vertical center ke liye */
+  width: 100%;
 }
 
 mat-card {
