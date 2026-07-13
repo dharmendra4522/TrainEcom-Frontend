@@ -13,7 +13,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatNavList } from '@angular/material/list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-
+import { MatTableModule } from '@angular/material/table';
 @NgModule({
 	imports: [
 		MatButtonModule,
@@ -29,7 +29,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 		MatSidenav,
 		MatNavList,
 		MatListModule,
-		MatSnackBarModule
+		MatSnackBarModule,
+		MatTableModule
 	],
 	exports: [
 		MatButtonModule,
@@ -45,7 +46,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 		MatSidenav,
 		MatListModule,
 		MatNavList,
-		MatSnackBarModule
+		MatSnackBarModule,
+		MatTableModule
 	]
 })
 export class MaterialModule { }

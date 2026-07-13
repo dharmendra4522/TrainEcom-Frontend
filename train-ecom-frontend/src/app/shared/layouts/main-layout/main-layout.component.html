@@ -1,22 +1,19 @@
 <app-header></app-header>
 
-<div class="layout-wrapper">
-  <mat-sidenav-container class="main-container">
-    
-    <mat-sidenav mode="side" *appRole="'admin'" class="dynamic-sidebar">
-      
-      <app-sidebar 
-        [title]="sidebarTitle" 
-        [menuItems]="currentMenuItems">
-      </app-sidebar>
+<mat-sidenav-container class="main-container">
+  <mat-sidenav
+    *ngIf="(userRole$ | async) === 'Admin'"
+    mode="side"
+    opened
+    class="admin-sidebar"
+  >
+    <app-sidebar title="Admin Panel" [menuItems]="adminMenuItems">
+    </app-sidebar>
+  </mat-sidenav>
 
-    </mat-sidenav>
-
-    <mat-sidenav-content class="content-area">
-      <router-outlet></router-outlet> 
-    </mat-sidenav-content>
-
-  </mat-sidenav-container>
-</div>
-
-<app-footer *appRole="'customer'"></app-footer>
+  <mat-sidenav-content class="main-content">
+    <div class="page-padding">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

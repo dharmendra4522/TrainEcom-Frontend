@@ -11,26 +11,30 @@ const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
-      { 
-        path: '', 
-        loadChildren: () => import('./features/home/home.module').then((m) => m.HomeModule),
-        pathMatch: 'full' 
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/consumer/consumer.module').then(
+            (m) => m.ConsumerModule,
+          ),
       },
       {
         path: 'admin',
-        loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),
-        canActivate: [authGuard, adminGuard]
+        loadChildren: () =>
+          import('./features/admin/admin.module').then((m) => m.AdminModule),
+        // canActivate: [authGuard, adminGuard]
       },
     ],
   },
-  
+
   {
     path: '',
     component: AuthLayoutComponent,
     children: [
       {
-        path: '', 
-        loadChildren: () => import('./features/auth/auth.module').then((m) => m.AuthModule),
+        path: '',
+        loadChildren: () =>
+          import('./features/auth/auth.module').then((m) => m.AuthModule),
       },
     ],
   },
