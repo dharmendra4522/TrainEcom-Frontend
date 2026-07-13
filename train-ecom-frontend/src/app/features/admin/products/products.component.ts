@@ -14,7 +14,7 @@ const dummyProducts: Product[] = [
 })
 export class ProductsComponent {
 
-  displayedColumns: string[] = ['id', 'title', 'price', 'category', 'brand'];
+  displayedColumns: string[] = ['id', 'title', 'price', 'category', 'brand', 'actions'];
   dataSource = dummyProducts;
 
 }

@@ -11,7 +11,8 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { RoleDirective } from './directives/role.directive';
-
+import { GenericDialogComponent } from './components/generic-dialog/generic-dialog.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -23,14 +24,15 @@ import { RoleDirective } from './directives/role.directive';
     MainLayoutComponent,
     SidebarComponent,
     AuthLayoutComponent,
-    RoleDirective
+    RoleDirective,
+    GenericDialogComponent,
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
-    
-    
+    ReactiveFormsModule
+
   ],
   exports: [
     HeaderComponent,
@@ -40,6 +42,7 @@ import { RoleDirective } from './directives/role.directive';
     FooterComponent,
     MainLayoutComponent,
     RoleDirective,
+    GenericDialogComponent,
   ]
 })
 export class SharedModule { }

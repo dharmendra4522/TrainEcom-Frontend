@@ -1,0 +1,99 @@
+<div class="profile-page-wrapper">
+
+    <div class="breadcrumb" *appRole="'Customer'">
+        <a routerLink="/">Home</a> / <span>My Account</span>
+    </div>
+
+    <div class="profile-grid">
+
+        <aside class="customer-sidebar" *appRole="'Customer'">
+            <div class="menu-section">
+                <h3>Manage My Account</h3>
+                <ul>
+                    <li><a routerLink="/profile" class="active">My Profile</a></li>
+                </ul>
+            </div>
+
+            <div class="menu-section">
+                <h3>My Orders</h3>
+                <ul>
+                    <li><a routerLink="/address" class="disabled-link">My Addresses</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="profile-content">
+
+            <div *ngIf="isLoading" class="loading">Loading profile...</div>
+
+            <div *ngIf="!isLoading && userProfile" class="content-card">
+
+                <div class="header-action">
+                    <h2>{{ isEditMode ? 'Edit Profile' : 'My Profile' }}</h2>
+                    <button class="edit-btn" (click)="toggleEditMode()">
+                        {{ isEditMode ? 'Cancel' : 'Edit Profile' }}
+                    </button>
+                </div>
+
+                <div *ngIf="!isEditMode" class="view-mode">
+                    <div class="detail-row">
+                        <span class="label">Name:</span>
+                        <span class="value">{{ userProfile.name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Email:</span>
+                        <span class="value">{{ userProfile.email }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Phone:</span>
+                        <span class="value">{{ userProfile.phoneNumber }}</span>
+                    </div>
+                    <ng-container *appRole="'Customer'">
+                        <div class="address-section" *ngIf="userProfile.defaultAddress">
+                            <div class="detail-row">
+                                <span class="label">Address:</span>
+                                <span class="value">
+                                    {{ userProfile.defaultAddress.addressLine1 }},
+                                    {{ userProfile.defaultAddress.addressLine2 }},
+                                    {{ userProfile.defaultAddress.city }},
+                                    {{ userProfile.defaultAddress.state }} -
+                                    {{ userProfile.defaultAddress.postalCode }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="address-section" *ngIf="!userProfile.defaultAddress">
+                            <p>No default address set.</p>
+                        </div>
+                    </ng-container>
+                </div>
+
+                <form *ngIf="isEditMode" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="edit-mode">
+
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" formControlName="name" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email <small>(Cannot be changed)</small></label>
+                        <input type="email" formControlName="email" class="form-control disabled-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" formControlName="phoneNumber" class="form-control">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" (click)="toggleEditMode()">Cancel</button>
+                        <button type="submit" class="btn-save" [disabled]="profileForm.invalid">Save Changes</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </main>
+
+    </div>
+</div>

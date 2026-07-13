@@ -7,158 +7,93 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Role } from '../../models/app.model';
 
 @Injectable()
 export class AuthEffects {
-
     private actions$ = inject(Actions);
     private authService = inject(AuthService);
     private router = inject(Router);
     private snackBar = inject(MatSnackBar);
 
+    login$ = createEffect(() => this.actions$.pipe(
+        ofType(AuthActions.loginReq),
+        exhaustMap(action => this.authService.login(action.request).pipe(
+            map(res => {
+                const roleString = this.decodeRole(res.accessToken);
+
+                const role = roleString as Role | null;
+
+                localStorage.setItem('accessToken', res.accessToken);
+                return AuthActions.loginSuccess({ payload: { token: res.accessToken, role } });
+            }),
+            catchError(err => of(AuthActions.loginFailure({ error: err.message || 'Login Failed' })))
+        ))
+    ));
 
 
-    login$ = createEffect(() => {
-        return this.actions$.pipe(
-            ofType(AuthActions.loginReq),
-            exhaustMap((action) =>
-                this.authService.login(action.request).pipe(
-                    map((response) => {
-                        console.log('[AuthEffects] Login API response received:', response);
-
-                        const token = response.accessToken;
-                        let role = null;
-                        console.log('[AuthEffects] Access token received:', token);
-
-                        try {
-
-                            const decoded: any = jwtDecode(token);
-                            console.log('[AuthEffects] Decoded JWT payload:', decoded);
-
-                            const roleKey = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-                            role = decoded[roleKey] || decoded.role || decoded.Role || null;
-                            console.log('[AuthEffects] Role decoded from JWT:', role);
-                        } catch (error) {
-                            console.error('[AuthEffects] Token decoding failed:', error);
-                        }
-
-                        console.log('[AuthEffects] Dispatching loginSuccess with payload:', { token, role });
-                        return AuthActions.loginSuccess({ payload: { token, role } });
-                    }),
-                    catchError((error) => of(AuthActions.loginFailure({ error: error.message || 'Login Failed' })))
-                )
-            )
-        );
-    });
+    loginSuccess$ = createEffect(() => this.actions$.pipe(
+        ofType(AuthActions.loginSuccess),
+        tap(({ payload, isRefresh }) => {
+            if(isRefresh) {
+                return;
+            }
+            const role = payload.role ? payload.role.toString().toLowerCase() : '';
+            const route = role === 'admin' ? '/admin/dashboard' : '/';
+            this.router.navigate([route]);
+        })
+    ), { dispatch: false });
 
 
-    loginSuccess$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(AuthActions.loginSuccess),
-            tap((action) => {
-                console.log('[AuthEffects] loginSuccess action received:', action);
-                console.log('[AuthEffects] Saving access token to localStorage.');
-                localStorage.setItem('accessToken', action.payload.token);
-                console.log('[AuthEffects] Token saved. Decoded role for routing:', action.payload.role);
 
-                this.snackBar.open('Welcome back! Login Successful.', 'Close', {
-                    duration: 3000,
-                    horizontalPosition: 'center',
-                    verticalPosition: 'bottom',
-                    panelClass: ['snackbar-success']
-                });
-
-                if (action.payload.role === 'Admin') {
-                    console.log('[AuthEffects] Role is Admin. Navigating to /admin/dashboard.');
-                    this.router.navigate(['/admin/dashboard']).then(
-                        (navigated) => console.log('[AuthEffects] Admin navigation completed:', navigated),
-                        (error) => console.error('[AuthEffects] Admin navigation failed:', error)
-                    );
-                } else if (action.payload.role === 'Customer') {
-                    console.log('[AuthEffects] Role is Customer. Navigating to /.');
-                    this.router.navigate(['/']).then(
-                        (navigated) => console.log('[AuthEffects] Customer navigation completed:', navigated),
-                        (error) => console.error('[AuthEffects] Customer navigation failed:', error)
-                    );
-                } else {
-                    console.warn('[AuthEffects] No route configured for role:', action.payload.role);
-                }
-            })
-        ),
-        { dispatch: false }
-    );
+    loginFailure$ = createEffect(() => this.actions$.pipe(
+        ofType(AuthActions.loginFailure),
+        tap(action => this.showToast(action.error || 'Login Failed', 'snackbar-error'))
+    ), { dispatch: false });
 
 
-    loginFailure$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(AuthActions.loginFailure),
-            tap((action) => {
-                this.snackBar.open(action.error || 'Invalid Email/Password or Server Error!', 'Close', {
-                    duration: 4000,
-                    horizontalPosition: 'center',
-                    verticalPosition: 'bottom',
-                    panelClass: ['snackbar-error']
-                });
-                console.error('[AuthEffects] Login Failed:', action.error);
-            })
-        ),
-        { dispatch: false }
-    );
 
-    logout$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(AuthActions.logout),
-            tap(() => {
-                localStorage.removeItem('accessToken');
+    logout$ = createEffect(() => this.actions$.pipe(
+        ofType(AuthActions.logout),
+        tap(() => {
+            localStorage.removeItem('accessToken');
+            this.router.navigate(['/login']);
+        })
+    ), { dispatch: false });
+
+
+
+    register$ = createEffect(() => this.actions$.pipe(
+        ofType(AuthActions.registerReq),
+        exhaustMap(action => this.authService.register(action.request).pipe(
+            map(response => {
+                this.showToast('Registration Successful!', 'snackbar-success');
                 this.router.navigate(['/login']);
+                return AuthActions.registerSuccess({ response });
+            }),
+            catchError(err => {
+                this.showToast(err.message || 'Registration Failed', 'snackbar-error');
+                return of(AuthActions.registerFailure({ error: err.message }));
             })
-        ),
-        { dispatch: false }
-    );
+        ))
+    ));
 
-    register$ = createEffect(() => {
-        return this.actions$.pipe(
-            ofType(AuthActions.registerReq),
-            exhaustMap((action) =>
-                this.authService.register(action.request).pipe(
-                    map((response) => AuthActions.registerSuccess({ response })),
-                    catchError((error) => of(AuthActions.registerFailure({ error: error.message || 'Registration Failed' })))
-                )
-            )
-        );
-    });
 
-    registerSuccess$ = createEffect(() =>
-        this.actions$.pipe(
-            ofType(AuthActions.registerSuccess),
-            tap(() => {
-                this.snackBar.open('Registration Successful! Please login.', 'Close', {
-                    duration: 3000,
-                    horizontalPosition: 'center',
-                    verticalPosition: 'top',
-                    panelClass: ['snackbar-success']
-                })
-                this.router.navigate(['/login']);
-            })
-        ),
-        { dispatch: false }
-    );
+    private decodeRole(token: string): Role | null {
+        try {
+            const decoded: any = jwtDecode(token);
+            const roleKey = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
-    registerFailure$ = createEffect(() =>
+            const rawRole = decoded[roleKey];
+            console.log('Decoded Raw Role:', rawRole);
+            return rawRole ? (rawRole as Role) : null;
+        } catch (error) {
+            console.error('Token decoding failed:', error);
+            return null;
+        }
+    }
 
-        this.actions$.pipe(
-            ofType(AuthActions.registerFailure),
-            tap((action) => {
-                this.snackBar.open(action.error || 'Server error! Please try again.', 'Close', {
-                    duration: 3000,
-                    horizontalPosition: 'center',
-                    verticalPosition: 'top',
-                    panelClass: ['snackbar-error']
-                });
-                console.error('Registration Failed:', action.error);
-            })
-        ),
-        { dispatch: false }
-    )
-
+    private showToast(msg: string, panelClass: string) {
+        this.snackBar.open(msg, 'Close', { duration: 3000, panelClass: [panelClass] });
+    }
 }

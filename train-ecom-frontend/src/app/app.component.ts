@@ -37,7 +37,8 @@ export class AppComponent implements OnInit {
         const role: Role | null = decoded[roleKey] || decoded.role || decoded.Role || null;
 
         this.store.dispatch(AuthActions.loginSuccess({
-          payload: { token, role }
+          payload: { token, role },
+          isRefresh: true
         }));
 
       } catch (error) {
