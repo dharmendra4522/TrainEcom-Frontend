@@ -51,7 +51,6 @@ export class AddressComponent implements OnInit {
       { key: 'city', label: 'City', type: 'text', value: address?.city || '', validation: [Validators.required] },
       { key: 'state', label: 'State', type: 'text', value: address?.state || '', validation: [Validators.required] },
       { key: 'postalCode', label: 'Postal Code', type: 'text', value: address?.postalCode || '', validation: [Validators.required], maxLength: 6 },
-      { key: 'isDefault', label: 'Make this my default address', type: 'checkbox', value: address?.isDefault || false }
     ];
   }
 
@@ -66,14 +65,14 @@ export class AddressComponent implements OnInit {
   }
 
 
-  private formatAddressPayload(result: AddressFormResult, addressId?: string): Address {
+  private formatAddressPayload(result: AddressFormResult, originalAddress?: Address): Address {
     return {
       ...result,
-      id: addressId || '',
+      id: originalAddress?.id || '',
       phone: String(result.phone),
       postalCode: String(result.postalCode),
       country: 'India',
-      isDefault: result.isDefault === true
+      isDefault: originalAddress?.isDefault || false
     } as Address;
   }
 
@@ -104,7 +103,7 @@ export class AddressComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: AddressFormResult | undefined) => {
       if (!result) return;
 
-      const payload = this.formatAddressPayload(result, address?.id);
+      const payload = this.formatAddressPayload(result, address);
       this.saveAddressData(payload, !!address);
     });
   }
@@ -115,6 +114,17 @@ export class AddressComponent implements OnInit {
 
   editAddress(address: Address): void {
     this.openAddressDialog(address);
+  }
+
+  markAsDefault(id: string): void {
+    this.userService.setDefaultAddress(id).subscribe({
+      next: () => {
+        console.log('Address marked as default successfully!');
+        this.getAddresses();
+      },
+      error: (error: unknown) =>
+        console.error('Error marking address as default:', error)
+    })
   }
 
   deleteAddress(id: string): void {

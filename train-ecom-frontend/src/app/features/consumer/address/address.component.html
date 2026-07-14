@@ -20,6 +20,8 @@
             <div class="card-actions">
                 <button mat-button color="primary" (click)="editAddress(addr)">Edit</button>
                 <button mat-button color="warn" (click)="deleteAddress(addr.id)">Delete</button>
+                <button mat-button *ngIf="!addr.isDefault" color="accent" (click)="markAsDefault(addr.id)">Mark As
+                    Default</button>
             </div>
         </div>
     </div>

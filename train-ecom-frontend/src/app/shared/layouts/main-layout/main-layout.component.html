@@ -1,27 +1,26 @@
-<app-header></app-header>
+<div class="layout-wrapper">
 
-<mat-sidenav-container class="main-container">
-  
-  <mat-sidenav
-    *ngIf="shouldShowSidebar(userRole$ | async)"
-    mode="side"
-    opened
-    [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
-    [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
-  >
-    <app-sidebar 
-      [title]="(userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'"
-      [menuItems]="(userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems"
-      [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'">
-    </app-sidebar>
-  </mat-sidenav>
+  <app-header></app-header>
 
-  <mat-sidenav-content class="main-content">
-    <div class="page-padding">
-      <router-outlet></router-outlet>
-    </div>
-  </mat-sidenav-content>
-  
-</mat-sidenav-container>
+  <mat-sidenav-container class="main-container">
 
-<!-- <app-footer></app-footer> -->
+    <mat-sidenav *ngIf="shouldShowSidebar(userRole$ | async)" mode="side" opened
+      [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
+      [class.customer-sidebar]="(userRole$ | async) === 'Customer'">
+      <app-sidebar [title]="(userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'"
+        [menuItems]="(userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems"
+        [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'">
+      </app-sidebar>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-content">
+      <div class="page-padding">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+
+  <app-footer *ngIf="(userRole$ | async) !== 'Admin'"></app-footer>
+
+</div>

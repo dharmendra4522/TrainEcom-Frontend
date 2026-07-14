@@ -1,5 +1,14 @@
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; 
+  overflow: hidden; 
+}
+
 .main-container {
-  height: calc(100vh - 64px); 
+  flex: 1; 
+  display: block; 
+  position: relative; 
 }
 
 .admin-sidebar, .customer-sidebar {
@@ -9,14 +18,9 @@
 }
 
 .main-content {
-  background-color: #ffffff;
+  background-color: #f9f9f9; 
 }
 
 .page-padding {
-  padding: 20px
-}
-
-.mat-drawer-inner-container{
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
 }

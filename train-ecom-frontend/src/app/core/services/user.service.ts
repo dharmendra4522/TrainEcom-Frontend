@@ -42,4 +42,9 @@ export class UserService {
     return this.http.delete<void>(url);
   }
 
+  setDefaultAddress(Id: string): Observable<void>{
+    const url = `${this.addressUrl}/${Id}/set-default`;
+    return this.http.patch<void>(url, {});
+  }
+
 }
