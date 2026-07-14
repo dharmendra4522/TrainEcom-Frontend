@@ -1,11 +1,10 @@
 <div class="sidebar-header">
   <h3>{{ title }}</h3>
 </div>
-
+ <mat-divider></mat-divider>
 <mat-nav-list class="custom-nav-list">
   <ng-container *ngFor="let item of menuItems">
     <a mat-list-item 
-       *appRole="item.role || 'customer'" 
        [routerLink]="item.route" 
        routerLinkActive="active-link"> 
        

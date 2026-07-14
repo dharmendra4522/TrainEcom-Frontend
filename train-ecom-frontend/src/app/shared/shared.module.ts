@@ -43,6 +43,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     MainLayoutComponent,
     RoleDirective,
     GenericDialogComponent,
+    SidebarComponent,
   ]
 })
 export class SharedModule { }

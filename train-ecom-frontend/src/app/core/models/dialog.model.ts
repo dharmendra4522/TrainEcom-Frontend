@@ -4,6 +4,7 @@ export interface FieldConfig{
     type: 'text' | 'number' | 'email' | 'password' | 'select' | 'radio' | 'checkbox';
     validation?: any[];
     value?: any;
+    maxLength?: number;
 }
 
 export interface DialogData{

@@ -7,7 +7,25 @@
 
             <mat-form-field *ngIf="field.type !== 'checkbox'" appearance="outline" class="full-width">
                 <mat-label>{{ field.label }}</mat-label>
-                <input matInput [type]="field.type" [formControlName]="field.key">
+                <input matInput [type]="field.type" [formControlName]="field.key"
+                    [attr.maxLength]="field.maxLength ? field.maxLength : null">
+
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('required')">
+                    {{ field.label }} is required.
+                </mat-error>
+
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'fullName'">
+                    Only alphabets and spaces are allowed.
+                </mat-error>
+
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'phoneNumber'">
+                    Please enter a valid 10-digit phone number.
+                </mat-error>
+                
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('minlength')">
+                    Minimum length requirement not met.
+                </mat-error>
+
             </mat-form-field>
 
             <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.key" color="primary">

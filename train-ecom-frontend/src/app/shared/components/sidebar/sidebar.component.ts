@@ -13,4 +13,5 @@ export class SidebarComponent {
 
   @Input() menuItems: MenuItem[] = [];
   @Input() title: string = 'Menu';
+  @Input() sidebarType: string = 'admin';
 }

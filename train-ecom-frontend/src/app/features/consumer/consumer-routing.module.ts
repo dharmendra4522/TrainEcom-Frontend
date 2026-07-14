@@ -6,11 +6,19 @@ import { authGuard } from '../../core/guards/auth.guard';
 import { AddressComponent } from './address/address.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'profile', component: ProfileComponent, 
-    canActivate: [authGuard]
+  { 
+    path: '', 
+    component: HomeComponent 
   },
-  {path: 'address', component: AddressComponent, canActivate: [authGuard]}
+  {
+    path: 'account',
+    children: [
+      { path: '', redirectTo: 'profile', pathMatch: 'full' },
+
+      { path: 'profile', component: ProfileComponent },
+      { path: 'address', component: AddressComponent }
+    ]
+  }
 ];
 
 @NgModule({
