@@ -4,6 +4,7 @@ import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
 import { authGuard } from '../../core/guards/auth.guard';
 import { AddressComponent } from './address/address.component';
+import { customerGuard } from '../../core/guards/customer.guard';
 
 const routes: Routes = [
   { 
@@ -12,6 +13,7 @@ const routes: Routes = [
   },
   {
     path: 'account',
+    canActivate: [customerGuard],
     children: [
       { path: '', redirectTo: 'profile', pathMatch: 'full' },
 
