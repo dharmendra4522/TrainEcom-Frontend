@@ -20,8 +20,8 @@ export class ProfileComponent {
   profileForm!: FormGroup;
 
   ngOnInit(): void {
-    this.loadUserProfile();
     this.formInit();
+    this.loadUserProfile();
   }
 
   loadUserProfile(): void {
@@ -44,7 +44,7 @@ export class ProfileComponent {
 
   formInit(): void {
     this.profileForm = this.formBuilder.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
       email: [{ value: '', disabled: true }],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]]
     });

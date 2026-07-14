@@ -20,11 +20,10 @@
   color: #000;
 }
 
-/* FIX: Grid layout mein gap aur responsiveness */
 .profile-grid {
   display: grid;
   grid-template-columns: 250px 1fr;
-  gap: 80px; /* Sidebar aur Content ke beech space badha di */
+  gap: 80px; 
 }
 
 .customer-sidebar .menu-section {
@@ -35,7 +34,7 @@
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 15px;
-  color: #000; /* FIX: 0000 ki jagah 000 kiya */
+  color: #000; 
 }
 
 .customer-sidebar ul {
@@ -99,7 +98,6 @@
   color: #ffffff;
 }
 
-/* FIX: Detail Row alignment for better readability */
 .view-mode {
   display: flex;
   flex-direction: column;
@@ -124,7 +122,6 @@
   flex: 1;
 }
 
-/* Address Styling Fix */
 .address-section {
   margin-top: 10px;
   padding-top: 15px;
@@ -141,7 +138,6 @@
   color: #333;
 }
 
-/* Loading Animation */
 .loading {
   display: flex;
   justify-content: center;
@@ -152,7 +148,6 @@
   font-weight: 500;
 }
 
-/* Forms */
 .edit-mode {
   display: flex;
   flex-direction: column;
@@ -189,9 +184,58 @@
   cursor: pointer;
 }
 
+
+.error-text {
+  color: #db4444;
+  font-size: 13px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.disabled-input {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .profile-grid {
     grid-template-columns: 1fr;
     gap: 30px;
+  }
+  .content-card {
+    padding: 20px 15px; 
+    min-height: auto;
+  }
+  .hide-on-desktop {
+    display: none !important; 
+  }
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .detail-row .label, 
+  .address-section .label {
+    width: 100%;
+    font-size: 13px;
+  }
+  .detail-row .value, 
+  .address-section .value {
+    width: 100%;
+    word-wrap: break-word;
+    font-size: 15px;
+  }
+
+  .header-action {
+    margin-bottom: 20px;
+  }
+
+  .header-action h2 {
+    font-size: 18px;
+  }
+
+  .edit-btn {
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }

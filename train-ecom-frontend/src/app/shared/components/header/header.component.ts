@@ -1,7 +1,8 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 import { selectIsLoggedIn, selectUserRole } from '../../../core/store/auth/auth.selectors';
+
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,8 @@ import { selectIsLoggedIn, selectUserRole } from '../../../core/store/auth/auth.
 })
 export class HeaderComponent {
   private readonly store = inject(Store);
+
+  @Output() toggleSidebar = new EventEmitter<void>();
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
   userRole$ = this.store.select(selectUserRole);  

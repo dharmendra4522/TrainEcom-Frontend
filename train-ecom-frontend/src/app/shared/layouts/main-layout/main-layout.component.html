@@ -1,13 +1,19 @@
 <div class="layout-wrapper">
-
-  <app-header></app-header>
+  
+  <app-header (toggleSidebar)="drawer.toggle()"></app-header>
 
   <mat-sidenav-container class="main-container">
-
-    <mat-sidenav *ngIf="shouldShowSidebar(userRole$ | async)" mode="side" opened
+    
+    <mat-sidenav
+      #drawer
+      *ngIf="shouldShowSidebar(userRole$ | async)"
+      [mode]="(isMobile$ | async) ? 'over' : 'side'"
+      [opened]="!(isMobile$ | async) && shouldShowSidebar(userRole$ | async)"
       [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
-      [class.customer-sidebar]="(userRole$ | async) === 'Customer'">
-      <app-sidebar [title]="(userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'"
+      [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
+    >
+      <app-sidebar 
+        [title]="(userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'"
         [menuItems]="(userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems"
         [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'">
       </app-sidebar>
@@ -18,7 +24,7 @@
         <router-outlet></router-outlet>
       </div>
     </mat-sidenav-content>
-
+    
   </mat-sidenav-container>
 
   <app-footer *ngIf="(userRole$ | async) !== 'Admin'"></app-footer>

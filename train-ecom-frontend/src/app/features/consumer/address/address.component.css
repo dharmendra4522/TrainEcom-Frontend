@@ -36,7 +36,7 @@
 
 .address-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 20px;
 }
 
@@ -117,4 +117,52 @@
 
 .card-actions button {
   padding: 0 10px;
+}
+
+
+@media (max-width: 768px) {
+  
+  .address-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .address-header h2 {
+    font-size: 22px;
+  }
+
+  .address-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .address-card {
+    padding: 15px; 
+  }
+
+  .default-badge {
+    top: 15px;
+    right: 15px;
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .address-card h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+    padding-right: 70px; 
+  }
+
+  .address-card p {
+    font-size: 13px;
+    margin: 4px 0;
+  }
+
+  .card-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    flex-wrap: wrap; 
+  }
 }

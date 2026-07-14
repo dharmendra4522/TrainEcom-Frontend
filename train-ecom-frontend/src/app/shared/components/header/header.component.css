@@ -8,7 +8,7 @@
 }
 
 .spacer {
-   flex-grow: 1;
+  flex-grow: 1;
   flex-shrink: 1;
   flex-basis: auto;
 }
@@ -47,28 +47,29 @@
   font-weight: 500;
 }
 
-
 .mobile-menu-btn {
-    display: none;
+  display: none;
+  color: #111827;
 }
 
-
 @media (max-width: 768px) {
-  .main-header{
+  .main-header {
     padding: 0 16px !important;
     height: 64px !important;
     min-height: 64px !important;
   }
+  
   .logo-text {
     font-size: 20px;
   }
+  
   .hide-on-mobile {
     display: none !important;
   }
 
   .mobile-menu-btn {
-    display: block;
-    margin-right: 8px;
+    display: block !important;
+    margin-right: 10px;
   }
 
   .signup-btn {

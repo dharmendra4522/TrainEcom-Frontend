@@ -6,7 +6,7 @@
 
     <mat-toolbar class="main-header">
 
-        <button *ngIf="auth.role !== 'Admin'" mat-icon-button class="mobile-menu-btn" [matMenuTriggerFor]="mobileMenu">
+        <button mat-icon-button class="mobile-menu-btn hide-on-desktop" (click)="toggleSidebar.emit()">
             <mat-icon>menu</mat-icon>
         </button>
 
@@ -38,10 +38,6 @@
             <a mat-button routerLink="/about">About</a>
         </div>
 
-        <div class="nav-links hide-on-mobile" *ngIf="auth.role === 'Admin'">
-            <a mat-button routerLink="/admin/dashboard" routerLinkActive="active-link">Dashboard</a>
-            <a mat-button routerLink="/admin/products" routerLinkActive="active-link">Products</a>
-        </div>
 
         <span class="spacer"></span>
 
@@ -64,7 +60,8 @@
             </ng-container>
 
             <ng-container *ngIf="auth.loggedIn">
-                <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="My Account" aria-label="User Account">
+                <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="My Account"
+                    aria-label="User Account">
                     <mat-icon>account_circle</mat-icon>
                 </button>
                 <mat-menu #profileMenu="matMenu">
