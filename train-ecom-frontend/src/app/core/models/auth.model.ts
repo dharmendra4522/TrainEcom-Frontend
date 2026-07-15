@@ -38,3 +38,7 @@ export interface Product{
     images: string[];
     brand: string;
 }
+export interface BackendError {
+  error?: { message?: string };
+  message?: string;
+}

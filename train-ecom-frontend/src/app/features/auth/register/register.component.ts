@@ -1,23 +1,17 @@
 import { Component, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 
-export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
-  const confirmPasswordControl = control.get('confirmPassword');
+  const confirmPassword = control.get('confirmPassword')?.value;
 
-  if (password && confirmPasswordControl?.value && password !== confirmPasswordControl.value) {
-    confirmPasswordControl.setErrors({ passwordMismatch: true });
-    return { passwordMismatch: true };
-  } else {
-    if (confirmPasswordControl?.hasError('passwordMismatch')) {
-      confirmPasswordControl.setErrors(null);
-    }
-    return null;
-  }
-}
+  return password === confirmPassword ? null : { passwordMismatch: true };
+};
+
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
