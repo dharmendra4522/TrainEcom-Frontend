@@ -1,9 +1,25 @@
-export interface Product{
+export interface Product {
     id: number;
     title: string;
     description: string;
     category: string;
     price: number;
-    images: [];
+    images: string[];
     brand: string;
+}
+
+export interface Brand {
+    id: number;
+    name: string;
+    description: string;
+}
+
+export interface CreateBrandRequest {
+    name: string;
+    description: string;
+}
+
+export interface UpdateBrandRequest {
+    name: string;
+    description: string;
 }

@@ -1,91 +1,55 @@
-.profile-page-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  font-family: "Poppins", sans-serif;
-}
-
 .breadcrumb {
-  margin-bottom: 40px;
   font-size: 14px;
-  color: #7d8184;
+  color: #757575;
+  margin-bottom: 20px;
+  padding: 10px 0;
 }
 
 .breadcrumb a {
-  color: #7d8184;
+  color: #333;
   text-decoration: none;
 }
 
-.breadcrumb span {
-  color: #000;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 80px; 
-}
-
-.customer-sidebar .menu-section {
-  margin-bottom: 30px;
-}
-
-.customer-sidebar h3 {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 15px;
-  color: #000; 
-}
-
-.customer-sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.customer-sidebar li {
-  margin-bottom: 12px;
-}
-
-.customer-sidebar a {
-  text-decoration: none;
-  color: #7d8184;
-  font-size: 15px;
-  transition: color 0.3s ease;
-}
-
-.customer-sidebar a:hover,
-.customer-sidebar a.active {
+.breadcrumb a:hover {
+  text-decoration: underline;
   color: #db4444;
-  font-weight: 500;
+}
+
+.profile-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px 20px 40px 20px;
+  font-family: "Poppins", sans-serif;
 }
 
 .content-card {
-  background: #ffffff;
-  padding: 40px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  padding: 30px;
   border-radius: 8px;
-  min-height: 400px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
 }
 
 .header-action {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
 }
 
 .header-action h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #db4444;
   margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
 }
 
 .edit-btn {
   background: transparent;
-  border: 1px solid #db4444;
   color: #db4444;
+  border: 1px solid #db4444;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
@@ -95,147 +59,158 @@
 
 .edit-btn:hover {
   background: #db4444;
-  color: #ffffff;
-}
-
-.view-mode {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  color: #fff;
 }
 
 .detail-row {
+  margin-bottom: 15px;
   display: flex;
-  font-size: 15px;
+  flex-direction: row;
   align-items: flex-start;
+  border-bottom: 1px solid #f9f9f9;
+  padding-bottom: 12px;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
 }
 
 .detail-row .label {
-  width: 150px;
+  font-size: 14px;
   color: #7d8184;
+  width: 150px;
   flex-shrink: 0;
+  margin-bottom: 0;
 }
 
 .detail-row .value {
-  color: #000;
+  font-size: 15px;
+  color: #333;
   font-weight: 500;
-  flex: 1;
+  background: transparent;
+  padding: 0;
+  line-height: 1.4;
 }
 
 .address-section {
   margin-top: 10px;
-  padding-top: 15px;
-  border-top: 1px solid #f5f5f5;
 }
 
-.address-section .label {
-    color: #7d8184;
-    width: 150px;
-}
+@media (max-width: 600px) {
+  .detail-row {
+    flex-direction: column;
+  }
 
-.address-section .value {
-  line-height: 1.6;
-  color: #333;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  font-size: 18px;
-  color: #7d8184;
-  font-weight: 500;
-}
-
-.edit-mode {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  .detail-row .label {
+    width: 100%;
+    margin-bottom: 4px;
+  }
 }
 
 .form-group {
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
 }
 
 .form-control {
   padding: 12px 15px;
-  border: 1px solid #f5f5f5;
+  border: 1px solid transparent;
+  background-color: #f5f5f5;
   border-radius: 4px;
-  background: #f5f5f5;
   font-size: 15px;
+  color: #333;
+  outline: none;
+  transition:
+    border 0.3s,
+    background-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #db4444;
+  background-color: #fff;
+}
+
+.disabled-input {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.error-text small {
+  color: #db4444;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.password-section {
+  background-color: transparent !important;
+  padding: 0 !important;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 15px;
-  margin-top: 20px;
+  margin-top: 30px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.btn-cancel {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f9f9f9;
 }
 
 .btn-save {
   background: #db4444;
   color: #fff;
   border: none;
-  padding: 12px 30px;
+  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.3s;
 }
 
-
-.error-text {
-  color: #db4444;
-  font-size: 13px;
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
+.btn-save:hover {
+  background: #c93838;
 }
 
-.disabled-input {
+.btn-save:disabled {
+  background: #ff9999;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-@media (max-width: 768px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  .content-card {
-    padding: 20px 15px; 
-    min-height: auto;
-  }
-  .hide-on-desktop {
-    display: none !important; 
-  }
-  .detail-row {
-    flex-direction: column;
-    gap: 4px;
-  }
-  .detail-row .label, 
-  .address-section .label {
-    width: 100%;
-    font-size: 13px;
-  }
-  .detail-row .value, 
-  .address-section .value {
-    width: 100%;
-    word-wrap: break-word;
-    font-size: 15px;
-  }
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 16px;
+  color: #666;
+}
 
-  .header-action {
-    margin-bottom: 20px;
-  }
-
-  .header-action h2 {
-    font-size: 18px;
-  }
-
-  .edit-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }

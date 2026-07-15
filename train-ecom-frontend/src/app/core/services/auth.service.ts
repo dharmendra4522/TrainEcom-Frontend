@@ -8,8 +8,8 @@ import { environment } from '../../../environments/environment';
 })
 export class AuthService {
 
-  private loginAPI = `${environment.apiBaseUrl}/Auth/login`;
-  private registerAPI = `${environment.apiBaseUrl}/Auth/register`;
+  private loginAPI = `${environment.apiBaseUrl}/auth/login`;
+  private registerAPI = `${environment.apiBaseUrl}/auth/register`;
 
   private http = inject(HttpClient);
 

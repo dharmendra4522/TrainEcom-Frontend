@@ -35,7 +35,7 @@ export class MainLayoutComponent {
   adminMenuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
     { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
-    { label: 'Orders', icon: 'shopping_cart', route: '/admin/orders' },
+    { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Users', icon: 'people', route: '/admin/users' },
   ];
 

@@ -14,6 +14,9 @@ import { authReducer } from './core/store/auth/auth.reducer';
 import { AuthEffects } from './core/store/auth/auth.effects';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 
+import { userReducer } from './core/store/user/user.reducer';
+import { UserEffects } from './core/store/user/user.effects';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -21,15 +24,19 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    SharedModule, 
+    SharedModule,
 
-    StoreModule.forRoot({auth: authReducer}),
-    EffectsModule.forRoot([AuthEffects]),
-    StoreDevtoolsModule.instrument({maxAge: 25, logOnly: !isDevMode()})
+    StoreModule.forRoot({
+      auth: authReducer,
+      user: userReducer
+    }),
+    EffectsModule.forRoot([AuthEffects, UserEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() })
+
   ],
   providers: [
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor])) 
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

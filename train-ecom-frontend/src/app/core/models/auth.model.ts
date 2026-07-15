@@ -1,6 +1,5 @@
 import { Role } from "./app.model";
 
-
 export interface loginRequest{
     email: string;
     password: string;

@@ -1,4 +1,4 @@
-<ng-container *ngIf="{ role: userRole$ | async, loggedIn: isLoggedIn$ | async } as auth">
+<ng-container *ngIf="{ role: userRole$ | async, loggedIn: isLoggedIn$ | async, profile: userProfile$ | async } as auth">
 
     <ng-container *ngIf="auth.role !== 'Admin'">
         <app-top-promo-bar></app-top-promo-bar>
@@ -10,7 +10,7 @@
             <mat-icon>menu</mat-icon>
         </button>
 
-        <mat-menu #mobileMenu="matMenu">
+        <!-- <mat-menu #mobileMenu="matMenu">
             <a mat-menu-item routerLink="/">
                 <mat-icon>home</mat-icon> <span>Home</span>
             </a>
@@ -26,7 +26,7 @@
                     <mat-icon>login</mat-icon> <span>Login</span>
                 </a>
             </ng-container>
-        </mat-menu>
+        </mat-menu> -->
 
         <span class="logo-text" routerLink="/">TrainEcom</span>
 
@@ -60,12 +60,17 @@
             </ng-container>
 
             <ng-container *ngIf="auth.loggedIn">
+                <span class="user-name hide-on-mobile" *ngIf="auth.profile"
+                    style="margin-right: 5px; font-weight: 500;">
+                    Hi, {{ auth.profile.name }}
+                </span>
+
                 <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="My Account"
                     aria-label="User Account">
                     <mat-icon>account_circle</mat-icon>
                 </button>
                 <mat-menu #profileMenu="matMenu">
-                    <a mat-menu-item routerLink="/account">
+                    <a mat-menu-item [routerLink]="auth.role === 'Admin' ? '/admin/profile' : '/account'">
                         <mat-icon>manage_accounts</mat-icon> Manage Account
                     </a>
                     <mat-divider></mat-divider>

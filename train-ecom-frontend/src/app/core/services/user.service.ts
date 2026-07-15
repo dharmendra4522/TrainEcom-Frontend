@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Address, UserProfile } from '../models/user.model';
-import { Observable } from 'rxjs/internal/Observable';
+import { Address, UserProfile, UpdateProfilePayload } from '../models/user.model';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -9,41 +9,44 @@ import { HttpClient } from '@angular/common/http';
 })
 export class UserService {
 
-  private apiBaseUrl = `${environment.apiBaseUrl}/Auth/profile`;
-  private addressUrl = `${environment.apiBaseUrl}/users/address`;
+  private profileUrl = `${environment.apiBaseUrl}/auth/profile`;
+  private addressBaseUrl = `${environment.apiBaseUrl}/addresses`;
 
   private http = inject(HttpClient);
 
   constructor() { }
 
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(this.apiBaseUrl);
+    return this.http.get<UserProfile>(this.profileUrl);
   }
 
-  updateUserProfile(profileData: UserProfile): Observable<UserProfile> {
-    return this.http.put<UserProfile>(this.apiBaseUrl, profileData);
+  updateUserProfile(profileData: UpdateProfilePayload): Observable<UserProfile> {
+    const url = `${this.profileUrl}/update`;
+    return this.http.put<UserProfile>(url, profileData);
   }
 
   getAllAddress(): Observable<Address[]> {
-    return this.http.get<Address[]>(this.addressUrl);
+    const url = `${this.addressBaseUrl}/all`;
+    return this.http.get<Address[]>(url);
   }
 
   addAddress(addressData: Address): Observable<Address> {
-    return this.http.post<Address>(this.addressUrl, addressData);
+    const url = `${this.addressBaseUrl}/create`;
+    return this.http.post<Address>(url, addressData);
   }
 
   updateAddress(Id: string, addressData: Address): Observable<Address> {
-    const url = `${this.addressUrl}/${Id}`;
+    const url = `${this.addressBaseUrl}/update/${Id}`;
     return this.http.put<Address>(url, addressData);
   }
 
   deleteAddress(Id: string): Observable<void> {
-    const url = `${this.addressUrl}/${Id}`;
+    const url = `${this.addressBaseUrl}/delete/${Id}`;
     return this.http.delete<void>(url);
   }
 
-  setDefaultAddress(Id: string): Observable<void>{
-    const url = `${this.addressUrl}/${Id}/set-default`;
+  setDefaultAddress(Id: string): Observable<void> {
+    const url = `${this.addressBaseUrl}/set-default/${Id}`;
     return this.http.patch<void>(url, {});
   }
 

@@ -1,6 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar'; 
+import { Store } from '@ngrx/store';
+import * as UserActions from '../../../core/store/user/user.actions';
 import { UserService } from '../../../core/services/user.service';
 import { Address } from '../../../core/models/user.model';
 import { DialogData, FieldConfig } from '../../../core/models/dialog.model';
@@ -17,6 +20,8 @@ export class AddressComponent implements OnInit {
 
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
+  private store = inject(Store); 
 
   addresses: Address[] = [];
   isLoading: boolean = false;
@@ -25,22 +30,19 @@ export class AddressComponent implements OnInit {
     this.getAddresses();
   }
 
-
   getAddresses(): void {
     this.isLoading = true;
     this.userService.getAllAddress().subscribe({
       next: (addresses: Address[]) => {
         this.addresses = addresses;
         this.isLoading = false;
-        console.log('Addresses fetched successfully');
       },
       error: (error: unknown) => {
         this.isLoading = false;
-        console.error('Error fetching addresses:', error);
+        this.showError('Error fetching addresses');
       }
     });
   }
-
 
   private getAddressFields(address?: Address): FieldConfig[] {
     return [
@@ -54,7 +56,6 @@ export class AddressComponent implements OnInit {
     ];
   }
 
-
   private getDialogConfig(address?: Address): DialogData {
     const isEdit = !!address;
     return {
@@ -63,7 +64,6 @@ export class AddressComponent implements OnInit {
       fields: this.getAddressFields(address)
     };
   }
-
 
   private formatAddressPayload(result: AddressFormResult, originalAddress?: Address): Address {
     return {
@@ -76,7 +76,6 @@ export class AddressComponent implements OnInit {
     } as Address;
   }
 
-
   private saveAddressData(payload: Address, isEdit: boolean): void {
     const request$ = isEdit && payload.id
       ? this.userService.updateAddress(payload.id, payload)
@@ -84,13 +83,13 @@ export class AddressComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
-        console.log(`Address ${isEdit ? 'updated' : 'added'} successfully!`);
+        this.showSuccess(`Address ${isEdit ? 'updated' : 'added'} successfully!`);
         this.getAddresses();
+        this.store.dispatch(UserActions.loadProfileReq()); 
       },
-      error: (error: unknown) => console.error(`Error saving address:`, error)
+      error: (error: unknown) => this.showError(`Failed to ${isEdit ? 'update' : 'add'} address.`)
     });
   }
-
 
   private openAddressDialog(address?: Address): void {
     const dialogConfig = this.getDialogConfig(address);
@@ -102,7 +101,6 @@ export class AddressComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: AddressFormResult | undefined) => {
       if (!result) return;
-
       const payload = this.formatAddressPayload(result, address);
       this.saveAddressData(payload, !!address);
     });
@@ -119,11 +117,11 @@ export class AddressComponent implements OnInit {
   markAsDefault(id: string): void {
     this.userService.setDefaultAddress(id).subscribe({
       next: () => {
-        console.log('Address marked as default successfully!');
+        this.showSuccess('Default address updated!');
         this.getAddresses();
+        this.store.dispatch(UserActions.loadProfileReq()); 
       },
-      error: (error: unknown) =>
-        console.error('Error marking address as default:', error)
+      error: (error: unknown) => this.showError('Error updating default address.')
     })
   }
 
@@ -131,11 +129,20 @@ export class AddressComponent implements OnInit {
     if (confirm('Are you sure you want to delete this address?')) {
       this.userService.deleteAddress(id).subscribe({
         next: () => {
-          console.log('Address deleted successfully!');
+          this.showSuccess('Address deleted successfully!');
           this.getAddresses();
+          this.store.dispatch(UserActions.loadProfileReq()); 
         },
-        error: (error: unknown) => console.error('Error deleting address:', error)
+        error: (error: unknown) => this.showError('Error deleting address.')
       });
     }
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['snackbar-success'] });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top' });
   }
 }

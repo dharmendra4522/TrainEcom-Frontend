@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, output } from '@angular
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 import { selectIsLoggedIn, selectUserRole } from '../../../core/store/auth/auth.selectors';
+import { selectUserProfile } from '../../../core/store/user/use.selectors';
 
 
 @Component({
@@ -16,6 +17,7 @@ export class HeaderComponent {
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
   userRole$ = this.store.select(selectUserRole);  
+  userProfile$ = this.store.select(selectUserProfile);
 
   cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
 

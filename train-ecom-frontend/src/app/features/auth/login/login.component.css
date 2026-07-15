@@ -9,13 +9,13 @@
   align-items: center;
   padding: 60px 20px; 
   background-color: transparent; 
-  min-height: 100vh; /* 💡 height: 100% ki jagah ye use karo vertical center ke liye */
+  min-height: 100vh; 
   width: 100%;
 }
 
 mat-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   padding: 32px 24px;
   border-radius: 8px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);

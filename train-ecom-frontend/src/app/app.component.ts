@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import * as AuthActions from './core/store/auth/auth.actions';
 import { jwtDecode } from 'jwt-decode';
 import { Role } from './core/models/app.model';
+import * as UserActions from './core/store/user/user.actions';
 
 interface DecodedToken {
   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: Role;
@@ -17,6 +18,7 @@ interface DecodedToken {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent implements OnInit {
   title = 'train-ecom-frontend';
 
@@ -40,6 +42,8 @@ export class AppComponent implements OnInit {
           payload: { token, role },
           isRefresh: true
         }));
+
+        this.store.dispatch(UserActions.loadProfileReq());
 
       } catch (error) {
         console.error('Token decoding failed', error);
