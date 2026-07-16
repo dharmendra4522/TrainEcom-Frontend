@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Order } from '../../../core/models/order.model';
+import { Order } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',

@@ -3,11 +3,11 @@ import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar'; 
 import { Store } from '@ngrx/store';
-import * as UserActions from '../../../core/store/user/user.actions';
-import { UserService } from '../../../core/services/user.service';
-import { Address } from '../../../core/models/user.model';
-import { DialogData, FieldConfig } from '../../../core/models/dialog.model';
-import { GenericDialogComponent } from '../../../shared/components/generic-dialog/generic-dialog.component';
+import * as UserActions from '../../../../core/store/user/user.actions';
+import { UserService } from '../../../../core/services/user.service';
+import { Address } from '../../../../core/models/user.model';
+import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
+import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 
 type AddressFormResult = Omit<Address, 'id' | 'country'>;
 

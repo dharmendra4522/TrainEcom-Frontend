@@ -1,14 +1,14 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { UserService } from '../../../core/services/user.service';
-import { UserProfile, UpdateProfilePayload } from '../../../core/models/user.model';
+import { UserService } from '../../../../core/services/user.service';
+import { UserProfile, UpdateProfilePayload } from '../../../../core/models/user.model';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../../core/store/user/use.selectors';
+import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../../../core/store/user/use.selectors';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import * as UserActions from '../../../core/store/user/user.actions';
+import * as UserActions from '../../../../core/store/user/user.actions';
 
 @Component({
   selector: 'app-profile',

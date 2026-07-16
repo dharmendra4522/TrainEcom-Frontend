@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CategoryService } from '../../../core/services/category.service';
+import { CategoryService } from '../../../../core/services/category.service';
 import {
   Category,
   CreateCategoryRequest,
-} from '../../../core/models/product.model';
+} from '../../../../core/models/product.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GenericDialogComponent } from '../../../shared/components/generic-dialog/generic-dialog.component';
+import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 
 @Component({
   selector: 'app-category',

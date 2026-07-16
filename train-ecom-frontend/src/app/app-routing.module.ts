@@ -11,34 +11,40 @@ const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./features/consumer/consumer.module').then(
-            (m) => m.ConsumerModule,
-          ),
-      },
+      { path: '', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
+      { path: 'products', loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule) },
+
+      { path: 'account', loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule) },
+
       {
         path: 'admin',
-        loadChildren: () =>
-          import('./features/admin/admin.module').then((m) => m.AdminModule),
-        canActivate: [authGuard, adminGuard]
+        canActivate: [authGuard, adminGuard],
+        children: [
+          {
+            path: 'dashboard',
+            loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+          },
+          {
+            path: 'products',
+            loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule)
+          },
+          {
+            path: 'brands',
+            loadChildren: () => import('./features/brand/brand.module').then(m => m.BrandModule)
+          },
+          {
+            path: 'categories',
+            loadChildren: () => import('./features/category/category.module').then(m => m.CategoryModule)
+          }
+        ]
       },
     ],
   },
-
   {
     path: '',
     component: AuthLayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./features/auth/auth.module').then((m) => m.AuthModule),
-      },
-    ],
+    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
   },
-
   { path: '**', component: NotFoundComponent },
 ];
 
@@ -46,4 +52,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

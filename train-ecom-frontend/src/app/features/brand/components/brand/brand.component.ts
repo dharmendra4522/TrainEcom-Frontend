@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { BrandService } from '../../../core/services/brand.service';
+import { BrandService } from '../../../../core/services/brand.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Brand } from '../../../core/models/product.model';
-import { GenericDialogComponent } from '../../../shared/components/generic-dialog/generic-dialog.component';
+import { Brand } from '../../../../core/models/product.model';
+import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 
 @Component({
   selector: 'app-brand',

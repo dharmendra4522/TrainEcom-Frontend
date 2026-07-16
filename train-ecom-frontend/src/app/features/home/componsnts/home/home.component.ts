@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Product } from '../../../core/models/auth.model';
+import { Product } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-home',

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Product } from '../../../core/models/product.model';
+import { Product } from '../../../../core/models/product.model';
 
 const dummyProducts: Product[] = [
   { id: "101", title: 'Sony Wireless Headphones', price: 2999, description: 'Noise cancelling', category: 'Electronics', images: [], brand: 'Sony' },
