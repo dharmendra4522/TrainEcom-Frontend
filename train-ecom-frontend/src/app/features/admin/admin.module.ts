@@ -6,11 +6,13 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductsComponent } from './products/products.component';
 import { BrandComponent } from './brand/brand.component';
+import { CategoryComponent } from './category/category.component';
 @NgModule({
   declarations: [
     DashboardComponent,
     ProductsComponent,
-    BrandComponent
+    BrandComponent,
+    CategoryComponent
   ],
   imports: [
     CommonModule,
