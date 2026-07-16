@@ -1,4 +1,4 @@
-<div class="container">
+<!-- <div class="container">
     <mat-card>
         <mat-card-header class="login-card-header">
             <mat-card-title>Login in to TrainEcom</mat-card-title>
@@ -52,4 +52,64 @@
             </form>
         </mat-card-content>
     </mat-card>
+</div> -->
+
+<div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 bg-light">
+  
+  <mat-card class="p-4 p-md-5 shadow-sm border-0 rounded-4 bg-white" style="max-width: 450px; width: 100%;">
+    
+    <div class="text-center mb-4">
+      <h2 class="fw-bold mb-2 text-dark fs-3">Log in to TrainEcom</h2>
+      <p class="text-secondary mb-0">Please enter your details</p>
+    </div>
+
+    <mat-card-content class="p-0">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix class="me-2 text-secondary">email</mat-icon>
+          <input matInput type="email" formControlName="email" placeholder="Ex. user@example.com">
+          
+          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+            Email address is required.
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+            Please enter a valid email address.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix class="me-2 text-secondary">lock</mat-icon>
+          <input matInput type="password" formControlName="password">
+          
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            Password is required.
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+            Password must be at least 6 characters long.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="d-flex justify-content-end mt-n2">
+          <span class="text-danger fw-medium custom-link" style="font-size: 14px;">Forget Password?</span>
+        </div>
+
+        <mat-error *ngIf="error$ | async as serverError" class="text-center text-danger fw-medium mt-2">
+          {{serverError}}
+        </mat-error>
+
+        <button type="submit" mat-flat-button color="primary" class="w-100 py-3 mt-2 fs-6 fw-bold rounded-3 shadow-sm" [disabled]="loginForm.invalid">
+          Log In
+        </button>
+
+        <p class="text-center mt-4 text-secondary">
+          Don't have an account? 
+          <a routerLink="/signup" class="text-danger fw-bold text-decoration-none custom-link ms-1">Register here</a>
+        </p>
+        
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

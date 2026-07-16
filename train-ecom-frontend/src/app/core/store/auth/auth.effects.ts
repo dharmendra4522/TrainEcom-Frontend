@@ -6,16 +6,16 @@ import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Role } from '../../models/app.model';
 import { BackendError } from '../../models/auth.model';
+import { NotificationService } from '../../services/notification.service';
 
 @Injectable()
 export class AuthEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   private getErrorMessage(err: BackendError, isLogin: boolean = true): string {
     const rawMessage =
@@ -145,9 +145,6 @@ export class AuthEffects {
   }
 
   private showToast(msg: string, panelClass: string) {
-    this.snackBar.open(msg, 'Close', {
-      duration: 3000,
-      panelClass: [panelClass],
-    });
+    this.notification.showError(msg);
   }
 }

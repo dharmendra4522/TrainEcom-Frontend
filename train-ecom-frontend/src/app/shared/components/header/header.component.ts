@@ -13,6 +13,7 @@ import { selectUserProfile } from '../../../core/store/user/use.selectors';
 export class HeaderComponent {
   private readonly store = inject(Store);
 
+  @Input() showMenuButton: boolean = false;
   @Output() toggleSidebar = new EventEmitter<void>();
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);

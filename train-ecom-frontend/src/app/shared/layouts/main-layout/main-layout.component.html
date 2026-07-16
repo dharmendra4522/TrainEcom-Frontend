@@ -1,6 +1,9 @@
 <div class="layout-wrapper">
   
-  <app-header (toggleSidebar)="drawer.toggle()"></app-header>
+  <app-header 
+    [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false"
+    (toggleSidebar)="toggleDrawer()">
+  </app-header>
 
   <mat-sidenav-container class="main-container">
     
@@ -8,7 +11,10 @@
       #drawer
       *ngIf="shouldShowSidebar(userRole$ | async)"
       [mode]="(isMobile$ | async) ? 'over' : 'side'"
-      [opened]="!(isMobile$ | async) && shouldShowSidebar(userRole$ | async)"
+      
+      [opened]="isSidebarOpened" 
+      (openedChange)="isSidebarOpened = $event"
+      
       [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
       [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
     >

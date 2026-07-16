@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { BrandService } from '../../../../core/services/brand.service';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Brand } from '../../../../core/models/product.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-brand',
@@ -13,7 +13,7 @@ import { GenericDialogComponent } from '../../../../shared/components/generic-di
 export class BrandComponent {
   private brandService = inject(BrandService);
   private matDialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
 
   brands: Brand[] = [];
   isLoading: boolean = false;
@@ -31,13 +31,7 @@ export class BrandComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        this.snackBar.open(
-          'Failed to fetch brands. Please try again later.',
-          'Close',
-          {
-            duration: 3000,
-          },
-        );
+        this.notification.showError('Failed to fetch brands. Please try again later.');
       },
     });
   }
@@ -45,7 +39,7 @@ export class BrandComponent {
   openBrandDialog(brand?: Brand) {
     const isEdit = !!brand;
     const dialogRef = this.matDialog.open(GenericDialogComponent, {
-      width: '400px',
+      width: '500px',
       data: {
         title: isEdit ? 'Edit Brand' : 'Add Brand',
         fields: this.getBrandFormFields(brand),
@@ -85,18 +79,14 @@ export class BrandComponent {
 
   createBrand(payload: { name: string; description: string }) {
     this.brandService.createBrand(payload).subscribe(() => {
-      this.snackBar.open('Brand created successfully.', 'Close', {
-        duration: 3000,
-      });
+      this.notification.showSuccess('Brand created successfully.');
       this.fetchAllBrands();
     });
   }
 
   updateBrand(id: string, payload: any) {
     this.brandService.updateBrand(id, payload).subscribe(() => {
-      this.snackBar.open('Brand updated successfully!', 'Close', {
-        duration: 3000,
-      });
+      this.notification.showSuccess('Brand updated successfully!');
       this.fetchAllBrands();
     });
   }
@@ -105,19 +95,11 @@ export class BrandComponent {
     if (confirm('Are you sure you want to delete this brand?')) {
       this.brandService.deleteBrand(brandId).subscribe({
         next: () => {
-          this.snackBar.open('Brand deleted successfully.', 'Close', {
-            duration: 3000,
-          });
+          this.notification.showSuccess('Brand deleted successfully.');
           this.fetchAllBrands();
         },
         error: (error) => {
-          this.snackBar.open(
-            'Failed to delete brand. Please try again later.',
-            'Close',
-            {
-              duration: 3000,
-            },
-          );
+          this.notification.showError('Failed to delete brand. Please try again later.');
         },
       });
     }

@@ -1,4 +1,4 @@
-:host {
+/* :host {
   display: block;
   width: 100%;
 }
@@ -95,4 +95,20 @@ mat-card-title {
 
 .forgot-password:hover {
   text-decoration: underline;
+} */
+
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.custom-link {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-link:hover {
+  text-decoration: underline !important;
+  opacity: 0.8;
 }

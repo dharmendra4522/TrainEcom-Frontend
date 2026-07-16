@@ -7,8 +7,8 @@ import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../.
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import * as UserActions from '../../../../core/store/user/user.actions';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-profile',
@@ -20,7 +20,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private formBuilder = inject(FormBuilder);
   private userStore = inject(Store);
-  private snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
+
 
   // Observables for state
   isLoading$ = this.userStore.select(selectUserIsLoading);
@@ -150,22 +151,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.userStore.dispatch(UserActions.loadProfileReq());
 
-    this.snackBar.open('Profile updated successfully!', 'Close', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
-      panelClass: ['snackbar-success']
-    });
+    this.notification.showSuccess('Profile updated successfully!');
   }
 
   private onProfileUpdateError(err: HttpErrorResponse): void {
     console.error('Error updating profile:', err);
     const errorMessage = err.error?.message || err.error?.title || 'Failed to update profile. Please check your details.';
-    this.snackBar.open(errorMessage, 'Close', {
-      duration: 4000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
-    });
+    this.notification.showError(errorMessage);
   }
 
   ngOnDestroy(): void {

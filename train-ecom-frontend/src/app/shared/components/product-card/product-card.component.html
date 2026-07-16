@@ -1,4 +1,9 @@
 <mat-card class="product-card" appearance="outlined">
+    
+    <button mat-icon-button class="wishlist-btn" aria-label="Add to wishlist">
+        <mat-icon>favorite_border</mat-icon>
+    </button>
+
     <img mat-card-image [src]="product.images[0]" [alt]="product.title" loading="lazy">
 
     <mat-card-header>
@@ -12,9 +17,9 @@
     </mat-card-content>
 
     <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px;">
-        <button mat-button color="primary">Details</button>
         <button mat-raised-button color="accent" (click)="addToCart(product)">
-            <mat-icon>shopping_cart</mat-icon> Add
+            <mat-icon>add_shopping_cart</mat-icon> Add
         </button>
+        <button mat-raised-button color="primary">Buy</button>
     </mat-card-actions>
 </mat-card>

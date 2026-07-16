@@ -26,11 +26,13 @@ export class MainLayoutComponent {
   private breakpointObserver = inject(BreakpointObserver);
 
   sidebarTitle: string = '';
-  
+
   userRole$ = this.store.select(selectUserRole);
   isAccountRoute: boolean = false;
   currentMenuItems: MenuItem[] = [];
   @ViewChild('drawer') drawer!: MatSidenav;
+
+  isSidebarOpened: boolean = true;
 
   adminMenuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
@@ -52,9 +54,7 @@ export class MainLayoutComponent {
   )
 
   toggleDrawer() {
-    if (this.drawer) {
-      this.drawer.toggle();
-    }
+    this.isSidebarOpened = !this.isSidebarOpened;
   }
 
   constructor() {
@@ -65,6 +65,10 @@ export class MainLayoutComponent {
       takeUntil(this.destroy$)
     ).subscribe((event: any) => {
       this.isAccountRoute = event.urlAfterRedirects.includes('/account');
+    });
+
+    this.breakpointObserver.observe(Breakpoints.Handset).subscribe(result => {
+      this.isSidebarOpened = !result.matches;
     });
   }
 

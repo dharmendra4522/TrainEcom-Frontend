@@ -14,7 +14,7 @@ export class HomeComponent {
       price: 299.99,
       description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit. This is a high-quality product with excellent features.',
       category: 'Electronics',
-      images: ['https://placehold.co/600x400'],
+      images: ['https://placehold.co/300x300'],
       brand: 'AudioTech'
     },
     {
@@ -23,7 +23,7 @@ export class HomeComponent {
       price: 199.50,
       description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit. This is a high-quality product with excellent features.',
       category: 'Wearables',
-      images: ['https://placehold.co/600x400'],
+      images: ['https://placehold.co/300x300'],
       brand: 'FitLife'
     },
     {
@@ -32,7 +32,7 @@ export class HomeComponent {
       price: 1299.00,
       description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit. This is a high-quality product with excellent features.',
       category: 'Computers',
-      images: ['https://placehold.co/600x400'],
+      images: ['https://placehold.co/300x300'],
       brand: 'TechPro'
     },
     {
@@ -41,7 +41,7 @@ export class HomeComponent {
       price: 89.99,
       description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit. This is a high-quality product with excellent features.',
       category: 'Accessories',
-      images: ['https://placehold.co/600x400'],
+      images: ['https://placehold.co/300x300'],
       brand: 'GameMaster'
     }
   ];

@@ -1,13 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar'; 
 import { Store } from '@ngrx/store';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { UserService } from '../../../../core/services/user.service';
 import { Address } from '../../../../core/models/user.model';
 import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 type AddressFormResult = Omit<Address, 'id' | 'country'>;
 
@@ -20,8 +20,8 @@ export class AddressComponent implements OnInit {
 
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
   private store = inject(Store); 
+  private notification = inject(NotificationService);
 
   addresses: Address[] = [];
   isLoading: boolean = false;
@@ -95,7 +95,7 @@ export class AddressComponent implements OnInit {
     const dialogConfig = this.getDialogConfig(address);
 
     const dialogRef = this.dialog.open(GenericDialogComponent, {
-      width: '500px',
+      width: '600px',
       data: dialogConfig
     });
 
@@ -139,10 +139,10 @@ export class AddressComponent implements OnInit {
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 3000, horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['snackbar-success'] });
+    this.notification.showSuccess(message);
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'Close', { duration: 4000, horizontalPosition: 'center', verticalPosition: 'top' });
+    this.notification.showError(message);
   }
 }

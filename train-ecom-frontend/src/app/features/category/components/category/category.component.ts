@@ -4,9 +4,9 @@ import {
   Category,
   CreateCategoryRequest,
 } from '../../../../core/models/product.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-category',
@@ -15,8 +15,8 @@ import { GenericDialogComponent } from '../../../../shared/components/generic-di
 })
 export class CategoryComponent {
   private categoryService = inject(CategoryService);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private notification = inject(NotificationService);
 
   categories: Category[] = [];
   isLoading: boolean = false;
@@ -34,7 +34,7 @@ export class CategoryComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error fetching categories:', error);
+        this.notification.showError('Failed to fetch categories. Please try again later.');
       },
     });
   }
@@ -42,20 +42,12 @@ export class CategoryComponent {
   createCategory(payload: CreateCategoryRequest): void {
     this.categoryService.createCategory(payload).subscribe({
       next: (res: Category) => {
-        this.snackBar.open('Category created successfully.', 'Close', {
-          duration: 3000,
-        });
+        this.notification.showSuccess('Category created successfully.');
         this.fetchAllCategories();
       },
       error: (error) => {
         console.error('Error creating category:', error);
-        this.snackBar.open(
-          'Failed to create category. Please try again later.',
-          'Close',
-          {
-            duration: 3000,
-          },
-        );
+        this.notification.showError('Failed to create category. Please try again later.');
       },
     });
   }
@@ -63,20 +55,12 @@ export class CategoryComponent {
   updateCategory(id: string, payload: CreateCategoryRequest): void {
     this.categoryService.updateCategory(id, payload).subscribe({
       next: (res: Category) => {
-        this.snackBar.open('Category updated successfully.', 'Close', {
-          duration: 3000,
-        });
+        this.notification.showSuccess('Category updated successfully.');
         this.fetchAllCategories();
       },
       error: (error) => {
         console.error('Error updating category:', error);
-        this.snackBar.open(
-          'Failed to update category. Please try again later.',
-          'Close',
-          {
-            duration: 3000,
-          },
-        );
+        this.notification.showError('Failed to update category. Please try again later.');
       },
     });
   }
@@ -85,20 +69,12 @@ export class CategoryComponent {
     if (confirm('Are you sure you want to delete this category?')) {
       this.categoryService.deleteCategory(id).subscribe({
         next: () => {
-          this.snackBar.open('Category deleted successfully.', 'Close', {
-            duration: 3000,
-          });
+          this.notification.showSuccess('Category deleted successfully.');
           this.fetchAllCategories();
         },
         error: (error) => {
           console.error('Error deleting category:', error);
-          this.snackBar.open(
-            'Failed to delete category. Please try again later.',
-            'Close',
-            {
-              duration: 3000,
-            },
-          );
+          this.notification.showError('Failed to delete category. Please try again later.');
         },
       });
     }
@@ -107,11 +83,11 @@ export class CategoryComponent {
   openCategoryDialog(category?: Category) {
     const isEdit = !!category;
     const dialogRef = this.dialog.open(GenericDialogComponent, {
-      width: '400px',
+      width: '500px',
       data: {
         title: isEdit ? 'Edit Category' : 'Create Category',
-       fields: this.getCategoryFormFields(category),
-       submitButtonText: isEdit ? 'Update' : 'Add'
+        fields: this.getCategoryFormFields(category),
+        submitButtonText: isEdit ? 'Update' : 'Add'
       },
     });
 

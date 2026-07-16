@@ -3,6 +3,7 @@
   min-height: 70px;
   padding: 0 40px;
   border-bottom: 1px solid #eaeaea;
+  background-color: #ffffff;
 }
 
 .spacer {
@@ -20,6 +21,35 @@
   border-radius: 0;
 }
 
+.search-box {
+  width: 260px;
+  height: 38px;
+  background-color: #f5f5f5; 
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.search-box input {
+  outline: none;
+  font-size: 14px;
+  color: #333;
+}
+
+.search-box input::placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.search-box:focus-within {
+  background-color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Mobile Adjustments */
 @media (max-width: 768px) {
   .main-header {
     padding: 0 16px !important;
