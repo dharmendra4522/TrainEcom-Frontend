@@ -4,6 +4,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProductsComponent } from './products/products.component';
 import { ProfileComponent } from '../consumer/profile/profile.component';
 import { BrandComponent } from './brand/brand.component';
+import { CategoryComponent } from './category/category.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -14,6 +15,7 @@ const routes: Routes = [
 
   { path: 'products', component: ProductsComponent },
   { path: 'brands', component: BrandComponent },
+  { path: 'categories', component: CategoryComponent },
 ];
 
 @NgModule({

@@ -4,78 +4,59 @@
         <app-top-promo-bar></app-top-promo-bar>
     </ng-container>
 
-    <mat-toolbar class="main-header">
+    <mat-toolbar class="main-header shadow-sm bg-gradient-dark">
 
-        <button mat-icon-button class="mobile-menu-btn hide-on-desktop" (click)="toggleSidebar.emit()">
+        <button mat-icon-button class="text-dark me-2" (click)="toggleSidebar.emit()">
             <mat-icon>menu</mat-icon>
         </button>
 
-        <!-- <mat-menu #mobileMenu="matMenu">
-            <a mat-menu-item routerLink="/">
-                <mat-icon>home</mat-icon> <span>Home</span>
-            </a>
-            <a mat-menu-item routerLink="/contact">
-                <mat-icon>mail</mat-icon> <span>Contact</span>
-            </a>
-            <a mat-menu-item routerLink="/about">
-                <mat-icon>info</mat-icon> <span>About</span>
-            </a>
-            <ng-container *ngIf="!auth.loggedIn">
-                <mat-divider></mat-divider>
-                <a mat-menu-item routerLink="/login">
-                    <mat-icon>login</mat-icon> <span>Login</span>
-                </a>
-            </ng-container>
-        </mat-menu> -->
-
-        <span class="logo-text" routerLink="/">TrainEcom</span>
+        <span class="logo-text text-dark fw-bold fs-4" routerLink="/">TrainEcom</span>
 
         <span class="spacer"></span>
 
-        <div class="nav-links hide-on-mobile" *ngIf="auth.role !== 'Admin'">
-            <a mat-button routerLink="/" routerLinkActive="active-link">Home</a>
-            <a mat-button routerLink="/contact">Contact</a>
-            <a mat-button routerLink="/about">About</a>
+        <div class="nav-links d-none d-md-flex gap-3" *ngIf="auth.role !== 'Admin'">
+            <a mat-button routerLink="/" routerLinkActive="active-link" class="text-dark fw-medium">Home</a>
+            <a mat-button routerLink="/contact" class="text-dark fw-medium">Contact</a>
+            <a mat-button routerLink="/about" class="text-dark fw-medium">About</a>
         </div>
 
-
         <span class="spacer"></span>
 
-        <div class="action-icons">
+        <div class="action-icons d-flex align-items-center gap-2">
 
             <ng-container *ngIf="auth.role !== 'Admin'">
-                <button mat-icon-button routerLink="/cart" aria-label="View Cart">
+                <button mat-icon-button routerLink="/cart" aria-label="View Cart" class="text-dark">
                     <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
                 </button>
             </ng-container>
 
             <ng-container *ngIf="!auth.loggedIn">
-                <a mat-button routerLink="/login" class="login-btn hide-on-mobile">Login</a>
+                <a mat-button routerLink="/login" class="login-btn d-none d-md-block fw-medium text-dark">Login</a>
             </ng-container>
 
             <ng-container *ngIf="auth.role === 'Admin'">
-                <button mat-icon-button matTooltip="Notifications">
+                <button mat-icon-button matTooltip="Notifications" class="text-dark">
                     <mat-icon>notifications</mat-icon>
                 </button>
             </ng-container>
 
             <ng-container *ngIf="auth.loggedIn">
-                <span class="user-name hide-on-mobile" *ngIf="auth.profile"
-                    style="margin-right: 5px; font-weight: 500;">
+                <span class="user-name d-none d-md-inline fw-medium text-dark me-2" *ngIf="auth.profile">
                     Hi, {{ auth.profile.name }}
                 </span>
 
                 <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="My Account"
-                    aria-label="User Account">
+                    style="width: 50px; height: 50px;">
                     <mat-icon>account_circle</mat-icon>
                 </button>
+                
                 <mat-menu #profileMenu="matMenu">
                     <a mat-menu-item [routerLink]="auth.role === 'Admin' ? '/admin/profile' : '/account'">
-                        <mat-icon>manage_accounts</mat-icon> Manage Account
+                        <mat-icon class="text-primary">manage_accounts</mat-icon> Manage Account
                     </a>
                     <mat-divider></mat-divider>
-                    <a mat-menu-item (click)="onLogout()">
-                        <mat-icon>logout</mat-icon> Logout
+                    <a mat-menu-item (click)="onLogout()" class="text-danger">
+                        <mat-icon class="text-danger">logout</mat-icon> Logout
                     </a>
                 </mat-menu>
             </ng-container>

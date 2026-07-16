@@ -1,5 +1,5 @@
 export interface Product {
-    id: number;
+    id: string;
     title: string;
     description: string;
     category: string;
@@ -9,7 +9,7 @@ export interface Product {
 }
 
 export interface Brand {
-    id: number;
+    id: string;
     name: string;
     description: string;
 }
@@ -25,7 +25,7 @@ export interface UpdateBrandRequest {
 }
 
 export interface Category {
-    id: number;
+    id: string;
     name: string;
     description: string;
 }

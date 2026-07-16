@@ -49,6 +49,7 @@ export class BrandComponent {
       data: {
         title: isEdit ? 'Edit Brand' : 'Add Brand',
         fields: this.getBrandFormFields(brand),
+        submitButtonText: isEdit ? 'Update' : 'Add'
       },
     });
 
@@ -91,7 +92,7 @@ export class BrandComponent {
     });
   }
 
-  updateBrand(id: number, payload: any) {
+  updateBrand(id: string, payload: any) {
     this.brandService.updateBrand(id, payload).subscribe(() => {
       this.snackBar.open('Brand updated successfully!', 'Close', {
         duration: 3000,
@@ -100,7 +101,7 @@ export class BrandComponent {
     });
   }
 
-  deleteBrand(brandId: number) {
+  deleteBrand(brandId: string) {
     if (confirm('Are you sure you want to delete this brand?')) {
       this.brandService.deleteBrand(brandId).subscribe({
         next: () => {

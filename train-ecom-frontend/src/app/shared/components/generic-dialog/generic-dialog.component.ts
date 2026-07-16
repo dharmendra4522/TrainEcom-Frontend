@@ -25,10 +25,12 @@ export class GenericDialogComponent {
     const group: any = {};
     this.data.fields.forEach(field => {
       let defaultValue = field.value !== undefined ? field.value : (field.type === 'checkbox' ? false : '');
-      group[field.key] = [defaultValue, field.validation || []];;
+      group[field.key] = [defaultValue, field.validation || []];
     })
     this.dynamicForm = this.fb.group(group);
   }
+
+  
   onSubmit(): void {
     if (this.dynamicForm.valid) {
       this.dialogRef.close(this.dynamicForm.value);

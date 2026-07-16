@@ -12,24 +12,24 @@ export class CategoryService {
 
   constructor() { }
 
-  getAllCategories(){
+  getAllCategories() {
     return this.http.get<Category[]>(`${this.baseApi}/all`);
   }
 
-  getCategoryById(id: number){
-    return this.http.get<Category>(`${this.baseApi}/${id}`);
+  getCategoryById(id: string) {
+    return this.http.get<Category>(`${this.baseApi}/getById/${id}`);
   }
 
-  createCategory(payload: CreateCategoryRequest){
-    return this.http.post<Category>(`${this.baseApi}`, payload);
+  createCategory(payload: CreateCategoryRequest) {
+    return this.http.post<Category>(`${this.baseApi}/create`, payload);
   }
 
-  updateCategory(id: number, payload: UpdateCategoryRequest){
-    return this.http.put<Category>(`${this.baseApi}/${id}`, payload);
+  updateCategory(id: string, payload: UpdateCategoryRequest) {
+    return this.http.put<Category>(`${this.baseApi}/update/${id}`, payload);
   }
 
-  deleteCategory(id: number){
-    return this.http.delete<void>(`${this.baseApi}/${id}`);
+  deleteCategory(id: string) {
+    return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
   }
 
 }

@@ -60,7 +60,7 @@ export class CategoryComponent {
     });
   }
 
-  updateCategory(id: number, payload: CreateCategoryRequest): void {
+  updateCategory(id: string, payload: CreateCategoryRequest): void {
     this.categoryService.updateCategory(id, payload).subscribe({
       next: (res: Category) => {
         this.snackBar.open('Category updated successfully.', 'Close', {
@@ -81,7 +81,7 @@ export class CategoryComponent {
     });
   }
 
-  deleteCategory(id: number): void {
+  deleteCategory(id: string): void {
     if (confirm('Are you sure you want to delete this category?')) {
       this.categoryService.deleteCategory(id).subscribe({
         next: () => {
@@ -110,7 +110,8 @@ export class CategoryComponent {
       width: '400px',
       data: {
         title: isEdit ? 'Edit Category' : 'Create Category',
-        formFields: this.getCategoryFormFields(category),
+       fields: this.getCategoryFormFields(category),
+       submitButtonText: isEdit ? 'Update' : 'Add'
       },
     });
 

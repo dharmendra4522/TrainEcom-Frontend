@@ -12,27 +12,27 @@ export class BrandService {
   private baseApi = `${environment.apiBaseUrl}/brands`;
   private http = inject(HttpClient);
 
-  
+
   constructor() { }
 
   getAllBrands(): Observable<Brand[]> {
-    return this.http.get<Brand[]>(this.baseApi);
+    return this.http.get<Brand[]>(`${this.baseApi}/all`);
   }
 
-  getBrandById(id: number): Observable<Brand>{
+  getBrandById(id: string): Observable<Brand> {
     return this.http.get<Brand>(`${this.baseApi}/${id}`);
   }
 
   createBrand(payload: CreateBrandRequest): Observable<Brand> {
-    return this.http.post<Brand>(this.baseApi, payload);
+    return this.http.post<Brand>(`${this.baseApi}/create`, payload);
   }
 
-  updateBrand(id: number, payload: CreateBrandRequest): Observable<Brand> {
-    return this.http.put<Brand>(`${this.baseApi}/${id}`, payload);
+  updateBrand(id: string, payload: CreateBrandRequest): Observable<Brand> {
+    return this.http.put<Brand>(`${this.baseApi}/update/${id}`, payload);
   }
 
-  deleteBrand(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseApi}/${id}`);
+  deleteBrand(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
   }
 
 

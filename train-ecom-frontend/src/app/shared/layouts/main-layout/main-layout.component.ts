@@ -36,6 +36,7 @@ export class MainLayoutComponent {
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
     { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
+    { label: 'Categories', icon: 'category', route: '/admin/categories' },
     { label: 'Users', icon: 'people', route: '/admin/users' },
   ];
 
