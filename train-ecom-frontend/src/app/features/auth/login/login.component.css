@@ -112,3 +112,29 @@ mat-card-title {
   text-decoration: underline !important;
   opacity: 0.8;
 }
+
+.bg-image-container {
+    background: url('/assets/auth-bg.jpg') no-repeat center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.20) !important; 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px !important;
+    padding: 40px;
+    margin-left: 15%;
+}
+
+
+@media (max-width: 768px) {
+    .glass-card {
+        margin-left: 0;
+    }
+}
