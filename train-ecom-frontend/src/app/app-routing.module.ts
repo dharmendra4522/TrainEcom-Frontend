@@ -5,6 +5,7 @@ import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.co
 import { AuthLayoutComponent } from './shared/layouts/auth-layout/auth-layout.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { publicGuard } from './core/guards/public.guard';
 
 const routes: Routes = [
   {
@@ -43,6 +44,7 @@ const routes: Routes = [
   {
     path: '',
     component: AuthLayoutComponent,
+    canActivate: [publicGuard],
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
   },
   { path: '**', component: NotFoundComponent },

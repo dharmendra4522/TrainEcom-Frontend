@@ -1,0 +1,11 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Fields ke beech mein space */
+  min-width: 350px; /* Dialog ki minimum width fix karo */
+  padding-top: 10px;
+}
+
+mat-dialog-content {
+  overflow: visible !important; /* Agar content cut raha ho */
+}

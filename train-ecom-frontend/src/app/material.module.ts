@@ -17,8 +17,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 
 
@@ -42,7 +43,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 		MatIcon,
 		MatDialogModule,
 		MatCheckboxModule,
-		MatProgressSpinnerModule
+		MatProgressSpinnerModule,
+		MatSelectModule,
+		MatAutocompleteModule
 	],
 	exports: [
 		MatButtonModule,
@@ -63,7 +66,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 		MatIcon,
 		MatDialogModule,
 		MatCheckboxModule,
-		MatProgressSpinnerModule
+		MatProgressSpinnerModule,
+		MatSelectModule,
+		MatAutocompleteModule
 	]
 })
 export class MaterialModule { }
