@@ -1,17 +1,33 @@
 <div class="layout-wrapper">
-  <app-header [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false" (toggleSidebar)="toggleDrawer()">
+  <app-side-panel #wishlistPanel type="WishList"></app-side-panel>
+  <app-side-panel #cartPanel type="Cart"></app-side-panel>
+  <app-header
+    [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false"
+    (toggleSidebar)="toggleDrawer()"
+    (openWishlist)="wishlistPanel.open()"
+    (openCart)="cartPanel.open()"
+  >
   </app-header>
 
   <mat-sidenav-container class="main-container">
-    <mat-sidenav #drawer *ngIf="shouldShowSidebar(userRole$ | async)" [mode]="(isMobile$ | async) ? 'over' : 'side'"
-      [opened]="isSidebarOpened" (openedChange)="isSidebarOpened = $event"
+    <mat-sidenav
+      #drawer
+      *ngIf="shouldShowSidebar(userRole$ | async)"
+      [mode]="(isMobile$ | async) ? 'over' : 'side'"
+      [opened]="isSidebarOpened"
+      (openedChange)="isSidebarOpened = $event"
       [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
-      [class.customer-sidebar]="(userRole$ | async) === 'Customer'">
-      <app-sidebar [title]="
+      [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
+    >
+      <app-sidebar
+        [title]="
           (userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'
-        " [menuItems]="
+        "
+        [menuItems]="
           (userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems
-        " [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'">
+        "
+        [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'"
+      >
       </app-sidebar>
     </mat-sidenav>
 
@@ -20,9 +36,8 @@
         <div class="page-padding flex-grow-area">
           <router-outlet></router-outlet>
         </div>
-
+        <app-footer *ngIf="(userRole$ | async) !== 'Admin'"></app-footer>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
-  <app-footer *ngIf="(userRole$ | async) !== 'Admin'"></app-footer>
 </div>

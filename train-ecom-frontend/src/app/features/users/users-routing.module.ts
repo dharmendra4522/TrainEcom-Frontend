@@ -2,15 +2,17 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AddressComponent } from './components/address/address.component';
+import { WishlistComponent } from './components/wishlist/wishlist.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'profile', pathMatch: 'full' },
   { path: 'profile', component: ProfileComponent },
-  {path: 'address', component: AddressComponent},
+  { path: 'address', component: AddressComponent },
+  { path: 'wishlist', component: WishlistComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class UsersRoutingModule { }
+export class UsersRoutingModule {}

@@ -7,8 +7,8 @@ import { take, map } from 'rxjs/operators';
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const store = inject(Store);
-  
-  const token = localStorage.getItem('accessToken'); 
+
+  const token = localStorage.getItem('accessToken');
 
   return store.select(selectIsLoggedIn).pipe(
     take(1),
@@ -16,9 +16,9 @@ export const authGuard: CanActivateFn = (route, state) => {
       if (isLoggedIn || token) {
         return true;
       } else {
-        router.navigate(['/login']); 
+        router.navigate(['/login']);
         return false;
       }
-    })
+    }),
   );
 };

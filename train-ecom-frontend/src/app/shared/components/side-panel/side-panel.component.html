@@ -1,0 +1,40 @@
+<mat-drawer-container
+  class="drawer-container"
+  [class.drawer-opened]="drawer.opened"
+  autosize
+>
+  <mat-drawer #drawer class="sidenav" mode="over" position="end">
+    <div class="p-3">
+      <div
+        class="d-flex justify-content-between align-items-center border-bottom pb-2"
+      >
+        <h5 class="m-0 text-capitalize">{{ type }} Items</h5>
+        <button mat-icon-button (click)="drawer.close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="mt-3">
+        <div *ngIf="items.length === 0" class="text-center text-muted">
+          Your {{ type }} is empty.
+        </div>
+
+        <div *ngFor="let item of items" class="d-flex align-items-center mb-3">
+          <img
+            [src]="item.image"
+            alt="{{ item.name }}"
+            width="50"
+            class="img-thumbnail me-2"
+          />
+          <div class="">
+            <p class="mb-0 fw-bold">{{ item.name }}</p>
+            <small class="text-muted">{{ item.price }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-drawer>
+  <mat-drawer-content>
+    <ng-content></ng-content>
+  </mat-drawer-content>
+</mat-drawer-container>

@@ -13,6 +13,7 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { RoleDirective } from './directives/role.directive';
 import { GenericDialogComponent } from './components/generic-dialog/generic-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SidePanelComponent } from './components/side-panel/side-panel.component';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     AuthLayoutComponent,
     RoleDirective,
     GenericDialogComponent,
+    SidePanelComponent,
   ],
   imports: [
     CommonModule,

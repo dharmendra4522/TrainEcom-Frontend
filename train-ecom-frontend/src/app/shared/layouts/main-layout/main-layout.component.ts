@@ -11,7 +11,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
 import { map } from 'rxjs/internal/operators/map';
 import { MatSidenav } from '@angular/material/sidenav';
-
+import { SidePanelComponent } from '../../components/side-panel/side-panel.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -19,7 +19,6 @@ import { MatSidenav } from '@angular/material/sidenav';
   styleUrl: './main-layout.component.css',
 })
 export class MainLayoutComponent {
-
   private store = inject(Store);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
@@ -33,6 +32,9 @@ export class MainLayoutComponent {
   @ViewChild('drawer') drawer!: MatSidenav;
 
   isSidebarOpened: boolean = true;
+
+  @ViewChild('wishlistPanel') wishlistPanel!: SidePanelComponent;
+  @ViewChild('cartPanel') cartPanel!: SidePanelComponent;
 
   adminMenuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
@@ -48,10 +50,12 @@ export class MainLayoutComponent {
     { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
   ];
 
-  isMobile$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
-    map(result => result.matches),
-    shareReplay()
-  )
+  isMobile$: Observable<boolean> = this.breakpointObserver
+    .observe(Breakpoints.Handset)
+    .pipe(
+      map((result) => result.matches),
+      shareReplay(),
+    );
 
   toggleDrawer() {
     this.isSidebarOpened = !this.isSidebarOpened;
@@ -60,14 +64,16 @@ export class MainLayoutComponent {
   constructor() {
     this.isAccountRoute = this.router.url.includes('/account');
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      takeUntil(this.destroy$)
-    ).subscribe((event: any) => {
-      this.isAccountRoute = event.urlAfterRedirects.includes('/account');
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((event: any) => {
+        this.isAccountRoute = event.urlAfterRedirects.includes('/account');
+      });
 
-    this.breakpointObserver.observe(Breakpoints.Handset).subscribe(result => {
+    this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
       this.isSidebarOpened = !result.matches;
     });
   }
@@ -82,5 +88,4 @@ export class MainLayoutComponent {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

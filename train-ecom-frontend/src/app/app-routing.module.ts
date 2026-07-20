@@ -12,10 +12,18 @@ const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
-      { path: '', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
-      { path: 'products', loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule) },
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/home/home.module').then((m) => m.HomeModule),
+      },
 
-      { path: 'account', loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule) },
+      {
+        path: 'account',
+        canActivate: [authGuard],
+        loadChildren: () =>
+          import('./features/users/users.module').then((m) => m.UsersModule),
+      },
 
       {
         path: 'admin',
@@ -23,21 +31,33 @@ const routes: Routes = [
         children: [
           {
             path: 'dashboard',
-            loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+            loadChildren: () =>
+              import('./features/dashboard/dashboard.module').then(
+                (m) => m.DashboardModule,
+              ),
           },
           {
             path: 'products',
-            loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule)
+            loadChildren: () =>
+              import('./features/products/products.module').then(
+                (m) => m.ProductsModule,
+              ),
           },
           {
             path: 'brands',
-            loadChildren: () => import('./features/brand/brand.module').then(m => m.BrandModule)
+            loadChildren: () =>
+              import('./features/brand/brand.module').then(
+                (m) => m.BrandModule,
+              ),
           },
           {
             path: 'categories',
-            loadChildren: () => import('./features/category/category.module').then(m => m.CategoryModule)
-          }
-        ]
+            loadChildren: () =>
+              import('./features/category/category.module').then(
+                (m) => m.CategoryModule,
+              ),
+          },
+        ],
       },
     ],
   },
@@ -45,7 +65,8 @@ const routes: Routes = [
     path: '',
     component: AuthLayoutComponent,
     canActivate: [publicGuard],
-    loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule),
+    loadChildren: () =>
+      import('./features/auth/auth.module').then((m) => m.AuthModule),
   },
   { path: '**', component: NotFoundComponent },
 ];
@@ -54,4 +75,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

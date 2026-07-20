@@ -164,7 +164,7 @@ export class ProductFormComponent {
         next: (response) => {
           console.log('Product created successfully:', response);
           this.notification.showSuccess('Product created successfully', 'Close');
-          this.router.navigate(['/products']);
+          this.router.navigate(['/admin/products']);
         },
         error: (error) => {
           console.error('Error creating product:', error);

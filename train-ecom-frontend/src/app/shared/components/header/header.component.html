@@ -1,82 +1,149 @@
-<ng-container *ngIf="{ role: userRole$ | async, loggedIn: isLoggedIn$ | async, profile: userProfile$ | async } as auth">
+<ng-container
+  *ngIf="{
+    role: userRole$ | async,
+    loggedIn: isLoggedIn$ | async,
+    profile: userProfile$ | async,
+  } as auth"
+>
+  <ng-container *ngIf="auth.role !== 'Admin'">
+    <app-top-promo-bar></app-top-promo-bar>
+  </ng-container>
 
-    <ng-container *ngIf="auth.role !== 'Admin'">
-        <app-top-promo-bar></app-top-promo-bar>
-    </ng-container>
+  <mat-toolbar class="main-header shadow-sm bg-white">
+    <button
+      mat-icon-button
+      *ngIf="showMenuButton"
+      class="text-dark me-2 d-md-none"
+      (click)="toggleSidebar.emit()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
 
-    <mat-toolbar class="main-header shadow-sm bg-white">
+    <span class="logo-text text-dark fw-bold fs-4" routerLink="/"
+      >TrainEcom</span
+    >
 
-        <button mat-icon-button *ngIf="showMenuButton" class="text-dark me-2 d-md-none" (click)="toggleSidebar.emit()">
-            <mat-icon>menu</mat-icon>
+    <span class="spacer"></span>
+
+    <div
+      class="nav-links d-none d-lg-flex gap-4 me-4"
+      *ngIf="auth.role !== 'Admin'"
+    >
+      <a
+        mat-button
+        routerLink="/"
+        routerLinkActive="active-link"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-dark fw-medium"
+        >Home</a
+      >
+      <a
+        mat-button
+        routerLink="/contact"
+        routerLinkActive="active-link"
+        class="text-dark fw-medium"
+        >Contact</a
+      >
+      <a
+        mat-button
+        routerLink="/about"
+        routerLinkActive="active-link"
+        class="text-dark fw-medium"
+        >About</a
+      >
+    </div>
+
+    <span class="spacer d-none d-lg-block"></span>
+
+    <div class="action-icons d-flex align-items-center gap-1 gap-md-2">
+      <div
+        class="search-box d-none d-md-flex align-items-center rounded-2 px-3 me-2"
+      >
+        <input
+          type="text"
+          placeholder="What are you looking for?"
+          class="border-0 bg-transparent w-100 shadow-none outline-none"
+        />
+        <mat-icon
+          class="text-dark fs-5 d-flex align-items-center justify-content-center cursor-pointer"
+          >search</mat-icon
+        >
+      </div>
+
+      <button mat-icon-button class="text-dark d-md-none" aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+
+      <ng-container *ngIf="auth.role !== 'Admin'">
+        <button
+          mat-icon-button
+          (click)="openWishlist.emit()"
+          aria-label="Wishlist"
+          class="text-dark"
+        >
+          <mat-icon>favorite_border</mat-icon>
         </button>
 
-        <span class="logo-text text-dark fw-bold fs-4" routerLink="/">TrainEcom</span>
+        <button
+          mat-icon-button
+          (click)="openCart.emit()"
+          aria-label="View Cart"
+          class="text-dark"
+        >
+          <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small"
+            >shopping_cart</mat-icon
+          >
+        </button>
+      </ng-container>
 
-        <span class="spacer"></span>
+      <ng-container *ngIf="!auth.loggedIn">
+        <a
+          mat-button
+          routerLink="/login"
+          class="login-btn d-none d-md-inline-block fw-medium text-dark ms-2"
+          >Login</a
+        >
+        <button mat-icon-button routerLink="/login" class="text-dark d-md-none">
+          <mat-icon>login</mat-icon>
+        </button>
+      </ng-container>
 
-        <div class="nav-links d-none d-lg-flex gap-4 me-4" *ngIf="auth.role !== 'Admin'">
-            <a mat-button routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" class="text-dark fw-medium">Home</a>
-            <a mat-button routerLink="/contact" routerLinkActive="active-link" class="text-dark fw-medium">Contact</a>
-            <a mat-button routerLink="/about" routerLinkActive="active-link" class="text-dark fw-medium">About</a>
-        </div>
+      <ng-container *ngIf="auth.role === 'Admin'">
+        <button mat-icon-button matTooltip="Notifications" class="text-dark">
+          <mat-icon>notifications</mat-icon>
+        </button>
+      </ng-container>
 
-        <span class="spacer d-none d-lg-block"></span>
+      <ng-container *ngIf="auth.loggedIn">
+        <span
+          class="user-name d-none d-md-inline fw-medium text-dark ms-2 me-1"
+          *ngIf="auth.profile"
+        >
+          Hi, {{ auth.profile.name }}
+        </span>
 
-        <div class="action-icons d-flex align-items-center gap-1 gap-md-2">
-            
-            <div class="search-box d-none d-md-flex align-items-center rounded-2 px-3 me-2">
-                <input type="text" placeholder="What are you looking for?" class="border-0 bg-transparent w-100 shadow-none outline-none">
-                <mat-icon class="text-dark fs-5 d-flex align-items-center justify-content-center cursor-pointer">search</mat-icon>
-            </div>
-            
-            <button mat-icon-button class="text-dark d-md-none" aria-label="Search">
-                <mat-icon>search</mat-icon>
-            </button>
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="profileMenu"
+          matTooltip="My Account"
+        >
+          <mat-icon>account_circle</mat-icon>
+        </button>
 
-            <ng-container *ngIf="auth.role !== 'Admin'">
-                <button mat-icon-button routerLink="/wishlist" aria-label="Wishlist" class="text-dark">
-                    <mat-icon>favorite_border</mat-icon>
-                </button>
-
-                <button mat-icon-button routerLink="/cart" aria-label="View Cart" class="text-dark">
-                    <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
-                </button>
-            </ng-container>
-
-            <ng-container *ngIf="!auth.loggedIn">
-                <a mat-button routerLink="/login" class="login-btn d-none d-md-inline-block fw-medium text-dark ms-2">Login</a>
-                <button mat-icon-button routerLink="/login" class="text-dark d-md-none">
-                    <mat-icon>login</mat-icon>
-                </button>
-            </ng-container>
-
-            <ng-container *ngIf="auth.role === 'Admin'">
-                <button mat-icon-button matTooltip="Notifications" class="text-dark">
-                    <mat-icon>notifications</mat-icon>
-                </button>
-            </ng-container>
-
-            <ng-container *ngIf="auth.loggedIn">
-                <span class="user-name d-none d-md-inline fw-medium text-dark ms-2 me-1" *ngIf="auth.profile">
-                    Hi, {{ auth.profile.name }}
-                </span>
-
-                <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="My Account">
-                    <mat-icon>account_circle</mat-icon>
-                </button>
-
-                <mat-menu #profileMenu="matMenu">
-                    <a mat-menu-item [routerLink]="auth.role === 'Admin' ? '/admin/profile' : '/account'">
-                        <mat-icon class="text-primary">manage_accounts</mat-icon> Manage Account
-                    </a>
-                    <mat-divider></mat-divider>
-                    <a mat-menu-item (click)="onLogout()" class="text-danger">
-                        <mat-icon class="text-danger">logout</mat-icon> Logout
-                    </a>
-                </mat-menu>
-            </ng-container>
-
-        </div>
-
-    </mat-toolbar>
+        <mat-menu #profileMenu="matMenu">
+          <a
+            mat-menu-item
+            routerLink="/account"
+          >
+            <mat-icon class="text-primary">manage_accounts</mat-icon> Manage
+            Account
+          </a>
+          <mat-divider></mat-divider>
+          <a mat-menu-item (click)="onLogout()" class="text-danger">
+            <mat-icon class="text-danger">logout</mat-icon> Logout
+          </a>
+        </mat-menu>
+      </ng-container>
+    </div>
+  </mat-toolbar>
 </ng-container>

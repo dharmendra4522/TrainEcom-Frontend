@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.drawer-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1050;
+  background: transparent;
+  pointer-events: none;
+  height: 100vh;
+}
+
+.drawer-container.drawer-opened {
+  pointer-events: auto;
+}
+
+.sidenav {
+  width: 350px;
+  pointer-events: auto;
+  background-color: white;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.img-thumbnail {
+  border-radius: 8px;
+}

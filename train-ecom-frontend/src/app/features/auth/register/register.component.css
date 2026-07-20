@@ -13,3 +13,42 @@
   text-decoration: underline !important;
   opacity: 0.8;
 }
+
+.bg-image-container {
+  background: url("/assets/auth-bg.jpg") no-repeat center center;
+  background-size: cover;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px !important;
+  max-width: 550px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .bg-image-container {
+    background-attachment: fixed;
+  }
+  .glass-card {
+    margin-left: 15%;
+    margin-right: unset;
+  }
+}
+
+@media (max-width: 576px) {
+  .glass-card {
+    border-radius: 16px !important;
+  }
+  mat-form-field {
+    margin-bottom: -2px;
+  }
+}
