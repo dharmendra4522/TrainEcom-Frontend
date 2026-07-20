@@ -3,7 +3,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { UserProfile, UpdateProfilePayload } from '../../../../core/models/user.model';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../../../core/store/user/use.selectors';
+import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../../../core/store/user/user.selectors';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,7 +29,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   userProfile$ = this.userStore.select(selectUserProfile);
 
   userProfile: UserProfile | null = null;
-  isLoading: boolean = true;
   isEditMode: boolean = false;
   isChangingPassword: boolean = false;
   profileForm!: FormGroup;

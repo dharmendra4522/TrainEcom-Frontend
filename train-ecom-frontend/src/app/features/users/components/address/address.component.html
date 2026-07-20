@@ -7,9 +7,7 @@
         </button>
     </div>
 
-    <div *ngIf="isLoading" class="loading">Loading addresses...</div>
-
-    <div *ngIf="!isLoading && addresses.length > 0" class="address-list">
+    <div *ngIf="addresses.length > 0" class="address-list">
         <div *ngFor="let addr of addresses" class="address-card">
             <h3>{{ addr.fullName }}</h3>
             <p>{{ addr.addressLine1 }}{{ addr.addressLine2 ? ', ' + addr.addressLine2 : '' }}</p>
@@ -26,7 +24,7 @@
         </div>
     </div>
 
-    <div *ngIf="!isLoading && addresses.length === 0" class="empty-state">
+    <div *ngIf="addresses.length === 0" class="empty-state">
         <p>No addresses found. Please add a new address.</p>
     </div>
 </div>

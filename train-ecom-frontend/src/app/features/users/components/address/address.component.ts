@@ -24,21 +24,17 @@ export class AddressComponent implements OnInit {
   private notification = inject(NotificationService);
 
   addresses: Address[] = [];
-  isLoading: boolean = false;
 
   ngOnInit(): void {
     this.getAddresses();
   }
 
   getAddresses(): void {
-    this.isLoading = true;
     this.userService.getAllAddress().subscribe({
       next: (addresses: Address[]) => {
         this.addresses = addresses;
-        this.isLoading = false;
       },
       error: (error: unknown) => {
-        this.isLoading = false;
         this.showError('Error fetching addresses');
       }
     });

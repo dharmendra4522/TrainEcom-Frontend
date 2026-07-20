@@ -13,10 +13,10 @@ export class ProductsComponent {
   private productService = inject(ProductService);
   private notification = inject(NotificationService);
 
-  dummyProducts: Product[] = [];
+  ProductList: Product[] = [];
 
 
-  displayedColumns: string[] = ['id', 'name', 'description', 'price', 'categoryName', 'brandName','thumbnailUrl', 'actions'];
+  displayedColumns: string[] = ['id', 'name', 'description', 'price', 'stock', 'categoryName', 'brandName', 'thumbnailUrl', 'actions'];
   dataSource!: Product[];
 
   ngOnInit() {
@@ -35,6 +35,18 @@ export class ProductsComponent {
         this.notification.showError('Error fetching products', 'Close');
       }
     });
+  }
+
+  deleteProduct(productId: string) {
+    if (!confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+    this.productService.deleteProduct(productId).subscribe({
+      next: () => {
+        this.notification.showSuccess('Product deleted successfully', 'Close');
+        this.fetchProducts();
+      }
+    })
   }
 
 

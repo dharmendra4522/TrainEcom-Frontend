@@ -5,14 +5,12 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { Brand, Category } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
-import { Product } from '../../../../core/models/product.model';
 import { Observable } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
-import { Router } from '@angular/router';
-
-
+import { Router, ActivatedRoute } from '@angular/router';
+import { Product } from '../../../../core/models/product.model';
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
@@ -26,113 +24,190 @@ export class ProductFormComponent {
   private productService = inject(ProductService);
   private matDialog = inject(MatDialog);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   brandControl = new FormControl('');
   categoryControl = new FormControl('');
   filteredBrands!: Observable<Brand[]>;
   filteredCategories!: Observable<Category[]>;
 
+  isEditMode: boolean = false;
+  productId: string | null = null;
+
   productForm!: FormGroup;
   brands: Brand[] = [];
   categories: Category[] = [];
   selectFiles: File[] = [];
+  existingImages: { id: string, imageUrl: string }[] = [];
+  deletedImageIds: string[] = [];
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initFormAndData();
+    this.initAutocomplete();
+    this.initListeners();
+    this.checkRouteForEditMode();
+  }
+
+  // Initialization Helpers
+  private initFormAndData(): void {
     this.validateForm();
     this.fetchAllBrands();
     this.fetchAllCategories();
+  }
+
+  checkRouteForEditMode(): void {
+    this.productId = this.route.snapshot.paramMap.get('id');
+    if (this.productId) {
+      this.isEditMode = true;
+      this.loadProductDetails(this.productId);
+    }
+  }
+
+  private loadProductDetails(productId: string): void {
+    this.productService.getProductById(productId).subscribe({
+      next: (product: Product) => {
+        this.productForm.patchValue({
+          title: product.name,
+          price: product.price,
+          stockQuantity: product.stockQuantity,
+          brand: product.brandId,
+          category: product.categoryId,
+          description: product.description
+        });
+
+        if (product.brandId) {
+          this.brandControl.setValue(product.brandId);
+        }
+        if (product.categoryId) {
+          this.categoryControl.setValue(product.categoryId);
+        }
+
+        if (product.images) {
+          this.existingImages = product.images.map(img => ({
+            id: img.id,
+            imageUrl: img.imageUrl
+          }));
+        }
+      },
+      error: (error: unknown) => {
+        console.error('Error fetching product details:', error);
+        this.notification.showError('Error fetching product details', 'Close');
+      }
+    });
+  }
+
+  removeExistingImage(imageId: string, index: number) {
+    this.deletedImageIds.push(imageId);
+    this.existingImages.splice(index, 1);
+  }
+
+
+  private initAutocomplete(): void {
     this.filteredBrands = this.brandControl.valueChanges.pipe(
       startWith(''),
-      map(value => this.filterBrands(value || ''))
+      map(val => this.resolveFilter(val, this.brands, (b, name) => b.name.toLowerCase().includes(name)))
     );
 
     this.filteredCategories = this.categoryControl.valueChanges.pipe(
       startWith(''),
-      map(value => this.filterCategories(value || ''))
+      map(val => this.resolveFilter(val, this.categories, (c, name) => c.name.toLowerCase().includes(name)))
     );
+  }
 
+  private initListeners(): void {
     this.brandControl.valueChanges.subscribe(val => {
       if (!val) this.productForm.patchValue({ brand: '' });
     });
   }
 
-  private filterBrands(value: string): Brand[] {
-    const filterValue = value.toLowerCase();
-    return this.brands.filter(brand => brand.name.toLowerCase().includes(filterValue));
+  private resolveFilter<T extends { name: string }>(
+    value: string | T | null,
+    items: T[],
+    matcher: (item: T, name: string) => boolean
+  ): T[] {
+    const name = typeof value === 'string' ? value : (value?.name ?? '');
+    if (!name) return items;
+    return items.filter(item => matcher(item, name.toLowerCase()));
   }
 
-  private filterCategories(value: string): Category[] {
-    const filterValue = value.toLowerCase();
-    return this.categories.filter(category => category.name.toLowerCase().includes(filterValue));
-  }
 
-  onBrandSelected(event: any): void {
+  onBrandSelected(event: { option: { value: string } }): void {
     this.productForm.patchValue({ brand: event.option.value });
   }
 
-  onCategorySelected(event: any): void {
+  onCategorySelected(event: { option: { value: string } }): void {
     this.productForm.patchValue({ category: event.option.value });
   }
 
   displayBrandName(brandId: string): string {
-    if (!brandId) return '';
-    const brand = this.brands.find(b => b.id === brandId);
-    return brand ? brand.name : '';
+    return this.brands.find(b => b.id === brandId)?.name ?? '';
   }
 
   displayCategoryName(categoryId: string): string {
-    if (!categoryId) return '';
-    const category = this.categories.find(c => c.id === categoryId);
-    return category ? category.name : '';
+    return this.categories.find(c => c.id === categoryId)?.name ?? '';
   }
+
 
   openAddDialog(type: 'brand' | 'category'): void {
     const title = `Add new ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     this.matDialog.open(GenericDialogComponent, {
       width: '400px',
       data: {
-        title: title,
-        fields: [{ key: 'name', label: `${type} Name`, type: 'text' }],
+        title,
+        fields: [
+          { key: 'name', label: `${type} Name`, type: 'text' },
+          { key: 'description', label: 'Description', type: 'text' }
+        ],
         submitButtonText: 'Save'
       }
     }).afterClosed().subscribe(result => {
-      if (result) {
-        const service = (type === 'brand') ? this.brandService.createBrand(result) : this.categoryService.createCategory(result);
-
-        service.subscribe({
-          next: (response) => {
-            if (type === 'brand') {
-              this.brands.push(response as Brand);
-              this.productForm.patchValue({ brand: response.id });
-              this.brandControl.setValue(response.id);
-            } else {
-              this.categories.push(response as Category);
-              this.productForm.patchValue({ category: response.id });
-              this.categoryControl.setValue(response.id);
-            }
-
-            this.notification.showSuccess(`${type} added successfully`, 'Close');
-
-          },
-          error: (error) => {
-            console.error(`Error adding ${type}:`, error);
-            this.notification.showError(`Error adding ${type}`, 'Close');
-          }
-        })
-      }
-    })
+      if (result) this.handleDialogSubmit(type, result);
+    });
   }
 
-  private validateForm() {
+  private handleDialogSubmit(type: 'brand' | 'category', result: { name: string; description?: string }): void {
+    const payload = {
+      name: result.name,
+      description: result.description ?? ''
+    };
+
+    const service = type === 'brand'
+      ? this.brandService.createBrand(payload)
+      : this.categoryService.createCategory(payload);
+
+    service.subscribe({
+      next: (response) => {
+        if (type === 'brand') {
+          const brand = response as Brand;
+          this.brands.push(brand);
+          this.productForm.patchValue({ brand: brand.id });
+          this.brandControl.setValue(brand.id);
+        } else {
+          const category = response as Category;
+          this.categories.push(category);
+          this.productForm.patchValue({ category: category.id });
+          this.categoryControl.setValue(category.id);
+        }
+        this.notification.showSuccess(`${type} added successfully`, 'Close');
+      },
+      error: (error) => {
+        console.error(`Error adding ${type}:`, error);
+        this.notification.showError(`Error adding ${type}`, 'Close');
+      }
+    });
+  }
+
+
+  private validateForm(): void {
     this.productForm = this.fb.group({
       title: ['', Validators.required],
       price: [0, Validators.required],
-      stock: [0, Validators.required],
+      stockQuantity: [0, Validators.required],
       brand: ['', Validators.required],
       category: ['', Validators.required],
       description: ['', Validators.required],
       images: this.fb.array([this.fb.control('')])
-    })
+    });
   }
 
   get imageControls() {
@@ -140,67 +215,74 @@ export class ProductFormComponent {
   }
 
   addImageField(): void {
-    const imagesArray = this.productForm.get('images') as FormArray;
-    imagesArray.push(this.fb.control(''));
+    (this.productForm.get('images') as FormArray).push(this.fb.control(''));
   }
 
   onFileChange(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      this.selectFiles[index] = file;
+    if (input.files?.length) {
+      this.selectFiles[index] = input.files[0];
     }
   }
 
   removeImageField(index: number): void {
-    const imagesArray = this.productForm.get('images') as FormArray;
-    imagesArray.removeAt(index);
+    (this.productForm.get('images') as FormArray).removeAt(index);
     this.selectFiles.splice(index, 1);
   }
 
+
   onSubmit(): void {
     if (this.productForm.valid) {
-      this.productService.createProduct(this.productForm.value, this.selectFiles).subscribe({
-        next: (response) => {
-          console.log('Product created successfully:', response);
-          this.notification.showSuccess('Product created successfully', 'Close');
-          this.router.navigate(['/admin/products']);
-        },
-        error: (error) => {
-          console.error('Error creating product:', error);
-          this.notification.showError('Error creating product', 'Close');
-        }
-      });
-    }
-    else {
+      const formValue = this.productForm.value;
+
+      const productPayload: Partial<Product> = {
+        name: formValue.title,
+        description: formValue.description,
+        price: formValue.price,
+        stockQuantity: formValue.stockQuantity,
+        brandId: formValue.brand,
+        categoryId: formValue.category
+      };
+
+      if (this.isEditMode && this.productId) {
+        this.productService.updateProduct(this.productId, productPayload, this.selectFiles, this.deletedImageIds).subscribe({
+          next: () => {
+            this.notification.showSuccess('Product updated successfully', 'Close');
+            this.router.navigate(['/admin/products']);
+          },
+          error: (error: unknown) => {
+            console.error('Error updating product:', error);
+            this.notification.showError('Error updating product', 'Close');
+          }
+        });
+      } else {
+        this.productService.createProduct(productPayload, this.selectFiles).subscribe({
+          next: () => {
+            this.notification.showSuccess('Product created successfully', 'Close');
+            this.router.navigate(['/admin/products']);
+          },
+          error: (error: unknown) => {
+            console.error('Error creating product:', error);
+            this.notification.showError('Error creating product', 'Close');
+          }
+        });
+      }
+    } else {
       this.notification.showError('Please fill all required fields', 'Close');
     }
   }
 
   fetchAllBrands(): void {
     this.brandService.getAllBrands().subscribe({
-      next: (data: Brand[]) => {
-        this.brands = data;
-        console.log('Brands fetched successfully:', this.brands);
-      },
-      error: (error: any) => {
-        console.error('Error fetching brands:', error);
-        this.notification.showError('Error fetching brands');
-      }
+      next: (data: Brand[]) => this.brands = data,
+      error: (error: unknown) => console.error('Error fetching brands:', error)
     });
   }
 
   fetchAllCategories(): void {
     this.categoryService.getAllCategories().subscribe({
-      next: (data: Category[]) => {
-        this.categories = data;
-        console.log('Categories fetched successfully:', this.categories);
-      },
-      error: (error: any) => {
-        console.error('Error fetching categories:', error);
-        this.notification.showError('Error fetching categories');
-      }
+      next: (data: Category[]) => this.categories = data,
+      error: (error: unknown) => console.error('Error fetching categories:', error)
     });
   }
-
 }

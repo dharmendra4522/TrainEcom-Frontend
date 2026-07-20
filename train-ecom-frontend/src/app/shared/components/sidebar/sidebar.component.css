@@ -1,28 +1,74 @@
+.sidebar-wrapper {
+  height: 100%;
+  background-color: #ffffff;
+}
+
 .sidebar-header {
-  padding: 24px 20px;
-  color: black;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #ffffff;
 }
 
-.sidebar-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 500;
+.fs-7 {
+  font-size: 0.75rem;
+  letter-spacing: 0.8px;
 }
 
-.custom-nav-list a {
-  color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  width: 100%;
+.header-icon-box {
+  width: 36px;
+  height: 36px;
+  background-color: #e7f1ff;
 }
 
-.custom-nav-list a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+.title-text {
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.fs-8 {
+  font-size: 0.7rem;
+}
+
+.custom-nav-list .mat-mdc-list-item {
+  height: 48px !important;
+  margin-bottom: 4px;
+  border-radius: 8px !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-nav-list .mat-mdc-list-item:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.custom-nav-list .mat-mdc-list-item:hover .menu-icon,
+.custom-nav-list .mat-mdc-list-item:hover span {
+  color: #0d6efd !important;
 }
 
 .active-link {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #fff !important;
-  border-left: 4px solid #DB4444;
+  background-color: #e7f1ff !important;
+}
+
+.active-link .menu-icon,
+.active-link span {
+  color: #0d6efd !important;
+  font-weight: 700 !important;
+}
+
+.sidebar-footer {
+  border-color: #f1f5f9 !important;
+}
+
+.logout-btn {
+  background-color: #fff5f5 !important;
+  color: #dc3545 !important;
+  border: 1px solid #ffe3e3 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.logout-btn:hover {
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }

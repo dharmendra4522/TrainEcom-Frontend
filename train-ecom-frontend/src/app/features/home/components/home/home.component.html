@@ -2,10 +2,13 @@
   <app-hero></app-hero>
   <h2 class="mt-5 section-title">Featured Products</h2>
 
-  <div class="product-grid">
-    <app-product-card
-      *ngFor="let product of dummyProducts"
-      [product]="product"
-    ></app-product-card>
+  <div class="product-grid" *ngIf="products.length > 0; else noProducts">
+    <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
   </div>
+
+  <ng-template #noProducts>
+    <div class="text-center py-5">
+      <p class="text-muted">No products available at the moment.</p>
+    </div>
+  </ng-template>
 </div>

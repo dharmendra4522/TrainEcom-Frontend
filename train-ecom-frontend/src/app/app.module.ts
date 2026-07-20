@@ -16,6 +16,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 import { userReducer } from './core/store/user/user.reducer';
 import { UserEffects } from './core/store/user/user.effects';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { UserEffects } from './core/store/user/user.effects';
   ],
   providers: [
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

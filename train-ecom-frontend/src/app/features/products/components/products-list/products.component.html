@@ -48,31 +48,38 @@
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td mat-cell *matCellDef="let product">
-          <button mat-icon-button color="primary" matTooltip="Edit Product">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" matTooltip="Delete Product">
-            <mat-icon>delete</mat-icon>
-          </button>
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell *matHeaderCellDef> Stock </th>
+        <td mat-cell *matCellDef="let product" class="stock-text">
+          {{product.stockQuantity}}
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="thumbnailUrl">
-        <th mat-header-cell *matHeaderCellDef> Image </th>
-        <td mat-cell *matCellDef="let product">
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let product">
+            <button mat-icon-button color="primary" matTooltip="Edit Product" [routerLink]="['/admin/products/edit', product.id]">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete Product" (click)="deleteProduct(product.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-          <img *ngIf="product.thumbnailUrl" [src]="product.thumbnailUrl" [alt]="product.name" class="product-image"
-            style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+        <ng-container matColumnDef="thumbnailUrl">
+          <th mat-header-cell *matHeaderCellDef> Image </th>
+          <td mat-cell *matCellDef="let product">
 
-          <span *ngIf="!product.thumbnailUrl" class="no-image-text">No Image</span>
-        </td>
-      </ng-container>
+            <img *ngIf="product.thumbnailUrl" [src]="product.thumbnailUrl" [alt]="product.name" class="product-image"
+              style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <span *ngIf="!product.thumbnailUrl" class="no-image-text">No Image</span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </div>
 </div>

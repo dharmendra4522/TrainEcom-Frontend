@@ -1,7 +1,13 @@
 <div class="container mt-4">
     <mat-card class="p-4 shadow-sm">
-        <mat-card-header class="mb-3">
-            <mat-card-title class="fs-5 fw-bold">Add New Product</mat-card-title>
+        <mat-card-header class="mb-3 d-flex justify-content-between align-items-center w-100">
+            <mat-card-title class="fs-5 fw-bold m-0">
+                {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
+            </mat-card-title>
+            <a mat-stroked-button color="primary" routerLink="/admin/products">
+                <mat-icon>arrow_back</mat-icon>
+                Back to Products
+            </a>
         </mat-card-header>
 
         <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
@@ -20,8 +26,8 @@
                 </div>
                 <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Stock</mat-label>
-                        <input matInput type="number" formControlName="stock" placeholder="0">
+                        <mat-label>Stock Quantity</mat-label>
+                        <input matInput type="number" formControlName="stockQuantity" placeholder="0">
                     </mat-form-field>
                 </div>
             </div>
@@ -30,7 +36,8 @@
                 <div class="col-md-6">
                     <mat-form-field appearance="outline" class="w-100">
                         <mat-label>Brand</mat-label>
-                        <input type="text" matInput [formControl]="brandControl" [matAutocomplete]="brandAuto">
+                        <input type="text" matInput [formControl]="brandControl" [matAutocomplete]="brandAuto"
+                            (click)="brandControl.setValue(brandControl.value)">
 
                         <mat-autocomplete #brandAuto="matAutocomplete" [displayWith]="displayBrandName.bind(this)"
                             (optionSelected)="onBrandSelected($event)">
@@ -48,9 +55,11 @@
                 <div class="col-md-6">
                     <mat-form-field appearance="outline" class="w-100">
                         <mat-label>Category</mat-label>
-                        <input type="text" matInput [formControl]="categoryControl" [matAutocomplete]="categoryAuto">
+                        <input type="text" matInput [formControl]="categoryControl" [matAutocomplete]="categoryAuto"
+                            (click)="categoryControl.setValue(categoryControl.value)">
 
-                        <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayCategoryName.bind(this)" (optionSelected)="onCategorySelected($event)">
+                        <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayCategoryName.bind(this)"
+                            (optionSelected)="onCategorySelected($event)">
                             <mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
                                 {{ category.name }}
                             </mat-option>
@@ -71,15 +80,32 @@
             <div class="mt-3">
                 <label class="form-label fw-bold">Product Images</label>
 
+                <div class="row mt-2 mb-3" *ngIf="existingImages.length > 0">
+                    <div class="col-12">
+                        <label class="form-label text-muted small">Current Product Images</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div *ngFor="let img of existingImages; let i = index" class="position-relative">
+                                <img [src]="img.imageUrl" class="img-thumbnail"
+                                    style="width: 90px; height: 90px; object-fit: cover;">
+
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-1"
+                                    style="line-height: 1;" (click)="removeExistingImage(img.id, i)">
+                                    &times;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div formArrayName="images" class="d-flex flex-column gap-2">
                     <div *ngFor="let image of imageControls; let i = index" class="d-flex align-items-center gap-2">
 
                         <div class="border p-2 rounded flex-grow-1">
-                            <span class="text-muted small">Image {{i + 1}} {{i === 0 ? '(Thumbnail)' : ''}}</span>
+                            <span class="text-muted small">New Image {{i + 1}}</span>
                             <input type="file" (change)="onFileChange($event, i)" class="ms-2">
                         </div>
 
-                        <button type="button" mat-icon-button color="warn" *ngIf="i !== 0"
+                        <button type="button" mat-icon-button color="warn" *ngIf="imageControls.length > 1"
                             (click)="removeImageField(i)">
                             <mat-icon>delete</mat-icon>
                         </button>
@@ -91,9 +117,13 @@
                 </button>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 d-flex justify-content-end gap-3">
                 <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid">
-                    Save Product
+                    {{ isEditMode ? 'Update Product' : 'Add Product' }}
+                </button>
+
+                <button mat-stroked-button color="warn" type="button" routerLink="/admin/products">
+                    Cancel
                 </button>
             </div>
         </form>

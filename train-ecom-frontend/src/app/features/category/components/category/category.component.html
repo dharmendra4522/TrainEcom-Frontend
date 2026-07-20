@@ -7,12 +7,8 @@
     </button>
   </div>
 
-  <div *ngIf="isLoading" class="text-center p-5">
-    <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
-    <p class="mt-2 text-muted">Loading categories...</p>
-  </div>
 
-  <div class="card shadow-sm border-0" *ngIf="!isLoading">
+  <div class="card shadow-sm border-0">
     <div class="card-body p-0">
       <table mat-table [dataSource]="categories" class="mat-elevation-z0 w-100">
         <ng-container matColumnDef="sno">

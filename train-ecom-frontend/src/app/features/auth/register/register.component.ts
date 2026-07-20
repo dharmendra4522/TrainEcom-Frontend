@@ -24,6 +24,8 @@ export class RegisterComponent {
   private routes = inject(Router);
   private store = inject(Store);
 
+  isShowingPassword = false;
+
   constructor() { }
 
   ngOnInit() {
@@ -54,4 +56,9 @@ export class RegisterComponent {
     console.log('Validation Passed Dispatching to Store...', requestData);
     this.store.dispatch(AuthActions.registerReq({ request: requestData }));
   }
+
+  togglePasswordVisibility() {
+    this.isShowingPassword = !this.isShowingPassword;
+  }
+
 }

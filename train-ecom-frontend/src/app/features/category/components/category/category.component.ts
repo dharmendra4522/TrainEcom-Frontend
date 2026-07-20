@@ -19,21 +19,17 @@ export class CategoryComponent {
   private notification = inject(NotificationService);
 
   categories: Category[] = [];
-  isLoading: boolean = false;
 
   ngOnInit() {
     this.fetchAllCategories();
   }
 
   fetchAllCategories() {
-    this.isLoading = true;
     this.categoryService.getAllCategories().subscribe({
       next: (data: Category[]) => {
         this.categories = data;
-        this.isLoading = false;
       },
       error: (error) => {
-        this.isLoading = false;
         this.notification.showError('Failed to fetch categories. Please try again later.');
       },
     });

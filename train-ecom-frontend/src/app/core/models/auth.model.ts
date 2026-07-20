@@ -28,15 +28,6 @@ export interface registerResponse{
     message: string;
 }
 
-export interface Product{
-    id: number;
-    title: string;
-    price: number;
-    description: string;
-    category: string;
-    images: string[];
-    brand: string;
-}
 export interface BackendError {
   error?: { message?: string };
   message?: string;

@@ -15,6 +15,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   private store = inject(Store);
   private fb = inject(FormBuilder);
+  isShowingPassword = false;
 
   error$ = this.store.select(selectAuthError).pipe(
     map(err => {
@@ -55,4 +56,9 @@ export class LoginComponent implements OnInit {
       AuthActions.loginReq({ request: this.loginForm.value }),
     );
   }
+
+  togglePasswordVisibility() {
+    this.isShowingPassword = !this.isShowingPassword;
+  }
+
 }

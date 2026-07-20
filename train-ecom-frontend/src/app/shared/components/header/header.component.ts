@@ -12,7 +12,7 @@ import {
   selectIsLoggedIn,
   selectUserRole,
 } from '../../../core/store/auth/auth.selectors';
-import { selectUserProfile } from '../../../core/store/user/use.selectors';
+import { selectUserProfile } from '../../../core/store/user/user.selectors';
 
 @Component({
   selector: 'app-header',
