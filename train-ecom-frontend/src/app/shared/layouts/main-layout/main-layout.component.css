@@ -5,7 +5,36 @@
 }
 
 .main-container {
-  flex: 1;
+  flex: 1 0 auto;
+  min-height: calc(100vh - 90px);
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+::ng-deep .mat-drawer-container {
+  background-color: #f9f9f9;
+  flex: 1 0 auto;
+  display: flex !important;
+  min-height: 100%;
+}
+
+::ng-deep .mat-drawer {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+::ng-deep .mat-drawer-inner-container {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+::ng-deep .mat-drawer-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 100% !important;
 }
 
 .main-content {
@@ -26,9 +55,17 @@
 
 .page-padding {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   width: 100%;    
+  box-sizing: border-box;
+}
+
+.admin-page-padding,
+.customer-page-padding {
+  max-width: 100% !important;
+  padding: 20px 24px !important;
+  margin: 0 !important;
 }
 
 app-footer {
@@ -40,9 +77,16 @@ app-footer {
 .customer-sidebar {
   width: 250px !important;
   min-width: 250px !important;
+  height: 100% !important;
   background-color: #ffffff;
   border-right: 1px solid #e2e8f0;
   box-shadow: 8px 0 24px rgba(15, 23, 42, 0.04);
+}
+
+::ng-deep .mat-drawer-inner-container {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
 }
 
 .mat-drawer-side {

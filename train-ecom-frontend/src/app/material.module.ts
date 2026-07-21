@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   imports: [
@@ -48,6 +49,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatAutocompleteModule,
     MatDrawer,
     MatTooltipModule,
+    MatPaginatorModule
   ],
   exports: [
     MatButtonModule,
@@ -73,6 +75,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatAutocompleteModule,
     MatDrawer,
     MatTooltipModule,
+    MatPaginatorModule
   ],
 })
-export class MaterialModule {}
+export class MaterialModule { }

@@ -30,8 +30,8 @@ export class ProductService {
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
     formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
-    formData.append('BrandId', productData.brandName || '');
-    formData.append('CategoryId', productData.categoryName || '');
+    formData.append('BrandId', productData.brandId || '');
+    formData.append('CategoryId', productData.categoryId || '');
 
     files.forEach((file) => {
       if (file) formData.append('Images', file);
@@ -78,9 +78,9 @@ export class ProductService {
 
   getPaginatedProducts(pageNumber: number, pageSize: number): Observable<PaginatedProductsResponse> {
     const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
+      .set('PageNumber', pageNumber.toString())
+      .set('PageSize', pageSize.toString());
 
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/paginated`, { params });
+    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`, { params });
   }
 }

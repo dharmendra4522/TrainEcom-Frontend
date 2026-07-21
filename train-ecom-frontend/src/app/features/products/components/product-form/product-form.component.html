@@ -1,7 +1,7 @@
-<div class="container mt-4">
+<div class="container-fluid mt-2 px-0">
     <mat-card class="p-4 shadow-sm">
         <mat-card-header class="mb-3 d-flex justify-content-between align-items-center w-100">
-            <mat-card-title class="fs-5 fw-bold m-0">
+            <mat-card-title class="fs-4 fw-bold text-dark m-0">
                 {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
             </mat-card-title>
             <a mat-stroked-button color="primary" routerLink="/admin/products">
@@ -37,9 +37,9 @@
                     <mat-form-field appearance="outline" class="w-100">
                         <mat-label>Brand</mat-label>
                         <input type="text" matInput [formControl]="brandControl" [matAutocomplete]="brandAuto"
-                            (click)="brandControl.setValue(brandControl.value)">
+                            (click)="triggerBrandFilter()" (focus)="triggerBrandFilter()">
 
-                        <mat-autocomplete #brandAuto="matAutocomplete" [displayWith]="displayBrandName.bind(this)"
+                        <mat-autocomplete #brandAuto="matAutocomplete" [displayWith]="displayBrandName"
                             (optionSelected)="onBrandSelected($event)">
 
                             <mat-option *ngFor="let brand of filteredBrands | async" [value]="brand.id">
@@ -56,9 +56,9 @@
                     <mat-form-field appearance="outline" class="w-100">
                         <mat-label>Category</mat-label>
                         <input type="text" matInput [formControl]="categoryControl" [matAutocomplete]="categoryAuto"
-                            (click)="categoryControl.setValue(categoryControl.value)">
+                            (click)="triggerCategoryFilter()" (focus)="triggerCategoryFilter()">
 
-                        <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayCategoryName.bind(this)"
+                        <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayCategoryName"
                             (optionSelected)="onCategorySelected($event)">
                             <mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
                                 {{ category.name }}

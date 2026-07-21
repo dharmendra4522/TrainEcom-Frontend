@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { BrandService } from '../../../../core/services/brand.service';
 import { CategoryService } from '../../../../core/services/category.service';
-import { Brand, Category } from '../../../../core/models/product.model';
+import { Brand, Category, Product, ProductImage } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
 import { Observable } from 'rxjs';
@@ -10,13 +10,13 @@ import { startWith, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Product } from '../../../../core/models/product.model';
+
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.css'
 })
-export class ProductFormComponent {
+export class ProductFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private brandService = inject(BrandService);
   private categoryService = inject(CategoryService);
@@ -66,24 +66,27 @@ export class ProductFormComponent {
   private loadProductDetails(productId: string): void {
     this.productService.getProductById(productId).subscribe({
       next: (product: Product) => {
+        const brandId = product.brandId || '';
+        const categoryId = product.categoryId || '';
+
         this.productForm.patchValue({
-          title: product.name,
-          price: product.price,
-          stockQuantity: product.stockQuantity,
-          brand: product.brandId,
-          category: product.categoryId,
-          description: product.description
+          title: product.name || '',
+          price: product.price ?? 0,
+          stockQuantity: product.stockQuantity ?? 0,
+          brand: brandId,
+          category: categoryId,
+          description: product.description || ''
         });
 
-        if (product.brandId) {
-          this.brandControl.setValue(product.brandId);
+        if (brandId) {
+          this.brandControl.setValue(brandId);
         }
-        if (product.categoryId) {
-          this.categoryControl.setValue(product.categoryId);
+        if (categoryId) {
+          this.categoryControl.setValue(categoryId);
         }
 
         if (product.images) {
-          this.existingImages = product.images.map(img => ({
+          this.existingImages = product.images.map((img: ProductImage) => ({
             id: img.id,
             imageUrl: img.imageUrl
           }));
@@ -101,35 +104,80 @@ export class ProductFormComponent {
     this.existingImages.splice(index, 1);
   }
 
-
   private initAutocomplete(): void {
     this.filteredBrands = this.brandControl.valueChanges.pipe(
-      startWith(''),
-      map(val => this.resolveFilter(val, this.brands, (b, name) => b.name.toLowerCase().includes(name)))
+      startWith(this.brandControl.value || ''),
+      map(val => this.resolveFilter(val, this.brands))
     );
 
     this.filteredCategories = this.categoryControl.valueChanges.pipe(
-      startWith(''),
-      map(val => this.resolveFilter(val, this.categories, (c, name) => c.name.toLowerCase().includes(name)))
+      startWith(this.categoryControl.value || ''),
+      map(val => this.resolveFilter(val, this.categories))
     );
+  }
+
+  triggerBrandFilter(): void {
+    this.brandControl.setValue(this.brandControl.value);
+  }
+
+  triggerCategoryFilter(): void {
+    this.categoryControl.setValue(this.categoryControl.value);
   }
 
   private initListeners(): void {
     this.brandControl.valueChanges.subscribe(val => {
-      if (!val) this.productForm.patchValue({ brand: '' });
+      if (!val) {
+        this.productForm.patchValue({ brand: '' });
+      } else if (typeof val === 'string') {
+        const foundById = this.brands.find(b => b.id === val);
+        if (foundById) {
+          this.productForm.patchValue({ brand: foundById.id });
+        } else {
+          const foundByName = this.brands.find(b => b.name.toLowerCase() === val.toLowerCase());
+          if (foundByName) {
+            this.productForm.patchValue({ brand: foundByName.id });
+          } else {
+            this.productForm.patchValue({ brand: '' });
+          }
+        }
+      }
+    });
+
+    this.categoryControl.valueChanges.subscribe(val => {
+      if (!val) {
+        this.productForm.patchValue({ category: '' });
+      } else if (typeof val === 'string') {
+        const foundById = this.categories.find(c => c.id === val);
+        if (foundById) {
+          this.productForm.patchValue({ category: foundById.id });
+        } else {
+          const foundByName = this.categories.find(c => c.name.toLowerCase() === val.toLowerCase());
+          if (foundByName) {
+            this.productForm.patchValue({ category: foundByName.id });
+          } else {
+            this.productForm.patchValue({ category: '' });
+          }
+        }
+      }
     });
   }
 
-  private resolveFilter<T extends { name: string }>(
+  private resolveFilter<T extends { id: string; name: string }>(
     value: string | T | null,
-    items: T[],
-    matcher: (item: T, name: string) => boolean
+    items: T[]
   ): T[] {
-    const name = typeof value === 'string' ? value : (value?.name ?? '');
-    if (!name) return items;
-    return items.filter(item => matcher(item, name.toLowerCase()));
-  }
+    if (!value) return items;
+    const strVal = typeof value === 'string' ? value : value.name;
+    if (!strVal) return items;
 
+    const isExistingId = items.some(item => item.id === strVal);
+    if (isExistingId) {
+      return items;
+    }
+
+    const query = strVal.toLowerCase().trim();
+    return items.filter(item => item.name.toLowerCase().includes(query));
+  }
 
   onBrandSelected(event: { option: { value: string } }): void {
     this.productForm.patchValue({ brand: event.option.value });
@@ -139,14 +187,17 @@ export class ProductFormComponent {
     this.productForm.patchValue({ category: event.option.value });
   }
 
-  displayBrandName(brandId: string): string {
-    return this.brands.find(b => b.id === brandId)?.name ?? '';
-  }
+  displayBrandName = (brandId: string): string => {
+    if (!brandId) return '';
+    const brand = this.brands.find(b => b.id === brandId);
+    return brand ? brand.name : brandId;
+  };
 
-  displayCategoryName(categoryId: string): string {
-    return this.categories.find(c => c.id === categoryId)?.name ?? '';
-  }
-
+  displayCategoryName = (categoryId: string): string => {
+    if (!categoryId) return '';
+    const category = this.categories.find(c => c.id === categoryId);
+    return category ? category.name : categoryId;
+  };
 
   openAddDialog(type: 'brand' | 'category'): void {
     const title = `Add new ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -197,7 +248,6 @@ export class ProductFormComponent {
     });
   }
 
-
   private validateForm(): void {
     this.productForm = this.fb.group({
       title: ['', Validators.required],
@@ -229,7 +279,6 @@ export class ProductFormComponent {
     (this.productForm.get('images') as FormArray).removeAt(index);
     this.selectFiles.splice(index, 1);
   }
-
 
   onSubmit(): void {
     if (this.productForm.valid) {
@@ -274,14 +323,24 @@ export class ProductFormComponent {
 
   fetchAllBrands(): void {
     this.brandService.getAllBrands().subscribe({
-      next: (data: Brand[]) => this.brands = data,
+      next: (data: Brand[]) => {
+        this.brands = data;
+        if (this.brandControl.value) {
+          this.brandControl.setValue(this.brandControl.value);
+        }
+      },
       error: (error: unknown) => console.error('Error fetching brands:', error)
     });
   }
 
   fetchAllCategories(): void {
     this.categoryService.getAllCategories().subscribe({
-      next: (data: Category[]) => this.categories = data,
+      next: (data: Category[]) => {
+        this.categories = data;
+        if (this.categoryControl.value) {
+          this.categoryControl.setValue(this.categoryControl.value);
+        }
+      },
       error: (error: unknown) => console.error('Error fetching categories:', error)
     });
   }

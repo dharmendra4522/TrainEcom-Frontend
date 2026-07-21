@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TableColumn, TableAction, TableActionEvent } from '../../../core/models/table.model';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-generic-table',
@@ -7,13 +8,25 @@ import { TableColumn, TableAction, TableActionEvent } from '../../../core/models
   styleUrl: './generic-table.component.css'
 })
 export class GenericTableComponent {
+
+
+
   @Input() data: any[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];
   @Input() showIndex: boolean = true;
   @Input() emptyMessage: string = 'No records found.';
 
+  @Input() showPaginator: boolean = false;
+  @Input() totalRecords: number = 0;
+  @Input() pageSize: number = 10;
+  @Input() pageIndex: number = 0;
+  @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
+
+
   @Output() actionClick = new EventEmitter<TableActionEvent<any>>();
+
+  @Output() pageChange = new EventEmitter<PageEvent>();
 
   get displayedColumns(): string[] {
     const cols: string[] = [];
@@ -31,5 +44,9 @@ export class GenericTableComponent {
 
   onActionClick(actionKey: string, row: any): void {
     this.actionClick.emit({ action: actionKey, row });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageChange.emit(event);
   }
 }

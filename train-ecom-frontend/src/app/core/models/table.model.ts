@@ -11,7 +11,7 @@ export interface TableAction {
   tooltip?: string;
 }
 
-export interface TableActionEvent<T = any> {
+export interface TableActionEvent<T = unknown> {
   action: string;
   row: T;
 }

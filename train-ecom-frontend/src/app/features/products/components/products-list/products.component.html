@@ -1,16 +1,13 @@
 <div class="page-container">
-  <div class="page-header">
-    <h2>Manage Products</h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fs-4 fw-bold text-dark m-0">Product Management</h2>
     <button mat-raised-button color="primary" routerLink="/admin/products/add">
       <mat-icon>add</mat-icon> Add New Product
     </button>
   </div>
 
-  <app-generic-table
-    [data]="ProductList"
-    [columns]="columns"
-    [actions]="actions"
-    emptyMessage="No products found."
-    (actionClick)="handleTableAction($event)">
+  <app-generic-table [data]="ProductList" [columns]="columns" [actions]="actions" [showPaginator]="true"
+    [totalRecords]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageNumber - 1" emptyMessage="No products found."
+    (actionClick)="handleTableAction($event)" (pageChange)="onPageChange($event)">
   </app-generic-table>
 </div>

@@ -20,7 +20,7 @@ const routes: Routes = [
 
       {
         path: 'account',
-        // canActivate: [authGuard],
+        canActivate: [authGuard],
         loadChildren: () =>
           import('./features/users/users.module').then((m) => m.UsersModule),
       },
@@ -67,6 +67,14 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: '404',
+        component: NotFoundComponent
+      },
+      {
+        path: '**',
+        component: NotFoundComponent
+      }
     ],
   },
   {
@@ -76,11 +84,10 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.module').then((m) => m.AuthModule),
   },
-  { path: '**', component: NotFoundComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

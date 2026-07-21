@@ -16,9 +16,8 @@
 }
 
 .profile-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 10px 20px 40px 20px;
+  width: 100%;
+  padding: 10px 0 40px 0;
   font-family: "Poppins", sans-serif;
 }
 

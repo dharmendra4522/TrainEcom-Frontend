@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { Product } from '../../../../core/models/product.model';
+import { PaginatedProductsResponse, Product } from '../../../../core/models/product.model';
 import { ProductService } from '../../../../core/services/product.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Router } from '@angular/router';
+import { PageEvent } from '@angular/material/paginator';
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
@@ -16,7 +17,11 @@ export class ProductsComponent {
   private router = inject(Router);
 
   ProductList: Product[] = [];
-  
+
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalRecords: number = 0;
+
   columns: TableColumn[] = [
     { key: 'name', label: 'Name' },
     { key: 'description', label: 'Description' },
@@ -38,11 +43,10 @@ export class ProductsComponent {
   }
 
   fetchProducts() {
-    this.productService.getAllProducts().subscribe({
-      next: (products: Product[]) => {
-        this.ProductList = products;
-        this.notification.showSuccess('Products fetched successfully', 'Close');
-        console.log('Fetched products:', products);
+    this.productService.getPaginatedProducts(this.pageNumber, this.pageSize).subscribe({
+      next: (response: PaginatedProductsResponse) => {
+        this.ProductList = response.items || [];
+        this.totalRecords = response.totalRecords || 0;
       },
       error: (error: unknown) => {
         console.error('Error fetching products:', error);
@@ -51,7 +55,13 @@ export class ProductsComponent {
     });
   }
 
-   handleTableAction(event: TableActionEvent<Product>): void {
+  onPageChange(event: PageEvent){
+    this.pageNumber = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.fetchProducts();
+  }
+
+  handleTableAction(event: TableActionEvent<Product>): void {
     if (event.action === 'edit') {
       this.router.navigate(['/admin/products/edit', event.row.id]);
     } else if (event.action === 'delete') {
