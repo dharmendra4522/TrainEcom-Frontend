@@ -7,7 +7,6 @@ import { publicGuard } from '../../core/guards/public.guard';
 const routes: Routes = [
     { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
     { path: 'signup', component: RegisterComponent, canActivate: [publicGuard] },
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
 
 @NgModule({

@@ -17,7 +17,12 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { userReducer } from './core/store/user/user.reducer';
 import { UserEffects } from './core/store/user/user.effects';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
-
+import { ProductEffects } from './core/store/product/product.effects';
+import { productReducer } from './core/store/product/product.reducer';
+import { brandReducer } from './core/store/brand/brand.reducer';
+import { BrandEffects } from './core/store/brand/brand.effects';
+import { categoryReducer } from './core/store/category/category.reducer';
+import { CategoryEffects } from './core/store/category/category.effects';
 @NgModule({
   declarations: [
     AppComponent
@@ -29,9 +34,13 @@ import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
     StoreModule.forRoot({
       auth: authReducer,
-      user: userReducer
+      user: userReducer,
+      product: productReducer,
+      brand: brandReducer,
+      category: categoryReducer
+      
     }),
-    EffectsModule.forRoot([AuthEffects, UserEffects]),
+    EffectsModule.forRoot([AuthEffects, UserEffects, ProductEffects, BrandEffects, CategoryEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() })
 
   ],

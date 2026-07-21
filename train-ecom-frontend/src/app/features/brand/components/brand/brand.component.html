@@ -7,7 +7,7 @@
   </div>
 
   <app-generic-table 
-    [data]="brands" 
+    [data]="(brands$ | async) || []" 
     [columns]="columns" 
     [actions]="actions" 
     emptyMessage="No brands found."

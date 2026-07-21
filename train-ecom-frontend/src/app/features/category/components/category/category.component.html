@@ -7,7 +7,7 @@
   </div>
 
 
-  <app-generic-table [data]="categories" [columns]="columns" [actions]="actions" emptyMessage="No categories found."
+  <app-generic-table [data]="(categories$ | async) || []" [columns]="columns" [actions]="actions" emptyMessage="No categories found."
     (actionClick)="handleTableAction($event)"></app-generic-table>
 
 </div>

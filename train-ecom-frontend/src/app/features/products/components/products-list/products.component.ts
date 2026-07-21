@@ -1,20 +1,28 @@
-import { Component, inject } from '@angular/core';
-import { PaginatedProductsResponse, Product } from '../../../../core/models/product.model';
+import { Component, inject, OnInit } from '@angular/core';
+import { Product } from '../../../../core/models/product.model';
 import { ProductService } from '../../../../core/services/product.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
+import { Store } from '@ngrx/store';
+import * as ProductActions from '../../../../core/store/product/product.action';
+import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
+import { Observable } from 'rxjs';
+
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
 })
-export class ProductsComponent {
-
+export class ProductsComponent implements OnInit {
   private productService = inject(ProductService);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private store = inject(Store);
+
+  products$: Observable<Product[]> = this.store.select(selectAllProducts);
+  isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
   ProductList: Product[] = [];
 
@@ -37,28 +45,20 @@ export class ProductsComponent {
     { actionKey: 'delete', icon: 'delete', color: 'warn', tooltip: 'Delete Product' }
   ];
 
+  isAdminRoute: boolean = false;
 
   ngOnInit() {
+    this.isAdminRoute = this.router.url.includes('/admin');
     this.fetchProducts();
   }
 
   fetchProducts() {
-    this.productService.getPaginatedProducts(this.pageNumber, this.pageSize).subscribe({
-      next: (response: PaginatedProductsResponse) => {
-        this.ProductList = response.items || [];
-        this.totalRecords = response.totalRecords || 0;
-      },
-      error: (error: unknown) => {
-        console.error('Error fetching products:', error);
-        this.notification.showError('Error fetching products', 'Close');
-      }
-    });
+    this.store.dispatch(ProductActions.loadProducts());
   }
 
-  onPageChange(event: PageEvent){
+  onPageChange(event: PageEvent) {
     this.pageNumber = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.fetchProducts();
   }
 
   handleTableAction(event: TableActionEvent<Product>): void {
@@ -76,10 +76,12 @@ export class ProductsComponent {
     this.productService.deleteProduct(productId).subscribe({
       next: () => {
         this.notification.showSuccess('Product deleted successfully', 'Close');
-        this.fetchProducts();
+        this.store.dispatch(ProductActions.loadProducts());
+      },
+      error: (error) => {
+        console.error('Error deleting product:', error);
+        this.notification.showError('Error deleting product', 'Close');
       }
-    })
+    });
   }
-
-
 }

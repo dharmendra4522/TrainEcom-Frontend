@@ -10,7 +10,7 @@ const routes: Routes = [
   { path: 'edit/:id', component: ProductFormComponent },
   { path: ':id', component: ProductDetailComponent }
 ];
-  
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]

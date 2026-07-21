@@ -1,16 +1,20 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Product } from '../../../../core/models/product.model';
-import { ProductService } from '../../../../core/services/product.service';
+import { Store } from '@ngrx/store';
+import * as ProductActions from '../../../../core/store/product/product.action';
+import { selectAllProducts } from '../../../../core/store/product/product.selectors';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
-  private productService = inject(ProductService);
+  private store = inject(Store);
 
+  products$: Observable<Product[]> = this.store.select(selectAllProducts);
   products: Product[] = [];
 
   ngOnInit() {
@@ -18,15 +22,11 @@ export class HomeComponent {
   }
 
   private fetchProducts(): void {
-    this.productService.getAllProducts().subscribe({
-      next: (data) => {
-        this.products = data;
-      },
-      error: (error) => {
-        console.error('Error fetching products:', error);
+    this.store.dispatch(ProductActions.loadProducts());
+    this.products$.subscribe((products) => {
+      if (products) {
+        this.products = products;
       }
     });
   }
-
-
 }

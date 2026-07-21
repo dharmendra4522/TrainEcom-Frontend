@@ -4,8 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Brand } from '../../../../core/models/product.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
-
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
+import { Store } from '@ngrx/store';
+import * as BrandActions from '../../../../core/store/brand/brand.action';
+import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
+
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-brand',
@@ -16,8 +20,9 @@ export class BrandComponent implements OnInit {
   private brandService = inject(BrandService);
   private matDialog = inject(MatDialog);
   private notification = inject(NotificationService);
+  private store = inject(Store);
 
-  brands: Brand[] = [];
+  brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
@@ -29,10 +34,6 @@ export class BrandComponent implements OnInit {
     { actionKey: 'delete', icon: 'delete', color: 'warn', tooltip: 'Delete Brand' }
   ];
 
-  ngOnInit(): void {
-    this.fetchAllBrands();
-  }
-
   handleTableAction(event: TableActionEvent<Brand>): void {
     if (event.action === 'edit') {
       this.openBrandDialog(event.row);
@@ -41,15 +42,13 @@ export class BrandComponent implements OnInit {
     }
   }
 
+  ngOnInit(): void {
+    this.fetchAllBrands();
+  }
+
+
   fetchAllBrands(): void {
-    this.brandService.getAllBrands().subscribe({
-      next: (data: Brand[]) => {
-        this.brands = data;
-      },
-      error: () => {
-        this.notification.showError('Failed to fetch brands. Please try again later.');
-      },
-    });
+    this.store.dispatch(BrandActions.loadBrands());
   }
 
   openBrandDialog(brand?: Brand): void {
@@ -84,14 +83,14 @@ export class BrandComponent implements OnInit {
   createBrand(payload: { name: string; description: string }): void {
     this.brandService.createBrand(payload).subscribe(() => {
       this.notification.showSuccess('Brand created successfully.');
-      this.fetchAllBrands();
+      this.store.dispatch(BrandActions.loadBrands());
     });
   }
 
   updateBrand(id: string, payload: { name: string; description: string }): void {
     this.brandService.updateBrand(id, payload).subscribe(() => {
       this.notification.showSuccess('Brand updated successfully!');
-      this.fetchAllBrands();
+      this.store.dispatch(BrandActions.loadBrands());
     });
   }
 
@@ -100,7 +99,7 @@ export class BrandComponent implements OnInit {
       this.brandService.deleteBrand(brandId).subscribe({
         next: () => {
           this.notification.showSuccess('Brand deleted successfully.');
-          this.fetchAllBrands();
+          this.store.dispatch(BrandActions.loadBrands());
         },
         error: () => {
           this.notification.showError('Failed to delete brand. Please try again later.');

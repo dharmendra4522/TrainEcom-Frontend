@@ -14,6 +14,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
+        pathMatch: 'full',
         loadChildren: () =>
           import('./features/home/home.module').then((m) => m.HomeModule),
       },
@@ -70,10 +71,6 @@ const routes: Routes = [
       {
         path: '404',
         component: NotFoundComponent
-      },
-      {
-        path: '**',
-        component: NotFoundComponent
       }
     ],
   },
@@ -84,6 +81,10 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.module').then((m) => m.AuthModule),
   },
+  {
+    path: '**',
+    component: NotFoundComponent
+  }
 ];
 
 @NgModule({

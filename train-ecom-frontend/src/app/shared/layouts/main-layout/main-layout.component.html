@@ -6,42 +6,33 @@
   <app-side-panel #wishlistPanel type="WishList"></app-side-panel>
   <app-side-panel #cartPanel type="Cart"></app-side-panel>
   <app-side-panel #notificationPanel type="Notification"></app-side-panel>
-  <app-header
-    [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false"
-    (toggleSidebar)="toggleDrawer()"
-    (openWishlist)="wishlistPanel.open()"
-    (openCart)="cartPanel.open()"
-    (openNotification)="notificationPanel.open()"
-  >
+  <app-header [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false" (toggleSidebar)="toggleDrawer()"
+    (openWishlist)="wishlistPanel.open()" (openCart)="cartPanel.open()" (openNotification)="notificationPanel.open()">
   </app-header>
 
+  <ng-container *ngIf="(userRole$ | async) !== 'Admin'">
+
+    <app-product-filter *ngIf="!isAccountRoute"></app-product-filter>
+  </ng-container>
+
+
   <mat-sidenav-container class="main-container">
-    <mat-sidenav
-      #drawer
-      *ngIf="shouldShowSidebar(userRole$ | async)"
-      [mode]="(isMobile$ | async) ? 'over' : 'side'"
-      [opened]="isSidebarOpened"
-      (openedChange)="isSidebarOpened = $event"
+    <mat-sidenav #drawer *ngIf="shouldShowSidebar(userRole$ | async)" [mode]="(isMobile$ | async) ? 'over' : 'side'"
+      [opened]="isSidebarOpened" (openedChange)="isSidebarOpened = $event"
       [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
-      [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
-    >
-      <app-sidebar
-        [title]="
+      [class.customer-sidebar]="(userRole$ | async) === 'Customer'">
+      <app-sidebar [title]="
           (userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'
-        "
-        [menuItems]="
+        " [menuItems]="
           (userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems
-        "
-        [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'"
-      >
+        " [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'">
       </app-sidebar>
     </mat-sidenav>
 
     <mat-sidenav-content class="main-content">
       <div class="content-wrapper">
-        <div class="page-padding flex-grow-area" 
-             [class.admin-page-padding]="(userRole$ | async) === 'Admin'"
-             [class.customer-page-padding]="(userRole$ | async) === 'Customer'">
+        <div class="page-padding flex-grow-area" [class.admin-page-padding]="(userRole$ | async) === 'Admin'"
+          [class.customer-page-padding]="(userRole$ | async) === 'Customer'">
           <router-outlet></router-outlet>
         </div>
       </div>

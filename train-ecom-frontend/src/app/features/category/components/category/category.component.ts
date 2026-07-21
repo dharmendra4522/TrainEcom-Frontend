@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CategoryService } from '../../../../core/services/category.service';
 import {
   Category,
@@ -8,18 +8,24 @@ import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
+import { Store } from '@ngrx/store';
+import * as CategoryActions from '../../../../core/store/category/category.action';
+import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-category',
   templateUrl: './category.component.html',
   styleUrl: './category.component.css',
 })
-export class CategoryComponent {
+export class CategoryComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private dialog = inject(MatDialog);
   private notification = inject(NotificationService);
+  private store = inject(Store);
 
-  categories: Category[] = [];
+  categories$: Observable<Category[]> = this.store.select(selectAllCategories);
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },
@@ -44,21 +50,14 @@ export class CategoryComponent {
   }
 
   fetchAllCategories() {
-    this.categoryService.getAllCategories().subscribe({
-      next: (data: Category[]) => {
-        this.categories = data;
-      },
-      error: (error) => {
-        this.notification.showError('Failed to fetch categories. Please try again later.');
-      },
-    });
+    this.store.dispatch(CategoryActions.loadCategories());
   }
 
   createCategory(payload: CreateCategoryRequest): void {
     this.categoryService.createCategory(payload).subscribe({
-      next: (res: Category) => {
+      next: () => {
         this.notification.showSuccess('Category created successfully.');
-        this.fetchAllCategories();
+        this.store.dispatch(CategoryActions.loadCategories());
       },
       error: (error) => {
         console.error('Error creating category:', error);
@@ -69,9 +68,9 @@ export class CategoryComponent {
 
   updateCategory(id: string, payload: CreateCategoryRequest): void {
     this.categoryService.updateCategory(id, payload).subscribe({
-      next: (res: Category) => {
+      next: () => {
         this.notification.showSuccess('Category updated successfully.');
-        this.fetchAllCategories();
+        this.store.dispatch(CategoryActions.loadCategories());
       },
       error: (error) => {
         console.error('Error updating category:', error);
@@ -85,7 +84,7 @@ export class CategoryComponent {
       this.categoryService.deleteCategory(id).subscribe({
         next: () => {
           this.notification.showSuccess('Category deleted successfully.');
-          this.fetchAllCategories();
+          this.store.dispatch(CategoryActions.loadCategories());
         },
         error: (error) => {
           console.error('Error deleting category:', error);

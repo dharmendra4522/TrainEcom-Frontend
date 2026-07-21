@@ -19,14 +19,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private destroy$ = new Subject<void>();
   private breakpointObserver = inject(BreakpointObserver);
-  public loadingService = inject(LoadingService); 
+  public loadingService = inject(LoadingService);
 
   sidebarTitle: string = '';
 
   userRole$: Observable<string | null> = this.store.select(selectUserRole);
   isAccountRoute: boolean = false;
   currentMenuItems: MenuItem[] = [];
-  
+
   @ViewChild('drawer') drawer!: MatSidenav;
   isSidebarOpened: boolean = true;
 
@@ -60,7 +60,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Initial load par check karo
     this.checkAccountRoute(this.router.url);
 
     // Router events ko track karo

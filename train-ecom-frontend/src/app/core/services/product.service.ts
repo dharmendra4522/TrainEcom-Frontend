@@ -18,10 +18,10 @@ export class ProductService {
   constructor() { }
 
   getAllProducts(): Observable<Product[]> {
-  return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`).pipe(
-    map((response) => response.items)
-  );
-}
+    return this.http.get<any>(`${this.baseAPI}`).pipe(
+      map((response) => response?.items || (Array.isArray(response) ? response : []))
+    );
+  }
 
   createProduct(productData: Partial<Product>, files: File[]): Observable<Product> {
     const formData = new FormData();

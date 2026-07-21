@@ -10,6 +10,12 @@ import { startWith, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import * as ProductActions from '../../../../core/store/product/product.action';
+import * as BrandActions from '../../../../core/store/brand/brand.action';
+import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
+import * as CategoryActions from '../../../../core/store/category/category.action';
+import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 
 @Component({
   selector: 'app-product-form',
@@ -25,6 +31,7 @@ export class ProductFormComponent implements OnInit {
   private matDialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private store = inject(Store);
 
   brandControl = new FormControl('');
   categoryControl = new FormControl('');
@@ -230,12 +237,12 @@ export class ProductFormComponent implements OnInit {
       next: (response) => {
         if (type === 'brand') {
           const brand = response as Brand;
-          this.brands.push(brand);
+          this.store.dispatch(BrandActions.loadBrands());
           this.productForm.patchValue({ brand: brand.id });
           this.brandControl.setValue(brand.id);
         } else {
           const category = response as Category;
-          this.categories.push(category);
+          this.store.dispatch(CategoryActions.loadCategories());
           this.productForm.patchValue({ category: category.id });
           this.categoryControl.setValue(category.id);
         }
@@ -271,7 +278,17 @@ export class ProductFormComponent implements OnInit {
   onFileChange(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-      this.selectFiles[index] = input.files[0];
+      const file = input.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024;
+
+      if (file.size > maxSizeBytes) {
+        this.notification.showError(`File "${file.name}" exceeds 5MB. Please upload an image less than 5MB.`, 'Close');
+        input.value = '';
+        delete this.selectFiles[index];
+        return;
+      }
+
+      this.selectFiles[index] = file;
     }
   }
 
@@ -294,27 +311,17 @@ export class ProductFormComponent implements OnInit {
       };
 
       if (this.isEditMode && this.productId) {
-        this.productService.updateProduct(this.productId, productPayload, this.selectFiles, this.deletedImageIds).subscribe({
-          next: () => {
-            this.notification.showSuccess('Product updated successfully', 'Close');
-            this.router.navigate(['/admin/products']);
-          },
-          error: (error: unknown) => {
-            console.error('Error updating product:', error);
-            this.notification.showError('Error updating product', 'Close');
-          }
-        });
+        this.store.dispatch(ProductActions.updateProduct({
+          id: this.productId,
+          productData: productPayload,
+          newFiles: this.selectFiles,
+          deletedImageIds: this.deletedImageIds
+        }));
       } else {
-        this.productService.createProduct(productPayload, this.selectFiles).subscribe({
-          next: () => {
-            this.notification.showSuccess('Product created successfully', 'Close');
-            this.router.navigate(['/admin/products']);
-          },
-          error: (error: unknown) => {
-            console.error('Error creating product:', error);
-            this.notification.showError('Error creating product', 'Close');
-          }
-        });
+        this.store.dispatch(ProductActions.createProduct({
+          productData: productPayload,
+          files: this.selectFiles
+        }));
       }
     } else {
       this.notification.showError('Please fill all required fields', 'Close');
@@ -322,11 +329,14 @@ export class ProductFormComponent implements OnInit {
   }
 
   fetchAllBrands(): void {
-    this.brandService.getAllBrands().subscribe({
+    this.store.dispatch(BrandActions.loadBrands());
+    this.store.select(selectAllBrands).subscribe({
       next: (data: Brand[]) => {
-        this.brands = data;
-        if (this.brandControl.value) {
-          this.brandControl.setValue(this.brandControl.value);
+        if (data) {
+          this.brands = data;
+          if (this.brandControl.value) {
+            this.brandControl.setValue(this.brandControl.value);
+          }
         }
       },
       error: (error: unknown) => console.error('Error fetching brands:', error)
@@ -334,11 +344,14 @@ export class ProductFormComponent implements OnInit {
   }
 
   fetchAllCategories(): void {
-    this.categoryService.getAllCategories().subscribe({
+    this.store.dispatch(CategoryActions.loadCategories());
+    this.store.select(selectAllCategories).subscribe({
       next: (data: Category[]) => {
-        this.categories = data;
-        if (this.categoryControl.value) {
-          this.categoryControl.setValue(this.categoryControl.value);
+        if (data) {
+          this.categories = data;
+          if (this.categoryControl.value) {
+            this.categoryControl.setValue(this.categoryControl.value);
+          }
         }
       },
       error: (error: unknown) => console.error('Error fetching categories:', error)
