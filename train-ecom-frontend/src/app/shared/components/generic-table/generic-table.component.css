@@ -1,0 +1,60 @@
+.generic-table-card {
+  border-radius: 12px;
+}
+
+.custom-mat-table {
+  background-color: transparent;
+}
+
+.custom-mat-table th.mat-header-cell {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.custom-mat-table td.mat-cell {
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.table-row-hover:hover {
+  background-color: #f8fafc !important;
+}
+
+.image-thumb-wrapper {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+}
+
+.table-img {
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.empty-icon-circle {
+  width: 56px;
+  height: 56px;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: rgba(15, 23, 42, 0.05);
+}
+
+.fs-7 {
+  font-size: 0.75rem;
+}

@@ -20,9 +20,17 @@ const routes: Routes = [
 
       {
         path: 'account',
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
         loadChildren: () =>
           import('./features/users/users.module').then((m) => m.UsersModule),
+      },
+
+      {
+        path: 'products',
+        loadChildren: () =>
+          import('./features/products/products.module').then(
+            (m) => m.ProductsModule,
+          ),
       },
 
       {

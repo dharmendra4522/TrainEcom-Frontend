@@ -14,6 +14,8 @@ import { RoleDirective } from './directives/role.directive';
 import { GenericDialogComponent } from './components/generic-dialog/generic-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
+import { ProductFilterComponent } from './components/product-filter/product-filter.component';
+import { GenericTableComponent } from './components/generic-table/generic-table.component';
 
 
 @NgModule({
@@ -29,6 +31,8 @@ import { SidePanelComponent } from './components/side-panel/side-panel.component
     RoleDirective,
     GenericDialogComponent,
     SidePanelComponent,
+    ProductFilterComponent,
+    GenericTableComponent,
   ],
   imports: [
     CommonModule,
@@ -47,6 +51,7 @@ import { SidePanelComponent } from './components/side-panel/side-panel.component
     RoleDirective,
     GenericDialogComponent,
     SidebarComponent,
+    GenericTableComponent,
   ]
 })
 export class SharedModule { }

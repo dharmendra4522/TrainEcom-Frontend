@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDrawer } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   imports: [
@@ -46,6 +47,7 @@ import { MatDrawer } from '@angular/material/sidenav';
     MatSelectModule,
     MatAutocompleteModule,
     MatDrawer,
+    MatTooltipModule,
   ],
   exports: [
     MatButtonModule,
@@ -70,6 +72,7 @@ import { MatDrawer } from '@angular/material/sidenav';
     MatSelectModule,
     MatAutocompleteModule,
     MatDrawer,
+    MatTooltipModule,
   ],
 })
 export class MaterialModule {}

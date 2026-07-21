@@ -1,0 +1,82 @@
+<div class="generic-table-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="data" class="custom-mat-table w-100">
+
+      <!-- Index Column -->
+      <ng-container matColumnDef="sno" *ngIf="showIndex">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7">#</th>
+        <td mat-cell *matCellDef="let row; let i = index" class="px-4 py-3 text-secondary font-monospace">
+          {{ i + 1 }}
+        </td>
+      </ng-container>
+
+      <!-- Dynamic Data Columns -->
+      <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7">
+          {{ col.label }}
+        </th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-3 text-dark">
+          <!-- Text Type -->
+          <span *ngIf="!col.type || col.type === 'text'" class="fw-medium">
+            {{ row[col.key] || 'N/A' }}
+          </span>
+
+          <!-- Image Type -->
+          <div *ngIf="col.type === 'image'" class="image-thumb-wrapper rounded-3 overflow-hidden border">
+            <img 
+              *ngIf="row[col.key]" 
+              [src]="row[col.key]" 
+              [alt]="col.label" 
+              class="table-img img-fluid">
+            <span *ngIf="!row[col.key]" class="text-muted small px-2">No Image</span>
+          </div>
+
+          <!-- Currency Type -->
+          <span *ngIf="col.type === 'currency'" class="fw-bold text-primary fs-6">
+            ₹{{ row[col.key] | number:'1.2-2' }}
+          </span>
+
+          <!-- Badge Type -->
+          <span 
+            *ngIf="col.type === 'badge'" 
+            class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill">
+            {{ row[col.key] || 'General' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions" *ngIf="actions && actions.length > 0">
+        <th mat-header-cell *matHeaderCellDef class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 text-end">
+          Actions
+        </th>
+        <td mat-cell *matCellDef="let row" class="px-4 py-3 text-end">
+          <div class="d-inline-flex gap-1 justify-content-end">
+            <button
+              *ngFor="let act of actions"
+              mat-icon-button
+              [color]="act.color"
+              [matTooltip]="act.tooltip || ''"
+              (click)="onActionClick(act.actionKey, row)"
+              class="action-btn">
+              <mat-icon>{{ act.icon }}</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Table Rows -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light-subtle border-bottom"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row-hover transition-all"></tr>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="!data || data.length === 0" class="empty-state-container text-center py-5 px-4">
+      <div class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center bg-light rounded-circle text-muted">
+        <mat-icon class="fs-2">inbox</mat-icon>
+      </div>
+      <h6 class="fw-bold text-dark mb-1">No Data Available</h6>
+      <p class="text-secondary small mb-0">{{ emptyMessage }}</p>
+    </div>
+  </div>
+</div>

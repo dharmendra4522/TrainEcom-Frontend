@@ -8,9 +8,11 @@
   [src]="product.thumbnailUrl"
   [alt]="product.name"
   loading="lazy"
+  [routerLink]="['/products', product.id]"
+  style="cursor: pointer;"
 />
 
-  <mat-card-header>
+  <mat-card-header [routerLink]="['/products', product.id]" style="cursor: pointer;">
     <mat-card-title>{{ product.name }}</mat-card-title>
     <mat-card-subtitle>{{ product.categoryName }} | {{ product.brandName }}</mat-card-subtitle>
   </mat-card-header>

@@ -5,6 +5,8 @@ import { Brand } from '../../../../core/models/product.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 
+import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
+
 @Component({
   selector: 'app-brand',
   templateUrl: './brand.component.html',
@@ -17,8 +19,26 @@ export class BrandComponent implements OnInit {
 
   brands: Brand[] = [];
 
+  columns: TableColumn[] = [
+    { key: 'name', label: 'Brand Name' },
+    { key: 'description', label: 'Description' }
+  ];
+
+  actions: TableAction[] = [
+    { actionKey: 'edit', icon: 'edit', color: 'primary', tooltip: 'Edit Brand' },
+    { actionKey: 'delete', icon: 'delete', color: 'warn', tooltip: 'Delete Brand' }
+  ];
+
   ngOnInit(): void {
     this.fetchAllBrands();
+  }
+
+  handleTableAction(event: TableActionEvent<Brand>): void {
+    if (event.action === 'edit') {
+      this.openBrandDialog(event.row);
+    } else if (event.action === 'delete') {
+      this.deleteBrand(event.row.id);
+    }
   }
 
   fetchAllBrands(): void {
