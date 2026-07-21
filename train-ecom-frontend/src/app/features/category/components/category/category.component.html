@@ -8,7 +8,7 @@
   </div>
 
 
-  <div class="card shadow-sm border-0">
+  <!-- <div class="card shadow-sm border-0">
     <div class="card-body p-0">
       <table mat-table [dataSource]="categories" class="mat-elevation-z0 w-100">
         <ng-container matColumnDef="sno">
@@ -69,5 +69,14 @@
         No categories found.
       </div>
     </div>
-  </div>
+  </div> -->
+
+<app-generic-table
+    [data]="categories"
+    [columns]="columns"
+    [actions]="actions"
+    emptyMessage="No categories found."
+    (actionClick)="handleTableAction($event)"
+  ></app-generic-table>
+  
 </div>

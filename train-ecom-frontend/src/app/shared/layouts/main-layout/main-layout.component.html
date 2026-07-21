@@ -1,15 +1,17 @@
 <div class="layout-wrapper">
-  <!-- <div *ngIf="loadingService.loading$ | async" class="global-loader-overlay">
+  <div *ngIf="loadingService.loading$ | async" class="global-loader-overlay">
     <mat-spinner diameter="50"></mat-spinner>
-  </div> -->
+  </div>
 
   <app-side-panel #wishlistPanel type="WishList"></app-side-panel>
   <app-side-panel #cartPanel type="Cart"></app-side-panel>
+  <app-side-panel #notificationPanel type="Notification"></app-side-panel>
   <app-header
     [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false"
     (toggleSidebar)="toggleDrawer()"
     (openWishlist)="wishlistPanel.open()"
     (openCart)="cartPanel.open()"
+    (openNotification)="notificationPanel.open()"
   >
   </app-header>
 

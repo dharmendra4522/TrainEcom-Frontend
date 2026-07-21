@@ -1,20 +1,18 @@
-<mat-drawer-container
-  class="drawer-container"
-  [class.drawer-opened]="drawer.opened"
-  autosize
->
+<mat-drawer-container class="drawer-container" [class.drawer-opened]="drawer.opened" autosize>
   <mat-drawer #drawer class="sidenav rounded-start-4 shadow-lg" mode="over" position="end">
     <div class="side-panel-wrapper d-flex flex-column h-100">
-      
+
       <!-- Panel Header -->
       <div class="panel-header px-4 py-3 d-flex align-items-center justify-content-between border-bottom bg-white">
         <div class="d-flex align-items-center gap-2">
-          <div class="header-icon-badge rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
+          <div
+            class="header-icon-badge rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
             <mat-icon class="fs-5">{{ icon }}</mat-icon>
           </div>
           <div>
             <h5 class="fw-bold text-dark m-0">{{ title }}</h5>
-            <small class="text-muted" *ngIf="items.length > 0">{{ items.length }} {{ items.length === 1 ? 'item' : 'items' }}</small>
+            <small class="text-muted" *ngIf="items.length > 0">{{ items.length }} {{ items.length === 1 ? 'item' :
+              'items' }}</small>
           </div>
         </div>
 
@@ -26,27 +24,40 @@
       <!-- Panel Body -->
       <div class="panel-body flex-grow-1 p-4 overflow-y-auto">
         <!-- Empty State -->
-        <div *ngIf="items.length === 0" class="empty-panel-state d-flex flex-column align-items-center justify-content-center text-center h-100 py-5">
-          <div class="empty-icon-circle rounded-circle bg-light d-flex align-items-center justify-content-center mb-3 text-secondary">
-            <mat-icon class="display-6">{{ type === 'WishList' ? 'favorite_border' : 'shopping_bag' }}</mat-icon>
+        <!-- Empty State -->
+        <div *ngIf="items.length === 0"
+          class="empty-panel-state d-flex flex-column align-items-center justify-content-center text-center h-100 py-5">
+          <div
+            class="empty-icon-circle rounded-circle bg-light d-flex align-items-center justify-content-center mb-3 text-secondary">
+            <mat-icon class="display-6">
+              {{ type === 'WishList' ? 'favorite_border' : (type === 'Cart' ? 'shopping_bag' : 'notifications_off') }}
+            </mat-icon>
           </div>
-          <h6 class="fw-bold text-dark mb-1">Your {{ type === 'WishList' ? 'Wishlist' : 'Cart' }} is Empty</h6>
-          <p class="text-muted small mb-4">Looks like you haven't added any items yet.</p>
-          <button mat-flat-button color="primary" class="rounded-pill px-4" (click)="navigateToShopping()">
+
+          <h6 class="fw-bold text-dark mb-1">
+            Your {{ type === 'WishList' ? 'Wishlist' : (type === 'Cart' ? 'Cart' : 'Notifications') }} is Empty
+          </h6>
+
+          <p class="text-muted small mb-4">
+            {{ type === 'Notification' ? 'You have no new notifications right now.' : "Looks like you haven't added any
+            items yet." }}
+          </p>
+
+          <button *ngIf="type !== 'Notification'" mat-flat-button color="primary" class="rounded-pill px-4"
+            (click)="navigateToShopping()">
             Start Shopping
           </button>
         </div>
 
         <!-- Item Cards List -->
         <div *ngIf="items.length > 0" class="d-flex flex-column gap-3">
-          <div *ngFor="let item of items" class="side-item-card p-3 rounded-3 border bg-white shadow-xs d-flex align-items-center gap-3">
+          <div *ngFor="let item of items"
+            class="side-item-card p-3 rounded-3 border bg-white shadow-xs d-flex align-items-center gap-3">
             <!-- Thumbnail -->
             <div class="item-thumb-box rounded-3 border overflow-hidden bg-light flex-shrink-0">
               <img
                 [src]="item.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200&auto=format&fit=crop'"
-                alt="{{ item.name }}"
-                class="item-img img-fluid"
-              />
+                alt="{{ item.name }}" class="item-img img-fluid" />
             </div>
 
             <!-- Details -->
@@ -73,12 +84,14 @@
           <span class="fs-5 fw-bold text-dark">₹{{ getTotalPrice | number:'1.2-2' }}</span>
         </div>
 
-        <button *ngIf="type === 'Cart'" mat-raised-button color="primary" class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
+        <button *ngIf="type === 'Cart'" mat-raised-button color="primary"
+          class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
           <span>Proceed to Checkout</span>
           <mat-icon>arrow_forward</mat-icon>
         </button>
 
-        <button *ngIf="type === 'WishList'" mat-raised-button color="primary" class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
+        <button *ngIf="type === 'WishList'" mat-raised-button color="primary"
+          class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
           <mat-icon>shopping_cart</mat-icon>
           <span>Move All to Cart</span>
         </button>

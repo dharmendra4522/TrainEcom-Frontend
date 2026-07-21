@@ -18,7 +18,7 @@ export interface SidePanelItem {
 export class SidePanelComponent {
   private router = inject(Router);
 
-  @Input() type: 'WishList' | 'Cart' = 'WishList';
+  @Input() type: 'WishList' | 'Cart' | 'Notification' = 'WishList';
   @Input() items: SidePanelItem[] = [];
 
   @ViewChild('drawer') drawer!: MatDrawer;
@@ -32,11 +32,22 @@ export class SidePanelComponent {
   }
 
   get title(): string {
-    return this.type === 'WishList' ? 'My Wishlist' : 'Shopping Cart';
+    switch (this.type) {
+      case 'WishList':
+        return 'My Wishlist';
+      case 'Cart':
+        return 'Shopping Cart';
+      case 'Notification':
+        return 'Notifications';
+      default:
+        return '';
+    }
   }
 
   get icon(): string {
-    return this.type === 'WishList' ? 'favorite' : 'shopping_cart';
+    if (this.type === 'WishList') return 'favorite';
+    if (this.type === 'Cart') return 'shopping_cart';
+    return 'notifications';
   }
 
   get getTotalPrice(): number {

@@ -18,7 +18,7 @@ export class ProductService {
   constructor() { }
 
   getAllProducts(): Observable<Product[]> {
-  return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/all`).pipe(
+  return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`).pipe(
     map((response) => response.items)
   );
 }
@@ -69,7 +69,7 @@ export class ProductService {
       }
     });
 
-    return this.http.put<any>(`${this.baseAPI}/update/${productId}`, formData);
+    return this.http.put<Product>(`${this.baseAPI}/update/${productId}`, formData);
   }
 
   deleteProduct(productId: string): Observable<void> {

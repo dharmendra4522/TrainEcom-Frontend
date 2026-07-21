@@ -28,6 +28,8 @@ export class HeaderComponent {
   @Output() openWishlist = new EventEmitter<void>();
   @Output() openCart = new EventEmitter<void>();
 
+  @Output() openNotification = new EventEmitter<void>();
+
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
   userRole$ = this.store.select(selectUserRole);
   userProfile$ = this.store.select(selectUserProfile);

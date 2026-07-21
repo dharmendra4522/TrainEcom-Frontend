@@ -32,6 +32,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   @ViewChild('wishlistPanel') wishlistPanel!: SidePanelComponent;
   @ViewChild('cartPanel') cartPanel!: SidePanelComponent;
+  @ViewChild('notificationPanel') notificationPanel!: SidePanelComponent;
 
   adminMenuItems: MenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },

@@ -7,6 +7,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 
 @Component({
   selector: 'app-category',
@@ -20,8 +21,26 @@ export class CategoryComponent {
 
   categories: Category[] = [];
 
+  columns: TableColumn[] = [
+    { key: 'name', label: 'Category Name' },
+    { key: 'description', label: 'Description' }
+  ];
+
+  actions: TableAction[] = [
+    { actionKey: 'edit', icon: 'edit', color: 'primary', tooltip: 'Edit Category' },
+    { actionKey: 'delete', icon: 'delete', color: 'warn', tooltip: 'Delete Category' }
+  ];
+
   ngOnInit() {
     this.fetchAllCategories();
+  }
+
+  handleTableAction(event: TableActionEvent<Category>): void {
+    if (event.action === 'edit') {
+      this.openCategoryDialog(event.row);
+    } else if (event.action === 'delete') {
+      this.deleteCategory(event.row.id);
+    }
   }
 
   fetchAllCategories() {
