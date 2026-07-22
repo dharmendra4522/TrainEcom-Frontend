@@ -1,6 +1,14 @@
 <div class="generic-table-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-  <div class="table-responsive">
-    <table mat-table [dataSource]="data" class="custom-mat-table w-100">
+  <div class="table-responsive position-relative">
+    
+    <!-- Component-Level Inline Spinner -->
+    <div *ngIf="isLoading" class="table-loading-container d-flex flex-column align-items-center justify-content-center py-5 px-4 my-2 text-center">
+      <mat-spinner diameter="40" color="primary"></mat-spinner>
+      <span class="text-secondary small fw-semibold mt-3">Loading data, please wait...</span>
+    </div>
+
+    <!-- Table -->
+    <table *ngIf="!isLoading" mat-table [dataSource]="data" class="custom-mat-table w-100">
 
       <!-- Index Column -->
       <ng-container matColumnDef="sno" *ngIf="showIndex">
@@ -61,7 +69,7 @@
     </table>
 
     <!-- Empty State -->
-    <div *ngIf="!data || data.length === 0" class="empty-state-container text-center py-5 px-4">
+    <div *ngIf="!isLoading && (!data || data.length === 0)" class="empty-state-container text-center py-5 px-4">
       <div
         class="empty-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center bg-light rounded-circle text-muted">
         <mat-icon class="fs-2">inbox</mat-icon>
@@ -70,7 +78,7 @@
       <p class="text-secondary small mb-0">{{ emptyMessage }}</p>
     </div>
 
-    <mat-paginator *ngIf="showPaginator" [length]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex"
+    <mat-paginator *ngIf="!isLoading && showPaginator" [length]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex"
       [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons class="border-top">
     </mat-paginator>
   </div>

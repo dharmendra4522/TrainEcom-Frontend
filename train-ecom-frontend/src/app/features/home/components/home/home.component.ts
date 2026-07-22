@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Product } from '../../../../core/models/product.model';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
-import { selectAllProducts } from '../../../../core/store/product/product.selectors';
+import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -11,11 +11,10 @@ import { Observable } from 'rxjs';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-
   private store = inject(Store);
 
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
-  products: Product[] = [];
+  isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
   ngOnInit() {
     this.fetchProducts();
@@ -23,10 +22,5 @@ export class HomeComponent implements OnInit {
 
   private fetchProducts(): void {
     this.store.dispatch(ProductActions.loadProducts());
-    this.products$.subscribe((products) => {
-      if (products) {
-        this.products = products;
-      }
-    });
   }
 }

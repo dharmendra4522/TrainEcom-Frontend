@@ -46,7 +46,7 @@ import { CategoryEffects } from './core/store/category/category.effects';
   ],
   providers: [
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

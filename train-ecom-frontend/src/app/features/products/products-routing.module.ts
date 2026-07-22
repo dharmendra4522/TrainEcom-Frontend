@@ -3,12 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProductsComponent } from './components/products-list/products.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { authGuard } from '../../core/guards/auth.guard';
+import { adminGuard } from '../../core/guards/admin.guard';
 
 const routes: Routes = [
-  { path: '', component: ProductsComponent },
-  { path: 'add', component: ProductFormComponent },
-  { path: 'edit/:id', component: ProductFormComponent },
-  { path: ':id', component: ProductDetailComponent }
+  { path: 'add', canActivate: [authGuard, adminGuard], component: ProductFormComponent },
+  { path: 'edit/:id', canActivate: [authGuard, adminGuard], component: ProductFormComponent },
+  { path: ':id', component: ProductDetailComponent },
+  { path: '', canActivate: [authGuard, adminGuard], component: ProductsComponent }
 ];
 
 @NgModule({

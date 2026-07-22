@@ -11,6 +11,7 @@ export class GenericTableComponent {
 
 
 
+  @Input() isLoading: boolean = false;
   @Input() data: any[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];

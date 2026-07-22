@@ -6,8 +6,17 @@
     </button>
   </div>
 
-  <app-generic-table [data]="(products$ | async) || []" [columns]="columns" [actions]="actions" [showPaginator]="true"
-    [totalRecords]="(products$ | async)?.length || 0" [pageSize]="pageSize" [pageIndex]="pageNumber - 1" emptyMessage="No products found."
-    (actionClick)="handleTableAction($event)" (pageChange)="onPageChange($event)">
+  <app-generic-table 
+    [data]="(products$ | async) || []" 
+    [isLoading]="(isLoading$ | async) || false"
+    [columns]="columns" 
+    [actions]="actions" 
+    [showPaginator]="true"
+    [totalRecords]="(products$ | async)?.length || 0" 
+    [pageSize]="pageSize" 
+    [pageIndex]="pageNumber - 1" 
+    emptyMessage="No products found."
+    (actionClick)="handleTableAction($event)" 
+    (pageChange)="onPageChange($event)">
   </app-generic-table>
 </div>

@@ -10,7 +10,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
-import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import { selectAllCategories, selectCategoryLoading } from '../../../../core/store/category/category.selectors';
 
 import { Observable } from 'rxjs';
 
@@ -26,6 +26,7 @@ export class CategoryComponent implements OnInit {
   private store = inject(Store);
 
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },

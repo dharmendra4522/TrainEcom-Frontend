@@ -1,9 +1,15 @@
+:host {
+  display: contents;
+}
+
 .main-header {
+  position: sticky !important;
+  top: 0 !important;
   height: 72px;
   min-height: 72px;
   padding: 0 32px;
   background-color: #ffffff;
-  z-index: 1000;
+  z-index: 1020;
 }
 
 .spacer {
@@ -55,14 +61,31 @@
 }
 
 .icon-circle-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  transition: background-color 0.2s ease, transform 0.15s ease !important;
 }
 
 .icon-circle-btn:hover {
-  background-color: #f1f5f9;
+  background-color: #f1f5f9 !important;
+}
+
+.icon-circle-btn mat-icon,
+.sidebar-toggle-btn mat-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 22px !important;
+  margin: 0 !important;
 }
 
 .user-greeting-pill {

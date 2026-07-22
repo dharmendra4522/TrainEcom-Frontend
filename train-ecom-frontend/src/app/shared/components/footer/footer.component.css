@@ -10,4 +10,17 @@
 
 .cursor-pointer {
   cursor: pointer;
-}  
+}
+
+@media (min-width: 768px) {
+  .footer-col {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .footer-col {
+    width: 100% !important;
+  }
+}

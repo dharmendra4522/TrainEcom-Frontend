@@ -8,6 +8,7 @@
 
   <app-generic-table 
     [data]="(brands$ | async) || []" 
+    [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 
     emptyMessage="No brands found."

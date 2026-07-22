@@ -1,17 +1,23 @@
-<div class="bg-light-subtle rounded shadow-sm mb-4 d-flex justify-content-between flex-row align-items-center flex-wrap">
-    <div class="d-flex align-items-center px-5 p-3 gap-3">
-        <mat-icon>filter_list</mat-icon>
-        <h5 class="fw-bold text-dark m-0">Filter Products</h5>
+<div
+  class="filter-bar bg-white border rounded-4 shadow-xs mb-4 d-flex align-items-center justify-content-between px-3 px-md-4 py-3 flex-wrap gap-3"
+>
+  <div class="d-flex align-items-center gap-3">
+    <div
+      class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle"
+    >
+      <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
     </div>
-    <div class="p-4 d-flex flex-column gap-3">
-        <div class="search-box d-none d-md-flex align-items-center rounded-pill px-3 me-2 border bg-light-subtle">
-            <input type="text" placeholder="Search products..."
-                class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7" />
-            <mat-icon class="text-secondary fs-5 cursor-pointer">search</mat-icon>
-        </div>
+    <h5 class="fw-bold text-dark m-0 tracking-tight">Filter Products</h5>
+  </div>
 
-        <button mat-icon-button class="text-dark d-md-none" aria-label="Search">
-            <mat-icon>search</mat-icon>
-        </button>
+  <div class="search-wrapper">
+    <div class="search-box d-flex align-items-center rounded-pill px-3 border">
+      <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
+      <input
+        type="text"
+        placeholder="Search products..."
+        class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7"
+      />
     </div>
+  </div>
 </div>

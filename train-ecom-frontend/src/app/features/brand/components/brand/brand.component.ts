@@ -7,7 +7,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
-import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
+import { selectAllBrands, selectBrandLoading } from '../../../../core/store/brand/brand.selectors';
 
 import { Observable } from 'rxjs';
 
@@ -23,6 +23,7 @@ export class BrandComponent implements OnInit {
   private store = inject(Store);
 
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
+  isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
