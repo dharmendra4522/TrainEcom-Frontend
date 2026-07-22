@@ -2,6 +2,9 @@ import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular
 import { Product } from '../../../core/models/product.model';
 import { WishListService } from '../../../core/services/wish-list.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { Store } from '@ngrx/store';
+import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-card',
@@ -11,6 +14,7 @@ import { NotificationService } from '../../../core/services/notification.service
 export class ProductCardComponent implements OnInit {
   private wishListService = inject(WishListService);
   private notificationService = inject(NotificationService);
+  private store = inject(Store);
 
   @Input() product!: Product;
   @Output() wishListToggle = new EventEmitter<string>();
@@ -28,20 +32,27 @@ export class ProductCardComponent implements OnInit {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
 
-    if (ProductCardComponent.isInitialized) {
-      this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
-      return;
-    }
-
-    this.wishListService.getWishList().subscribe({
-      next: (items) => {
-        ProductCardComponent.wishlistCache = new Set(items.map((i: any) => (i.productId || i.id).toString()));
-        ProductCardComponent.isInitialized = true;
-        this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
-      },
-      error: () => {
-        this.fetchIndividualStatus(productId);
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.isFavorite = false;
+        return;
       }
+
+      if (ProductCardComponent.isInitialized) {
+        this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+        return;
+      }
+
+      this.wishListService.getWishList().subscribe({
+        next: (items) => {
+          ProductCardComponent.wishlistCache = new Set(items.map((i: any) => (i.productId || i.id).toString()));
+          ProductCardComponent.isInitialized = true;
+          this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+        },
+        error: () => {
+          this.fetchIndividualStatus(productId);
+        }
+      });
     });
   }
 

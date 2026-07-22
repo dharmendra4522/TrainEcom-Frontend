@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { WishListItem } from '../../../core/models/wishList.model';
 import { WishListService } from '../../../core/services/wish-list.service';
+import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -53,10 +55,17 @@ export class SidePanelComponent {
   }
 
   loadWishlistItems(): void {
-    this.wishListService.getWishList().subscribe({
-      next: (items) => {
-        this.items = items;
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.items = [];
+        return;
       }
+
+      this.wishListService.getWishList().subscribe({
+        next: (items) => {
+          this.items = items;
+        }
+      });
     });
   }
 
