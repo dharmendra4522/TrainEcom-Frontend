@@ -1,7 +1,7 @@
 <mat-card class="product-card" appearance="outlined">
   <button mat-icon-button class="wishlist-btn" (click)="onToggleWishlist($event)"
     [matTooltip]="isFavorite ? 'Remove from Wishlist' : 'Add to Wishlist'">
-    <mat-icon [class.text-danger]="isFavorite">
+    <mat-icon [class.favorite-icon]="isFavorite">
       {{ isFavorite ? 'favorite' : 'favorite_border' }}
     </mat-icon>
   </button>

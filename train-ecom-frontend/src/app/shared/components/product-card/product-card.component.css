@@ -45,3 +45,7 @@
     line-height: 20px;
     color: #64748b;
 }
+
+.wishlist-btn mat-icon.favorite-icon {
+    color: #ef4444 !important;
+}

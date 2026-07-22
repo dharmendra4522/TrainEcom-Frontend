@@ -44,13 +44,15 @@
 
       <ng-container *ngIf="auth.role !== 'Admin'">
         <button mat-icon-button (click)="openWishlist.emit()" aria-label="Wishlist" class="text-dark icon-circle-btn"
-          matTooltip="Wishlist">
+          matTooltip="Wishlist" [matBadge]="wishlistCount" [matBadgeHidden]="wishlistCount === 0" matBadgeColor="warn"
+          matBadgeSize="small">
           <mat-icon>favorite_border</mat-icon>
         </button>
 
         <button mat-icon-button (click)="openCart.emit()" aria-label="View Cart" class="text-dark icon-circle-btn"
-          matTooltip="Cart">
-          <mat-icon matBadge="0" matBadgeColor="warn" matBadgeSize="small">shopping_cart</mat-icon>
+          matTooltip="Cart" [matBadge]="cartCount" [matBadgeHidden]="cartCount === 0" matBadgeColor="warn"
+          matBadgeSize="small">
+          <mat-icon>shopping_cart</mat-icon>
         </button>
       </ng-container>
 

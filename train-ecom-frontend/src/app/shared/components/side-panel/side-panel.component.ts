@@ -6,6 +6,7 @@ import { WishListItem } from '../../../core/models/wishList.model';
 import { WishListService } from '../../../core/services/wish-list.service';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
+import { ProductCardComponent } from '../product-card/product-card.component';
 
 
 @Component({
@@ -25,6 +26,9 @@ export class SidePanelComponent {
 
   open() {
     this.drawer.open();
+    if (this.type === 'WishList') {
+      this.loadWishlistItems();
+    }
   }
 
   close() {
@@ -78,7 +82,18 @@ export class SidePanelComponent {
     if (this.type === 'Cart') {
       console.log('Dispatching remove from cart:', id);
     } else if (this.type === 'WishList') {
-      console.log('Dispatching remove from wishlist:', id);
+      const item = this.items.find(i => i.id === id);
+      const productId = item?.productId || id.toString();
+
+      this.wishListService.removeFromWishlist(productId).subscribe({
+        next: () => {
+          this.items = this.items.filter(i => i.id !== id);
+          ProductCardComponent.wishlistCache.delete(productId);
+        },
+        error: (err) => {
+          console.error('Failed to remove from wishlist:', err);
+        }
+      });
     }
   }
 
@@ -87,6 +102,33 @@ export class SidePanelComponent {
   }
 
   handleMoveToCart(item: WishListItem): void {
-    console.log('Moving item from wishlist to cart:', item);
+    if (this.type === 'WishList') {
+      const productId = item.productId || item.id;
+      
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existingProduct = cart.find((i: any) => i.id === productId);
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+      } else {
+        cart.push({
+          id: productId,
+          name: item.name,
+          price: item.price,
+          image: item.image || item.thumbnailUrl,
+          quantity: 1
+        });
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      this.wishListService.removeFromWishlist(productId).subscribe({
+        next: () => {
+          this.items = this.items.filter(i => i.id !== item.id);
+          ProductCardComponent.wishlistCache.delete(productId);
+        },
+        error: (err) => {
+          console.error('Failed to move to cart:', err);
+        }
+      });
+    }
   }
 }

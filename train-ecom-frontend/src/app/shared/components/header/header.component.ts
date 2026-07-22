@@ -13,6 +13,8 @@ import {
   selectUserRole,
 } from '../../../core/store/auth/auth.selectors';
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
+import { WishListService } from '../../../core/services/wish-list.service';
+import { take } from 'rxjs/internal/operators/take';
 
 @Component({
   selector: 'app-header',
@@ -21,6 +23,7 @@ import { selectUserProfile } from '../../../core/store/user/user.selectors';
 })
 export class HeaderComponent {
   private readonly store = inject(Store);
+  private wishListService = inject(WishListService);
 
   @Input() showMenuButton: boolean = false;
   @Output() toggleSidebar = new EventEmitter<void>();
@@ -34,8 +37,41 @@ export class HeaderComponent {
   userRole$ = this.store.select(selectUserRole);
   userProfile$ = this.store.select(selectUserProfile);
 
-  cardItems = JSON.parse(localStorage.getItem('cart') || '[]');
+  wishlistCount: number = 0;
+  cartCount: number = 0;
 
+  ngOnInit() {
+    this.loadWishlistCount();
+    this.loadCartCount();
+  }
+
+  loadWishlistCount() {
+    this.isLoggedIn$.pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.wishlistCount = 0;
+        return;
+      }
+
+      this.wishListService.getWishList().subscribe({
+        next: (items) => {
+          this.wishlistCount = items ? items.length : 0;
+        },
+        error: (err) => {
+          console.error('Failed to load wishlist count for header:', err);
+          this.wishlistCount = 0;
+        }
+      });
+    });
+  }
+
+  loadCartCount() {
+    try {
+      const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+      this.cartCount = Array.isArray(cartItems) ? cartItems.length : 0;
+    } catch {
+      this.cartCount = 0;
+    }
+  }
   onLogout(): void {
     this.store.dispatch(AuthActions.logout());
   }

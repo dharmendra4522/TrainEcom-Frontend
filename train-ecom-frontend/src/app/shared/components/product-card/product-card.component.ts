@@ -6,6 +6,8 @@ import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
 
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-product-card',
   templateUrl: './product-card.component.html',
@@ -15,14 +17,15 @@ export class ProductCardComponent implements OnInit {
   private wishListService = inject(WishListService);
   private notificationService = inject(NotificationService);
   private store = inject(Store);
+  private router = inject(Router);
 
   @Input() product!: Product;
   @Output() wishListToggle = new EventEmitter<string>();
 
   isFavorite: boolean = false;
 
-  private static wishlistCache: Set<string> = new Set();
-  private static isInitialized: boolean = false;
+  public static wishlistCache: Set<string> = new Set();
+  public static isInitialized: boolean = false;
 
   ngOnInit(): void {
     this.checkWishlistStatus();
