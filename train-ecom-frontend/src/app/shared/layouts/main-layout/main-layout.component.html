@@ -17,7 +17,7 @@
     class="d-block"
   ></app-product-filter>
 
-  <mat-sidenav-container class="main-container">
+  <mat-sidenav-container class="main-container" [class.account-container]="isAccountRoute">
     <mat-sidenav
       #drawer
       *ngIf="shouldShowSidebar(userRole$ | async)"

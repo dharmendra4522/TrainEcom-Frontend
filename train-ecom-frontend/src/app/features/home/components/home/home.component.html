@@ -1,18 +1,18 @@
 <div class="home-container">
   <app-hero></app-hero>
-  
-  <div class="d-flex align-items-center justify-content-between mt-5 mb-4">
+
+  <!-- <div class="d-flex align-items-center justify-content-between mt-5 mb-4">
     <h2 class="section-title text-dark fw-bold m-0">Featured Products</h2>
-  </div>
+  </div> -->
 
   <!-- Loading State: Simple Material Spinner -->
-  <div *ngIf="isLoading$ | async; else loadedContent" class="d-flex flex-column align-items-center justify-content-center py-5 my-3">
+  <!-- <div *ngIf="isLoading$ | async; else loadedContent" class="d-flex flex-column align-items-center justify-content-center py-5 my-3">
     <mat-spinner diameter="45" color="primary"></mat-spinner>
     <span class="text-secondary small fw-medium mt-3">Loading products...</span>
-  </div>
+  </div> -->
 
   <!-- Loaded Content -->
-  <ng-template #loadedContent>
+  <!-- <ng-template #loadedContent>
     <div class="product-grid" *ngIf="(products$ | async) as productsList">
       <ng-container *ngIf="productsList.length > 0; else noProducts">
         <app-product-card *ngFor="let product of productsList" [product]="product"></app-product-card>
@@ -25,5 +25,20 @@
         <p class="text-muted fw-medium m-0">No products available at the moment.</p>
       </div>
     </ng-template>
-  </ng-template>
+  </ng-template> -->
+
+  <ng-container *ngIf="brands$ | async as brandsList">
+    <app-grouped-product-row *ngFor="let brand of brandsList" [title]="brand.name" filterType="brand"
+      [filterValue]="brand.name">
+    </app-grouped-product-row>
+
+  </ng-container>
+
+  <ng-container *ngIf="categories$ | async as catList">
+    <app-grouped-product-row *ngFor="let cat of catList" [title]="cat.name" filterType="category"
+      [filterValue]="cat.name">
+    </app-grouped-product-row>
+  </ng-container>
+
+
 </div>

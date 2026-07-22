@@ -1,17 +1,94 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { Product } from '../../../core/models/product.model';
+import { WishListService } from '../../../core/services/wish-list.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-product-card',
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.css'
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
+  private wishListService = inject(WishListService);
+  private notificationService = inject(NotificationService);
 
   @Input() product!: Product;
-  
+  @Output() wishListToggle = new EventEmitter<string>();
 
-  constructor() { }
+  isFavorite: boolean = false;
+
+  private static wishlistCache: Set<string> = new Set();
+  private static isInitialized: boolean = false;
+
+  ngOnInit(): void {
+    this.checkWishlistStatus();
+  }
+
+  private checkWishlistStatus(): void {
+    if (!this.product?.id) return;
+    const productId = this.product.id.toString();
+
+    if (ProductCardComponent.isInitialized) {
+      this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+      return;
+    }
+
+    this.wishListService.getWishList().subscribe({
+      next: (items) => {
+        ProductCardComponent.wishlistCache = new Set(items.map((i: any) => (i.productId || i.id).toString()));
+        ProductCardComponent.isInitialized = true;
+        this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+      },
+      error: () => {
+        this.fetchIndividualStatus(productId);
+      }
+    });
+  }
+
+  private fetchIndividualStatus(productId: string): void {
+    this.wishListService.checkInWishlist(productId).subscribe({
+      next: (status: boolean) => {
+        this.isFavorite = status;
+      },
+      error: (err) => {
+        console.error('Failed to check wishlist status:', err);
+      }
+    });
+  }
+
+  onToggleWishlist(event: Event): void {
+    event.stopPropagation();
+    if (!this.product?.id) return;
+    const productId = this.product.id.toString();
+
+    if (this.isFavorite) {
+      this.wishListService.removeFromWishlist(productId).subscribe({
+        next: () => {
+          this.isFavorite = false;
+          ProductCardComponent.wishlistCache.delete(productId);
+          this.notificationService.showSuccess('Removed from wishlist', 'Close');
+          this.wishListToggle.emit(productId);
+        },
+        error: (err) => {
+          console.error('Failed to remove from wishlist:', err);
+          this.notificationService.showError('Could not remove from wishlist', 'Close');
+        }
+      });
+    } else {
+      this.wishListService.addToWishlist(productId).subscribe({
+        next: () => {
+          this.isFavorite = true;
+          ProductCardComponent.wishlistCache.add(productId);
+          this.notificationService.showSuccess('Added to wishlist', 'Close');
+          this.wishListToggle.emit(productId);
+        },
+        error: (err) => {
+          console.error('Failed to add to wishlist:', err);
+          this.notificationService.showError('Could not add to wishlist', 'Close');
+        }
+      });
+    }
+  }
 
   addToCart(product: Product): void {
     console.log('Adding product to cart:', product);

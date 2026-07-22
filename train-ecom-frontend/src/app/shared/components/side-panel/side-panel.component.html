@@ -2,6 +2,7 @@
   <mat-drawer #drawer class="sidenav rounded-start-4 shadow-lg" mode="over" position="end">
     <div class="side-panel-wrapper d-flex flex-column h-100">
 
+      <!-- Header Section -->
       <div class="panel-header px-4 py-3 d-flex align-items-center justify-content-between border-bottom bg-white">
         <div class="d-flex align-items-center gap-2">
           <div
@@ -20,8 +21,10 @@
         </button>
       </div>
 
+      <!-- Body Section -->
       <div class="panel-body flex-grow-1 p-4 overflow-y-auto">
 
+        <!-- Empty State -->
         <div *ngIf="items.length === 0"
           class="empty-panel-state d-flex flex-column align-items-center justify-content-center text-center h-100 py-5">
           <div
@@ -36,8 +39,8 @@
           </h6>
 
           <p class="text-muted small mb-4">
-            {{ type === 'Notification' ? 'You have no new notifications right now.' : "Looks like you haven't added
-            anyitems yet." }}
+            {{ type === 'Notification' ? 'You have no new notifications right now.' : "Looks like you haven't added any
+            items yet." }}
           </p>
 
           <button *ngIf="type !== 'Notification'" mat-flat-button color="primary" class="rounded-pill px-4"
@@ -46,30 +49,17 @@
           </button>
         </div>
 
+        <!-- 🔹 Reusable Side Item Card Integration -->
         <div *ngIf="items.length > 0" class="d-flex flex-column gap-3">
-          <div *ngFor="let item of items"
-            class="side-item-card p-3 rounded-3 border bg-white shadow-xs d-flex align-items-center gap-3">
-            <div class="item-thumb-box rounded-3 border overflow-hidden bg-light flex-shrink-0">
-              <img
-                [src]="item.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200&auto=format&fit=crop'"
-                alt="{{ item.name }}" class="item-img img-fluid" />
-            </div>
-
-            <div class="flex-grow-1 overflow-hidden">
-              <h6 class="fw-bold text-dark text-truncate mb-1">{{ item.name }}</h6>
-              <div class="d-flex align-items-center justify-content-between">
-                <span class="text-primary fw-bold">₹{{ item.price | number:'1.2-2' }}</span>
-                <span *ngIf="item.quantity" class="badge bg-secondary-subtle text-dark">Qty: {{ item.quantity }}</span>
-              </div>
-            </div>
-
-            <button mat-icon-button color="warn" class="flex-shrink-0" matTooltip="Remove">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
-          </div>
+          <app-side-item-card *ngFor="let item of items" [item]="item" [mode]="type === 'Cart' ? 'cart' : 'wishlist'"
+            (remove)="handleRemove($event)" (quantityChange)="handleQuantity($event)"
+            (moveToCart)="handleMoveToCart($event)">
+          </app-side-item-card>
         </div>
+
       </div>
 
+      <!-- Footer Section -->
       <div *ngIf="items.length > 0" class="panel-footer p-4 border-top bg-white">
         <div class="d-flex align-items-center justify-content-between mb-3" *ngIf="type === 'Cart'">
           <span class="text-muted fw-semibold">Subtotal</span>

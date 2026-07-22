@@ -1,0 +1,31 @@
+<div>
+    <div>
+        <img [src]="item.image" [alt]="item.name">
+    </div>
+
+    <div>
+        <h6 [matTooltip]="item.name">
+            {{ item.name }}
+        </h6>
+        <span>
+            {{ item.price | currency: 'INR' }}
+        </span>
+        <div *ngIf="mode === 'cart'">
+            <button (click)="onDecreaseQuantity()"> - </button>
+            <span>{{ item.quantity || 1 }}</span>
+            <button (click)="onIncreaseQuantity()"> + </button>
+        </div>
+    </div>
+
+    <div>
+        <button mat-icon-button color="primary" *ngIf="mode === 'wishlist'" (click)="onMoveToCart()"
+            matTooltip="Add to Cart">
+            <mat-icon>add_shopping_cart</mat-icon>
+        </button>
+
+        <button mat-icon-button color="warn" (click)="onRemove()" matTooltip="Remove">
+            <mat-icon>delete_outline</mat-icon>
+        </button>
+    </div>
+
+</div>

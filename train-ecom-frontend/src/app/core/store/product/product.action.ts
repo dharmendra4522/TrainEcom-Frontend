@@ -2,13 +2,14 @@ import { createAction, props } from '@ngrx/store';
 import { Product } from '../../../core/models/product.model';
 
 export const loadProducts = createAction(
-    '[Product] Load Products'
+    '[Product] Load Products',
+    props<{ pageNumber?: number; pageSize?: number; brandName?: string; categoryName?: string }>()
 );
 
 export const loadProductsSuccess = createAction(
     '[Product] Load Products Success',
-    props<{ products: Product[] }>()
-)
+    props<{ products: Product[]; totalPages: number; pageNumber: number }>()
+);
 
 export const loadProductsFailure = createAction(
     '[Product] Load Products Failure',
@@ -26,11 +27,11 @@ export const createProductSuccess = createAction(
 );
 
 export const updateProduct = createAction(
-  '[Product] Update Product',
-  props<{ id: string; productData: Partial<Product>; newFiles: File[]; deletedImageIds: string[] }>()
+    '[Product] Update Product',
+    props<{ id: string; productData: Partial<Product>; newFiles: File[]; deletedImageIds: string[] }>()
 );
 
 export const updateProductSuccess = createAction(
-  '[Product] Update Product Success',
-  props<{ product: Product }>()
+    '[Product] Update Product Success',
+    props<{ product: Product }>()
 );

@@ -5,6 +5,7 @@ export interface FieldConfig{
     validation?: any[];
     value?: any;
     maxLength?: number;
+    required?: boolean;
 }
 
 export interface DialogData{

@@ -20,15 +20,30 @@ export class ProductEffects {
         this.action$.pipe(
             ofType(ProductActions.loadProducts),
             withLatestFrom(this.store.select(selectAllProducts)),
-            filter(([_, products]) => !products || products.length === 0),
-            switchMap(() =>
-                this.productService.getAllProducts().pipe(
-                    map((products) => ProductActions.loadProductsSuccess({ products: products || [] })),
+            // Agar koi specific brand/category ya pagination request nahi hai aur products pehle se hain, tabhi cache use karega
+            switchMap(([action, products]) => {
+                const isFilteredOrPaged = action.brandName || action.categoryName || action.pageNumber;
+                
+                if (!isFilteredOrPaged && products && products.length > 0) {
+                    return of(ProductActions.loadProductsSuccess({ products, totalPages: 1, pageNumber: 1 }));
+                }
+
+                return this.productService.getPaginatedProducts(
+                    action.pageNumber || 1, 
+                    action.pageSize || 10, 
+                    action.brandName, 
+                    action.categoryName
+                ).pipe(
+                    map((response) => ProductActions.loadProductsSuccess({
+                        products: response?.items || [],
+                        totalPages: response?.totalPages || 1,
+                        pageNumber: action.pageNumber || 1
+                    })),
                     catchError((error) =>
                         of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
                     )
-                )
-            )
+                );
+            })
         )
     );
 

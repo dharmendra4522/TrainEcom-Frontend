@@ -28,6 +28,9 @@
                         <mat-error *ngIf="productForm.get('price')?.hasError('required')">
                             Price is required.
                         </mat-error>
+                        <mat-error *ngIf="productForm.get('price')?.hasError('min')">
+                            Price must be greater than 0.
+                        </mat-error>
                     </mat-form-field>
                 </div>
                 <div class="col-md-3">
@@ -36,6 +39,9 @@
                         <input matInput type="number" formControlName="stockQuantity" placeholder="0">
                         <mat-error *ngIf="productForm.get('stockQuantity')?.hasError('required')">
                             Stock quantity is required.
+                        </mat-error>
+                        <mat-error *ngIf="productForm.get('stockQuantity')?.hasError('min')">
+                            Stock cannot be negative.
                         </mat-error>
                     </mat-form-field>
                 </div>

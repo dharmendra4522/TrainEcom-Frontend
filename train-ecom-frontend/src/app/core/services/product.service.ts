@@ -18,7 +18,7 @@ export class ProductService {
   constructor() { }
 
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<any>(`${this.baseAPI}`).pipe(
+    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`).pipe(
       map((response) => response?.items || (Array.isArray(response) ? response : []))
     );
   }
@@ -76,11 +76,44 @@ export class ProductService {
     return this.http.delete<void>(`${this.baseAPI}/delete/${productId}`);
   }
 
-  getPaginatedProducts(pageNumber: number, pageSize: number): Observable<PaginatedProductsResponse> {
-    const params = new HttpParams()
+  getPaginatedProducts(
+    pageNumber: number = 1,
+    pageSize: number = 10,
+    brandName?: string,
+    categoryName?: string
+  ): Observable<PaginatedProductsResponse> {
+    let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
 
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`, { params });
+    if (brandName) {
+      params = params.set('BrandName', brandName);
+    }
+    if (categoryName) {
+      params = params.set('CategoryName', categoryName);
+    }
+
+    return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params });
   }
+
+
+  getFilteredProducts(brandName?: string, categoryName?: string): Observable<Product[]> {
+    let params = new HttpParams();
+    if (brandName) {
+      params = params.set('BrandName', brandName);
+    }
+    if (categoryName) {
+      params = params.set('CategoryName', categoryName);
+    }
+    return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params }).pipe(
+      map((response) => response?.items || [])
+    );
+  }
+
+  getRelatedProducts(productId: string): Observable<Product[]> {
+    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`).pipe(
+    map((response) => response?.items || (Array.isArray(response) ? response : []))
+  );
+  }
+
 }

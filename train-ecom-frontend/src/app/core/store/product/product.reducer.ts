@@ -4,12 +4,16 @@ import * as ProductActions from './product.action';
 
 export interface ProductState {
     products: Product[];
+    pageNumber: number;
+    totalPages: number;
     isLoading: boolean;
     error: string | null;
 }
 
 export const initialProductState: ProductState = {
     products: [],
+    pageNumber: 1,
+    totalPages: 1,
     isLoading: false,
     error: null
 }
@@ -23,9 +27,11 @@ export const productReducer = createReducer(
         error: null
     })),
 
-    on(ProductActions.loadProductsSuccess, (state, { products }) => ({
+    on(ProductActions.loadProductsSuccess, (state, { products, totalPages = 1, pageNumber = 1 }) => ({
         ...state,
-        products: products,
+        products: pageNumber === 1 ? products : [...state.products, ...products],
+        totalPages: totalPages,
+        pageNumber: pageNumber,
         isLoading: false,
         error: null
     })),

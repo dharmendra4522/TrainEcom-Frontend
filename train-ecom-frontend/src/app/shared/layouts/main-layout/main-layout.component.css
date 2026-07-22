@@ -11,6 +11,11 @@
   flex-direction: column !important;
 }
 
+.main-container.account-container {
+  min-height: calc(100vh - 70px) !important;
+  height: calc(100vh - 70px) !important;
+}
+
 ::ng-deep .mat-drawer-container {
   background-color: #f9f9f9;
   flex: 1 0 auto;

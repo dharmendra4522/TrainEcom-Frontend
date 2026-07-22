@@ -1,14 +1,10 @@
 import { Component, Input, ViewChild, inject } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { WishListItem } from '../../../core/models/wishList.model';
+import { WishListService } from '../../../core/services/wish-list.service';
 
-export interface SidePanelItem {
-  id: string | number;
-  name: string;
-  price: number;
-  image?: string;
-  quantity?: number;
-}
 
 @Component({
   selector: 'app-side-panel',
@@ -17,9 +13,11 @@ export interface SidePanelItem {
 })
 export class SidePanelComponent {
   private router = inject(Router);
+  private store = inject(Store);
+  private wishListService = inject(WishListService);
 
   @Input() type: 'WishList' | 'Cart' | 'Notification' = 'WishList';
-  @Input() items: SidePanelItem[] = [];
+  @Input() items: WishListItem[] = [];
 
   @ViewChild('drawer') drawer!: MatDrawer;
 
@@ -54,8 +52,32 @@ export class SidePanelComponent {
     return this.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
   }
 
+  loadWishlistItems(): void {
+    this.wishListService.getWishList().subscribe({
+      next: (items) => {
+        this.items = items;
+      }
+    });
+  }
+
   navigateToShopping(): void {
     this.close();
     this.router.navigate(['/']);
+  }
+
+  handleRemove(id: string | number): void {
+    if (this.type === 'Cart') {
+      console.log('Dispatching remove from cart:', id);
+    } else if (this.type === 'WishList') {
+      console.log('Dispatching remove from wishlist:', id);
+    }
+  }
+
+  handleQuantity(event: { id: string | number, action: 'add' | 'subtract' }): void {
+    console.log('Dispatching quantity update:', event);
+  }
+
+  handleMoveToCart(item: WishListItem): void {
+    console.log('Moving item from wishlist to cart:', item);
   }
 }

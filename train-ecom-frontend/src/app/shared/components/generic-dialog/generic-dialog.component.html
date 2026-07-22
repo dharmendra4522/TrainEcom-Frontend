@@ -21,8 +21,12 @@
                     Only alphabets and spaces are allowed.
                 </mat-error>
 
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'phoneNumber'">
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && (field.key === 'phone' || field.key === 'phoneNumber')">
                     Please enter a valid 10-digit phone number.
+                </mat-error>
+
+                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'postalCode'">
+                    Please enter a valid 6-digit postal code.
                 </mat-error>
 
                 <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('minlength')">

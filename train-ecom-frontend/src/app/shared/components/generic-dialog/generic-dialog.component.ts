@@ -1,5 +1,5 @@
 import { Component, Inject, inject } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, } from '@angular/material/dialog';
 import { DialogData } from '../../../core/models/dialog.model';
 
@@ -25,8 +25,12 @@ export class GenericDialogComponent {
     const group: any = {};
     this.data.fields.forEach(field => {
       let defaultValue = field.value !== undefined ? field.value : (field.type === 'checkbox' ? false : '');
-      group[field.key] = [defaultValue, field.validation || []];
-    })
+      let validations = field.validation || [];
+      if (field.required) {
+        validations = [...validations, Validators.required];
+      }
+      group[field.key] = [defaultValue, validations];
+    });
     this.dynamicForm = this.fb.group(group);
   }
 

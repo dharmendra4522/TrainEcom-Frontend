@@ -53,7 +53,7 @@ export class ProductsComponent implements OnInit {
   }
 
   fetchProducts() {
-    this.store.dispatch(ProductActions.loadProducts());
+    this.store.dispatch(ProductActions.loadProducts({ pageNumber: this.pageNumber, pageSize: this.pageSize }));
   }
 
   onPageChange(event: PageEvent) {
@@ -76,7 +76,7 @@ export class ProductsComponent implements OnInit {
     this.productService.deleteProduct(productId).subscribe({
       next: () => {
         this.notification.showSuccess('Product deleted successfully', 'Close');
-        this.store.dispatch(ProductActions.loadProducts());
+        this.store.dispatch(ProductActions.loadProducts({ pageNumber: this.pageNumber, pageSize: this.pageSize }));
       },
       error: (error) => {
         console.error('Error deleting product:', error);

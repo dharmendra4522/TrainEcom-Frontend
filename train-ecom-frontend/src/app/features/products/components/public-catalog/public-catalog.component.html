@@ -1,0 +1,36 @@
+<div class="container mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold m-0">Product Catalog</h2>
+
+        <button mat-stroked-button color="primary" routerLink="/" class="d-flex align-items-center gap-2">
+            <mat-icon>arrow_back</mat-icon>
+            Back to Home
+        </button>
+    </div>
+
+    <div *ngIf="isLoading$ | async" class="d-flex justify-content-center py-5">
+        <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <ng-container *ngIf="!(isLoading$ | async)">
+        <ng-container *ngIf="filteredProductRows$ | async as rows">
+            <cdk-virtual-scroll-viewport 
+                *ngIf="rows.length > 0; else noProducts"
+                itemSize="380" 
+                class="catalog-viewport">
+                <div *cdkVirtualFor="let row of rows" class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 py-2 px-1 m-0">
+                    <div class="col d-flex align-items-stretch" *ngFor="let product of row">
+                        <app-product-card [product]="product" class="w-100"></app-product-card>
+                    </div>
+                </div>
+            </cdk-virtual-scroll-viewport>
+        </ng-container>
+
+        <ng-template #noProducts>
+            <div class="text-center py-5 bg-light rounded-4 mt-4">
+                <mat-icon class="text-muted display-6 mb-2">inventory_2</mat-icon>
+                <p class="text-muted fw-medium m-0">No products found for this filter.</p>
+            </div>
+        </ng-template>
+    </ng-container>
+</div>

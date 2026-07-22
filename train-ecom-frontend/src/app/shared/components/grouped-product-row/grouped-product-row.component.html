@@ -1,0 +1,14 @@
+<div class="product-row-section mt-5" *ngIf="(products$ | async)?.length as length">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-dark m-0">{{ title }}</h3>
+
+        <a mat-button color="primary" [routerLink]="['/products']"
+            [queryParams]="filterType === 'brand' ? { brand: filterValue } : { category: filterValue }">
+            View All <mat-icon class="fs-6">arrow_forward</mat-icon>
+        </a>
+    </div>
+
+    <div class="product-grid">
+        <app-product-card *ngFor="let product of (products$ | async)" [product]="product"></app-product-card>
+    </div>
+</div>

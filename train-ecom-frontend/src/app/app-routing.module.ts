@@ -47,10 +47,16 @@ const routes: Routes = [
           },
           {
             path: 'products',
-            loadChildren: () =>
-              import('./features/products/products.module').then(
-                (m) => m.ProductsModule,
-              ),
+            children: [
+              { path: '', redirectTo: 'manage', pathMatch: 'full' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/products/products.module').then(
+                    (m) => m.ProductsModule,
+                  ),
+              }
+            ]
           },
           {
             path: 'brands',

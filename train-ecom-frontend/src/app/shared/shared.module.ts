@@ -16,6 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ProductFilterComponent } from './components/product-filter/product-filter.component';
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
+import { GroupedProductRowComponent } from './components/grouped-product-row/grouped-product-row.component';
+import { SideItemCardComponent } from './components/side-item-card/side-item-card.component';
 
 
 @NgModule({
@@ -33,6 +35,8 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
     SidePanelComponent,
     ProductFilterComponent,
     GenericTableComponent,
+    GroupedProductRowComponent,
+    SideItemCardComponent,
   ],
   imports: [
     CommonModule,
@@ -52,6 +56,11 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
     GenericDialogComponent,
     SidebarComponent,
     GenericTableComponent,
+    GroupedProductRowComponent,
+    SideItemCardComponent,
+    SidePanelComponent,
+    ProductFilterComponent,
+
   ]
 })
 export class SharedModule { }

@@ -1,16 +1,13 @@
 <mat-card class="product-card" appearance="outlined">
-  <button mat-icon-button class="wishlist-btn" aria-label="Add to wishlist">
-    <mat-icon>favorite_border</mat-icon>
+  <button mat-icon-button class="wishlist-btn" (click)="onToggleWishlist($event)"
+    [matTooltip]="isFavorite ? 'Remove from Wishlist' : 'Add to Wishlist'">
+    <mat-icon [class.text-danger]="isFavorite">
+      {{ isFavorite ? 'favorite' : 'favorite_border' }}
+    </mat-icon>
   </button>
 
-  <img
-  mat-card-image
-  [src]="product.thumbnailUrl"
-  [alt]="product.name"
-  loading="lazy"
-  [routerLink]="['/products', product.id]"
-  style="cursor: pointer;"
-/>
+  <img mat-card-image [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy"
+    [routerLink]="['/products', product.id]" style="cursor: pointer;" />
 
   <mat-card-header [routerLink]="['/products', product.id]" style="cursor: pointer;">
     <mat-card-title>{{ product.name }}</mat-card-title>

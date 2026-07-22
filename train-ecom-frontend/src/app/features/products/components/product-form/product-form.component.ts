@@ -5,8 +5,8 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { Brand, Category, Product, ProductImage } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProductService } from '../../../../core/services/product.service';
-import { Observable } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { startWith, map, filter, take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -40,6 +40,10 @@ export class ProductFormComponent implements OnInit {
 
   isEditMode: boolean = false;
   productId: string | null = null;
+  originalBrandId: string = '';
+  originalCategoryId: string = '';
+  originalBrandName: string = '';
+  originalCategoryName: string = '';
 
   productForm!: FormGroup;
   brands: Brand[] = [];
@@ -66,7 +70,22 @@ export class ProductFormComponent implements OnInit {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
       this.isEditMode = true;
-      this.loadProductDetails(this.productId);
+      
+      combineLatest([
+        this.store.select(selectAllBrands),
+        this.store.select(selectAllCategories)
+      ]).pipe(
+        filter(([brands, categories]) => brands && brands.length > 0 && categories && categories.length > 0),
+        take(1)
+      ).subscribe({
+        next: ([brands, categories]) => {
+          this.brands = brands;
+          this.categories = categories;
+          if (this.productId) {
+            this.loadProductDetails(this.productId);
+          }
+        }
+      });
     }
   }
 
@@ -75,6 +94,11 @@ export class ProductFormComponent implements OnInit {
       next: (product: Product) => {
         const brandId = product.brandId || '';
         const categoryId = product.categoryId || '';
+
+        this.originalBrandId = brandId;
+        this.originalCategoryId = categoryId;
+        this.originalBrandName = product.brandName || '';
+        this.originalCategoryName = product.categoryName || '';
 
         this.productForm.patchValue({
           title: product.name || '',
@@ -135,8 +159,16 @@ export class ProductFormComponent implements OnInit {
     this.brandControl.valueChanges.subscribe(val => {
       if (!val) {
         this.productForm.patchValue({ brand: '' });
-      } else if (typeof val === 'string') {
-        const foundById = this.brands.find(b => b.id === val);
+        return;
+      }
+
+      if (this.brands.length === 0 || (typeof val === 'string' && val.toLowerCase() === this.originalBrandId.toLowerCase())) {
+        this.productForm.patchValue({ brand: val });
+        return;
+      }
+
+      if (typeof val === 'string') {
+        const foundById = this.brands.find(b => b.id.toLowerCase() === val.toLowerCase());
         if (foundById) {
           this.productForm.patchValue({ brand: foundById.id });
         } else {
@@ -153,8 +185,16 @@ export class ProductFormComponent implements OnInit {
     this.categoryControl.valueChanges.subscribe(val => {
       if (!val) {
         this.productForm.patchValue({ category: '' });
-      } else if (typeof val === 'string') {
-        const foundById = this.categories.find(c => c.id === val);
+        return;
+      }
+
+      if (this.categories.length === 0 || (typeof val === 'string' && val.toLowerCase() === this.originalCategoryId.toLowerCase())) {
+        this.productForm.patchValue({ category: val });
+        return;
+      }
+
+      if (typeof val === 'string') {
+        const foundById = this.categories.find(c => c.id.toLowerCase() === val.toLowerCase());
         if (foundById) {
           this.productForm.patchValue({ category: foundById.id });
         } else {
@@ -177,7 +217,7 @@ export class ProductFormComponent implements OnInit {
     const strVal = typeof value === 'string' ? value : value.name;
     if (!strVal) return items;
 
-    const isExistingId = items.some(item => item.id === strVal);
+    const isExistingId = items.some(item => item.id.toLowerCase() === strVal.toLowerCase());
     if (isExistingId) {
       return items;
     }
@@ -196,14 +236,18 @@ export class ProductFormComponent implements OnInit {
 
   displayBrandName = (brandId: string): string => {
     if (!brandId) return '';
-    const brand = this.brands.find(b => b.id === brandId);
-    return brand ? brand.name : brandId;
+    const brand = this.brands.find(b => b.id.toLowerCase() === brandId.toLowerCase());
+    if (brand) return brand.name;
+    if (brandId.toLowerCase() === this.originalBrandId.toLowerCase()) return this.originalBrandName;
+    return brandId;
   };
 
   displayCategoryName = (categoryId: string): string => {
     if (!categoryId) return '';
-    const category = this.categories.find(c => c.id === categoryId);
-    return category ? category.name : categoryId;
+    const category = this.categories.find(c => c.id.toLowerCase() === categoryId.toLowerCase());
+    if (category) return category.name;
+    if (categoryId.toLowerCase() === this.originalCategoryId.toLowerCase()) return this.originalCategoryName;
+    return categoryId;
   };
 
   openAddDialog(type: 'brand' | 'category'): void {
@@ -258,8 +302,8 @@ export class ProductFormComponent implements OnInit {
   private validateForm(): void {
     this.productForm = this.fb.group({
       title: ['', Validators.required],
-      price: [0, Validators.required],
-      stockQuantity: [0, Validators.required],
+      price: [0, [Validators.required, Validators.min(0.01)]],
+      stockQuantity: [0, [Validators.min(0)]],
       brand: ['', Validators.required],
       category: ['', Validators.required],
       description: ['', Validators.required],
@@ -305,7 +349,7 @@ export class ProductFormComponent implements OnInit {
         name: formValue.title,
         description: formValue.description,
         price: formValue.price,
-        stockQuantity: formValue.stockQuantity,
+        stockQuantity: (formValue.stockQuantity !== null && formValue.stockQuantity !== undefined && formValue.stockQuantity !== '') ? Number(formValue.stockQuantity) : 0,
         brandId: formValue.brand,
         categoryId: formValue.category
       };

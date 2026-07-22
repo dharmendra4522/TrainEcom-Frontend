@@ -23,9 +23,10 @@ import { brandReducer } from './core/store/brand/brand.reducer';
 import { BrandEffects } from './core/store/brand/brand.effects';
 import { categoryReducer } from './core/store/category/category.reducer';
 import { CategoryEffects } from './core/store/category/category.effects';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
