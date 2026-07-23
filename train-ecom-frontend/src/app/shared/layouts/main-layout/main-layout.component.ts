@@ -25,6 +25,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   userRole$: Observable<string | null> = this.store.select(selectUserRole);
   isAccountRoute: boolean = false;
+  isDetailsOrFormRoute: boolean = false;
   currentMenuItems: MenuItem[] = [];
 
   @ViewChild('drawer') drawer!: MatSidenav;
@@ -62,6 +63,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkAccountRoute(this.router.url);
+    this.checkDetailsRoute(this.router.url);
 
     // Router events ko track karo
     this.router.events
@@ -71,6 +73,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       )
       .subscribe((event: NavigationEnd) => {
         this.checkAccountRoute(event.urlAfterRedirects);
+        this.checkDetailsRoute(event.urlAfterRedirects);
       });
 
     this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
@@ -80,6 +83,11 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   private checkAccountRoute(url: string): void {
     this.isAccountRoute = url.includes('/account');
+  }
+
+  private checkDetailsRoute(url: string): void {
+    const basePath = url.split('?')[0];
+    this.isDetailsOrFormRoute = basePath.includes('/products/') && basePath !== '/products';
   }
 
   shouldShowSidebar(role: string | null): boolean {

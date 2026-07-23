@@ -21,6 +21,7 @@ export class ProductCardComponent implements OnInit {
 
   @Input() product!: Product;
   @Output() wishListToggle = new EventEmitter<string>();
+  @Output() addToCartEvent = new EventEmitter<Product>();
 
   isFavorite: boolean = false;
 
@@ -106,6 +107,6 @@ export class ProductCardComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    console.log('Adding product to cart:', product);
+    this.addToCartEvent.emit(product);
   }
 }

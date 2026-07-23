@@ -13,7 +13,7 @@
   </app-header>
 
   <app-product-filter
-    *ngIf="(userRole$ | async) !== 'Admin' && !isAccountRoute"
+    *ngIf="(userRole$ | async) !== 'Admin' && !isAccountRoute && !isDetailsOrFormRoute"
     class="d-block"
   ></app-product-filter>
 

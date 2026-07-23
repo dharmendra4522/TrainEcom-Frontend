@@ -3,7 +3,7 @@ import { Brand, Category, Product } from '../../../../core/models/product.model'
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
@@ -21,13 +21,21 @@ export class HomeComponent implements OnInit {
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
-  brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
-  categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  brands$: Observable<Brand[]> = this.store.select(selectAllBrands).pipe(
+    map(brands => brands.slice(0, 4))
+  )
+  categories$: Observable<Category[]> = this.store.select(selectAllCategories).pipe(
+    map(categories => categories.slice(0, 3))
+  )
 
   ngOnInit() {
     this.fetchProducts();
     this.store.dispatch(BrandActions.loadBrands());
     this.store.dispatch(CategoryActions.loadCategories());
+  }
+
+  onBannerBuyNow() {
+    console.log('Buy Now button clicked from banner');
   }
 
   private fetchProducts(): void {

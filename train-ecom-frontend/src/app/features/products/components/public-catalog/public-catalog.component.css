@@ -1,15 +1,116 @@
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-  width: 100%;
+.filter-sidebar {
+  border-color: #f1f5f9 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px -2px rgba(51, 65, 85, 0.05), 0 2px 8px -1px rgba(51, 65, 85, 0.03) !important;
 }
 
+.filter-sidebar:hover {
+  box-shadow: 0 10px 25px -3px rgba(51, 65, 85, 0.08), 0 4px 12px -2px rgba(51, 65, 85, 0.05) !important;
+}
 
+.filter-section {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-  padding-bottom: 20px;
+.filter-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.filter-link {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.filter-link:hover {
+  color: #0d6efd;
+  background-color: #f8fafc;
+  padding-left: 12px !important;
+}
+
+.filter-link mat-icon {
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: all 0.2s ease-in-out;
+  color: #0d6efd;
+}
+
+.filter-link:hover mat-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.active-link {
+  color: #0d6efd !important;
+  background-color: rgba(13, 110, 253, 0.06) !important;
+  font-weight: 600 !important;
+}
+
+.active-link mat-icon {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
+.price-chip {
+  width: 100%;
+  border-color: #e2e8f0 !important;
+  transition: all 0.2s ease;
+  font-weight: 500 !important;
+}
+
+.price-chip:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.active-chip {
+  background-color: #0d6efd !important;
+  color: #ffffff !important;
+  border-color: #0d6efd !important;
+}
+
+.active-chip:hover {
+  background-color: #0b5ed7 !important;
+  color: #ffffff !important;
+  border-color: #0b5ed7 !important;
+}
+
+.rating-link {
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.rating-link:hover {
+  background-color: #f8fafc !important;
+}
+
+.rating-link.active-link {
+  background-color: rgba(13, 110, 253, 0.06) !important;
+}
+
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.min-width-unset {
+  min-width: unset !important;
+}
+
+@media (max-width: 991.98px) {
+  .filter-sidebar {
+    position: static !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px;
+  }
 }

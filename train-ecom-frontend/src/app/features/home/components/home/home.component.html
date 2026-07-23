@@ -1,18 +1,21 @@
 <div class="home-container">
   <app-hero></app-hero>
- 
+
   <ng-container *ngIf="brands$ | async as brandsList">
     <app-grouped-product-row *ngFor="let brand of brandsList" [title]="brand.name" filterType="brand"
       [filterValue]="brand.name">
     </app-grouped-product-row>
-
   </ng-container>
+
+  <section class="container my-5" (click)="onBannerBuyNow()">
+    <div class="promo-banner-card position-relative rounded-4 overflow-hidden shadow-sm cursor-pointer">
+      <img src="assets/category-home.png" alt="Special Promotional Banner" class="w-100 h-auto d-block" />
+    </div>
+  </section>
 
   <ng-container *ngIf="categories$ | async as catList">
     <app-grouped-product-row *ngFor="let cat of catList" [title]="cat.name" filterType="category"
       [filterValue]="cat.name">
     </app-grouped-product-row>
   </ng-container>
-
-
 </div>
