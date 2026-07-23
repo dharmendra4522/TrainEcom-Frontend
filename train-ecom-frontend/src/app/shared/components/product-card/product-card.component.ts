@@ -5,9 +5,8 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
-
 import { Router } from '@angular/router';
-
+import { CartService } from '../../../core/services/cart.service';
 @Component({
   selector: 'app-product-card',
   templateUrl: './product-card.component.html',
@@ -18,6 +17,7 @@ export class ProductCardComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private store = inject(Store);
   private router = inject(Router);
+  private cartService = inject(CartService);
 
   @Input() product!: Product;
   @Output() wishListToggle = new EventEmitter<string>();
@@ -35,32 +35,45 @@ export class ProductCardComponent implements OnInit {
 
   private checkWishlistStatus(): void {
     if (!this.product?.id) return;
-    const productId = this.product.id.toString();
-
+    
     this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
       if (!isLoggedIn) {
-        this.isFavorite = false;
-        return;
+        this.handleLoggedOutState();
+      } else {
+        this.handleLoggedInState(this.product.id.toString());
       }
-
-      if (ProductCardComponent.isInitialized) {
-        this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
-        return;
-      }
-
-      this.wishListService.getWishList().subscribe({
-        next: (items) => {
-          ProductCardComponent.wishlistCache = new Set(items.map((i: any) => (i.productId || i.id).toString()));
-          ProductCardComponent.isInitialized = true;
-          this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
-        },
-        error: () => {
-          this.fetchIndividualStatus(productId);
-        }
-      });
     });
   }
 
+  
+  private handleLoggedOutState(): void {
+    this.isFavorite = false;
+  }
+
+  private handleLoggedInState(productId: string): void {
+    if (ProductCardComponent.isInitialized) {
+      this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+      return;
+    }
+
+    this.fetchWishlistFromServer(productId);
+  }
+
+// Load wishlist from server and cache it for future reference
+  private fetchWishlistFromServer(productId: string): void {
+    this.wishListService.getWishList().subscribe({
+      next: (items) => {
+        ProductCardComponent.wishlistCache = new Set(items.map((i: any) => (i.productId || i.id).toString()));
+        ProductCardComponent.isInitialized = true;
+        this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
+      },
+      error: () => {
+        this.fetchIndividualStatus(productId);
+      }
+    });
+  }
+
+//  Fetch individual product's wishlist status if the full wishlist fetch fails
   private fetchIndividualStatus(productId: string): void {
     this.wishListService.checkInWishlist(productId).subscribe({
       next: (status: boolean) => {
@@ -78,35 +91,52 @@ export class ProductCardComponent implements OnInit {
     const productId = this.product.id.toString();
 
     if (this.isFavorite) {
-      this.wishListService.removeFromWishlist(productId).subscribe({
-        next: () => {
-          this.isFavorite = false;
-          ProductCardComponent.wishlistCache.delete(productId);
-          this.notificationService.showSuccess('Removed from wishlist', 'Close');
-          this.wishListToggle.emit(productId);
-        },
-        error: (err) => {
-          console.error('Failed to remove from wishlist:', err);
-          this.notificationService.showError('Could not remove from wishlist', 'Close');
-        }
-      });
+      this.removeProductFromWishlist(productId);
     } else {
-      this.wishListService.addToWishlist(productId).subscribe({
-        next: () => {
-          this.isFavorite = true;
-          ProductCardComponent.wishlistCache.add(productId);
-          this.notificationService.showSuccess('Added to wishlist', 'Close');
-          this.wishListToggle.emit(productId);
-        },
-        error: (err) => {
-          console.error('Failed to add to wishlist:', err);
-          this.notificationService.showError('Could not add to wishlist', 'Close');
-        }
-      });
+      this.addProductToWishlist(productId);
     }
   }
 
+  private removeProductFromWishlist(productId: string): void {
+    this.wishListService.removeFromWishlist(productId).subscribe({
+      next: () => {
+        this.isFavorite = false;
+        ProductCardComponent.wishlistCache.delete(productId);
+        this.notificationService.showSuccess('Removed from wishlist', 'Close');
+        this.wishListToggle.emit(productId);
+      },
+      error: (err) => {
+        console.error('Failed to remove from wishlist:', err);
+        this.notificationService.showError('Could not remove from wishlist', 'Close');
+      }
+    });
+  }
+
+  private addProductToWishlist(productId: string): void {
+    this.wishListService.addToWishlist(productId).subscribe({
+      next: () => {
+        this.isFavorite = true;
+        ProductCardComponent.wishlistCache.add(productId);
+        this.notificationService.showSuccess('Added to wishlist', 'Close');
+        this.wishListToggle.emit(productId);
+      },
+      error: (err) => {
+        console.error('Failed to add to wishlist:', err);
+        this.notificationService.showError('Could not add to wishlist', 'Close');
+      }
+    });
+  }
+
   addToCart(product: Product): void {
-    this.addToCartEvent.emit(product);
+    this.cartService.addToCart(product.id.toString(), 1).subscribe({
+      next: (response) => {
+        this.notificationService.showSuccess(`Added ${product.name} to cart!`, 'Close');
+        this.addToCartEvent.emit(product);
+      },
+      error: (err) => {
+        console.error('Failed to add to cart:', err);
+        this.notificationService.showError('Could not add to cart', 'Close');
+      }
+    });
   }
 }

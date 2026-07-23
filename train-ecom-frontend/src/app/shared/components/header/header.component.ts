@@ -4,7 +4,6 @@ import {
   inject,
   Input,
   Output,
-  output,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
@@ -14,7 +13,6 @@ import {
 } from '../../../core/store/auth/auth.selectors';
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
 import { WishListService } from '../../../core/services/wish-list.service';
-import { take } from 'rxjs/internal/operators/take';
 
 @Component({
   selector: 'app-header',
@@ -30,7 +28,6 @@ export class HeaderComponent {
 
   @Output() openWishlist = new EventEmitter<void>();
   @Output() openCart = new EventEmitter<void>();
-
   @Output() openNotification = new EventEmitter<void>();
 
   isLoggedIn$ = this.store.select(selectIsLoggedIn);
@@ -41,12 +38,22 @@ export class HeaderComponent {
   cartCount: number = 0;
 
   ngOnInit() {
+    this.initWishlistSubscription();
+    this.initAuthSubscription();
+    this.loadCartCount();
+  }
+
+  
+  private initWishlistSubscription(): void {
     this.wishListService.wishlistItems$.subscribe({
       next: (items) => {
         this.wishlistCount = items ? items.length : 0;
       }
     });
-    
+  }
+
+// load wishlist count on login
+  private initAuthSubscription(): void {
     this.isLoggedIn$.subscribe(isLoggedIn => {
       if (isLoggedIn) {
         this.wishListService.loadWishlist();
@@ -54,8 +61,6 @@ export class HeaderComponent {
         this.wishlistCount = 0;
       }
     });
-
-    this.loadCartCount();
   }
 
   loadCartCount() {
@@ -66,6 +71,7 @@ export class HeaderComponent {
       this.cartCount = 0;
     }
   }
+
   onLogout(): void {
     this.store.dispatch(AuthActions.logout());
   }

@@ -8,6 +8,8 @@ import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
 import { WishListItem } from '../../../../core/models/wishList.model';
+import { Location } from '@angular/common';
+import { CartService } from '../../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -21,6 +23,8 @@ export class ProductDetailComponent implements OnInit {
   private wishListService = inject(WishListService);
   private store = inject(Store);
   private notification = inject(NotificationService);
+  private location = inject(Location);
+  private cartService = inject(CartService);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
@@ -65,7 +69,7 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
-  
+
   selectImage(url: string): void {
     this.selectedImageUrl = url;
   }
@@ -104,7 +108,17 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart(): void {
-    this.notification.showSuccess(`Added ${this.quantity} item(s) of ${this.product?.name} to cart!`);
+    if (!this.product?.id) return;
+    const productId = this.product.id.toString();
+    this.cartService.addToCart(productId, this.quantity).subscribe({
+      next: () => {
+        this.notification.showSuccess(`${this.quantity} item(s) added to cart!`);
+      },
+      error: (err) => {
+        console.error('Failed to add to cart:', err);
+        this.notification.showError('Failed to add to cart');
+      }
+    })
   }
 
   addToWishlist(): void {
@@ -146,6 +160,10 @@ export class ProductDetailComponent implements OnInit {
 
   buyNow(): void {
     this.notification.showSuccess(`Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`);
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   private loadRelatedProducts(): void {

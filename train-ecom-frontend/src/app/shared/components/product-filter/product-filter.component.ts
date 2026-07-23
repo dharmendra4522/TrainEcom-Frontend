@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -21,34 +21,30 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
 
-  // 🔹 Select Brands and Categories streams from the store
+  @ViewChild('chipsContainer', { static: false }) chipsContainer!: ElementRef;
+
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
 
-  // Form control for the search input box
   searchControl = new FormControl('');
 
   ngOnInit() {
-    // Ensure brands and categories are loaded in store
     this.store.dispatch(BrandActions.loadBrands());
     this.store.dispatch(CategoryActions.loadCategories());
 
-    // 🔹 Combine Active Route Params (brand/category) and Search query inputs
     combineLatest([
       this.route.queryParams.pipe(startWith({})),
       this.searchControl.valueChanges.pipe(
         startWith(''),
-        debounceTime(400), // Debouncing delay of 400ms
-        distinctUntilChanged(), // Fire only if value actually changed
+        debounceTime(400), 
+        distinctUntilChanged(),
       )
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([params, searchVal]: [any, any]) => {
-        // Get current filtering context from routing params
         const brand = params['brand'];
         const category = params['category'];
 
-        // Dispatch loadProducts action to fetch matched results from the API
         this.store.dispatch(
           ProductActions.loadProducts({
             pageNumber: 1,
@@ -61,9 +57,19 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
       });
   }
 
+  scrollChips(direction: 'left' | 'right'): void {
+    const container = this.chipsContainer.nativeElement;
+    const scrollAmount = 200;
+
+    if(direction === 'left') {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 }
-// Recompile trigger check

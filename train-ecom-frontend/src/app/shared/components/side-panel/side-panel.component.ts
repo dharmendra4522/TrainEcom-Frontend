@@ -7,6 +7,7 @@ import { WishListService } from '../../../core/services/wish-list.service';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-side-panel',
@@ -18,9 +19,10 @@ export class SidePanelComponent implements OnInit {
   private store = inject(Store);
   private wishListService = inject(WishListService);
   private cdr = inject(ChangeDetectorRef);
+  private cartService = inject(CartService);
 
   @Input() type: 'WishList' | 'Cart' | 'Notification' = 'WishList';
-  @Input() items: WishListItem[] = [];
+  @Input() items: WishListItem[]  = [];
 
   @ViewChild('drawer') drawer!: MatDrawer;
 

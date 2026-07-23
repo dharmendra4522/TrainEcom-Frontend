@@ -29,21 +29,19 @@
   background-color: rgba(13, 110, 253, 0.08);
 }
 
-/* Horizontal chips scrolling layout */
 .filter-chips-container {
   overflow-x: auto !important;
-  scrollbar-width: none; /* Hide standard Firefox scrollbar */
+  scrollbar-width: none; 
 }
 
 .filter-chips-container::-webkit-scrollbar {
-  display: none; /* Hide Chrome/Safari scrollbars */
+  display: none;
 }
 
 .chips-scroll-wrapper {
   white-space: nowrap;
 }
 
-/* Individual Chip / Tag design */
 .filter-chip {
   display: inline-block;
   font-weight: 500;
@@ -60,7 +58,6 @@
   border-color: #cbd5e1 !important;
 }
 
-/* Active Chip highlights */
 .filter-chip.active-chip {
   background-color: #0d6efd !important;
   color: #ffffff !important;
@@ -104,4 +101,44 @@
 
 .fs-7 {
   font-size: 0.825rem;
+}
+
+
+.filter-chips-container::-webkit-scrollbar {
+  display: none;
+}
+.filter-chips-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scroll-btn {
+  width: 32px !important;
+  height: 32px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  cursor: pointer;
+  z-index: 10;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.scroll-btn:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: scale(1.05);
+}
+
+.scroll-btn mat-icon {
+  color: #334155 !important; 
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+  margin: 0 !important;
 }

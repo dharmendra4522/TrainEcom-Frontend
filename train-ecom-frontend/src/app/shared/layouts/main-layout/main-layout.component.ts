@@ -47,6 +47,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'My Profile', icon: 'person', route: '/account/profile' },
     { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
     { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
+    { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
     { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
   ];
 
@@ -74,6 +75,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       .subscribe((event: NavigationEnd) => {
         this.checkAccountRoute(event.urlAfterRedirects);
         this.checkDetailsRoute(event.urlAfterRedirects);
+        window.scrollTo({ top: 0, behavior: 'instant' });
       });
 
     this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {

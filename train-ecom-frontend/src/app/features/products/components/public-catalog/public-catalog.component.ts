@@ -31,19 +31,16 @@ export class PublicCatalogComponent implements OnInit {
 
   filteredProducts$!: Observable<Product[]>;
 
-  // Sidebar Filter States
   minPriceFilter$ = new BehaviorSubject<number | null>(null);
   maxPriceFilter$ = new BehaviorSubject<number | null>(null);
   ratingFilter$ = new BehaviorSubject<number | null>(null);
   sortBy$ = new BehaviorSubject<string>('popularity');
 
-  // For UI checks
   activeMinPrice: number | null = null;
   activeMaxPrice: number | null = null;
   activeRating: number | null = null;
   activeSort: string = 'popularity';
 
-  // Mobile collapse flag
   showMobileFilters: boolean = false;
 
   ngOnInit() {
@@ -51,7 +48,6 @@ export class PublicCatalogComponent implements OnInit {
     this.setupFilteredProducts();
   }
 
-  // 1. Initial data loading dispatch handle karne ke liye
   private initStoreData(): void {
     this.products$.pipe(map(p => p.length === 0)).subscribe(isEmpty => {
       if (isEmpty) {
@@ -63,8 +59,11 @@ export class PublicCatalogComponent implements OnInit {
     this.store.dispatch(BrandActions.loadBrands());
   }
 
-  // 2. Filtering aur Sorting pipeline setup karne ke liye
   private setupFilteredProducts(): void {
+    this.route.queryParamMap.subscribe(params => {
+      this.dispatchLoadWithCurrentParams();
+    });
+
     this.filteredProducts$ = combineLatest([
       this.products$,
       this.route.queryParams.pipe(startWith({})),
@@ -79,12 +78,12 @@ export class PublicCatalogComponent implements OnInit {
         this.updateActiveFilterUI(minPrice, maxPrice, rating, sortBy);
 
         const filtered = this.filterProductsList(products, params, minPrice, maxPrice, rating);
+
         return this.sortProductsList(filtered, sortBy);
       })
     );
   }
 
-  // 3. UI states sync karne ke liye helper
   private updateActiveFilterUI(min: number | null, max: number | null, rating: number | null, sort: string): void {
     this.activeMinPrice = min;
     this.activeMaxPrice = max;
@@ -103,10 +102,10 @@ export class PublicCatalogComponent implements OnInit {
 
       const matchesBrand = brand ? prodBrand === brand : true;
       const matchesCategory = category ? prodCategory === category : true;
-      
+
       const matchesMinPrice = minPrice !== null ? product.price >= minPrice : true;
       const matchesMaxPrice = maxPrice !== null ? product.price <= maxPrice : true;
-      
+
       const numId = Number(product.id) || 0;
       const prodRating = (product as any).rating || (4.0 + (numId % 10) / 10.0);
       const matchesRating = rating !== null ? prodRating >= rating : true;
@@ -138,6 +137,7 @@ export class PublicCatalogComponent implements OnInit {
       queryParams: { category: categoryName || null },
       queryParamsHandling: 'merge'
     });
+    this.dispatchLoadWithCurrentParams();
   }
 
   onBrandChange(brandName: string) {
@@ -146,6 +146,19 @@ export class PublicCatalogComponent implements OnInit {
       queryParams: { brand: brandName || null },
       queryParamsHandling: 'merge'
     });
+    this.dispatchLoadWithCurrentParams();
+  }
+
+  private dispatchLoadWithCurrentParams() {
+    const queryParams = this.route.snapshot.queryParamMap;
+
+    this.store.dispatch(ProductActions.loadProducts({
+      pageNumber: 1,
+      pageSize: 20,
+      brandName: queryParams.get('brand') || undefined,
+      categoryName: queryParams.get('category') || undefined,
+      search: queryParams.get('search') || undefined
+    }));
   }
 
   setPriceRange(min: number | null, max: number | null) {

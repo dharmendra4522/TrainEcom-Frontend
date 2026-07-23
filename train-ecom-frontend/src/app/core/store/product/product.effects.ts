@@ -17,37 +17,29 @@ export class ProductEffects {
     private store = inject(Store);
 
     loadProducts$ = createEffect(() =>
-        this.action$.pipe(
-            ofType(ProductActions.loadProducts),
-            withLatestFrom(this.store.select(selectAllProducts)),
-            // Agar koi specific brand/category, search term ya pagination request hai, toh dynamic call trigger hogi
-            switchMap(([action, products]) => {
-                const isFilteredOrPaged = action.brandName || action.categoryName || action.pageNumber || action.search;
-                
-                if (!isFilteredOrPaged && products && products.length > 0) {
-                    return of(ProductActions.loadProductsSuccess({ products, totalPages: 1, pageNumber: 1, totalRecords: products.length }));
-                }
-
-                return this.productService.getPaginatedProducts(
-                    action.pageNumber || 1, 
-                    action.pageSize || 10, 
-                    action.brandName, 
-                    action.categoryName,
-                    action.search
-                ).pipe(
-                    map((response) => ProductActions.loadProductsSuccess({
-                        products: response?.items || [],
-                        totalPages: response?.totalPages || 1,
-                        pageNumber: action.pageNumber || 1,
-                        totalRecords: response?.totalRecords || 0
-                    })),
-                    catchError((error) =>
-                        of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
-                    )
-                );
-            })
-        )
-    );
+    this.action$.pipe(
+        ofType(ProductActions.loadProducts),
+        switchMap((action) => {
+            return this.productService.getPaginatedProducts(
+                action.pageNumber || 1, 
+                action.pageSize || 10, 
+                action.brandName, 
+                action.categoryName,
+                action.search
+            ).pipe(
+                map((response) => ProductActions.loadProductsSuccess({
+                    products: response?.items || [],
+                    totalPages: response?.totalPages || 1,
+                    pageNumber: action.pageNumber || 1,
+                    totalRecords: response?.totalRecords || 0
+                })),
+                catchError((error) =>
+                    of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
+                )
+            );
+        })
+    )
+);
 
     createProduct$ = createEffect(() =>
         this.action$.pipe(
