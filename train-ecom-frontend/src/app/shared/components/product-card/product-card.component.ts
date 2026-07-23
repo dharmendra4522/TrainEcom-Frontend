@@ -26,6 +26,7 @@ export class ProductCardComponent implements OnInit {
 
   public static wishlistCache: Set<string> = new Set();
   public static isInitialized: boolean = false;
+  isLoggedIn$ = this.store.select(selectIsLoggedIn);
 
   ngOnInit(): void {
     this.checkWishlistStatus();

@@ -13,16 +13,12 @@
     </div>
 
     <ng-container *ngIf="!(isLoading$ | async)">
-        <ng-container *ngIf="filteredProductRows$ | async as rows">
-            <cdk-virtual-scroll-viewport *ngIf="rows.length > 0; else noProducts" itemSize="380"
-                class="catalog-viewport">
-                <div *cdkVirtualFor="let row of rows"
-                    class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 py-2 px-1 m-0">
-                    <div class="col d-flex align-items-stretch" *ngFor="let product of row">
-                        <app-product-card [product]="product" class="w-100"></app-product-card>
-                    </div>
+        <ng-container *ngIf="filteredProducts$ | async as productsList">
+            <div *ngIf="productsList.length > 0; else noProducts" class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 py-2 px-1 m-0">
+                <div class="col d-flex align-items-stretch" *ngFor="let product of productsList">
+                    <app-product-card [product]="product" class="w-100"></app-product-card>
                 </div>
-            </cdk-virtual-scroll-viewport>
+            </div>
         </ng-container>
 
         <ng-template #noProducts>

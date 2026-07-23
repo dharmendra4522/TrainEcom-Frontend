@@ -8,7 +8,7 @@ export const loadProducts = createAction(
 
 export const loadProductsSuccess = createAction(
     '[Product] Load Products Success',
-    props<{ products: Product[]; totalPages: number; pageNumber: number }>()
+    props<{ products: Product[]; totalPages: number; pageNumber: number; totalRecords: number }>()
 );
 
 export const loadProductsFailure = createAction(

@@ -12,7 +12,7 @@
     [columns]="columns" 
     [actions]="actions" 
     [showPaginator]="true"
-    [totalRecords]="(products$ | async)?.length || 0" 
+    [totalRecords]="(totalRecords$ | async) || 0" 
     [pageSize]="pageSize" 
     [pageIndex]="pageNumber - 1" 
     emptyMessage="No products found."

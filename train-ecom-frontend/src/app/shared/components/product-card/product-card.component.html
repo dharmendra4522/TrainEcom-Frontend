@@ -1,17 +1,16 @@
-<mat-card class="product-card" appearance="outlined">
+<mat-card class="product-card" appearance="outlined" [routerLink]="['/products', product.id]" style="cursor: pointer;">
   <button mat-icon-button class="wishlist-btn" (click)="onToggleWishlist($event)"
-    [matTooltip]="isFavorite ? 'Remove from Wishlist' : 'Add to Wishlist'">
+    [matTooltip]="isFavorite ? 'Remove from Wishlist' : 'Add to Wishlist'" *ngIf="isLoggedIn$ | async">
     <mat-icon [class.favorite-icon]="isFavorite">
       {{ isFavorite ? 'favorite' : 'favorite_border' }}
     </mat-icon>
   </button>
 
-  <div class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center cursor-pointer"
-    [routerLink]="['/products', product.id]">
+  <div class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center">
     <img [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy" class="product-img" />
   </div>
 
-  <mat-card-header [routerLink]="['/products', product.id]" style="cursor: pointer;">
+  <mat-card-header>
     <mat-card-title>{{ product.name }}</mat-card-title>
     <mat-card-subtitle>{{ product.categoryName }} | {{ product.brandName }}</mat-card-subtitle>
   </mat-card-header>
@@ -23,10 +22,11 @@
     </h2>
   </mat-card-content>
 
-  <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px">
+  <!-- (click)="$event.stopPropagation()" zaroori hai taaki Add to Cart button dabane par details page na khule -->
+  <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px" (click)="$event.stopPropagation()">
     <button mat-raised-button color="accent" (click)="addToCart(product)">
-      <mat-icon>add_shopping_cart</mat-icon> Add
+      <mat-icon>add_shopping_cart</mat-icon> Add to Cart
     </button>
-    <button mat-raised-button color="primary">Buy</button>
+    <button mat-raised-button color="primary">Buy Now</button>
   </mat-card-actions>
 </mat-card>

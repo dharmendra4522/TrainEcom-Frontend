@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store'; // 🔹 Store import kiya
 import { AuthService } from '../../services/auth.service';
 import * as AuthActions from './auth.actions';
+import * as UserActions from '../user/user.actions'; // 🔹 User Actions import kiya
 import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -16,6 +18,7 @@ export class AuthEffects {
   private authService = inject(AuthService);
   private router = inject(Router);
   private notification = inject(NotificationService);
+  private store = inject(Store); 
 
   private getErrorMessage(err: BackendError, isLogin: boolean = true): string {
     const rawMessage =
@@ -50,14 +53,12 @@ export class AuthEffects {
         this.authService.login(action.request).pipe(
           map((res) => {
             const roleString = this.decodeRole(res.accessToken);
-
             const role = roleString as Role | null;
 
             localStorage.setItem('accessToken', res.accessToken);
             return AuthActions.loginSuccess({
               payload: { token: res.accessToken, role },
             });
-
           }),
           catchError((err) => {
             const cleanError = this.getErrorMessage(err, true);
@@ -72,10 +73,13 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(({ payload, isRefresh }) => {
+        tap(({ payload, isRefresh }: any) => {
           if (isRefresh) {
             return;
           }
+
+          this.store.dispatch(UserActions.loadProfileReq());
+
           const role = payload.role
             ? payload.role.toString().toLowerCase()
             : '';

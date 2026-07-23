@@ -14,3 +14,8 @@ export const selectProductsLoading = createSelector(
   selectProductState,
   (state: ProductState) => state.isLoading
 );
+
+export const selectProductTotalRecords = createSelector(
+  selectProductState,
+  (state: ProductState) => state.totalRecords || 0
+);

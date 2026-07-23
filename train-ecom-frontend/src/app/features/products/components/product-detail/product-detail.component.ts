@@ -3,6 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { WishListService } from '../../../../core/services/wish-list.service';
+import { Store } from '@ngrx/store';
+import { selectIsLoggedIn } from '../../../../core/store/auth/auth.selectors';
+import { take } from 'rxjs/operators';
+import { WishListItem } from '../../../../core/models/wishList.model';
 
 @Component({
   selector: 'app-product-detail',
@@ -13,12 +18,15 @@ export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(ProductService);
+  private wishListService = inject(WishListService);
+  private store = inject(Store);
   private notification = inject(NotificationService);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
   quantity: number = 1;
   isLoading: boolean = true;
+  isFavorite: boolean = false;
   relatedProducts: Product[] = [];
 
   ngOnInit(): void {
@@ -26,6 +34,7 @@ export class ProductDetailComponent implements OnInit {
       const id = params['id'];
       if (id) {
         this.loadProduct(id);
+        this.checkWishlistStatus(id);
       }
     });
   }
@@ -77,12 +86,62 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
+  checkWishlistStatus(productId: string): void {
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.isFavorite = false;
+        return;
+      }
+      this.wishListService.wishlistItems$.subscribe({
+        next: (items: WishListItem[]) => {
+          this.isFavorite = (items || []).some(
+            (item) => (item.productId || item.id).toString() === productId.toString()
+          );
+        }
+      });
+      this.wishListService.loadWishlist();
+    });
+  }
+
   addToCart(): void {
     this.notification.showSuccess(`Added ${this.quantity} item(s) of ${this.product?.name} to cart!`);
   }
 
   addToWishlist(): void {
-    this.notification.showSuccess(`Added ${this.product?.name} to Wishlist!`);
+    if (!this.product?.id) return;
+    const productId = this.product.id.toString();
+
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.notification.showError('Please login to add products to your wishlist.');
+        this.router.navigate(['/login']);
+        return;
+      }
+
+      if (this.isFavorite) {
+        this.wishListService.removeFromWishlist(productId).subscribe({
+          next: () => {
+            this.isFavorite = false;
+            this.notification.showSuccess('Removed from wishlist');
+          },
+          error: (err: unknown) => {
+            console.error('Failed to remove from wishlist:', err);
+            this.notification.showError('Failed to remove from wishlist');
+          }
+        });
+      } else {
+        this.wishListService.addToWishlist(productId).subscribe({
+          next: () => {
+            this.isFavorite = true;
+            this.notification.showSuccess('Added to wishlist');
+          },
+          error: (err: unknown) => {
+            console.error('Failed to add to wishlist:', err);
+            this.notification.showError('Failed to add to wishlist');
+          }
+        });
+      }
+    });
   }
 
   buyNow(): void {

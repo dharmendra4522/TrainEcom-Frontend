@@ -21,7 +21,7 @@ export class PublicCatalogComponent implements OnInit {
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
-  filteredProductRows$!: Observable<Product[][]>;
+  filteredProducts$!: Observable<Product[]>;
 
   ngOnInit() {
     this.store.select(selectAllProducts).subscribe(products => {
@@ -30,7 +30,7 @@ export class PublicCatalogComponent implements OnInit {
       }
     });
 
-    this.filteredProductRows$ = combineLatest([
+    this.filteredProducts$ = combineLatest([
       this.products$,
       this.route.queryParams.pipe(startWith({}))
     ]).pipe(
@@ -40,7 +40,7 @@ export class PublicCatalogComponent implements OnInit {
         const brand = params['brand']?.toLowerCase().trim();
         const category = params['category']?.toLowerCase().trim();
 
-        const filtered = products.filter(product => {
+        return products.filter(product => {
           const prodBrand = (product.brandName || '').toLowerCase().trim();
           const prodCategory = (product.categoryName || '').toLowerCase().trim();
 
@@ -49,8 +49,6 @@ export class PublicCatalogComponent implements OnInit {
 
           return matchesBrand && matchesCategory;
         });
-
-        return this.chunkArray(filtered, 4);
       })
     );
   }
@@ -58,12 +56,4 @@ export class PublicCatalogComponent implements OnInit {
    goBack(){
       this.location.back();
     }
-
-  private chunkArray(arr: Product[], chunkSize: number): Product[][] {
-    const results: Product[][] = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-      results.push(arr.slice(i, i + chunkSize));
-    }
-    return results;
-  }
 }

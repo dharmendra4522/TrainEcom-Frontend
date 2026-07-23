@@ -45,7 +45,7 @@
       <ng-container *ngIf="auth.role !== 'Admin'">
         <button mat-icon-button (click)="openWishlist.emit()" aria-label="Wishlist" class="text-dark icon-circle-btn"
           matTooltip="Wishlist" [matBadge]="wishlistCount" [matBadgeHidden]="wishlistCount === 0" matBadgeColor="warn"
-          matBadgeSize="small">
+          matBadgeSize="small" *ngIf="auth.loggedIn">
           <mat-icon>favorite_border</mat-icon>
         </button>
 

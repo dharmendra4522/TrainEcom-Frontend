@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
-import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
+import { selectAllProducts, selectProductsLoading, selectProductTotalRecords } from '../../../../core/store/product/product.selectors';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -23,6 +23,7 @@ export class ProductsComponent implements OnInit {
 
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
+  totalRecords$: Observable<number> = this.store.select(selectProductTotalRecords);
 
   ProductList: Product[] = [];
 
@@ -59,6 +60,7 @@ export class ProductsComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.pageNumber = event.pageIndex + 1;
     this.pageSize = event.pageSize;
+    this.fetchProducts();
   }
 
   handleTableAction(event: TableActionEvent<Product>): void {

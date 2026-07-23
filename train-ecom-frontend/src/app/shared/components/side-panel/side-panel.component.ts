@@ -32,7 +32,15 @@ export class SidePanelComponent implements OnInit {
           this.cdr.detectChanges();
         }
       });
-      this.wishListService.loadWishlist();
+
+      this.store.select(selectIsLoggedIn).subscribe((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          this.wishListService.loadWishlist();
+        } else {
+          this.items = [];
+          this.cdr.detectChanges();
+        }
+      });
     }
   }
 

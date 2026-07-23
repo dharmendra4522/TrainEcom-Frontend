@@ -25,7 +25,7 @@ export class ProductEffects {
                 const isFilteredOrPaged = action.brandName || action.categoryName || action.pageNumber || action.search;
                 
                 if (!isFilteredOrPaged && products && products.length > 0) {
-                    return of(ProductActions.loadProductsSuccess({ products, totalPages: 1, pageNumber: 1 }));
+                    return of(ProductActions.loadProductsSuccess({ products, totalPages: 1, pageNumber: 1, totalRecords: products.length }));
                 }
 
                 return this.productService.getPaginatedProducts(
@@ -38,7 +38,8 @@ export class ProductEffects {
                     map((response) => ProductActions.loadProductsSuccess({
                         products: response?.items || [],
                         totalPages: response?.totalPages || 1,
-                        pageNumber: action.pageNumber || 1
+                        pageNumber: action.pageNumber || 1,
+                        totalRecords: response?.totalRecords || 0
                     })),
                     catchError((error) =>
                         of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
