@@ -1,23 +1,68 @@
 <div
-  class="filter-bar bg-white border rounded-4 shadow-xs mb-4 d-flex align-items-center justify-content-between px-3 px-md-4 py-3 flex-wrap gap-3"
+  class="filter-container bg-white border rounded-4 shadow-sm mb-4 p-3 p-md-4"
 >
-  <div class="d-flex align-items-center gap-3">
-    <div
-      class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle"
-    >
-      <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
+  <!-- Row 1: Title and Search Box -->
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-3 border-bottom">
+    <!-- Left Side: Title & Filter Icon -->
+    <div class="d-flex align-items-center gap-3 flex-shrink-0">
+      <div
+        class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle"
+      >
+        <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
+      </div>
+      <h5 class="fw-bold text-dark m-0 tracking-tight">Filter Products</h5>
     </div>
-    <h5 class="fw-bold text-dark m-0 tracking-tight">Filter Products</h5>
+
+    <!-- Right Side: Search Box -->
+    <div class="search-wrapper flex-shrink-0">
+      <div class="search-box d-flex align-items-center rounded-pill px-3 border">
+        <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
+        <input
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Search products..."
+          class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7"
+        />
+      </div>
+    </div>
   </div>
 
-  <div class="search-wrapper">
-    <div class="search-box d-flex align-items-center rounded-pill px-3 border">
-      <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
-      <input
-        type="text"
-        placeholder="Search products..."
-        class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7"
-      />
+  <!-- Row 2: Horizontal Scrollable Chips/Tags (Underneath) -->
+  <div class="filter-chips-container overflow-hidden pt-3">
+    <div class="chips-scroll-wrapper d-flex align-items-center gap-2 py-1">
+      <!-- "All" Chip -->
+      <a [routerLink]="['/products']"
+         [queryParams]="{}"
+         routerLinkActive="active-chip"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all"
+      >
+        All
+      </a>
+
+      <!-- Brand Chips -->
+      <ng-container *ngIf="brands$ | async as brands">
+        <a *ngFor="let brand of brands"
+           [routerLink]="['/products']"
+           [queryParams]="{ brand: brand.name }"
+           routerLinkActive="active-chip"
+           class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all"
+        >
+          {{ brand.name }}
+        </a>
+      </ng-container>
+
+      <!-- Category Chips -->
+      <ng-container *ngIf="categories$ | async as categories">
+        <a *ngFor="let cat of categories"
+           [routerLink]="['/products']"
+           [queryParams]="{ category: cat.name }"
+           routerLinkActive="active-chip"
+           class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all"
+        >
+          {{ cat.name }}
+        </a>
+      </ng-container>
     </div>
   </div>
 </div>

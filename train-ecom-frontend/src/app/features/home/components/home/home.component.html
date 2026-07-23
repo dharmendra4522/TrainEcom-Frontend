@@ -1,32 +1,6 @@
 <div class="home-container">
   <app-hero></app-hero>
-
-  <!-- <div class="d-flex align-items-center justify-content-between mt-5 mb-4">
-    <h2 class="section-title text-dark fw-bold m-0">Featured Products</h2>
-  </div> -->
-
-  <!-- Loading State: Simple Material Spinner -->
-  <!-- <div *ngIf="isLoading$ | async; else loadedContent" class="d-flex flex-column align-items-center justify-content-center py-5 my-3">
-    <mat-spinner diameter="45" color="primary"></mat-spinner>
-    <span class="text-secondary small fw-medium mt-3">Loading products...</span>
-  </div> -->
-
-  <!-- Loaded Content -->
-  <!-- <ng-template #loadedContent>
-    <div class="product-grid" *ngIf="(products$ | async) as productsList">
-      <ng-container *ngIf="productsList.length > 0; else noProducts">
-        <app-product-card *ngFor="let product of productsList" [product]="product"></app-product-card>
-      </ng-container>
-    </div>
-
-    <ng-template #noProducts>
-      <div class="text-center py-5 my-4 bg-light rounded-4">
-        <mat-icon class="text-muted display-6 mb-2">inventory_2</mat-icon>
-        <p class="text-muted fw-medium m-0">No products available at the moment.</p>
-      </div>
-    </ng-template>
-  </ng-template> -->
-
+ 
   <ng-container *ngIf="brands$ | async as brandsList">
     <app-grouped-product-row *ngFor="let brand of brandsList" [title]="brand.name" filterType="brand"
       [filterValue]="brand.name">

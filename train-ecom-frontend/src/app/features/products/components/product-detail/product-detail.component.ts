@@ -56,6 +56,7 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
+  
   selectImage(url: string): void {
     this.selectedImageUrl = url;
   }

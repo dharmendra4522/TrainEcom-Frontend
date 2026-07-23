@@ -80,7 +80,8 @@ export class ProductService {
     pageNumber: number = 1,
     pageSize: number = 10,
     brandName?: string,
-    categoryName?: string
+    categoryName?: string,
+    search?: string
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -91,6 +92,9 @@ export class ProductService {
     }
     if (categoryName) {
       params = params.set('CategoryName', categoryName);
+    }
+    if (search) {
+      params = params.set('Search', search);
     }
 
     return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params });

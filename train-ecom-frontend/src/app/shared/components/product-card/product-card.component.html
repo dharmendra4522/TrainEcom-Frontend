@@ -6,8 +6,10 @@
     </mat-icon>
   </button>
 
-  <img mat-card-image [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy"
-    [routerLink]="['/products', product.id]" style="cursor: pointer;" />
+  <div class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center cursor-pointer"
+    [routerLink]="['/products', product.id]">
+    <img [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy" class="product-img" />
+  </div>
 
   <mat-card-header [routerLink]="['/products', product.id]" style="cursor: pointer;">
     <mat-card-title>{{ product.name }}</mat-card-title>

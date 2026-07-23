@@ -1,6 +1,111 @@
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+.product-row-section {
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.red-badge {
+  width: 20px;
+  height: 40px;
+  background-color: #db4444;
+  border-radius: 4px;
+}
+
+.sub-title {
+  color: #db4444 !important;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.main-title {
+  font-size: 2.25rem;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.view-all-link {
+  font-weight: 500;
+  color: #db4444 !important;
+}
+
+.nav-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.arrow-btn {
+  background-color: #f5f5f5 !important;
+  color: #000000 !important;
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.arrow-btn:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.arrow-btn mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+
+.product-grid-container {
   width: 100%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.product-grid-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.product-grid {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 24px;
+  width: 100%;
+  padding: 8px 0;
+  transition: transform 0.3s ease;
+}
+
+.product-grid app-product-card {
+  flex: 0 0 280px !important;
+  max-width: 280px !important;
+}
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 1.6rem;
+  }
+
+  .red-badge {
+    height: 32px;
+    width: 16px;
+  }
+
+  .product-grid app-product-card {
+    flex: 0 0 240px !important;
+    max-width: 240px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-title {
+    font-size: 1.35rem;
+  }
+
+  .view-all-link {
+    font-size: 0.8rem !important;
+  }
 }

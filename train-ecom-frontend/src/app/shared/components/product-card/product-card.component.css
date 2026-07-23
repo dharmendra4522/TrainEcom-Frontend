@@ -6,10 +6,23 @@
     flex-direction: column;
 }
 
-.product-card img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+.image-container {
+  height: 200px;
+  background-color: #f8fafc !important;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.product-img {
+  max-width: 85%;
+  max-height: 85%;
+  object-fit: contain;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.06);
 }
 
 .product-card mat-card-content {

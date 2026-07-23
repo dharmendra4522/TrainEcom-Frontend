@@ -3,7 +3,7 @@ import { Product } from '../../../core/models/product.model';
 
 export const loadProducts = createAction(
     '[Product] Load Products',
-    props<{ pageNumber?: number; pageSize?: number; brandName?: string; categoryName?: string }>()
+    props<{ pageNumber?: number; pageSize?: number; brandName?: string; categoryName?: string; search?: string }>()
 );
 
 export const loadProductsSuccess = createAction(

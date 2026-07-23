@@ -2,7 +2,7 @@
   display: block;
   position: sticky;
   top: 72px;
-  z-index: 990;
+  z-index: 890;
   max-width: 1280px;
   width: 100%;
   margin: 16px auto 0 auto;
@@ -18,7 +18,7 @@
   }
 }
 
-.filter-bar {
+.filter-container {
   border-color: #e2e8f0 !important;
   transition: all 0.2s ease-in-out;
 }
@@ -29,19 +29,53 @@
   background-color: rgba(13, 110, 253, 0.08);
 }
 
+/* Horizontal chips scrolling layout */
+.filter-chips-container {
+  overflow-x: auto !important;
+  scrollbar-width: none; /* Hide standard Firefox scrollbar */
+}
+
+.filter-chips-container::-webkit-scrollbar {
+  display: none; /* Hide Chrome/Safari scrollbars */
+}
+
+.chips-scroll-wrapper {
+  white-space: nowrap;
+}
+
+/* Individual Chip / Tag design */
+.filter-chip {
+  display: inline-block;
+  font-weight: 500;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px !important;
+}
+
+.filter-chip:hover {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Active Chip highlights */
+.filter-chip.active-chip {
+  background-color: #0d6efd !important;
+  color: #ffffff !important;
+  border-color: #0d6efd !important;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
+}
+
 .search-wrapper {
-  width: 300px;
+  width: 250px;
   max-width: 100%;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .search-wrapper {
     width: 100% !important;
-  }
-  
-  .filter-bar {
-    flex-direction: column;
-    align-items: flex-start !important;
   }
 }
 

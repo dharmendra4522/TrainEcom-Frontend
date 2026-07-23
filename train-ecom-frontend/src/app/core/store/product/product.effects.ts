@@ -20,9 +20,9 @@ export class ProductEffects {
         this.action$.pipe(
             ofType(ProductActions.loadProducts),
             withLatestFrom(this.store.select(selectAllProducts)),
-            // Agar koi specific brand/category ya pagination request nahi hai aur products pehle se hain, tabhi cache use karega
+            // Agar koi specific brand/category, search term ya pagination request hai, toh dynamic call trigger hogi
             switchMap(([action, products]) => {
-                const isFilteredOrPaged = action.brandName || action.categoryName || action.pageNumber;
+                const isFilteredOrPaged = action.brandName || action.categoryName || action.pageNumber || action.search;
                 
                 if (!isFilteredOrPaged && products && products.length > 0) {
                     return of(ProductActions.loadProductsSuccess({ products, totalPages: 1, pageNumber: 1 }));
@@ -32,7 +32,8 @@ export class ProductEffects {
                     action.pageNumber || 1, 
                     action.pageSize || 10, 
                     action.brandName, 
-                    action.categoryName
+                    action.categoryName,
+                    action.search
                 ).pipe(
                     map((response) => ProductActions.loadProductsSuccess({
                         products: response?.items || [],

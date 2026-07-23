@@ -41,27 +41,21 @@ export class HeaderComponent {
   cartCount: number = 0;
 
   ngOnInit() {
-    this.loadWishlistCount();
-    this.loadCartCount();
-  }
-
-  loadWishlistCount() {
-    this.isLoggedIn$.pipe(take(1)).subscribe(isLoggedIn => {
-      if (!isLoggedIn) {
-        this.wishlistCount = 0;
-        return;
+    this.wishListService.wishlistItems$.subscribe({
+      next: (items) => {
+        this.wishlistCount = items ? items.length : 0;
       }
-
-      this.wishListService.getWishList().subscribe({
-        next: (items) => {
-          this.wishlistCount = items ? items.length : 0;
-        },
-        error: (err) => {
-          console.error('Failed to load wishlist count for header:', err);
-          this.wishlistCount = 0;
-        }
-      });
     });
+    
+    this.isLoggedIn$.subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        this.wishListService.loadWishlist();
+      } else {
+        this.wishlistCount = 0;
+      }
+    });
+
+    this.loadCartCount();
   }
 
   loadCartCount() {

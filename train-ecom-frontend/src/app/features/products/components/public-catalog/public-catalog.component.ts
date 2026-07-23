@@ -6,6 +6,7 @@ import { map, startWith } from 'rxjs/operators';
 import { Product } from '../../../../core/models/product.model';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-public-catalog',
@@ -15,6 +16,7 @@ import * as ProductActions from '../../../../core/store/product/product.action';
 export class PublicCatalogComponent implements OnInit {
   private store = inject(Store);
   private route = inject(ActivatedRoute);
+  private location = inject(Location);
 
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
@@ -52,6 +54,10 @@ export class PublicCatalogComponent implements OnInit {
       })
     );
   }
+
+   goBack(){
+      this.location.back();
+    }
 
   private chunkArray(arr: Product[], chunkSize: number): Product[][] {
     const results: Product[][] = [];

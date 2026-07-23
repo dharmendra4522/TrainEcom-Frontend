@@ -45,6 +45,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   consumerMenuItems: MenuItem[] = [
     { label: 'My Profile', icon: 'person', route: '/account/profile' },
     { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
+    { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
     { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
   ];
 
