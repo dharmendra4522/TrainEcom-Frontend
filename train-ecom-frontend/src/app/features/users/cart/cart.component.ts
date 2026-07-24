@@ -98,14 +98,13 @@ export class CartComponent implements OnInit {
     });
   }
 
-  // Backend API call to update quantity and refresh totals from server response
   private executeCartUpdate(item: CartItem, newQty: number): void {
     const targetId = item.itemId ? item.itemId.toString() : item.productId.toString();
 
     this.cartService.updateCartItem(targetId, newQty).subscribe({
       next: (response: CartResponse) => {
-        // Server se updated totals aur items directly assign kar rahe hain
         if (response && response.items) {
+
           this.cartItems = response.items.map((i: CartItem) => ({
             ...i,
             name: i.productName,

@@ -1,11 +1,9 @@
 <div class="product-row-section mt-4 mt-md-5" *ngIf="(products$ | async)?.length as length">
-    <!-- Red Badge & Subtitle -->
     <div class="d-flex align-items-center mb-2">
         <div class="red-badge"></div>
         <span class="sub-title ms-3">{{ filterType === 'brand' ? 'Brands' : 'Categories' }}</span>
     </div>
 
-    <!-- Main Title & Navigation Controls -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark m-0 main-title">{{ title }}</h2>
 
@@ -18,7 +16,6 @@
                 View All <mat-icon class="fs-6 ms-1">arrow_forward</mat-icon>
             </a>
 
-            <!-- Navigation Arrows -->
             <div class="nav-arrows d-none d-md-flex">
                 <button mat-icon-button class="arrow-btn" (click)="scrollGrid(-300)" aria-label="Scroll left">
                     <mat-icon>arrow_back</mat-icon>

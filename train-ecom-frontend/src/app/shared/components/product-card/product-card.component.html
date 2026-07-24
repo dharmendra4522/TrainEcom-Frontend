@@ -17,15 +17,24 @@
 
   <mat-card-content>
     <p>{{ product.description | slice: 0 : 50 }}...</p>
-    <h2 style="color: #3f51b5; margin-top: 8px">
+    <h5 style="color: #3f51b5; margin-top: 8px">
       {{ product.price | currency: "INR" }}
-    </h2>
+    </h5>
   </mat-card-content>
 
-  <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px" (click)="$event.stopPropagation()">
-    <button mat-raised-button color="accent" (click)="addToCart(product)">
-      <mat-icon>add_shopping_cart</mat-icon> Add to Cart
-    </button>
-    <button mat-raised-button color="primary">Buy Now</button>
+  <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px"
+    (click)="$event.stopPropagation()">
+    <ng-container *ngIf="product.stockQuantity && product.stockQuantity > 0; else outOfStockTemplate">
+      <button mat-raised-button color="accent" (click)="addToCart(product)">
+        <mat-icon>add_shopping_cart</mat-icon> Add to Cart
+      </button>
+      <button mat-raised-button color="primary">Buy Now</button>
+    </ng-container>
+
+    <ng-template #outOfStockTemplate>
+      <div class="w-100 text-center py-2 text-danger fw-bold bg-danger-subtle rounded-3">
+        Out of Stock
+      </div>
+    </ng-template>
   </mat-card-actions>
 </mat-card>

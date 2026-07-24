@@ -50,6 +50,7 @@ export class ProductCardComponent implements OnInit {
     this.isFavorite = false;
   }
 
+  // yeha hum ProductCardComponent isliye static properties ka use kar rahe hain taki wishlist status ko cache kiya ja sake aur baar-baar server call na ho. Agar user logged in hai, to hum check karte hain ki product wishlist me hai ya nahi, aur agar cache initialized nahi hai to server se fetch karte hain.
   private handleLoggedInState(productId: string): void {
     if (ProductCardComponent.isInitialized) {
       this.isFavorite = ProductCardComponent.wishlistCache.has(productId);
@@ -59,7 +60,6 @@ export class ProductCardComponent implements OnInit {
     this.fetchWishlistFromServer(productId);
   }
 
-// Load wishlist from server and cache it for future reference
   private fetchWishlistFromServer(productId: string): void {
     this.wishListService.getWishList().subscribe({
       next: (items) => {

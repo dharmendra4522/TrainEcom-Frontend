@@ -67,7 +67,6 @@ image-container:hover {
     color: #ef4444 !important;
 }
 
-/* Responsive Button styling for Mat Card Actions */
 .product-card mat-card-actions {
   display: flex !important;
   justify-content: space-between !important;
@@ -85,7 +84,7 @@ image-container:hover {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  white-space: nowrap !important; /* Prevent text wrapping inside buttons */
+  white-space: nowrap !important; 
 }
 
 .product-card mat-card-actions button mat-icon {
@@ -98,7 +97,6 @@ image-container:hover {
   justify-content: center !important;
 }
 
-/* Stack buttons vertically on tablet and smaller screens (up to 992px) to prevent layout squishing */
 @media (max-width: 992px) {
   .product-card mat-card-actions {
     flex-direction: column !important;

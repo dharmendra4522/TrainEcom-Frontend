@@ -17,7 +17,6 @@ export class CartService {
   private baseAPI = `${environment.apiBaseUrl}/cart`;
 
   private http = inject(HttpClient);
-  private notification = inject(NotificationService);
   private store = inject(Store);
 
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
