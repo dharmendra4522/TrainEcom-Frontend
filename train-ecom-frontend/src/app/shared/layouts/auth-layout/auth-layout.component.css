@@ -1,7 +1,7 @@
 .auth-layout-wrapper {
   position: relative;
   width: 100%;
-  height: 100%; 
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,26 +10,36 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+ 
 .nav-back-home {
   position: absolute;
   top: 24px;
   left: 24px;
   z-index: 100;
 }
-
+ 
 .back-btn {
   display: flex !important;
   align-items: center;
   gap: 8px;
-  background-color: #f3f4f6;
+  background-color: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
   border-radius: 24px !important;
-  padding: 4px 16px;
-  font-weight: 500;
-  color: #111827;
-  transition: background-color 0.2s ease;
+  padding: 6px 18px !important;
+  font-weight: 600 !important;
+  color: #1e1b4b !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-
+ 
 .back-btn:hover {
-  background-color: #e5e7eb;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+}
+ 
+.back-btn:active {
+  transform: translateY(0) !important;
 }

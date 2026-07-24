@@ -11,8 +11,10 @@
           </div>
           <div>
             <h5 class="fw-bold text-dark m-0">{{ title }}</h5>
-            <small class="text-muted" *ngIf="items.length > 0">{{ items.length }} {{ items.length === 1 ? 'item' :
-              'items' }}</small>
+            <small class="text-muted" *ngIf="items.length > 0">
+              {{ type === 'Cart' ? totalQuantity : items.length }}
+              <!-- {{ (type === 'Cart' ? totalQuantity : items.length) === 1 ? 'item' : 'items' }} -->
+            </small>
           </div>
         </div>
 
@@ -66,7 +68,7 @@
           <span class="fs-5 fw-bold text-dark">₹{{ getTotalPrice | number:'1.2-2' }}</span>
         </div>
 
-        <button *ngIf="type === 'Cart'" mat-raised-button color="primary"
+        <button *ngIf="type === 'Cart'" mat-raised-button color="primary" (click)="navigateToCheckout()"
           class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
           <span>Proceed to Checkout</span>
           <mat-icon>arrow_forward</mat-icon>

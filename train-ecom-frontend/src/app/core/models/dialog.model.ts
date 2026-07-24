@@ -1,15 +1,28 @@
-export interface FieldConfig{
-    key: string;
-    label: string;
-    type: 'text' | 'number' | 'email' | 'password' | 'select' | 'radio' | 'checkbox';
-    validation?: any[];
-    value?: any;
-    maxLength?: number;
-    required?: boolean;
+export interface FieldConfig {
+  key: string;
+  label: string;
+  type:
+    | 'text'
+    | 'number'
+    | 'email'
+    | 'password'
+    | 'select'
+    | 'radio'
+    | 'checkbox';
+  validation?: any[];
+  value?: any;
+  maxLength?: number;
+  required?: boolean;
+  options?: SelectOption[];
 }
-
-export interface DialogData{
-    title: string;
-    fields: FieldConfig[];
-    submitButtonText: string;
+ 
+export interface SelectOption {
+  value: string | number;
+  label: string;
+}
+ 
+export interface DialogData {
+  title: string;
+  fields: FieldConfig[];
+  submitButtonText: string;
 }

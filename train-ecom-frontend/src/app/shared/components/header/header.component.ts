@@ -4,6 +4,7 @@ import {
   inject,
   Input,
   Output,
+  OnInit,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
@@ -13,15 +14,17 @@ import {
 } from '../../../core/store/auth/auth.selectors';
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
 import { WishListService } from '../../../core/services/wish-list.service';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private readonly store = inject(Store);
   private wishListService = inject(WishListService);
+  private cartService = inject(CartService);
 
   @Input() showMenuButton: boolean = false;
   @Output() toggleSidebar = new EventEmitter<void>();
@@ -39,11 +42,10 @@ export class HeaderComponent {
 
   ngOnInit() {
     this.initWishlistSubscription();
+    this.initCartSubscription();
     this.initAuthSubscription();
-    this.loadCartCount();
   }
 
-  
   private initWishlistSubscription(): void {
     this.wishListService.wishlistItems$.subscribe({
       next: (items) => {
@@ -52,24 +54,24 @@ export class HeaderComponent {
     });
   }
 
-// load wishlist count on login
-  private initAuthSubscription(): void {
-    this.isLoggedIn$.subscribe(isLoggedIn => {
-      if (isLoggedIn) {
-        this.wishListService.loadWishlist();
-      } else {
-        this.wishlistCount = 0;
+  private initCartSubscription(): void {
+    this.cartService.cartItems$.subscribe({
+      next: (items) => {
+        this.cartCount = items ? items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
       }
     });
   }
 
-  loadCartCount() {
-    try {
-      const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-      this.cartCount = Array.isArray(cartItems) ? cartItems.length : 0;
-    } catch {
-      this.cartCount = 0;
-    }
+  private initAuthSubscription(): void {
+    this.isLoggedIn$.subscribe(isLoggedIn => {
+      if (isLoggedIn) {
+        this.wishListService.loadWishlist();
+        this.cartService.loadCart();
+      } else {
+        this.wishlistCount = 0;
+        this.cartService.loadCart();
+      }
+    });
   }
 
   onLogout(): void {

@@ -13,13 +13,13 @@
     </div>
 
     <div *ngIf="cartItems.length > 0; else emptyCart">
-        
-        <div *ngFor="let item of cartItems" class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white position-relative">
+
+        <div *ngFor="let item of cartItems"
+            class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white position-relative">
 
             <button
                 class="position-absolute bg-danger text-white border-0 rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                style="width: 24px; height: 24px; top: 15px; left: 15px; z-index: 5;" 
-                title="Remove item"
+                style="width: 24px; height: 24px; top: 15px; left: 15px; z-index: 5;" title="Remove item"
                 (click)="removeItem(item.itemId || item.productId)">
                 <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
             </button>
@@ -27,41 +27,54 @@
             <div class="row align-items-center g-3">
                 <div class="col-12 col-md-5">
                     <div class="d-flex align-items-center gap-3 ps-2">
-                        <img [src]="item.thumbnailUrl || 'https://via.placeholder.com/150'" 
-                             class="rounded-3 object-fit-cover border" 
-                             style="width: 65px; height: 65px;" />
+                        <img [src]="item.thumbnailUrl" class="rounded-3 object-fit-cover border"
+                            style="width: 65px; height: 65px;" />
                         <div>
                             <h6 class="fw-bold text-dark m-0 fs-7">{{ item.productName }}</h6>
-                            <small class="text-muted">Sample Brand</small>
+                            <!-- <small class="text-muted">Sample Brand</small> -->
                         </div>
                     </div>
                 </div>
 
                 <div class="col-6 col-md-2 text-md-center">
                     <span class="d-inline d-md-none text-muted fs-8">Price: </span>
-                    <span class="fw-semibold text-dark fs-7">${{ item.unitPrice| number:'1.2-2' }}</span>
+                    <span class="fw-semibold text-dark fs-7">₹{{ item.unitPrice| number:'1.2-2' }}</span>
                 </div>
 
                 <div class="col-6 col-md-3 text-md-center">
-                    <div class="d-inline-flex align-items-center border rounded-3 px-2 py-1 bg-light">
-                        <input type="number" 
-                            min="1"
-                            [value]="item.quantity"
-                            (change)="onQuantityInputChange(item.itemId || item.productId, $event)"
-                            class="border-0 bg-transparent text-center fw-medium text-dark fs-7 shadow-none outline-none"
-                            style="width: 45px;" />
+                    <div class="d-inline-flex align-items-center border rounded-3 px-2 py-1 bg-light gap-2">
+                        <button mat-icon-button
+                            class="d-flex align-items-center justify-content-center p-0 border-0 bg-transparent"
+                            style="width: 24px; height: 24px; min-width: 24px;"
+                            (click)="updateQuantity(item.itemId || item.productId, 'subtract')">
+                            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">remove</mat-icon>
+                        </button>
+
+                        <!-- Quantity Display -->
+                        <span class="fw-medium text-dark fs-7 px-1" style="min-width: 20px; text-align: center;">
+                            {{ item.quantity }}
+                        </span>
+
+                        <!-- Increase / Add Button -->
+                        <button mat-icon-button
+                            class="d-flex align-items-center justify-content-center p-0 border-0 bg-transparent"
+                            style="width: 24px; height: 24px; min-width: 24px;"
+                            (click)="updateQuantity(item.itemId || item.productId, 'add')">
+                            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">add</mat-icon>
+                        </button>
                     </div>
                 </div>
 
                 <div class="col-12 col-md-2 text-md-end">
                     <span class="d-inline d-md-none text-muted fs-8">Subtotal: </span>
-                    <span class="fw-bold text-dark fs-7">${{ (item.unitPrice * item.quantity) | number:'1.2-2' }}</span>
+                    <span class="fw-bold text-dark fs-7">₹{{ (item.unitPrice * item.quantity) | number:'1.2-2' }}</span>
                 </div>
             </div>
         </div>
 
         <div class="d-flex justify-content-between align-items-center my-4 flex-wrap gap-3">
-            <button mat-stroked-button class="rounded-pill px-4 py-2 border text-dark fw-medium" (click)="continueShopping()">
+            <button mat-stroked-button class="rounded-pill px-4 py-2 border text-dark fw-medium"
+                (click)="continueShopping()">
                 Return To Shop
             </button>
             <button mat-stroked-button class="rounded-pill px-4 py-2 border text-dark fw-medium" (click)="ngOnInit()">
@@ -76,7 +89,7 @@
 
                     <div class="d-flex justify-content-between mb-3 pb-2 border-bottom text-secondary fs-7">
                         <span>Subtotal:</span>
-                        <span class="fw-semibold text-dark">${{ subtotal | number:'1.2-2' }}</span>
+                        <span class="fw-semibold text-dark">₹{{ subtotal | number:'1.2-2' }}</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-3 pb-2 border-bottom text-secondary fs-7">
@@ -86,7 +99,7 @@
 
                     <div class="d-flex justify-content-between mb-4 fs-7">
                         <span class="fw-bold text-dark">Total:</span>
-                        <span class="fw-bold text-dark">${{ subtotal | number:'1.2-2' }}</span>
+                        <span class="fw-bold text-dark">₹{{ subtotal | number:'1.2-2' }}</span>
                     </div>
 
                     <button mat-flat-button color="warn" class="w-100 py-3 rounded-pill fw-bold"
@@ -104,7 +117,8 @@
                 style="font-size: 64px; width: 64px; height: 64px;">shopping_cart</mat-icon>
             <h4 class="fw-bold text-dark">Your Cart is Empty</h4>
             <p class="text-muted mb-4">Add products to your cart to see them here.</p>
-            <button mat-flat-button color="warn" class="rounded-pill px-4 py-2" style="background-color: #db4444;" (click)="continueShopping()">
+            <button mat-flat-button color="warn" class="rounded-pill px-4 py-2" style="background-color: #db4444;"
+                (click)="continueShopping()">
                 Return To Shop
             </button>
         </div>

@@ -35,6 +35,12 @@ const routes: Routes = [
       },
 
       {
+        path: 'checkout',
+        canActivate: [authGuard],
+        component: NotFoundComponent,
+      },
+
+      {
         path: 'admin',
         canActivate: [authGuard, adminGuard],
         children: [

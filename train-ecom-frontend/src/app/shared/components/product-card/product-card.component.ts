@@ -128,7 +128,13 @@ export class ProductCardComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    this.cartService.addToCart(product.id.toString(), 1).subscribe({
+    const productDetails: Record<string, unknown> = {
+      productName: product.name,
+      unitPrice: product.price,
+      thumbnailUrl: product.thumbnailUrl,
+      stockQuantity: product.stockQuantity
+    };
+    this.cartService.addToCart(product.id.toString(), 1, productDetails).subscribe({
       next: (response) => {
         this.notificationService.showSuccess(`Added ${product.name} to cart!`, 'Close');
         this.addToCartEvent.emit(product);

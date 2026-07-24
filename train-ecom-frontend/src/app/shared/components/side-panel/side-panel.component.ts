@@ -1,3 +1,4 @@
+import { ProductService } from './../../../core/services/product.service';
 import { Component, Input, ViewChild, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
@@ -8,7 +9,21 @@ import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { CartService } from '../../../core/services/cart.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { CartItem } from '../../../core/models/cart.model';
 
+
+export interface SidePanelItem {
+  id: string;
+  productId: string;
+  productName?: string;
+  name: string;
+  unitPrice?: number;
+  price: number;
+  thumbnailUrl?: string;
+  image?: string;
+  quantity?: number;
+}
 @Component({
   selector: 'app-side-panel',
   templateUrl: './side-panel.component.html',
@@ -20,36 +35,75 @@ export class SidePanelComponent implements OnInit {
   private wishListService = inject(WishListService);
   private cdr = inject(ChangeDetectorRef);
   private cartService = inject(CartService);
+  private notificationService = inject(NotificationService);
+  private productService = inject(ProductService);
 
   @Input() type: 'WishList' | 'Cart' | 'Notification' = 'WishList';
-  @Input() items: WishListItem[]  = [];
+  @Input() items: SidePanelItem[] = [];
 
   @ViewChild('drawer') drawer!: MatDrawer;
 
   ngOnInit(): void {
-    if (this.type === 'WishList') {
-      this.wishListService.wishlistItems$.subscribe({
-        next: (items: WishListItem[]) => {
-          this.items = items || [];
-          this.cdr.detectChanges();
-        }
-      });
+    this.initializePanelData();
+  }
 
-      this.store.select(selectIsLoggedIn).subscribe((isLoggedIn: boolean) => {
-        if (isLoggedIn) {
-          this.wishListService.loadWishlist();
-        } else {
-          this.items = [];
-          this.cdr.detectChanges();
-        }
-      });
+  private initializePanelData(): void {
+    if (this.type === 'WishList') {
+      this.subscribeToWishlistStream();
+      this.watchAuthStatusForWishlist();
+    } else if (this.type === 'Cart') {
+      this.subscribeToCartStream();
+      this.watchAuthStatusForCart();
     }
+  }
+
+  private subscribeToWishlistStream(): void {
+    this.wishListService.wishlistItems$.subscribe({
+      next: (item: WishListItem[]) => {
+        this.items = item || [];
+        this.cdr.detectChanges();
+      }
+    })
+  }
+
+  private watchAuthStatusForWishlist(): void {
+    this.store.select(selectIsLoggedIn).subscribe((isLoggedIn: boolean) => {
+      if (isLoggedIn) {
+        this.wishListService.loadWishlist();
+      } else {
+        this.items = [];
+        this.cdr.detectChanges();
+      }
+    })
+  }
+
+  private subscribeToCartStream(): void {
+    this.cartService.cartItems$.subscribe({
+      next: (items: CartItem[]) => {
+        this.items = (items || []).map((item: CartItem) => ({
+          ...item,
+          id: item.itemId || item.productId.toString(),
+          name: item.productName,
+          price: item.unitPrice,
+          image: item.thumbnailUrl
+        }));
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private watchAuthStatusForCart(): void {
+    this.store.select(selectIsLoggedIn).subscribe(() => {
+      this.cartService.loadCart();
+    });
   }
 
   open(): void {
     this.drawer.open();
     if (this.type === 'WishList') {
       this.loadWishlistItems();
+    } else if (this.type === 'Cart') {
+      this.cartService.getCartItems().subscribe();
     }
   }
 
@@ -77,7 +131,15 @@ export class SidePanelComponent implements OnInit {
   }
 
   get getTotalPrice(): number {
-    return this.items.reduce((sum: number, item: WishListItem) => sum + (item.price * (item.quantity || 1)), 0);
+    return this.items.reduce((sum: number, item: any) => {
+      const price = item.price || item.unitPrice || 0;
+      const quantity = item.quantity || 1;
+      return sum + (price * quantity);
+    }, 0);
+  }
+ 
+  get totalQuantity(): number {
+    return this.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
   }
 
   loadWishlistItems(): void {
@@ -102,57 +164,112 @@ export class SidePanelComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  handleRemove(productId: string): void {
+  navigateToCheckout(): void {
+    this.close();
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
+      if (isLoggedIn) {
+        this.router.navigate(['/checkout']);
+      } else {
+        this.notificationService.showInfo('Please log in to proceed to checkout.', 'Close');
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  handleRemove(itemId: string): void {
     if (this.type === 'Cart') {
-      console.log('Dispatching remove from cart:', productId);
+      this.removeCartItem(itemId);
     } else if (this.type === 'WishList') {
-      this.wishListService.removeFromWishlist(productId).subscribe({
-        next: () => {
-          this.items = this.items.filter((i: WishListItem) => i.productId !== productId && i.id !== productId);
-          ProductCardComponent.wishlistCache.delete(productId);
-        },
-        error: (err: unknown) => {
-          console.error('Failed to remove from wishlist:', err);
-        }
-      });
+      this.removeWishlistItem(itemId);
     }
+  }
+
+  private removeCartItem(itemId: string): void {
+    this.cartService.deleteCartItem(itemId).subscribe({
+      error: (err: unknown) => console.error('Failed to remove cart item:', err)
+    })
+  }
+
+  private removeWishlistItem(productId: string): void {
+    this.wishListService.removeFromWishlist(productId).subscribe({
+      next: () => {
+        this.items = this.items.filter((i: any) => i.productId !== productId && i.id !== productId);
+        ProductCardComponent.wishlistCache.delete(productId);
+      },
+      error: (err: unknown) => console.error('Failed to remove wishlist item:', err)
+    })
   }
 
   handleQuantity(event: { id: string | number; action: 'add' | 'subtract' }): void {
-    console.log('Dispatching quantity update:', event);
+    if (this.type !== 'Cart') return;
+    const item: any = this.items.find((i: any) => i.id === event.id || i.productId === event.id);
+    if (!item) return;
+
+    const currQty = item.quantity || 1;
+    const newQty = event.action === 'add' ? currQty + 1 : currQty - 1;
+
+    if (newQty <= 0) {
+      this.confirmAndRemoveItem(item.id);
+      return;
+    }
+    if (event.action === 'add') {
+      this.verifyStockAndUpdateQuantity(item, newQty);
+    } else {
+      this.updateCartItemQuantity(item.id, newQty);
+    }
   }
 
-  handleMoveToCart(item: any): void {
-    if (this.type === 'WishList') {
-      const productId = item.productId || item.id;
-      if (!productId) return;
-
-      const cart: Array<{ id: string; name: string; price: number; image: string; quantity: number }> =
-        JSON.parse(localStorage.getItem('cart') || '[]');
-
-      const existingProduct = cart.find((i) => i.id === productId);
-      if (existingProduct) {
-        existingProduct.quantity += 1;
-      } else {
-        cart.push({
-          id: productId,
-          name: item.productName || item.name || '',
-          price: item.price || 0,
-          image: item.thumbnailUrl || item.image || '',
-          quantity: 1
-        });
-      }
-      localStorage.setItem('cart', JSON.stringify(cart));
-
-      this.wishListService.removeFromWishlist(productId).subscribe({
-        next: () => {
-          this.items = this.items.filter((i: WishListItem) => i.productId !== productId && i.id !== productId);
-          ProductCardComponent.wishlistCache.delete(productId);
-        },
-        error: (err: unknown) => {
-          console.error('Failed to move to cart:', err);
-        }
-      });
+  private confirmAndRemoveItem(itemId: string): void {
+    const confirmDelete = window.confirm('Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?');
+    if (confirmDelete) {
+      this.handleRemove(itemId);
     }
+  }
+
+  private verifyStockAndUpdateQuantity(item: any, newQty: number): void {
+    const productId = item.productId || item.id;
+    this.productService.getProductById(productId.toString()).subscribe({
+      next: (product) => {
+        const stock = product.stockQuantity;
+        if (stock !== undefined && newQty > stock) {
+          this.notificationService.showError(`Only ${stock} items are available in stock.`, 'Close');
+          return;
+        }
+        this.updateCartItemQuantity(item.id, newQty);
+      },
+      error: (err: unknown) => {
+        console.error('Failed to verify stock:', err);
+        this.updateCartItemQuantity(item.id, newQty); // Fallback update
+      }
+    });
+  }
+
+  private updateCartItemQuantity(itemId: string, newQty: number): void {
+    this.cartService.updateCartItem(itemId, newQty).subscribe({
+      error: (err: unknown) => console.error('Failed to update quantity:', err)
+    });
+  }
+
+  // Wishlist item ko Cart mein move karna
+  handleMoveToCart(item: any): void {
+    if (this.type !== 'WishList') return;
+
+    const productId = item.productId || item.id;
+    if (!productId) return;
+
+    const productDetails: Record<string, unknown> = {
+      productName: item.productName || item.name,
+      unitPrice: item.unitPrice || item.price,
+      thumbnailUrl: item.thumbnailUrl || item.image,
+    };
+
+    this.cartService.addToCart(productId.toString(), 1, productDetails).subscribe({
+      next: () => {
+        this.removeWishlistItem(productId);
+      },
+      error: (err: unknown) => {
+        console.error('Failed to add to cart:', err);
+      }
+    });
   }
 }

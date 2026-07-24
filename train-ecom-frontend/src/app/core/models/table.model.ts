@@ -2,6 +2,7 @@ export interface TableColumn {
   key: string;
   label: string;
   type?: 'text' | 'image' | 'badge' | 'currency';
+  truncate?: boolean;
 }
 
 export interface TableAction {

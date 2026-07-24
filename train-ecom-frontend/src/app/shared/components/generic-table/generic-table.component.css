@@ -67,13 +67,29 @@
 }
 
 .action-btn.mat-primary:hover {
-  background-color: rgba(13, 110, 253, 0.08) !important; /* Premium soft primary blue */
+  background-color: rgba(13, 110, 253, 0.08) !important;
 }
 
 .action-btn.mat-warn:hover {
-  background-color: rgba(239, 68, 68, 0.08) !important; /* Premium soft warn red */
+  background-color: rgba(239, 68, 68, 0.08) !important;
 }
 
 .fs-7 {
   font-size: 0.75rem;
+}
+
+.text-truncate-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-width: 280px;
+  word-break: break-word;
+}
+
+@media (max-width: 991.98px) {
+  .custom-mat-table {
+    min-width: 900px;
+  }
 }

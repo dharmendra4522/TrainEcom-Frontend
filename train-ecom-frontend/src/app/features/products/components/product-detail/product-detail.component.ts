@@ -34,7 +34,7 @@ export class ProductDetailComponent implements OnInit {
   relatedProducts: Product[] = [];
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params) => {
       const id = params['id'];
       if (id) {
         this.loadProduct(id);
@@ -46,13 +46,13 @@ export class ProductDetailComponent implements OnInit {
   loadProduct(id: string): void {
     this.isLoading = true;
     this.productService.getProductById(id).subscribe({
-      next: (data) => {
+      next: (data: Product) => {
         this.product = data;
         this.setInitialImage(data);
         this.isLoading = false;
         this.loadRelatedProducts();
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Failed to load product details:', err);
         this.notification.showError('Could not load product details.');
         this.isLoading = false;
@@ -62,13 +62,12 @@ export class ProductDetailComponent implements OnInit {
 
   private setInitialImage(product: Product): void {
     if (product.images && product.images.length > 0) {
-      const primary = product.images.find(img => img.isPrimary);
+      const primary = product.images.find((img) => img.isPrimary);
       this.selectedImageUrl = primary ? primary.imageUrl : product.images[0].imageUrl;
     } else if (product.thumbnailUrl) {
       this.selectedImageUrl = product.thumbnailUrl;
     }
   }
-
 
   selectImage(url: string): void {
     this.selectedImageUrl = url;
@@ -91,7 +90,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   checkWishlistStatus(productId: string): void {
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
       if (!isLoggedIn) {
         this.isFavorite = false;
         return;
@@ -99,7 +98,7 @@ export class ProductDetailComponent implements OnInit {
       this.wishListService.wishlistItems$.subscribe({
         next: (items: WishListItem[]) => {
           this.isFavorite = (items || []).some(
-            (item) => (item.productId || item.id).toString() === productId.toString()
+            (item: WishListItem) => (item.productId || item.id).toString() === productId.toString()
           );
         }
       });
@@ -110,22 +109,31 @@ export class ProductDetailComponent implements OnInit {
   addToCart(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
-    this.cartService.addToCart(productId, this.quantity).subscribe({
+    
+    // Product object pass kiya hai taaki guest user ke liye local storage mein details save ho sakein
+    const productDetails: Record<string, unknown> = {
+      productName: this.product.name,
+      unitPrice: this.product.price,
+      thumbnailUrl: this.selectedImageUrl || this.product.thumbnailUrl,
+      stockQuantity: this.product.stockQuantity
+    };
+
+    this.cartService.addToCart(productId, this.quantity, productDetails).subscribe({
       next: () => {
-        this.notification.showSuccess(`${this.quantity} item(s) added to cart!`);
+        this.notification.showSuccess(`${this.quantity} item(s) added to cart!`, 'Close');
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Failed to add to cart:', err);
-        this.notification.showError('Failed to add to cart');
+        this.notification.showError('Failed to add to cart', 'Close');
       }
-    })
+    });
   }
 
   addToWishlist(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
 
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
       if (!isLoggedIn) {
         this.notification.showError('Please login to add products to your wishlist.');
         this.router.navigate(['/login']);
@@ -136,22 +144,22 @@ export class ProductDetailComponent implements OnInit {
         this.wishListService.removeFromWishlist(productId).subscribe({
           next: () => {
             this.isFavorite = false;
-            this.notification.showSuccess('Removed from wishlist');
+            this.notification.showSuccess('Removed from wishlist', 'Close');
           },
           error: (err: unknown) => {
             console.error('Failed to remove from wishlist:', err);
-            this.notification.showError('Failed to remove from wishlist');
+            this.notification.showError('Failed to remove from wishlist', 'Close');
           }
         });
       } else {
         this.wishListService.addToWishlist(productId).subscribe({
           next: () => {
             this.isFavorite = true;
-            this.notification.showSuccess('Added to wishlist');
+            this.notification.showSuccess('Added to wishlist', 'Close');
           },
           error: (err: unknown) => {
             console.error('Failed to add to wishlist:', err);
-            this.notification.showError('Failed to add to wishlist');
+            this.notification.showError('Failed to add to wishlist', 'Close');
           }
         });
       }
@@ -159,7 +167,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   buyNow(): void {
-    this.notification.showSuccess(`Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`);
+    this.notification.showSuccess(`Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`, 'Close');
   }
 
   goBack(): void {
@@ -170,10 +178,12 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product?.id) return;
 
     this.productService.getRelatedProducts(this.product.id.toString()).subscribe({
-      next: (products) => {
-        this.relatedProducts = products.filter(p => p.id.toString() !== this.product?.id.toString()).slice(0, 4);
+      next: (products: Product[]) => {
+        this.relatedProducts = products
+          .filter((p: Product) => p.id.toString() !== this.product?.id.toString())
+          .slice(0, 4);
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Failed to load related products:', err);
       }
     });

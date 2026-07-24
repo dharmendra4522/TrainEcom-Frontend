@@ -3,6 +3,11 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs/internal/Observable';
 import { HttpClient } from '@angular/common/http';
 import { CartItem, CartResponse } from '../models/cart.model';
+import { NotificationService } from './notification.service';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { Store } from '@ngrx/store';
+import { of, take, tap } from 'rxjs';
+import { selectIsLoggedIn } from '../store/auth/auth.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -10,30 +15,164 @@ import { CartItem, CartResponse } from '../models/cart.model';
 export class CartService {
 
   private baseAPI = `${environment.apiBaseUrl}/cart`;
+
   private http = inject(HttpClient);
+  private notification = inject(NotificationService);
+  private store = inject(Store);
+
+  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
+  cartItems$ = this.cartItemsSubject.asObservable();
+
+  private isUserLoggedIn(): boolean {
+    let isLoggedIn = false;
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((status: boolean) => {
+      isLoggedIn = status;
+    });
+    return isLoggedIn;
+  }
+
+  // extract items from local storage for guest users
+  private getLocalCartItems(): CartItem[] {
+    try {
+      const cart = localStorage.getItem('cart');
+      return cart ? JSON.parse(cart) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveLocalCartItems(items: CartItem[]): void {
+    localStorage.setItem('cart', JSON.stringify(items));
+  }
+
+  private buildLocalCartResponse(items: CartItem[]): CartResponse {
+    const totalQuantity = items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
+    const totalAmount = items.reduce(
+      (sum: number, i: CartItem) => sum + (i.unitPrice || 0) * i.quantity,
+      0,
+    );
+    this.cartItemsSubject.next(items);
+    return { items, totalQuantity, totalAmount };
+  }
 
   getCartItems(): Observable<CartResponse> {
-    return this.http.get<CartResponse>(`${this.baseAPI}/cartItems`);
+    if (!this.isUserLoggedIn()) {
+      return of(this.buildLocalCartResponse(this.getLocalCartItems()));
+    }
+
+    return this.http.get<CartResponse>(`${this.baseAPI}/cartItems`).pipe(
+      tap((response: CartResponse) => {
+        this.cartItemsSubject.next(response?.items || []);
+      }),
+    );
   }
-  
-  addToCart(productId: string, quantity: number): Observable<CartResponse> {
-    return this.http.post<CartResponse>(`${this.baseAPI}/addItem`, { productId, quantity });
+
+  loadCart(): void {
+    if (!this.isUserLoggedIn()) return;
+
+    const localCartStr = localStorage.getItem('cart');
+    if (!localCartStr) {
+      this.getCartItems().subscribe();
+      return;
+    }
+
+    try {
+      const localItems: CartItem[] = JSON.parse(localCartStr);
+      if (Array.isArray(localItems) && localItems.length > 0) {
+        localStorage.removeItem('cart');
+
+        const mergePayload = localItems.map((i: CartItem) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+        }));
+        this.mergeCart(mergePayload as CartItem[]).subscribe({
+          error: (err: unknown) => {
+            console.error('Failed to merge cart on login:', err);
+            this.getCartItems().subscribe();
+          },
+        });
+        return;
+      }
+    } catch (e: unknown) {
+      console.error('Failed to parse local cart:', e);
+    }
+
+    this.getCartItems().subscribe();
+  }
+
+  clearLocalCartState(): void {
+    this.cartItemsSubject.next([]);
+  }
+
+  addToCart(productId: string, quantity: number, productDetails?: Record<string, unknown>): Observable<CartResponse> {
+    if (!this.isUserLoggedIn()) {
+      const items = this.getLocalCartItems();
+      const existing = items.find((i: CartItem) => i.productId.toString() === productId.toString());
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        const newItem: CartItem = {
+          productId: productId,
+          productName: productDetails?.['productName'] as string || 'Unknown Product',
+          unitPrice: productDetails?.['unitPrice'] as number || 0,
+          quantity: quantity,
+          thumbnailUrl: (productDetails?.['thumbnailUrl'] as string) || (productDetails?.['image'] as string) || '',
+        }
+        items.push(newItem);
+      }
+      this.saveLocalCartItems(items);
+      return of(this.buildLocalCartResponse(items));
+    }
+    return this.http
+      .post<CartResponse>(`${this.baseAPI}/addItem`, { productId, quantity })
+      .pipe(tap(() => this.loadCart()));
   }
 
   updateCartItem(itemId: string, quantity: number): Observable<CartResponse> {
-    return this.http.put<CartResponse>(`${this.baseAPI}/updateItem/${itemId}`, { quantity });
+    if (!this.isUserLoggedIn()) {
+      const items = this.getLocalCartItems();
+      const existing = items.find((i: CartItem) => i.itemId?.toString() === itemId.toString());
+      if (existing) {
+        existing.quantity = quantity;
+        this.saveLocalCartItems(items);
+      }
+      return of(this.buildLocalCartResponse(items));
+    }
+    return this.http
+      .put<CartResponse>(`${this.baseAPI}/updateItem/${itemId}`, { quantity })
+      .pipe(tap(() => this.loadCart()));
   }
 
+
+
   deleteCartItem(itemId: string): Observable<CartResponse> {
-    return this.http.delete<CartResponse>(`${this.baseAPI}/deleteItem/${itemId}`);
+    if (!this.isUserLoggedIn()) {
+      let items = this.getLocalCartItems();
+      items = items.filter((i: CartItem) => i.productId.toString() !== itemId.toString());
+      this.saveLocalCartItems(items);
+      return of(this.buildLocalCartResponse(items));
+    }
+
+    return this.http
+      .delete<CartResponse>(`${this.baseAPI}/deleteItem/${itemId}`)
+      .pipe(tap(() => this.loadCart()));
   }
 
   mergeCart(cartItems: CartItem[]): Observable<CartResponse> {
-    return this.http.post<CartResponse>(`${this.baseAPI}/merge`, { items: cartItems });
+    return this.http
+      .post<CartResponse>(`${this.baseAPI}/merge`, { items: cartItems })
+      .pipe(tap(() => this.loadCart()));
   }
 
   clearCart(): Observable<CartResponse> {
-    return this.http.delete<CartResponse>(`${this.baseAPI}/clear`);
+    if (!this.isUserLoggedIn()) {
+      this.saveLocalCartItems([]);
+      return of(this.buildLocalCartResponse([]));
+    }
+
+    return this.http
+      .delete<CartResponse>(`${this.baseAPI}/clear`)
+      .pipe(tap(() => this.loadCart()));
   }
 
 

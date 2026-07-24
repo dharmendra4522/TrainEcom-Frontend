@@ -11,6 +11,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Role } from '../../models/app.model';
 import { BackendError } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
+import { CartService } from '../../services/cart.service';
 
 @Injectable()
 export class AuthEffects {
@@ -19,6 +20,8 @@ export class AuthEffects {
   private router = inject(Router);
   private notification = inject(NotificationService);
   private store = inject(Store); 
+  private cartService = inject(CartService);
+
 
   private getErrorMessage(err: BackendError, isLogin: boolean = true): string {
     const rawMessage =
@@ -79,6 +82,8 @@ export class AuthEffects {
           }
 
           this.store.dispatch(UserActions.loadProfileReq());
+
+          this.cartService.loadCart(); 
 
           const role = payload.role
             ? payload.role.toString().toLowerCase()
