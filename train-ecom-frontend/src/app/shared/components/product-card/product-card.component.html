@@ -1,13 +1,19 @@
 <mat-card class="product-card" appearance="outlined" [routerLink]="['/products', product.id]" style="cursor: pointer;">
   <button mat-icon-button class="wishlist-btn" (click)="onToggleWishlist($event)"
-    [matTooltip]="isFavorite ? 'Remove from Wishlist' : 'Add to Wishlist'" *ngIf="isLoggedIn$ | async">
-    <mat-icon [class.favorite-icon]="isFavorite">
-      {{ isFavorite ? 'favorite' : 'favorite_border' }}
+    [matTooltip]="(isFavorite$ | async ) ? 'Remove from Wishlist' : 'Add to Wishlist'" *ngIf="isLoggedIn$ | async">
+    <mat-icon [class.favorite-icon]="isFavorite$ | async">
+      {{ (isFavorite$ | async) ? 'favorite' : 'favorite_border' }}
     </mat-icon>
   </button>
 
-  <div class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center">
+  <div
+    class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center position-relative overflow-hidden">
     <img [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy" class="product-img" />
+    <button class="hover-add-to-cart-btn d-flex align-items-center justify-content-center gap-1"
+      (click)="addToCart(product); $event.stopPropagation()">
+      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_shopping_cart</mat-icon>
+      <span>Add to Cart</span>
+    </button>
   </div>
 
   <mat-card-header>
@@ -22,15 +28,11 @@
     </h5>
   </mat-card-content>
 
-  <mat-card-actions style="display: flex; justify-content: space-between; padding: 16px"
-    (click)="$event.stopPropagation()">
+  <mat-card-actions (click)="$event.stopPropagation()">
     <ng-container *ngIf="product.stockQuantity && product.stockQuantity > 0; else outOfStockTemplate">
-      <button mat-raised-button color="accent" (click)="addToCart(product)">
-        <mat-icon>add_shopping_cart</mat-icon> Add to Cart
-      </button>
-      <button mat-raised-button color="primary">Buy Now</button>
-    </ng-container>
 
+      <button mat-raised-button color="primary" class="buy-now-btn">Buy Now</button>
+    </ng-container>
     <ng-template #outOfStockTemplate>
       <div class="w-100 text-center py-2 text-danger fw-bold bg-danger-subtle rounded-3">
         Out of Stock

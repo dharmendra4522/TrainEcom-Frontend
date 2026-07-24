@@ -8,13 +8,12 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
-import {
-  selectIsLoggedIn,
-  selectUserRole,
-} from '../../../core/store/auth/auth.selectors';
+import {selectIsLoggedIn, selectUserRole,} from '../../../core/store/auth/auth.selectors';
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
-import { WishListService } from '../../../core/services/wish-list.service';
 import { CartService } from '../../../core/services/cart.service';
+import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
+import { Observable } from 'rxjs/internal/Observable';
+import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
 
 @Component({
   selector: 'app-header',
@@ -23,7 +22,6 @@ import { CartService } from '../../../core/services/cart.service';
 })
 export class HeaderComponent implements OnInit {
   private readonly store = inject(Store);
-  private wishListService = inject(WishListService);
   private cartService = inject(CartService);
 
   @Input() showMenuButton: boolean = false;
@@ -46,8 +44,8 @@ export class HeaderComponent implements OnInit {
     this.initAuthSubscription();
   }
 
-  private initWishlistSubscription(): void {
-    this.wishListService.wishlistItems$.subscribe({
+ private initWishlistSubscription(): void {
+    this.store.select(selectWishlistItems).subscribe({
       next: (items) => {
         this.wishlistCount = items ? items.length : 0;
       }
@@ -65,7 +63,7 @@ export class HeaderComponent implements OnInit {
   private initAuthSubscription(): void {
     this.isLoggedIn$.subscribe(isLoggedIn => {
       if (isLoggedIn) {
-        this.wishListService.loadWishlist();
+        this.store.dispatch(WishlistActions.loadWishlist());
         this.cartService.loadCart();
       } else {
         this.wishlistCount = 0;

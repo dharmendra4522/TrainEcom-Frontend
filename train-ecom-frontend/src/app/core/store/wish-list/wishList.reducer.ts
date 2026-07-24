@@ -57,8 +57,9 @@ export const wishlistReducer = createReducer(
         loading: true,
         error: null
     })),
-    on(WishlistActions.removeFromWishlistSuccess, (state) => ({
+    on(WishlistActions.removeFromWishlistSuccess, (state, { productId }) => ({
         ...state,
+        items: state.items.filter(item => (item.productId || item.id).toString() !== productId.toString()),
         loading: false
     })),
     on(WishlistActions.removeFromWishlistFailure, (state, { error }) => ({

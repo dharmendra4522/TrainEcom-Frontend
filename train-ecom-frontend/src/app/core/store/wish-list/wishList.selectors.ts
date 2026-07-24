@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { WishlistState } from './wishList.reducer';
 
 
-export const selectWishListState = createFeatureSelector<WishlistState>('wishList');
+export const selectWishListState = createFeatureSelector<WishlistState>('wishlist');
 
 export const selectWishlistItems = createSelector(
     selectWishListState,

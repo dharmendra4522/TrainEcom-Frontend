@@ -4,13 +4,14 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { WishListItem } from '../../../core/models/wishList.model';
-import { WishListService } from '../../../core/services/wish-list.service';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
 import { take } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { CartService } from '../../../core/services/cart.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CartItem } from '../../../core/models/cart.model';
+import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
+import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
 
 
 export interface SidePanelItem {
@@ -32,7 +33,6 @@ export interface SidePanelItem {
 export class SidePanelComponent implements OnInit {
   private router = inject(Router);
   private store = inject(Store);
-  private wishListService = inject(WishListService);
   private cdr = inject(ChangeDetectorRef);
   private cartService = inject(CartService);
   private notificationService = inject(NotificationService);
@@ -58,18 +58,23 @@ export class SidePanelComponent implements OnInit {
   }
 
   private subscribeToWishlistStream(): void {
-    this.wishListService.wishlistItems$.subscribe({
-      next: (item: WishListItem[]) => {
-        this.items = item || [];
+    this.store.select(selectWishlistItems).subscribe({
+      next: (items: WishListItem[]) => {
+        this.items = (items || []).map((item: any) => ({
+          ...item,
+          id: item.productId || item.id,
+          name: item.productName || item.name || '', // <-- name ko string ensure kiya
+          price: item.price || 0
+        }));
         this.cdr.detectChanges();
       }
-    })
+    });
   }
 
   private watchAuthStatusForWishlist(): void {
     this.store.select(selectIsLoggedIn).subscribe((isLoggedIn: boolean) => {
       if (isLoggedIn) {
-        this.wishListService.loadWishlist();
+        this.store.dispatch(WishlistActions.loadWishlist());
       } else {
         this.items = [];
         this.cdr.detectChanges();
@@ -137,7 +142,7 @@ export class SidePanelComponent implements OnInit {
       return sum + (price * quantity);
     }, 0);
   }
- 
+
   get totalQuantity(): number {
     return this.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
   }
@@ -149,13 +154,7 @@ export class SidePanelComponent implements OnInit {
         this.cdr.detectChanges();
         return;
       }
-
-      this.wishListService.getWishList().subscribe({
-        next: (items: WishListItem[]) => {
-          this.items = items || [];
-          this.cdr.detectChanges();
-        }
-      });
+      this.store.dispatch(WishlistActions.loadWishlist());
     });
   }
 
@@ -191,13 +190,7 @@ export class SidePanelComponent implements OnInit {
   }
 
   private removeWishlistItem(productId: string): void {
-    this.wishListService.removeFromWishlist(productId).subscribe({
-      next: () => {
-        this.items = this.items.filter((i: any) => i.productId !== productId && i.id !== productId);
-        ProductCardComponent.wishlistCache.delete(productId);
-      },
-      error: (err: unknown) => console.error('Failed to remove wishlist item:', err)
-    })
+    this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
   }
 
   handleQuantity(event: { id: string | number; action: 'add' | 'subtract' }): void {

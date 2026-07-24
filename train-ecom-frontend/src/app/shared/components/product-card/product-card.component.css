@@ -1,9 +1,9 @@
 .product-card {
-    position: relative; 
-    overflow: hidden; 
-    height: 100%; 
-    display: flex;
-    flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .image-container {
@@ -30,88 +30,139 @@ image-container:hover {
 }
 
 .product-card mat-card-content {
-    flex-grow: 1; 
+  flex-grow: 1;
 }
 
 .wishlist-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 10;
-    background-color: #ffffff !important;
-    border-radius: 50%;
-    width: 34px !important;
-    height: 34px !important;
-    padding: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  background-color: #ffffff !important;
+  border-radius: 50%;
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 .wishlist-btn:hover {
-    background-color: #ffffff !important;
-    transform: scale(1.05);
+  background-color: #ffffff !important;
+  transform: scale(1.05);
 }
 
 .wishlist-btn mat-icon {
-    font-size: 20px;
-    height: 20px;
-    width: 20px;
-    line-height: 20px;
-    color: #64748b;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+  line-height: 20px;
+  color: #64748b;
 }
 
 .wishlist-btn mat-icon.favorite-icon {
-    color: #ef4444 !important;
+  color: #ef4444 !important;
 }
 
+/* Hover Add to Cart Button styles */
+.hover-add-to-cart-btn {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 40px !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  z-index: 5 !important;
+}
+
+.product-card:hover .hover-add-to-cart-btn {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+.hover-add-to-cart-btn:hover {
+  background-color: #333333 !important;
+}
+
+.buy-now-btn {
+  width: 100% !important;
+  height: 38px !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+}
+
+/* Responsive Button styling for Mat Card Actions */
 .product-card mat-card-actions {
   display: flex !important;
-  justify-content: space-between !important;
+  justify-content: center !important;
   padding: 12px 16px !important;
-  gap: 8px !important;
-  flex-direction: row !important;
 }
 
-.product-card mat-card-actions button {
-  flex: 1 !important;
-  padding: 0 12px !important;
-  font-size: 13px !important;
-  min-width: unset !important;
-  height: 38px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important; 
-}
-
-.product-card mat-card-actions button mat-icon {
-  margin-right: 4px !important;
-  font-size: 18px !important;
-  width: 18px !important;
-  height: 18px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
+/* Stack buttons vertically on tablet and smaller screens (up to 992px) to prevent layout squishing */
 @media (max-width: 992px) {
   .product-card mat-card-actions {
-    flex-direction: column !important;
-    gap: 8px !important;
     padding: 8px 12px !important;
-  }
-  
-  .product-card mat-card-actions button {
-    width: 100% !important;
-    height: 36px !important;
   }
 }
 
 @media (max-width: 576px) {
   .image-container {
     height: 160px !important;
+  }
+
+  .product-card mat-card-content p {
+    display: none !important;
+  }
+
+  .product-card mat-card-header {
+    padding: 8px 12px !important;
+  }
+
+  .product-card mat-card-content {
+    padding: 0 12px 8px 12px !important;
+  }
+
+  .product-card mat-card-title {
+    font-size: 14px !important;
+  }
+
+  .product-card mat-card-subtitle {
+    font-size: 11px !important;
+  }
+
+  .product-card h2 {
+    font-size: 15px !important;
+    margin-top: 4px !important;
+  }
+
+  .hover-add-to-cart-btn {
+    font-size: 11.5px !important;
+    height: 36px !important;
+  }
+
+  .buy-now-btn {
+    font-size: 12px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+  }
+}
+
+/* Force Add to Cart button to be visible on touch devices without pointer hover */
+@media (hover: none) {
+  .hover-add-to-cart-btn {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
   }
 }

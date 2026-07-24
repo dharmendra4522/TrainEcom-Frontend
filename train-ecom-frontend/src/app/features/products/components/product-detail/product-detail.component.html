@@ -109,9 +109,9 @@
               </button>
             </div>
 
-            <button mat-icon-button class="wishlist-detail-btn" [class.is-favorite]="isFavorite"
+            <button mat-icon-button class="wishlist-detail-btn" [class.is-favorite]="isFavorite$ | async"
               (click)="addToWishlist()" matTooltip="Add to Wishlist">
-              <mat-icon>{{ isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+              <mat-icon >{{ (isFavorite$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
             </button>
           </div>
         </div>

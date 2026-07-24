@@ -3,13 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { WishListService } from '../../../../core/services/wish-list.service';
 import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../../../../core/store/auth/auth.selectors';
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { WishListItem } from '../../../../core/models/wishList.model';
 import { Location } from '@angular/common';
 import { CartService } from '../../../../core/services/cart.service';
+import * as WishlistActions from '../../../../core/store/wish-list/wishList.actions';
+import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
@@ -20,7 +22,6 @@ export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(ProductService);
-  private wishListService = inject(WishListService);
   private store = inject(Store);
   private notification = inject(NotificationService);
   private location = inject(Location);
@@ -30,7 +31,8 @@ export class ProductDetailComponent implements OnInit {
   selectedImageUrl: string = '';
   quantity: number = 1;
   isLoading: boolean = true;
-  isFavorite: boolean = false;
+
+  isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
 
   ngOnInit(): void {
@@ -92,24 +94,25 @@ export class ProductDetailComponent implements OnInit {
   checkWishlistStatus(productId: string): void {
     this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
       if (!isLoggedIn) {
-        this.isFavorite = false;
+        this.isFavorite$ = of(false);
         return;
       }
-      this.wishListService.wishlistItems$.subscribe({
-        next: (items: WishListItem[]) => {
-          this.isFavorite = (items || []).some(
+      this.isFavorite$ = this.store.select(selectWishlistItems).pipe(
+        map((items: WishListItem[]) => {
+          if (!items) return false;
+          return items.some(
             (item: WishListItem) => (item.productId || item.id).toString() === productId.toString()
           );
-        }
-      });
-      this.wishListService.loadWishlist();
+        })
+      );
+      this.store.dispatch(WishlistActions.loadWishlist());
     });
   }
 
   addToCart(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
-    
+
     // Product object pass kiya hai taaki guest user ke liye local storage mein details save ho sakein
     const productDetails: Record<string, unknown> = {
       productName: this.product.name,
@@ -140,31 +143,16 @@ export class ProductDetailComponent implements OnInit {
         return;
       }
 
-      if (this.isFavorite) {
-        this.wishListService.removeFromWishlist(productId).subscribe({
-          next: () => {
-            this.isFavorite = false;
-            this.notification.showSuccess('Removed from wishlist', 'Close');
-          },
-          error: (err: unknown) => {
-            console.error('Failed to remove from wishlist:', err);
-            this.notification.showError('Failed to remove from wishlist', 'Close');
-          }
-        });
-      } else {
-        this.wishListService.addToWishlist(productId).subscribe({
-          next: () => {
-            this.isFavorite = true;
-            this.notification.showSuccess('Added to wishlist', 'Close');
-          },
-          error: (err: unknown) => {
-            console.error('Failed to add to wishlist:', err);
-            this.notification.showError('Failed to add to wishlist', 'Close');
-          }
-        });
-      }
+      this.isFavorite$.pipe(take(1)).subscribe((isFav) => {
+        if (isFav) {
+          this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
+        } else {
+          this.store.dispatch(WishlistActions.addToWishlist({ productId }));
+        }
+      });
     });
   }
+
 
   buyNow(): void {
     this.notification.showSuccess(`Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`, 'Close');

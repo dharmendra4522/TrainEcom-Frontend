@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map, tap, shareReplay } from 'rxjs/operators';
 import { WishListItem, WishlistApiResponse, WishlistActionResponse } from '../models/wishList.model';
@@ -13,10 +13,6 @@ export class WishListService {
   private baseAPI = `${environment.apiBaseUrl}/wishlist`;
   private http = inject(HttpClient);
 
-  private wishlistItemsSubject = new BehaviorSubject<WishListItem[]>([]);
-  wishlistItems$ = this.wishlistItemsSubject.asObservable();
-
-  private isLoaded = false;
   private loadRequest$: Observable<WishListItem[]> | null = null;
 
   getWishList(): Observable<WishListItem[]> {
@@ -39,9 +35,7 @@ export class WishListService {
           image: item.thumbnailUrl
         }));
       }),
-      tap((items) => {
-        this.wishlistItemsSubject.next(items || []);
-        this.isLoaded = true;
+      tap(() => {
         this.loadRequest$ = null;
       }),
       shareReplay(1)
@@ -50,22 +44,12 @@ export class WishListService {
     return this.loadRequest$;
   }
 
-  loadWishlist(): void {
-    if (!this.isLoaded) {
-      this.getWishList().subscribe();
-    }
-  }
-
   addToWishlist(productId: string): Observable<WishlistActionResponse> {
-    return this.http.post<WishlistActionResponse>(`${this.baseAPI}/add/products/${productId}`, {}).pipe(
-      tap(() => this.getWishList().subscribe())
-    );
+    return this.http.post<WishlistActionResponse>(`${this.baseAPI}/add/products/${productId}`, {});
   }
 
   removeFromWishlist(productId: string): Observable<WishlistActionResponse> {
-    return this.http.delete<WishlistActionResponse>(`${this.baseAPI}/delete/products/${productId}`).pipe(
-      tap(() => this.getWishList().subscribe())
-    );
+    return this.http.delete<WishlistActionResponse>(`${this.baseAPI}/delete/products/${productId}`);
   }
 
   checkInWishlist(productId: string): Observable<boolean> {

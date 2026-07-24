@@ -76,4 +76,10 @@ export class WishlistEffects {
         )
     });
 
+    refreshWishlist$ = createEffect(() => {
+        return this.actions$.pipe(
+            ofType(WishlistActions.addToWishlistSuccess, WishlistActions.removeFromWishlistSuccess),
+            map(() => WishlistActions.loadWishlist())
+        );
+    });
 }
