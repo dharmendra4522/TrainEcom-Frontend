@@ -1,40 +1,27 @@
-<div class="filter-container bg-white border rounded-4 shadow-sm mb-4 p-2.5 px-3 p-md-4">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-3 border-bottom">
-    <div class="d-flex align-items-center gap-3 flex-shrink-0">
-      <div
-        class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle">
-        <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
-      </div>
-      <h5 class="fw-bold text-dark m-0 tracking-tight">Filter Products</h5>
+<div class="filter-container bg-white border rounded-4 shadow-sm mb-4 p-2 px-3 d-flex align-items-center justify-content-between gap-3">
+ 
+  <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden position-relative pe-3">
+    <div
+      class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+      matTooltip="Filter Categories">
+      <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
     </div>
-
-    <div class="search-wrapper flex-shrink-0">
-      <div class="search-box d-flex align-items-center rounded-pill px-3 border">
-        <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
-        <input type="text" [formControl]="searchControl" placeholder="Search products..."
-          class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7" />
-      </div>
-    </div>
-  </div>
-
-  <div class="position-relative d-flex align-items-center pt-3">
-
+ 
     <button type="button"
       class="scroll-btn left-btn position-absolute start-0 z-2 bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center"
-      (click)="scrollChips('left')">
+      (click)="scrollChips('left')" style="left: 46px !important;">
       <mat-icon class="text-dark">chevron_left</mat-icon>
     </button>
-
-    <div #chipsContainer class="filter-chips-container overflow-x-auto w-100 px-4 scrollbar-none"
-      style="scroll-behavior: smooth; white-space: nowrap;">
+ 
+    <div #chipsContainer class="filter-chips-container overflow-x-auto w-100 ps-4 pe-4 scrollbar-none"
+      style="scroll-behavior: smooth; white-space: nowrap; margin-left: 10px; margin-right: 10px;">
       <div class="chips-scroll-wrapper d-inline-flex align-items-center gap-2 py-1">
-
         <a [routerLink]="['/products']" [queryParams]="{}" routerLinkActive="active-chip"
           [routerLinkActiveOptions]="{ exact: true }"
           class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block">
           All
         </a>
-
+ 
         <ng-container *ngIf="brands$ | async as brands">
           <a *ngFor="let brand of brands" [routerLink]="['/products']" [queryParams]="{ brand: brand.name }"
             routerLinkActive="active-chip"
@@ -42,7 +29,7 @@
             {{ brand.name }}
           </a>
         </ng-container>
-
+ 
         <ng-container *ngIf="categories$ | async as categories">
           <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.name }"
             routerLinkActive="active-chip"
@@ -52,12 +39,20 @@
         </ng-container>
       </div>
     </div>
-
+ 
     <button type="button"
       class="scroll-btn right-btn position-absolute end-0 z-2 bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center"
       (click)="scrollChips('right')">
       <mat-icon class="text-dark">chevron_right</mat-icon>
     </button>
-
   </div>
+ 
+  <div class="search-wrapper flex-shrink-0">
+    <div class="search-box d-flex align-items-center rounded-pill px-3 border">
+      <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
+      <input type="text" [formControl]="searchControl" placeholder="Search products..."
+        class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7" />
+    </div>
+  </div>
+ 
 </div>

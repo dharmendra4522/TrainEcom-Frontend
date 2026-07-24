@@ -1,39 +1,38 @@
 <div class="container mt-4 pb-5">
-  <!-- Top Header Row -->
   <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
     <div>
       <h2 class="fw-bold m-0 text-dark">Product Catalog</h2>
       <p class="text-muted small m-0">Discover and filter products in real-time</p>
     </div>
-
+ 
     <div class="d-flex gap-2">
       <!-- Mobile Filter Toggle Button -->
-      <button 
-        mat-flat-button 
-        color="primary" 
-        class="d-lg-none d-flex align-items-center gap-2" 
+      <button
+        mat-flat-button
+        color="primary"
+        class="d-lg-none d-flex align-items-center gap-2"
         (click)="toggleMobileFilters()"
       >
         <mat-icon>filter_alt</mat-icon>
         Filters
       </button>
-
+ 
       <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
         <mat-icon>arrow_back</mat-icon>
         Back
       </button>  
     </div>
   </div>
-
+ 
   <div class="row">
-    <!-- 1. Left Sidebar Filter (Desktop) & Collapsible (Mobile) -->
-    <div 
-      class="col-lg-3 mb-4" 
-      [class.d-none]="!showMobileFilters" 
+    <!--  Left Sidebar Filter-->
+    <div
+      class="col-lg-3 mb-4"
+      [class.d-none]="!showMobileFilters"
       [class.d-lg-block]="true"
     >
       <div class="filter-sidebar bg-white border rounded-4 p-4 shadow-sm position-sticky" style="top: 100px; z-index: 100;">
-        
+       
         <!-- Filter Header with Reset -->
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
           <h5 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
@@ -43,12 +42,12 @@
             Reset All
           </button>
         </div>
-
+ 
         <!-- Category Group -->
         <div class="filter-section mb-4">
           <h6 class="fw-bold text-dark mb-3">Category</h6>
-          <select 
-            class="form-select border rounded-3 p-2 bg-light text-dark fs-7" 
+          <select
+            class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
             [value]="(route.queryParams | async)?.['category'] || ''"
             (change)="onCategoryChange($any($event.target).value)"
           >
@@ -60,12 +59,12 @@
             </ng-container>
           </select>
         </div>
-
+ 
         <!-- Brand Group -->
         <div class="filter-section mb-4">
           <h6 class="fw-bold text-dark mb-3">Brand</h6>
-          <select 
-            class="form-select border rounded-3 p-2 bg-light text-dark fs-7" 
+          <select
+            class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
             [value]="(route.queryParams | async)?.['brand'] || ''"
             (change)="onBrandChange($any($event.target).value)"
           >
@@ -77,90 +76,45 @@
             </ng-container>
           </select>
         </div>
-
+ 
         <!-- Price Range Group -->
         <div class="filter-section mb-4">
-          <h6 class="fw-bold text-dark mb-3">Price Range</h6>
-          <div class="filter-list d-flex flex-column gap-2">
-            <button 
-              mat-stroked-button 
-              class="price-chip text-start px-3 text-secondary justify-content-start text-decoration-none rounded-pill fs-7"
-              [class.active-chip]="activeMinPrice === null && activeMaxPrice === null"
-              (click)="setPriceRange(null, null)"
-            >
-              All Prices
-            </button>
-            <button 
-              mat-stroked-button 
-              class="price-chip text-start px-3 text-secondary justify-content-start text-decoration-none rounded-pill fs-7"
-              [class.active-chip]="activeMinPrice === null && activeMaxPrice === 100"
-              (click)="setPriceRange(null, 100)"
-            >
-              Under $100
-            </button>
-            <button 
-              mat-stroked-button 
-              class="price-chip text-start px-3 text-secondary justify-content-start text-decoration-none rounded-pill fs-7"
-              [class.active-chip]="activeMinPrice === 100 && activeMaxPrice === 500"
-              (click)="setPriceRange(100, 500)"
-            >
-              $100 - $500
-            </button>
-            <button 
-              mat-stroked-button 
-              class="price-chip text-start px-3 text-secondary justify-content-start text-decoration-none rounded-pill fs-7"
-              [class.active-chip]="activeMinPrice === 500 && activeMaxPrice === 1000"
-              (click)="setPriceRange(500, 1000)"
-            >
-              $500 - $1,000
-            </button>
-            <button 
-              mat-stroked-button 
-              class="price-chip text-start px-3 text-secondary justify-content-start text-decoration-none rounded-pill fs-7"
-              [class.active-chip]="activeMinPrice === 1000"
-              (click)="setPriceRange(1000, null)"
-            >
-              Over $1,000
-            </button>
+          <h6 class="fw-bold text-dark mb-2">Price</h6>
+          <div class="text-dark fw-bold mb-2 fs-6">
+            ₹150 - ₹{{ maxPriceSliderValue >= 10000 ? '10,000+' : (maxPriceSliderValue | number:'1.0-0') }}
+          </div>
+          <div class="slider-container px-1">
+            <input type="range"
+                   min="150"
+                   max="10000"
+                   step="50"
+                   [value]="maxPriceSliderValue"
+                   (input)="onPriceSliderChange(+$any($event.target).value)"
+                   class="custom-slider w-100" />
           </div>
         </div>
-
+ 
         <!-- Rating Group -->
         <div class="filter-section mb-4">
           <h6 class="fw-bold text-dark mb-3">Customer Rating</h6>
-          <div class="filter-list d-flex flex-column gap-2">
-            <button 
-              mat-button 
-              class="rating-link text-start text-secondary fs-7 rounded-2 px-2 py-1 justify-content-start"
-              [class.active-link]="activeRating === null"
-              (click)="setRating(null)"
-            >
-              All Ratings
-            </button>
-            
-            <button 
-              *ngFor="let rate of [4, 3, 2]"
-              mat-button 
-              class="rating-link text-start text-secondary fs-7 rounded-2 px-2 py-1 justify-content-start align-items-center"
-              [class.active-link]="activeRating === rate"
-              (click)="setRating(rate)"
-            >
-              <div class="d-flex align-items-center gap-1 text-warning">
-                <mat-icon class="fs-6 w-auto h-auto" *ngFor="let star of [1,2,3,4,5]">
-                  {{ star <= rate ? 'star' : 'star_border' }}
-                </mat-icon>
-                <span class="text-dark fw-medium ms-1">{{ rate }} & Up</span>
-              </div>
-            </button>
-          </div>
+          <select
+            class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
+            [value]="activeRating === null ? '' : activeRating"
+            (change)="setRating($any($event.target).value ? +$any($event.target).value : null)"
+          >
+            <option value="">All Ratings</option>
+            <option value="4">4 Stars & Up</option>
+            <option value="3">3 Stars & Up</option>
+            <option value="2">2 Stars & Up</option>
+          </select>
         </div>
-
+ 
         <!-- Sort By Group -->
         <div class="filter-section">
           <h6 class="fw-bold text-dark mb-3">Sort By</h6>
-          <select 
-            class="form-select border rounded-3 p-2 bg-light text-dark fs-7" 
-            [value]="activeSort" 
+          <select
+            class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
+            [value]="activeSort"
             (change)="setSortBy($any($event.target).value)"
           >
             <option value="popularity">Popularity</option>
@@ -169,25 +123,25 @@
             <option value="newest">Newest Arrivals</option>
           </select>
         </div>
-
+ 
       </div>
     </div>
-
+ 
     <!-- 2. Right Products Grid -->
     <div class="col-lg-9">
       <div *ngIf="isLoading$ | async" class="d-flex justify-content-center py-5">
         <mat-spinner diameter="45"></mat-spinner>
       </div>
-
+ 
       <ng-container *ngIf="!(isLoading$ | async)">
         <ng-container *ngIf="filteredProducts$ | async as productsList">
-          <div *ngIf="productsList.length > 0; else noProducts" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-3 g-4 py-2 px-1 m-0">
+          <div *ngIf="productsList.length > 0; else noProducts" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-3 g-3 g-md-4 py-2 px-1 m-0">
             <div class="col d-flex align-items-stretch" *ngFor="let product of productsList">
               <app-product-card [product]="product" class="w-100"></app-product-card>
             </div>
           </div>
         </ng-container>
-
+ 
         <ng-template #noProducts>
           <div class="text-center py-5 bg-light rounded-4 mt-4">
             <mat-icon class="text-muted display-6 mb-2">inventory_2</mat-icon>
