@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import * as ProductActions from './product.action';
 import { map, catchError, filter, of, switchMap, exhaustMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { selectAllProducts } from './product.selectors';
+import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords } from './product.selectors';
 
 @Injectable()
 export class ProductEffects {
@@ -17,29 +17,48 @@ export class ProductEffects {
     private store = inject(Store);
 
     loadProducts$ = createEffect(() =>
-    this.action$.pipe(
-        ofType(ProductActions.loadProducts),
-        switchMap((action) => {
-            return this.productService.getPaginatedProducts(
-                action.pageNumber || 1, 
-                action.pageSize || 10, 
-                action.brandName, 
-                action.categoryName,
-                action.search
-            ).pipe(
-                map((response) => ProductActions.loadProductsSuccess({
-                    products: response?.items || [],
-                    totalPages: response?.totalPages || 1,
-                    pageNumber: action.pageNumber || 1,
-                    totalRecords: response?.totalRecords || 0
-                })),
-                catchError((error) =>
-                    of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
-                )
-            );
-        })
-    )
-);
+        this.action$.pipe(
+            ofType(ProductActions.loadProducts),
+            withLatestFrom(
+                this.store.select(selectAllProducts),
+                this.store.select(selectProductPageNumber),
+                this.store.select(selectProductTotalPages),
+                this.store.select(selectProductTotalRecords)
+            ),
+            switchMap(([action, products, currentPageNumber, totalPages, totalRecords]) => {
+                const isSamePage = (action.pageNumber || 1) === (currentPageNumber || 1);
+                const isSamePageSize = (action.pageSize || 10) === products.length;
+                const hasNoFilters = !action.brandName && !action.categoryName && !action.search;
+
+                if (products && products.length > 0 && isSamePage && isSamePageSize && hasNoFilters) {
+                    return of(ProductActions.loadProductsSuccess({
+                        products,
+                        totalPages,
+                        pageNumber: currentPageNumber,
+                        totalRecords
+                    }));
+                }
+
+                return this.productService.getPaginatedProducts(
+                    action.pageNumber || 1, 
+                    action.pageSize || 10, 
+                    action.brandName, 
+                    action.categoryName,
+                    action.search
+                ).pipe(
+                    map((response) => ProductActions.loadProductsSuccess({
+                        products: response?.items || [],
+                        totalPages: response?.totalPages || 1,
+                        pageNumber: action.pageNumber || 1,
+                        totalRecords: response?.totalRecords || 0
+                    })),
+                    catchError((error) =>
+                        of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
+                    )
+                );
+            })
+        )
+    );
 
     createProduct$ = createEffect(() =>
         this.action$.pipe(

@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors }
 import { Store } from '@ngrx/store';
 import { selectUserError, selectUserIsLoading, selectUserProfile } from '../../../../core/store/user/user.selectors';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -37,7 +37,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.fetchUserProfile();
+    this.userProfile$.pipe(take(1)).subscribe((profile) => {
+      if (!profile) {
+        this.fetchUserProfile();
+      }
+    });
     this.subscribeToStoreData();
   }
 

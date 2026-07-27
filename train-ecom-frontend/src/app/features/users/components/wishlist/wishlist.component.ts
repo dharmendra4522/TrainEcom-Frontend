@@ -9,7 +9,7 @@ import * as WishlistActions from '../../../../core/store/wish-list/wishList.acti
 import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts } from '../../../../core/store/product/product.selectors';
-import { takeUntil, Subject } from 'rxjs';
+import { takeUntil, Subject, take } from 'rxjs';
 
 @Component({
   selector: 'app-wishlist',
@@ -39,7 +39,12 @@ export class WishlistComponent implements OnInit, OnDestroy {
     this.wishlist$ = this.store
       .select(selectWishlistItems)
       .pipe(map((items: WishListItem[]) => this.mapWishlistToProducts(items)));
-    this.store.dispatch(WishlistActions.loadWishlist());
+
+    this.store.select(selectWishlistItems).pipe(take(1)).subscribe((items) => {
+      if (!items || items.length === 0) {
+        this.store.dispatch(WishlistActions.loadWishlist());
+      }
+    });
   }
 
   private loadRecommendations(): void {

@@ -12,6 +12,7 @@ import { Role } from '../../models/app.model';
 import { BackendError } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { CartService } from '../../services/cart.service';
+import { UserService } from '../../services/user.service';
 
 @Injectable()
 export class AuthEffects {
@@ -21,6 +22,7 @@ export class AuthEffects {
   private notification = inject(NotificationService);
   private store = inject(Store); 
   private cartService = inject(CartService);
+  private userService = inject(UserService);
 
 
   private getErrorMessage(err: BackendError, isLogin: boolean = true): string {
@@ -112,6 +114,7 @@ export class AuthEffects {
         ofType(AuthActions.logout),
         tap(() => {
           localStorage.removeItem('accessToken');
+          this.userService.clearCache();
           this.router.navigate(['/login']);
         }),
       ),

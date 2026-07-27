@@ -40,7 +40,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Categories', icon: 'category', route: '/admin/categories' },
-    { label: 'Users', icon: 'people', route: '/admin/users' },
+    { label: 'Manage Users', icon: 'people', route: '/admin/users' },
+    { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
+
   ];
 
   consumerMenuItems: MenuItem[] = [

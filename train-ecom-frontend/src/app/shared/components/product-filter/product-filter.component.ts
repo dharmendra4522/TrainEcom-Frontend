@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Subject, combineLatest, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as ProductActions from '../../../core/store/product/product.action';
 import * as BrandActions from '../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../core/store/category/category.action';
@@ -20,6 +20,7 @@ import { Category } from '../../../core/models/category.model';
 export class ProductFilterComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroy$ = new Subject<void>();
  
   @ViewChild('chipsContainer', { static: false }) chipsContainer!: ElementRef;
@@ -40,38 +41,27 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
   }
  
   private setupQueryAndSearchSubscription(): void {
-    combineLatest([
-      this.route.queryParams.pipe(startWith({})),
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
+    this.searchControl.valueChanges
+      .pipe(
         debounceTime(400),
         distinctUntilChanged(),
+        takeUntil(this.destroy$)
       )
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([params, searchVal]) => {
-        this.handleFilterChange(params, searchVal);
+      .subscribe((searchVal) => {
+        this.router.navigate(['/products'], {
+          queryParams: { search: searchVal || null },
+          queryParamsHandling: 'merge'
+        });
       });
-  }
- 
-  private handleFilterChange(params: Params, searchVal: string | null): void {
-    const brand = params['brand'];
-    const category = params['category'];
-    const searchString = searchVal ? searchVal.trim() : undefined;
- 
-    this.dispatchLoadProducts(brand, category, searchString);
-  }
- 
-  private dispatchLoadProducts(brand?: string, category?: string, search?: string): void {
-    this.store.dispatch(
-      ProductActions.loadProducts({
-        pageNumber: 1,
-        pageSize: 40,
-        brandName: brand || undefined,
-        categoryName: category || undefined,
-        search: search || undefined,
-      })
-    );
+
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const search = params['search'] || '';
+        if (this.searchControl.value !== search) {
+          this.searchControl.setValue(search, { emitEvent: false });
+        }
+      });
   }
  
   scrollChips(direction: 'left' | 'right'): void {

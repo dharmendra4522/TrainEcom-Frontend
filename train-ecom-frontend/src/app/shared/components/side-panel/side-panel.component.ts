@@ -136,11 +136,6 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   open(): void {
     this.drawer.open();
-    if (this.type === 'WishList') {
-      this.loadWishlistItems();
-    } else if (this.type === 'Cart') {
-      this.store.dispatch(CartActions.loadCart());
-    }
   }
 
   close(): void {

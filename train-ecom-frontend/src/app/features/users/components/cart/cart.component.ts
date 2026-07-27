@@ -40,7 +40,11 @@ export class CartComponent implements OnInit {
   }
 
   private loadCartItems(): void {
-    this.store.dispatch(CartActions.loadCart());
+    this.cartItems$.pipe(take(1)).subscribe((items) => {
+      if (!items || items.length === 0) {
+        this.store.dispatch(CartActions.loadCart());
+      }
+    });
   }
 
   updateQuantity(productId: string | number, action: 'add' | 'subtract'): void {

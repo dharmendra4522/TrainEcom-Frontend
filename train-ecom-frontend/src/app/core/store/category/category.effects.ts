@@ -18,9 +18,11 @@ export class CategoryEffects {
     this.actions$.pipe(
       ofType(CategoryActions.loadCategories),
       withLatestFrom(this.store.select(selectAllCategories)),
-      filter(([_, categories]) => !categories || categories.length === 0),
-      exhaustMap(() =>
-        this.categoryService.getAllCategories().pipe(
+      exhaustMap(([_, categories]) => {
+        if (categories && categories.length > 0) {
+          return of(CategoryActions.loadCategoriesSuccess({ categories }));
+        }
+        return this.categoryService.getAllCategories().pipe(
           map((categories) =>
             CategoryActions.loadCategoriesSuccess({
               categories: categories || [],
@@ -33,8 +35,8 @@ export class CategoryEffects {
               }),
             ),
           ),
-        ),
-      ),
+        );
+      })
     ),
   );
 

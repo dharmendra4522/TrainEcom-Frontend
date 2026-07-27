@@ -18,15 +18,17 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.loadBrands),
             withLatestFrom(this.store.select(selectAllBrands)),
-            filter(([_, brands]) => !brands || brands.length === 0),
-            exhaustMap(() =>
-                this.brandService.getAllBrands().pipe(
+            exhaustMap(([_, brands]) => {
+                if (brands && brands.length > 0) {
+                    return of(BrandActions.loadBrandsSuccess({ brands }));
+                }
+                return this.brandService.getAllBrands().pipe(
                     map((brands) => BrandActions.loadBrandsSuccess({ brands: brands || [] })),
                     catchError((error) =>
                         of(BrandActions.loadBrandsFailure({ error: error?.message || 'Failed to load brands' }))
                     )
-                )
-            )
+                );
+            })
         )
     );
 
