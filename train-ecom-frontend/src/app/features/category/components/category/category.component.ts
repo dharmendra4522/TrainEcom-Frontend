@@ -10,8 +10,9 @@ import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { selectAllCategories, selectCategoryLoading } from '../../../../core/store/category/category.selectors';
 
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, Subject, combineLatest } from 'rxjs';
+import { takeUntil, map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-category',
@@ -26,6 +27,10 @@ export class CategoryComponent implements OnInit, OnDestroy {
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
   isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
 
+  // Search control and filtered observable
+  searchControl = new FormControl('');
+  filteredCategories$!: Observable<Category[]>;
+
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },
     { key: 'description', label: 'Description' }
@@ -38,11 +43,30 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.fetchAllCategories();
+    this.setupSearchFilter();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  setupSearchFilter(): void {
+    this.filteredCategories$ = combineLatest([
+      this.categories$,
+      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(400), distinctUntilChanged())
+    ]).pipe(
+      map(([categories, search]) => {
+        const query = (search || '').toLowerCase().trim();
+        if (!query) {
+          return categories;
+        }
+        return categories.filter(category => 
+          (category.name || '').toLowerCase().includes(query) || 
+          (category.description || '').toLowerCase().includes(query)
+        );
+      })
+    );
   }
 
   handleTableAction(event: TableActionEvent<Category>): void {

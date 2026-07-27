@@ -12,7 +12,9 @@ const routes: Routes = [
 
   { path: 'manage', canActivate: [authGuard, adminGuard], component: ProductsComponent },
   { path: 'add', canActivate: [authGuard, adminGuard], component: ProductFormComponent },
+  { path: 'view/:id', canActivate: [authGuard, adminGuard], component: ProductDetailComponent },
   { path: 'edit/:id', canActivate: [authGuard, adminGuard], component: ProductFormComponent },
+
 
   { path: ':id', component: ProductDetailComponent }
 ];

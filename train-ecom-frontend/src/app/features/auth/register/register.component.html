@@ -55,8 +55,10 @@
  
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Phone Number</mat-label>
-          <mat-icon matPrefix class="me-2 text-secondary">phone</mat-icon>
-          <span matPrefix class="text-secondary fw-semibold pe-1">+91 &nbsp;</span>
+          <div matPrefix class="d-flex align-items-center me-2 text-secondary">
+            <mat-icon class="me-1">phone</mat-icon>
+            <span class="fw-semibold fs-7">+91</span>
+          </div>
           <input
             matInput
             type="tel"

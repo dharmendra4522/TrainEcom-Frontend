@@ -6,9 +6,16 @@
     </button>
   </div>
 
+  <div class="mb-4">
+    <mat-form-field appearance="outline" class="w-50 mb-0 pb-0">
+      <mat-label>Search categories</mat-label>
+      <mat-icon matPrefix class="text-secondary">search</mat-icon>
+      <input matInput [formControl]="searchControl" placeholder="Search by category name or description...">
+    </mat-form-field>
+  </div>
 
   <app-generic-table 
-    [data]="(categories$ | async) || []" 
+    [data]="(filteredCategories$ | async) || []" 
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 

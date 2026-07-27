@@ -8,6 +8,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { ProfileComponent } from './components/profile/profile.component';
 import { WishlistComponent } from './components/wishlist/wishlist.component';
 import { CartComponent } from './components/cart/cart.component';
+import { CheckoutComponent } from './components/checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { CartComponent } from './components/cart/cart.component';
     ProfileComponent,
     WishlistComponent,
     CartComponent,
+    CheckoutComponent,
   ],
   imports: [
     CommonModule,

@@ -13,8 +13,9 @@ import {
   selectAllBrands,
   selectBrandLoading,
 } from '../../../../core/store/brand/brand.selectors';
-
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
+import { map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-brand',
@@ -27,6 +28,9 @@ export class BrandComponent implements OnInit {
 
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
+  
+  searchControl = new FormControl('');
+  filteredBrands$!: Observable<Brand[]>;
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
@@ -58,6 +62,25 @@ export class BrandComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchAllBrands();
+    this.setupSearchFilter();
+  }
+
+  setupSearchFilter(): void {
+    this.filteredBrands$ = combineLatest([
+      this.brands$,
+      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(400), distinctUntilChanged())
+    ]).pipe(
+      map(([brands, search]) => {
+        const query = (search || '').toLowerCase().trim();
+        if (!query) {
+          return brands;
+        }
+        return brands.filter(brand => 
+        (brand.name || '').toLowerCase().includes(query) || 
+          (brand.description || '').toLowerCase().includes(query)
+        )
+      })
+    );
   }
 
   fetchAllBrands(): void {

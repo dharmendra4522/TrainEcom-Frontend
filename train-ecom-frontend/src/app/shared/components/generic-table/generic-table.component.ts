@@ -28,6 +28,7 @@ export class GenericTableComponent {
   @Output() actionClick = new EventEmitter<TableActionEvent<any>>();
 
   @Output() pageChange = new EventEmitter<PageEvent>();
+  @Output() rowClick = new EventEmitter<any>();
 
   get displayedColumns(): string[] {
     const cols: string[] = [];
@@ -50,4 +51,13 @@ export class GenericTableComponent {
   onPageChange(event: PageEvent): void {
     this.pageChange.emit(event);
   }
+
+  onRowClick(row: any, event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if(target.closest('.action-btn')) {
+      return;
+    }
+    this.rowClick.emit(row);
+  }
+
 }

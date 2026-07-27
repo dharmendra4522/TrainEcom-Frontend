@@ -23,8 +23,7 @@
         <td mat-cell *matCellDef="let row" class="px-4 py-3 text-dark">
           <span *ngIf="!col.type || col.type === 'text'" class="fw-medium"
             [class.text-truncate-clamp]="col.truncate || col.key === 'description'"
-            [matTooltip]="((col.truncate || col.key === 'description') && row[col.key]?.length > 60) ? row[col.key] : ''"
-            matTooltipPosition="above">
+            [matTooltip]="(col.truncate || col.key === 'description') ? row[col.key] : ''" matTooltipPosition="below">
             {{ row[col.key] || 'N/A' }}
           </span>
 
@@ -33,7 +32,6 @@
             <span *ngIf="!row[col.key]" class="text-muted small px-2">No Image</span>
           </div>
 
-          <!-- Currency Type -->
           <span *ngIf="col.type === 'currency'" class="fw-bold text-primary fs-6">
             ₹{{ row[col.key] | number:'1.2-2' }}
           </span>
@@ -60,7 +58,8 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light-subtle border-bottom"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="table-row-hover transition-all"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="onRowClick(row, $event)"
+        class="table-row-hover transition-all cursor-pointer"></tr>
     </table>
 
     <div *ngIf="!isLoading && (!data || data.length === 0)" class="empty-state-container text-center py-5 px-4">

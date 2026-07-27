@@ -95,3 +95,20 @@
     min-width: 900px;
   }
 }
+
+
+.text-truncate-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-width: 280px;
+  word-break: break-word;
+}
+
+tr.cursor-pointer {
+  cursor: pointer;
+}

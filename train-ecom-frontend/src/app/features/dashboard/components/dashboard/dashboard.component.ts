@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Order } from '../../../../core/models/order.model';
+import { OrderListItem, OrderStatus, PaymentMethod, PaymentStatus } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,37 +19,54 @@ export class DashboardComponent {
     { title: 'Products', value: '45', icon: 'inventory_2', color: '#f44336' },
   ];
 
-  recentOrders: Order[] = [
-    {
-      id: '#ORD-1001',
-      customer: 'Rahul Sharma',
-      date: '12 Jul 2026',
-      total: '$120.50',
-      status: 'Delivered',
-    },
-    {
-      id: '#ORD-1002',
-      customer: 'Priya Singh',
-      date: '11 Jul 2026',
-      total: '$45.00',
-      status: 'Pending',
-    },
-    {
-      id: '#ORD-1003',
-      customer: 'Amit Kumar',
-      date: '10 Jul 2026',
-      total: '$250.00',
-      status: 'Shipped',
-    },
-    {
-      id: '#ORD-1004',
-      customer: 'Neha Gupta',
-      date: '09 Jul 2026',
-      total: '$89.99',
-      status: 'Processing',
-    },
-  ];
+recentOrders: OrderListItem[] = [
+  {
+    orderId: '#ORD-1001',
+    orderDate: '12 Jul 2026',
+    totalAmount: 120.5,
+    orderStatus: 'Delivered' as OrderStatus,
+    paymentMethod: PaymentMethod.UPI,
+    paymentStatus: PaymentStatus.Success,
+    totalItems: 3,
+  },
+  {
+    orderId: '#ORD-1002',
+    orderDate: '11 Jul 2026',
+    totalAmount: 45,
+    orderStatus: 'Pending' as OrderStatus,
+    paymentMethod: PaymentMethod.CashOnDelivery,
+    paymentStatus: PaymentStatus.Pending,
+    totalItems: 1,
+  },
+  {
+    orderId: '#ORD-1003',
+    orderDate: '10 Jul 2026',
+    totalAmount: 250,
+    orderStatus: 'Shipped' as OrderStatus,
+    paymentMethod: PaymentMethod.Card,
+    paymentStatus: PaymentStatus.Success,
+    totalItems: 5,
+  },
+  {
+    orderId: '#ORD-1004',
+    orderDate: '09 Jul 2026',
+    totalAmount: 89.99,
+    orderStatus: 'Processing' as OrderStatus,
+    paymentMethod: PaymentMethod.UPI,
+    paymentStatus: PaymentStatus.Pending,
+    totalItems: 2,
+  },
+  {
+    orderId: '#ORD-1005',
+    orderDate: '08 Jul 2026',
+    totalAmount: 320,
+    orderStatus: 'Cancelled' as OrderStatus,
+    paymentMethod: PaymentMethod.Card,
+    paymentStatus: PaymentStatus.Failed,
+    totalItems: 4,
+  },
+];
 
-  displayedColumns: string[] = ['id', 'customer', 'date', 'total', 'status'];
+  displayedColumns: string[] = ['orderId', 'orderDate', 'totalAmount', 'orderStatus'];
   dataSource = this.recentOrders;
 }

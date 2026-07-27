@@ -10,7 +10,7 @@
             <mat-form-field *ngIf="field.type !== 'checkbox'" appearance="outline"
                 [ngClass]="(field.key === 'city' || field.key === 'state') ? 'half-width' : 'full-width'">
                 <mat-label>{{ field.label }}</mat-label>
-                <span matPrefix *ngIf="field.key === 'phone' || field.key === 'phoneNumber'" class="text-secondary fw-semibold pe-1">+91 &nbsp;</span>
+                <span matPrefix *ngIf="field.key === 'phone' || field.key === 'phoneNumber'" class="text-secondary fw-semibold ps-2 pe-1">+91</span>
                 <input matInput [type]="field.type" [formControlName]="field.key"
                     [attr.maxLength]="field.maxLength ? field.maxLength : null">
 
