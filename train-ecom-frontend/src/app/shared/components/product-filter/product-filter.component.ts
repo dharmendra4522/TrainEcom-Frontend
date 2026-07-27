@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, combineLatest, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators';
@@ -9,7 +9,8 @@ import * as BrandActions from '../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../core/store/category/category.action';
 import { selectAllBrands } from '../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../core/store/category/category.selectors';
-import { Brand, Category } from '../../../core/models/product.model';
+import { Brand } from '../../../core/models/brand.model';
+import { Category } from '../../../core/models/category.model';
  
 @Component({
   selector: 'app-product-filter',
@@ -53,7 +54,7 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
       });
   }
  
-  private handleFilterChange(params: any, searchVal: string | null): void {
+  private handleFilterChange(params: Params, searchVal: string | null): void {
     const brand = params['brand'];
     const category = params['category'];
     const searchString = searchVal ? searchVal.trim() : undefined;

@@ -154,6 +154,12 @@ export class AuthEffects {
   }
 
   private showToast(msg: string, panelClass: string) {
-    this.notification.showError(msg);
+    if (panelClass === 'snackbar-success') {
+      this.notification.showSuccess(msg);
+    } else if (panelClass === 'snackbar-info') {
+      this.notification.showInfo(msg);
+    } else {
+      this.notification.showError(msg);
+    }
   }
 }

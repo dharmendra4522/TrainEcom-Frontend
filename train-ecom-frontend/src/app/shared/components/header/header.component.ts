@@ -5,24 +5,29 @@ import {
   Input,
   Output,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
-import {selectIsLoggedIn, selectUserRole,} from '../../../core/store/auth/auth.selectors';
+import {
+  selectIsLoggedIn,
+  selectUserRole,
+} from '../../../core/store/auth/auth.selectors';
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
-import { CartService } from '../../../core/services/cart.service';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
-import { Observable } from 'rxjs/internal/Observable';
-import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
+import { selectWishlistCount } from '../../../core/store/wish-list/wishList.selectors';
+import { Subject, takeUntil } from 'rxjs';
+import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
+import * as CartActions from '../../../core/store/cart/cart.actions';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
-  private cartService = inject(CartService);
+  private destroy$ = new Subject<void>();
 
   @Input() showMenuButton: boolean = false;
   @Output() toggleSidebar = new EventEmitter<void>();
@@ -35,40 +40,24 @@ export class HeaderComponent implements OnInit {
   userRole$ = this.store.select(selectUserRole);
   userProfile$ = this.store.select(selectUserProfile);
 
-  wishlistCount: number = 0;
-  cartCount: number = 0;
+  wishlistCount$ = this.store.select(selectWishlistCount);
+  cartCount$ = this.store.select(selectCartTotalQuantity);
 
   ngOnInit() {
-    this.initWishlistSubscription();
-    this.initCartSubscription();
     this.initAuthSubscription();
   }
 
- private initWishlistSubscription(): void {
-    this.store.select(selectWishlistItems).subscribe({
-      next: (items) => {
-        this.wishlistCount = items ? items.length : 0;
-      }
-    });
-  }
-
-  private initCartSubscription(): void {
-    this.cartService.cartItems$.subscribe({
-      next: (items) => {
-        this.cartCount = items ? items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
-      }
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initAuthSubscription(): void {
-    this.isLoggedIn$.subscribe(isLoggedIn => {
+    this.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe((isLoggedIn) => {
       if (isLoggedIn) {
         this.store.dispatch(WishlistActions.loadWishlist());
-        this.cartService.loadCart();
-      } else {
-        this.wishlistCount = 0;
-        this.cartService.loadCart();
       }
+      this.store.dispatch(CartActions.loadCart());
     });
   }
 

@@ -54,7 +54,7 @@ export class ProductEffects {
                     catchError((error) => {
                         console.error('Error creating product:', error);
                         this.notification.showError('Error creating product', 'Close');
-                        return of(ProductActions.loadProductsFailure({ error: error?.message || 'Error creating product' }));
+                        return of(ProductActions.createProductFailure({ error: error?.message || 'Error creating product' }));
                     })
                 )
             )
@@ -74,10 +74,58 @@ export class ProductEffects {
                     catchError((error) => {
                         console.error('Error updating product:', error);
                         this.notification.showError('Error updating product', 'Close');
-                        return of(ProductActions.loadProductsFailure({ error: error?.message || 'Error updating product' }));
+                        return of(ProductActions.updateProductFailure({ error: error?.message || 'Error updating product' }));
                     })
                 )
             )
         )
     );
+
+       deleteProduct$ = createEffect(() =>
+        this.action$.pipe(
+            ofType(ProductActions.deleteProduct),
+            exhaustMap(({ productId }) =>
+                this.productService.deleteProduct(productId).pipe(
+                    map(() => {
+                        this.notification.showSuccess('Product deleted successfully', 'Close');
+                        return ProductActions.deleteProductSuccess({ productId });
+                    }),
+                    catchError((error) => {
+                        console.error('Error deleting product:', error);
+                        this.notification.showError('Error deleting product', 'Close');
+                        return of(ProductActions.deleteProductFailure({ error: error?.message || 'Error deleting product' }));
+                    })
+                )
+            )
+        )
+    );
+
+    loadProductById$ = createEffect(() =>
+        this.action$.pipe(
+            ofType(ProductActions.loadProductById),
+            switchMap(({ id }) =>
+                this.productService.getProductById(id).pipe(
+                    map((product) => ProductActions.loadProductByIdSuccess({ product })),
+                    catchError((error) =>
+                        of(ProductActions.loadProductByIdFailure({ error: error?.message || 'Failed to fetch product details' }))
+                    )
+                )
+            )
+        )
+    );
+
+    loadRelatedProducts$ = createEffect(() =>
+        this.action$.pipe(
+            ofType(ProductActions.loadRelatedProducts),
+            switchMap(({ productId }) =>
+                this.productService.getRelatedProducts(productId).pipe(
+                    map((products) => ProductActions.loadRelatedProductsSuccess({ products: products || [] })),
+                    catchError((error) =>
+                        of(ProductActions.loadRelatedProductsFailure({ error: error?.message || 'Failed to fetch related products' }))
+                    )
+                )
+            )
+        )
+    );
+
 }

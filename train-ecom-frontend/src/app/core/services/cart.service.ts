@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/internal/Observable';
 import { HttpClient } from '@angular/common/http';
 import { CartItem, CartResponse } from '../models/cart.model';
 import { NotificationService } from './notification.service';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Store } from '@ngrx/store';
 import { of, take, tap } from 'rxjs';
 import { selectIsLoggedIn } from '../store/auth/auth.selectors';
@@ -18,9 +17,6 @@ export class CartService {
 
   private http = inject(HttpClient);
   private store = inject(Store);
-
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
-  cartItems$ = this.cartItemsSubject.asObservable();
 
   private isUserLoggedIn(): boolean {
     let isLoggedIn = false;
@@ -50,7 +46,6 @@ export class CartService {
       (sum: number, i: CartItem) => sum + (i.unitPrice || 0) * i.quantity,
       0,
     );
-    this.cartItemsSubject.next(items);
     return { items, totalQuantity, totalAmount };
   }
 
@@ -59,11 +54,7 @@ export class CartService {
       return of(this.buildLocalCartResponse(this.getLocalCartItems()));
     }
 
-    return this.http.get<CartResponse>(`${this.baseAPI}/cartItems`).pipe(
-      tap((response: CartResponse) => {
-        this.cartItemsSubject.next(response?.items || []);
-      }),
-    );
+    return this.http.get<CartResponse>(`${this.baseAPI}/cartItems`);
   }
 
   loadCart(): void {
@@ -99,9 +90,7 @@ export class CartService {
     this.getCartItems().subscribe();
   }
 
-  clearLocalCartState(): void {
-    this.cartItemsSubject.next([]);
-  }
+
 
   addToCart(productId: string, quantity: number, productDetails?: Record<string, unknown>): Observable<CartResponse> {
     if (!this.isUserLoggedIn()) {
@@ -130,7 +119,10 @@ export class CartService {
   updateCartItem(itemId: string, quantity: number): Observable<CartResponse> {
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
-      const existing = items.find((i: CartItem) => i.itemId?.toString() === itemId.toString());
+      const existing = items.find(
+        (i: CartItem) =>
+          (i.itemId || i.productId)?.toString() === itemId.toString(),
+      );
       if (existing) {
         existing.quantity = quantity;
         this.saveLocalCartItems(items);

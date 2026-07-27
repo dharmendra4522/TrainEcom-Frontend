@@ -1,25 +1,25 @@
-<div class="wishlist-page container py-5">
+<div class="wishlist-page container-fluid px-0 py-3 py-sm-5">
  
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3 mb-sm-4 flex-wrap gap-2">
     <h5 class="section-title m-0 fw-semibold text-dark">Wishlist ({{ (wishlist$ | async)?.length || 0 }})</h5>
-    <button mat-stroked-button class="action-btn" (click)="moveAllToBag()">Move All To Bag</button>
+    <button mat-stroked-button class="action-btn px-2 px-sm-4" (click)="moveAllToBag()">Move All To Bag</button>
   </div>
  
-  <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 mb-5">
+  <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4 mb-5">
     <div class="col" *ngFor="let item of (wishlist$ | async)">
       <app-product-card [product]="item"></app-product-card>
     </div>
   </div>
  
-  <div class="d-flex justify-content-between align-items-center mb-4 pt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3 mb-sm-4 pt-3 pt-sm-4 flex-wrap gap-2">
     <div class="d-flex align-items-center">
       <div class="section-badge me-2"></div>
       <h5 class="section-title m-0 fw-semibold text-dark">Just For You</h5>
     </div>
-    <button mat-stroked-button class="action-btn" (click)="seeAllRecommendations()">See All</button>
+    <button mat-stroked-button class="action-btn px-3 px-sm-4" (click)="seeAllRecommendations()">See All</button>
   </div>
  
-  <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
+  <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
     <div class="col" *ngFor="let item of justForYouItems">
       <app-product-card [product]="item"></app-product-card>
     </div>

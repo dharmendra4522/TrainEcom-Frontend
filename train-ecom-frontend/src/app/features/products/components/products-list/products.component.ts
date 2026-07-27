@@ -1,7 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Product } from '../../../../core/models/product.model';
-import { ProductService } from '../../../../core/services/product.service';
-import { NotificationService } from '../../../../core/services/notification.service';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
@@ -16,8 +14,6 @@ import { Observable } from 'rxjs';
   styleUrl: './products.component.css'
 })
 export class ProductsComponent implements OnInit {
-  private productService = inject(ProductService);
-  private notification = inject(NotificationService);
   private router = inject(Router);
   private store = inject(Store);
 
@@ -75,15 +71,6 @@ export class ProductsComponent implements OnInit {
     if (!confirm('Are you sure you want to delete this product?')) {
       return;
     }
-    this.productService.deleteProduct(productId).subscribe({
-      next: () => {
-        this.notification.showSuccess('Product deleted successfully', 'Close');
-        this.store.dispatch(ProductActions.loadProducts({ pageNumber: this.pageNumber, pageSize: this.pageSize }));
-      },
-      error: (error) => {
-        console.error('Error deleting product:', error);
-        this.notification.showError('Error deleting product', 'Close');
-      }
-    });
+    this.store.dispatch(ProductActions.deleteProduct({ productId }));
   }
 }

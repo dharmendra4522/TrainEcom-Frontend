@@ -4,10 +4,7 @@ import { Store } from "@ngrx/store";
 import { NotificationService } from "../../services/notification.service";
 import { WishListService } from "../../services/wish-list.service";
 import * as WishlistActions from './wishList.actions';
-import { exhaustMap } from "rxjs/internal/operators/exhaustMap";
-import { map } from "rxjs/internal/operators/map";
-import { catchError } from "rxjs/internal/operators/catchError";
-import { of } from "rxjs";
+import { map, catchError, of, exhaustMap, mergeMap } from 'rxjs';
 import { WishListItem } from "../../models/wishList.model";
 
 
@@ -41,7 +38,7 @@ export class WishlistEffects {
     addToWishlist$ = createEffect(() => {
         return this.actions$.pipe(
             ofType(WishlistActions.addToWishlist),
-            exhaustMap((action) => {
+            mergeMap((action) => {
                 return this.wishlistService.addToWishlist(action.productId).pipe(
                     map(() => {
                         this.notification.showSuccess('Item added to wishlist', 'Close');
@@ -60,7 +57,7 @@ export class WishlistEffects {
     removeFromWishlist$ = createEffect(() => {
         return this.actions$.pipe(
             ofType(WishlistActions.removeFromWishlist),
-            exhaustMap((action) => {
+            mergeMap((action) => {
                 return this.wishlistService.removeFromWishlist(action.productId).pipe(
                     map(() => {
                         this.notification.showSuccess('Item removed from wishlist', 'Close');

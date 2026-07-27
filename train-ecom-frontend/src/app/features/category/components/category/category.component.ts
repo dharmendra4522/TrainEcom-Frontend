@@ -1,29 +1,27 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CategoryService } from '../../../../core/services/category.service';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import {
   Category,
   CreateCategoryRequest,
-} from '../../../../core/models/product.model';
+} from '../../../../core/models/category.model';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
-import { NotificationService } from '../../../../core/services/notification.service';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { selectAllCategories, selectCategoryLoading } from '../../../../core/store/category/category.selectors';
 
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-category',
   templateUrl: './category.component.html',
   styleUrl: './category.component.css',
 })
-export class CategoryComponent implements OnInit {
-  private categoryService = inject(CategoryService);
+export class CategoryComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
-  private notification = inject(NotificationService);
   private store = inject(Store);
+  private destroy$ = new Subject<void>();
 
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
   isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
@@ -42,6 +40,11 @@ export class CategoryComponent implements OnInit {
     this.fetchAllCategories();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   handleTableAction(event: TableActionEvent<Category>): void {
     if (event.action === 'edit') {
       this.openCategoryDialog(event.row);
@@ -55,43 +58,16 @@ export class CategoryComponent implements OnInit {
   }
 
   createCategory(payload: CreateCategoryRequest): void {
-    this.categoryService.createCategory(payload).subscribe({
-      next: () => {
-        this.notification.showSuccess('Category created successfully.');
-        this.store.dispatch(CategoryActions.loadCategories());
-      },
-      error: (error) => {
-        console.error('Error creating category:', error);
-        this.notification.showError('Failed to create category. Please try again later.');
-      },
-    });
+    this.store.dispatch(CategoryActions.createCategory({ category: payload as Category }));
   }
 
   updateCategory(id: string, payload: CreateCategoryRequest): void {
-    this.categoryService.updateCategory(id, payload).subscribe({
-      next: () => {
-        this.notification.showSuccess('Category updated successfully.');
-        this.store.dispatch(CategoryActions.loadCategories());
-      },
-      error: (error) => {
-        console.error('Error updating category:', error);
-        this.notification.showError('Failed to update category. Please try again later.');
-      },
-    });
+    this.store.dispatch(CategoryActions.updateCategory({ categoryId: id, category: payload as Category }));
   }
 
   deleteCategory(id: string): void {
     if (confirm('Are you sure you want to delete this category?')) {
-      this.categoryService.deleteCategory(id).subscribe({
-        next: () => {
-          this.notification.showSuccess('Category deleted successfully.');
-          this.store.dispatch(CategoryActions.loadCategories());
-        },
-        error: (error) => {
-          console.error('Error deleting category:', error);
-          this.notification.showError('Failed to delete category. Please try again later.');
-        },
-      });
+      this.store.dispatch(CategoryActions.deleteCategory({ categoryId: id }));
     }
   }
 
@@ -106,15 +82,18 @@ export class CategoryComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        if (isEdit && category?.id) {
-          this.updateCategory(category.id, result);
-        } else {
-          this.createCategory(result);
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result) {
+          if (isEdit && category?.id) {
+            this.updateCategory(category.id, result);
+          } else {
+            this.createCategory(result);
+          }
         }
-      }
-    });
+      });
   }
 
   private getCategoryFormFields(category?: Category) {

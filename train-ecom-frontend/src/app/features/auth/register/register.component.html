@@ -56,11 +56,13 @@
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Phone Number</mat-label>
           <mat-icon matPrefix class="me-2 text-secondary">phone</mat-icon>
+          <span matPrefix class="text-secondary fw-semibold pe-1">+91 &nbsp;</span>
           <input
             matInput
             type="tel"
             formControlName="phoneNumber"
-            placeholder="Ex. 123-456-7890"
+            placeholder="Ex. 9876543210"
+            maxlength="10"
           />
  
           <mat-error
@@ -71,7 +73,7 @@
           <mat-error
             *ngIf="registerForm.get('phoneNumber')?.hasError('pattern')"
           >
-            Please enter a valid phone number.
+            Please enter a valid 10-digit phone number (only numbers allowed).
           </mat-error>
         </mat-form-field>
  

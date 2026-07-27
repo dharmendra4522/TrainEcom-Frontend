@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { map, tap, shareReplay } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { WishListItem, WishlistApiResponse, WishlistActionResponse } from '../models/wishList.model';
 
 @Injectable({
@@ -13,14 +13,8 @@ export class WishListService {
   private baseAPI = `${environment.apiBaseUrl}/wishlist`;
   private http = inject(HttpClient);
 
-  private loadRequest$: Observable<WishListItem[]> | null = null;
-
   getWishList(): Observable<WishListItem[]> {
-    if (this.loadRequest$) {
-      return this.loadRequest$;
-    }
-
-    this.loadRequest$ = this.http.get<WishlistApiResponse>(`${this.baseAPI}/wishlist-items`).pipe(
+    return this.http.get<WishlistApiResponse>(`${this.baseAPI}/wishlist-items`).pipe(
       map((res: WishlistApiResponse) => {
         const rawItems = res.result?.items;
         
@@ -34,14 +28,8 @@ export class WishListService {
           name: item.productName,
           image: item.thumbnailUrl
         }));
-      }),
-      tap(() => {
-        this.loadRequest$ = null;
-      }),
-      shareReplay(1)
+      })
     );
-
-    return this.loadRequest$;
   }
 
   addToWishlist(productId: string): Observable<WishlistActionResponse> {

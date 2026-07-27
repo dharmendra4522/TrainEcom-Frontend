@@ -2,18 +2,16 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Brand, CreateBrandRequest } from '../models/product.model';
-
+import { Brand, CreateBrandRequest } from '../models/brand.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BrandService {
   private baseApi = `${environment.apiBaseUrl}/brands`;
   private http = inject(HttpClient);
 
-
-  constructor() { }
+  constructor() {}
 
   getAllBrands(): Observable<Brand[]> {
     return this.http.get<Brand[]>(`${this.baseApi}/all`);
@@ -34,6 +32,4 @@ export class BrandService {
   deleteBrand(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
   }
-
-
 }

@@ -8,7 +8,6 @@
   letter-spacing: 0.5px;
 }
 
-/* Action button (stroked style to match Figma) */
 .action-btn {
   border: 1px solid rgba(0, 0, 0, 0.5) !important;
   border-radius: 4px !important;
@@ -28,10 +27,23 @@
   border-color: #000 !important;
 }
 
-/* Red Vertical Rectangle Badge next to "Just For You" */
 .section-badge {
   background-color: #db4444;
   width: 16px;
   height: 32px;
   border-radius: 4px;
+}
+
+@media (max-width: 576px) {
+  .section-title {
+    font-size: 16px !important;
+  }
+  .action-btn {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+  .section-badge {
+    width: 12px !important;
+    height: 24px !important;
+  }
 }

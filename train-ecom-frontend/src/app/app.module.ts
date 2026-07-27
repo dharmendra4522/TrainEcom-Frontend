@@ -25,6 +25,8 @@ import { categoryReducer } from './core/store/category/category.reducer';
 import { CategoryEffects } from './core/store/category/category.effects';
 import { wishlistReducer } from './core/store/wish-list/wishList.reducer';
 import { WishlistEffects } from './core/store/wish-list/wishList.effects';
+import { cartReducer } from './core/store/cart/cart.reducer';
+import { CartEffects } from './core/store/cart/cart.effects';
 
 @NgModule({
   declarations: [
@@ -41,10 +43,11 @@ import { WishlistEffects } from './core/store/wish-list/wishList.effects';
       product: productReducer,
       brand: brandReducer,
       category: categoryReducer,
-      wishlist: wishlistReducer
+      wishlist: wishlistReducer,
+      cart: cartReducer,
       
     }),
-    EffectsModule.forRoot([AuthEffects, UserEffects, ProductEffects, BrandEffects, CategoryEffects, WishlistEffects]),
+    EffectsModule.forRoot([AuthEffects, UserEffects, ProductEffects, BrandEffects, CategoryEffects, WishlistEffects, CartEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() })
 
   ],

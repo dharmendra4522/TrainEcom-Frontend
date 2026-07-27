@@ -1,5 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Brand, Category, Product } from '../../../../core/models/product.model';
+import { Product } from '../../../../core/models/product.model';
+import { Brand } from '../../../../core/models/brand.model';
+import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';

@@ -1,31 +1,36 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductService } from '../../../../core/services/product.service';
 import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Store } from '@ngrx/store';
 import { selectIsLoggedIn } from '../../../../core/store/auth/auth.selectors';
-import { map, take } from 'rxjs/operators';
+import { map, take, takeUntil } from 'rxjs/operators';
 import { WishListItem } from '../../../../core/models/wishList.model';
 import { Location } from '@angular/common';
-import { CartService } from '../../../../core/services/cart.service';
 import * as WishlistActions from '../../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
+import * as ProductActions from '../../../../core/store/product/product.action';
+import * as CartActions from '../../../../core/store/cart/cart.actions';
+
+import {
+  selectProductById,
+  selectProductsLoading,
+  selectProductError,
+  selectRelatedProducts,
+} from '../../../../core/store/product/product.selectors';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css'
+  styleUrl: './product-detail.component.css',
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private productService = inject(ProductService);
   private store = inject(Store);
   private notification = inject(NotificationService);
   private location = inject(Location);
-  private cartService = inject(CartService);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
@@ -35,8 +40,11 @@ export class ProductDetailComponent implements OnInit {
   isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
 
+  private destroy$ = new Subject<void>();
+  private productDestroy$ = new Subject<void>();
+
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params['id'];
       if (id) {
         this.loadProduct(id);
@@ -45,27 +53,63 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.productDestroy$.next();
+    this.productDestroy$.complete();
+  }
+
   loadProduct(id: string): void {
-    this.isLoading = true;
-    this.productService.getProductById(id).subscribe({
-      next: (data: Product) => {
-        this.product = data;
-        this.setInitialImage(data);
-        this.isLoading = false;
-        this.loadRelatedProducts();
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load product details:', err);
-        this.notification.showError('Could not load product details.');
-        this.isLoading = false;
-      }
-    });
+    this.productDestroy$.next();
+
+    this.store.dispatch(ProductActions.loadProductById({ id }));
+    this.store
+      .select(selectProductById(id))
+      .pipe(takeUntil(this.productDestroy$))
+      .subscribe((product) => {
+        if (product) {
+          this.product = product;
+          this.setInitialImage(product);
+          this.loadRelatedProducts();
+        }
+      });
+
+    this.store
+      .select(selectRelatedProducts)
+      .pipe(takeUntil(this.productDestroy$))
+      .subscribe((products) => {
+        if (products && this.product) {
+          this.relatedProducts = products
+            .filter(
+              (p: Product) => p.id.toString() !== this.product?.id.toString(),
+            )
+            .slice(0, 4);
+        }
+      });
+
+    this.store
+      .select(selectProductsLoading)
+      .pipe(takeUntil(this.productDestroy$))
+      .subscribe((loading) => {
+        this.isLoading = loading;
+      });
+    this.store
+      .select(selectProductError)
+      .pipe(takeUntil(this.productDestroy$))
+      .subscribe((error) => {
+        if (error) {
+          this.notification.showError(error);
+        }
+      });
   }
 
   private setInitialImage(product: Product): void {
     if (product.images && product.images.length > 0) {
       const primary = product.images.find((img) => img.isPrimary);
-      this.selectedImageUrl = primary ? primary.imageUrl : product.images[0].imageUrl;
+      this.selectedImageUrl = primary
+        ? primary.imageUrl
+        : product.images[0].imageUrl;
     } else if (product.thumbnailUrl) {
       this.selectedImageUrl = product.thumbnailUrl;
     }
@@ -92,21 +136,25 @@ export class ProductDetailComponent implements OnInit {
   }
 
   checkWishlistStatus(productId: string): void {
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
-      if (!isLoggedIn) {
-        this.isFavorite$ = of(false);
-        return;
-      }
-      this.isFavorite$ = this.store.select(selectWishlistItems).pipe(
-        map((items: WishListItem[]) => {
-          if (!items) return false;
-          return items.some(
-            (item: WishListItem) => (item.productId || item.id).toString() === productId.toString()
-          );
-        })
-      );
-      this.store.dispatch(WishlistActions.loadWishlist());
-    });
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(take(1))
+      .subscribe((isLoggedIn: boolean) => {
+        if (!isLoggedIn) {
+          this.isFavorite$ = of(false);
+          return;
+        }
+        this.isFavorite$ = this.store.select(selectWishlistItems).pipe(
+          map((items: WishListItem[]) => {
+            if (!items) return false;
+            return items.some(
+              (item: WishListItem) =>
+                (item.productId || item.id).toString() === productId.toString(),
+            );
+          }),
+        );
+        this.store.dispatch(WishlistActions.loadWishlist());
+      });
   }
 
   addToCart(): void {
@@ -118,44 +166,50 @@ export class ProductDetailComponent implements OnInit {
       productName: this.product.name,
       unitPrice: this.product.price,
       thumbnailUrl: this.selectedImageUrl || this.product.thumbnailUrl,
-      stockQuantity: this.product.stockQuantity
+      stockQuantity: this.product.stockQuantity,
     };
-
-    this.cartService.addToCart(productId, this.quantity, productDetails).subscribe({
-      next: () => {
-        this.notification.showSuccess(`${this.quantity} item(s) added to cart!`, 'Close');
-      },
-      error: (err: unknown) => {
-        console.error('Failed to add to cart:', err);
-        this.notification.showError('Failed to add to cart', 'Close');
-      }
-    });
+    this.store.dispatch(
+      CartActions.addToCart({
+        productId,
+        quantity: this.quantity,
+        productDetails,
+      }),
+    );
   }
 
   addToWishlist(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
 
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
-      if (!isLoggedIn) {
-        this.notification.showError('Please login to add products to your wishlist.');
-        this.router.navigate(['/login']);
-        return;
-      }
-
-      this.isFavorite$.pipe(take(1)).subscribe((isFav) => {
-        if (isFav) {
-          this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
-        } else {
-          this.store.dispatch(WishlistActions.addToWishlist({ productId }));
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(take(1))
+      .subscribe((isLoggedIn: boolean) => {
+        if (!isLoggedIn) {
+          this.notification.showError(
+            'Please login to add products to your wishlist.',
+          );
+          this.router.navigate(['/login']);
+          return;
         }
+
+        this.isFavorite$.pipe(take(1)).subscribe((isFav) => {
+          if (isFav) {
+            this.store.dispatch(
+              WishlistActions.removeFromWishlist({ productId }),
+            );
+          } else {
+            this.store.dispatch(WishlistActions.addToWishlist({ productId }));
+          }
+        });
       });
-    });
   }
 
-
   buyNow(): void {
-    this.notification.showSuccess(`Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`, 'Close');
+    this.notification.showSuccess(
+      `Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`,
+      'Close',
+    );
   }
 
   goBack(): void {
@@ -164,16 +218,10 @@ export class ProductDetailComponent implements OnInit {
 
   private loadRelatedProducts(): void {
     if (!this.product?.id) return;
-
-    this.productService.getRelatedProducts(this.product.id.toString()).subscribe({
-      next: (products: Product[]) => {
-        this.relatedProducts = products
-          .filter((p: Product) => p.id.toString() !== this.product?.id.toString())
-          .slice(0, 4);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load related products:', err);
-      }
-    });
+    this.store.dispatch(
+      ProductActions.loadRelatedProducts({
+        productId: this.product.id.toString(),
+      }),
+    );
   }
 }

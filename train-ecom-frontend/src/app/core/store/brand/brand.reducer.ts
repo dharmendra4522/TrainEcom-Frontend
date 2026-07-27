@@ -1,5 +1,5 @@
 import * as BrandActions  from './brand.action';
-import { Brand } from '../../models/product.model';
+import { Brand } from '../../models/brand.model';
 import { createReducer, on } from '@ngrx/store';
 
 export interface BrandState {
@@ -34,5 +34,71 @@ export const brandReducer = createReducer(
         ...state,
         isLoading: false,
         error
+    })),
+
+    on(BrandActions.loadSingleBrand, (state) =>({
+        ...state,
+        isLoading: true,
+        error: null
+    })),
+    on(BrandActions.loadSingleBrandSuccess, (state, { brand }) =>({
+        ...state,
+        isLoading: false,
+        error: null,
+        brands: [...state.brands.filter(b => b.id !== brand.id), brand]
+    })),
+
+    on(BrandActions.loadSingleBrandFailure, (state, { error }) =>({
+        ...state,
+        isLoading: false,
+        error
+    })),
+    on(BrandActions.createBrand, (state) =>({
+        ...state,
+        isLoading: true,
+        error: null
+    })),
+    on(BrandActions.createBrandSuccess, (state, { brand }) =>({
+        ...state,
+        isLoading: false,
+        error: null,
+        brands: [...state.brands, brand]
+    })),
+    on(BrandActions.createBrandFailure, (state, { error }) =>({
+        ...state,
+        isLoading: false,
+        error
+    })),
+    on(BrandActions.updateBrand, (state) =>({
+        ...state,
+        isLoading: true,
+        error: null
+    })),
+    on(BrandActions.updateBrandSuccess, (state, { brand }) =>({
+        ...state,
+        isLoading: false,
+        error: null,
+        brands: [...state.brands.filter(b => b.id !== brand.id), brand]
+    })),
+    on(BrandActions.updateBrandFailure, (state, { error }) =>({
+        ...state,
+        isLoading: false,
+        error
+    })),
+    on(BrandActions.deleteBrand, (state) =>({
+        ...state,
+        isLoading: true,
+        error: null
+    })),
+    on(BrandActions.deleteBrandSuccess, (state, { brandId }) =>({
+        ...state,
+        isLoading: false,
+        error: null,
+        brands: state.brands.filter(b => b.id !== brandId)
+    })),
+    on(BrandActions.deleteBrandFailure, (state, { error }) =>({
+        ...state,
+        isLoading: false,
+        error
     }))
-)
+);

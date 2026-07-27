@@ -1,12 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { BrandService } from '../../../../core/services/brand.service';
-import { CategoryService } from '../../../../core/services/category.service';
-import { Brand, Category, Product, ProductImage } from '../../../../core/models/product.model';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormArray,
+  FormControl,
+} from '@angular/forms';
+
+import { Product, ProductImage } from '../../../../core/models/product.model';
+import { Brand } from '../../../../core/models/brand.model';
+import { Category } from '../../../../core/models/category.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ProductService } from '../../../../core/services/product.service';
-import { Observable, combineLatest } from 'rxjs';
-import { startWith, map, filter, take } from 'rxjs/operators';
+import { selectProductById } from '../../../../core/store/product/product.selectors';
+import { Observable, combineLatest, Subject } from 'rxjs';
+import { startWith, map, filter, take, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -16,22 +23,22 @@ import * as BrandActions from '../../../../core/store/brand/brand.action';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import { Actions, ofType } from '@ngrx/effects';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
-  styleUrl: './product-form.component.css'
+  styleUrl: './product-form.component.css',
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private brandService = inject(BrandService);
-  private categoryService = inject(CategoryService);
   private notification = inject(NotificationService);
-  private productService = inject(ProductService);
   private matDialog = inject(MatDialog);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private store = inject(Store);
+  private actions$ = inject(Actions);
+  private destroy$ = new Subject<void>();
 
   brandControl = new FormControl('');
   categoryControl = new FormControl('');
@@ -49,7 +56,7 @@ export class ProductFormComponent implements OnInit {
   brands: Brand[] = [];
   categories: Category[] = [];
   selectFiles: File[] = [];
-  existingImages: { id: string, imageUrl: string }[] = [];
+  existingImages: { id: string; imageUrl: string }[] = [];
   deletedImageIds: string[] = [];
 
   ngOnInit(): void {
@@ -57,6 +64,11 @@ export class ProductFormComponent implements OnInit {
     this.initAutocomplete();
     this.initListeners();
     this.checkRouteForEditMode();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // Initialization Helpers
@@ -70,64 +82,74 @@ export class ProductFormComponent implements OnInit {
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
       this.isEditMode = true;
-      
+
       combineLatest([
         this.store.select(selectAllBrands),
-        this.store.select(selectAllCategories)
-      ]).pipe(
-        filter(([brands, categories]) => brands && brands.length > 0 && categories && categories.length > 0),
-        take(1)
-      ).subscribe({
-        next: ([brands, categories]) => {
-          this.brands = brands;
-          this.categories = categories;
-          if (this.productId) {
-            this.loadProductDetails(this.productId);
-          }
-        }
-      });
+        this.store.select(selectAllCategories),
+      ])
+        .pipe(
+          filter(
+            ([brands, categories]) =>
+              brands &&
+              brands.length > 0 &&
+              categories &&
+              categories.length > 0,
+          ),
+          takeUntil(this.destroy$),
+          take(1),
+        )
+        .subscribe({
+          next: ([brands, categories]) => {
+            this.brands = brands;
+            this.categories = categories;
+            if (this.productId) {
+              this.loadProductDetails(this.productId);
+            }
+          },
+        });
     }
   }
 
   private loadProductDetails(productId: string): void {
-    this.productService.getProductById(productId).subscribe({
-      next: (product: Product) => {
-        const brandId = product.brandId || '';
-        const categoryId = product.categoryId || '';
+    this.store.dispatch(ProductActions.loadProductById({ id: productId }));
 
-        this.originalBrandId = brandId;
-        this.originalCategoryId = categoryId;
-        this.originalBrandName = product.brandName || '';
-        this.originalCategoryName = product.categoryName || '';
+    this.store
+      .select(selectProductById(productId))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((product) => {
+        if (product) {
+          const brandId = product.brandId || '';
+          const categoryId = product.categoryId || '';
 
-        this.productForm.patchValue({
-          title: product.name || '',
-          price: product.price ?? 0,
-          stockQuantity: product.stockQuantity ?? 0,
-          brand: brandId,
-          category: categoryId,
-          description: product.description || ''
-        });
+          this.originalBrandId = brandId;
+          this.originalCategoryId = categoryId;
+          this.originalBrandName = product.brandName || '';
+          this.originalCategoryName = product.categoryName || '';
 
-        if (brandId) {
-          this.brandControl.setValue(brandId);
+          this.productForm.patchValue({
+            title: product.name || '',
+            price: product.price ?? 0,
+            stockQuantity: product.stockQuantity ?? 0,
+            brand: brandId,
+            category: categoryId,
+            description: product.description || '',
+          });
+
+          if (brandId) {
+            this.brandControl.setValue(brandId);
+          }
+          if (categoryId) {
+            this.categoryControl.setValue(categoryId);
+          }
+
+          if (product.images) {
+            this.existingImages = product.images.map((img: ProductImage) => ({
+              id: img.id,
+              imageUrl: img.imageUrl,
+            }));
+          }
         }
-        if (categoryId) {
-          this.categoryControl.setValue(categoryId);
-        }
-
-        if (product.images) {
-          this.existingImages = product.images.map((img: ProductImage) => ({
-            id: img.id,
-            imageUrl: img.imageUrl
-          }));
-        }
-      },
-      error: (error: unknown) => {
-        console.error('Error fetching product details:', error);
-        this.notification.showError('Error fetching product details', 'Close');
-      }
-    });
+      });
   }
 
   removeExistingImage(imageId: string, index: number) {
@@ -138,12 +160,12 @@ export class ProductFormComponent implements OnInit {
   private initAutocomplete(): void {
     this.filteredBrands = this.brandControl.valueChanges.pipe(
       startWith(this.brandControl.value || ''),
-      map(val => this.resolveFilter(val, this.brands))
+      map((val) => this.resolveFilter(val, this.brands)),
     );
 
     this.filteredCategories = this.categoryControl.valueChanges.pipe(
       startWith(this.categoryControl.value || ''),
-      map(val => this.resolveFilter(val, this.categories))
+      map((val) => this.resolveFilter(val, this.categories)),
     );
   }
 
@@ -156,74 +178,96 @@ export class ProductFormComponent implements OnInit {
   }
 
   private initListeners(): void {
-    this.brandControl.valueChanges.subscribe(val => {
-      if (!val) {
-        this.productForm.patchValue({ brand: '' });
-        return;
-      }
+    this.brandControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val) => {
+        if (!val) {
+          this.productForm.patchValue({ brand: '' });
+          return;
+        }
 
-      if (this.brands.length === 0 || (typeof val === 'string' && val.toLowerCase() === this.originalBrandId.toLowerCase())) {
-        this.productForm.patchValue({ brand: val });
-        return;
-      }
+        if (
+          this.brands.length === 0 ||
+          (typeof val === 'string' &&
+            val.toLowerCase() === this.originalBrandId.toLowerCase())
+        ) {
+          this.productForm.patchValue({ brand: val });
+          return;
+        }
 
-      if (typeof val === 'string') {
-        const foundById = this.brands.find(b => b.id.toLowerCase() === val.toLowerCase());
-        if (foundById) {
-          this.productForm.patchValue({ brand: foundById.id });
-        } else {
-          const foundByName = this.brands.find(b => b.name.toLowerCase() === val.toLowerCase());
-          if (foundByName) {
-            this.productForm.patchValue({ brand: foundByName.id });
+        if (typeof val === 'string') {
+          const foundById = this.brands.find(
+            (b) => b.id.toLowerCase() === val.toLowerCase(),
+          );
+          if (foundById) {
+            this.productForm.patchValue({ brand: foundById.id });
           } else {
-            this.productForm.patchValue({ brand: '' });
+            const foundByName = this.brands.find(
+              (b) => b.name.toLowerCase() === val.toLowerCase(),
+            );
+            if (foundByName) {
+              this.productForm.patchValue({ brand: foundByName.id });
+            } else {
+              this.productForm.patchValue({ brand: '' });
+            }
           }
         }
-      }
-    });
+      });
 
-    this.categoryControl.valueChanges.subscribe(val => {
-      if (!val) {
-        this.productForm.patchValue({ category: '' });
-        return;
-      }
+    this.categoryControl.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val) => {
+        if (!val) {
+          this.productForm.patchValue({ category: '' });
+          return;
+        }
 
-      if (this.categories.length === 0 || (typeof val === 'string' && val.toLowerCase() === this.originalCategoryId.toLowerCase())) {
-        this.productForm.patchValue({ category: val });
-        return;
-      }
+        if (
+          this.categories.length === 0 ||
+          (typeof val === 'string' &&
+            val.toLowerCase() === this.originalCategoryId.toLowerCase())
+        ) {
+          this.productForm.patchValue({ category: val });
+          return;
+        }
 
-      if (typeof val === 'string') {
-        const foundById = this.categories.find(c => c.id.toLowerCase() === val.toLowerCase());
-        if (foundById) {
-          this.productForm.patchValue({ category: foundById.id });
-        } else {
-          const foundByName = this.categories.find(c => c.name.toLowerCase() === val.toLowerCase());
-          if (foundByName) {
-            this.productForm.patchValue({ category: foundByName.id });
+        if (typeof val === 'string') {
+          const foundById = this.categories.find(
+            (c) => c.id.toLowerCase() === val.toLowerCase(),
+          );
+          if (foundById) {
+            this.productForm.patchValue({ category: foundById.id });
           } else {
-            this.productForm.patchValue({ category: '' });
+            const foundByName = this.categories.find(
+              (c) => c.name.toLowerCase() === val.toLowerCase(),
+            );
+            if (foundByName) {
+              this.productForm.patchValue({ category: foundByName.id });
+            } else {
+              this.productForm.patchValue({ category: '' });
+            }
           }
         }
-      }
-    });
+      });
   }
 
   private resolveFilter<T extends { id: string; name: string }>(
     value: string | T | null,
-    items: T[]
+    items: T[],
   ): T[] {
     if (!value) return items;
     const strVal = typeof value === 'string' ? value : value.name;
     if (!strVal) return items;
 
-    const isExistingId = items.some(item => item.id.toLowerCase() === strVal.toLowerCase());
+    const isExistingId = items.some(
+      (item) => item.id.toLowerCase() === strVal.toLowerCase(),
+    );
     if (isExistingId) {
       return items;
     }
 
     const query = strVal.toLowerCase().trim();
-    return items.filter(item => item.name.toLowerCase().includes(query));
+    return items.filter((item) => item.name.toLowerCase().includes(query));
   }
 
   onBrandSelected(event: { option: { value: string } }): void {
@@ -236,67 +280,85 @@ export class ProductFormComponent implements OnInit {
 
   displayBrandName = (brandId: string): string => {
     if (!brandId) return '';
-    const brand = this.brands.find(b => b.id.toLowerCase() === brandId.toLowerCase());
+    const brand = this.brands.find(
+      (b) => b.id.toLowerCase() === brandId.toLowerCase(),
+    );
     if (brand) return brand.name;
-    if (brandId.toLowerCase() === this.originalBrandId.toLowerCase()) return this.originalBrandName;
+    if (brandId.toLowerCase() === this.originalBrandId.toLowerCase())
+      return this.originalBrandName;
     return brandId;
   };
 
   displayCategoryName = (categoryId: string): string => {
     if (!categoryId) return '';
-    const category = this.categories.find(c => c.id.toLowerCase() === categoryId.toLowerCase());
+    const category = this.categories.find(
+      (c) => c.id.toLowerCase() === categoryId.toLowerCase(),
+    );
     if (category) return category.name;
-    if (categoryId.toLowerCase() === this.originalCategoryId.toLowerCase()) return this.originalCategoryName;
+    if (categoryId.toLowerCase() === this.originalCategoryId.toLowerCase())
+      return this.originalCategoryName;
     return categoryId;
   };
 
   openAddDialog(type: 'brand' | 'category'): void {
     const title = `Add new ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-    this.matDialog.open(GenericDialogComponent, {
-      width: '400px',
-      data: {
-        title,
-        fields: [
-          { key: 'name', label: `${type} Name`, type: 'text' },
-          { key: 'description', label: 'Description', type: 'text' }
-        ],
-        submitButtonText: 'Save'
-      }
-    }).afterClosed().subscribe(result => {
-      if (result) this.handleDialogSubmit(type, result);
-    });
+    this.matDialog
+      .open(GenericDialogComponent, {
+        width: '400px',
+        data: {
+          title,
+          fields: [
+            { key: 'name', label: `${type} Name`, type: 'text' },
+            { key: 'description', label: 'Description', type: 'text' },
+          ],
+          submitButtonText: 'Save',
+        },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) this.handleDialogSubmit(type, result);
+      });
   }
 
-  private handleDialogSubmit(type: 'brand' | 'category', result: { name: string; description?: string }): void {
+  private handleDialogSubmit(
+    type: 'brand' | 'category',
+    result: { name: string; description?: string },
+  ): void {
     const payload = {
       name: result.name,
-      description: result.description ?? ''
+      description: result.description ?? '',
     };
-
-    const service = type === 'brand'
-      ? this.brandService.createBrand(payload)
-      : this.categoryService.createCategory(payload);
-
-    service.subscribe({
-      next: (response) => {
-        if (type === 'brand') {
-          const brand = response as Brand;
-          this.store.dispatch(BrandActions.loadBrands());
+    if (type === 'brand') {
+      this.actions$
+        .pipe(
+          ofType(BrandActions.createBrandSuccess),
+          takeUntil(this.destroy$),
+          take(1),
+        )
+        .subscribe(({ brand }) => {
           this.productForm.patchValue({ brand: brand.id });
           this.brandControl.setValue(brand.id);
-        } else {
-          const category = response as Category;
-          this.store.dispatch(CategoryActions.loadCategories());
+        });
+
+      this.store.dispatch(
+        BrandActions.createBrand({ brand: payload as Brand }),
+      );
+    } else {
+      this.actions$
+        .pipe(
+          ofType(CategoryActions.createCategorySuccess),
+          takeUntil(this.destroy$),
+          take(1),
+        )
+        .subscribe(({ category }) => {
           this.productForm.patchValue({ category: category.id });
           this.categoryControl.setValue(category.id);
-        }
-        this.notification.showSuccess(`${type} added successfully`, 'Close');
-      },
-      error: (error) => {
-        console.error(`Error adding ${type}:`, error);
-        this.notification.showError(`Error adding ${type}`, 'Close');
-      }
-    });
+        });
+
+      this.store.dispatch(
+        CategoryActions.createCategory({ category: payload as Category }),
+      );
+    }
   }
 
   private validateForm(): void {
@@ -307,7 +369,7 @@ export class ProductFormComponent implements OnInit {
       brand: ['', Validators.required],
       category: ['', Validators.required],
       description: ['', Validators.required],
-      images: this.fb.array([this.fb.control('')])
+      images: this.fb.array([this.fb.control('')]),
     });
   }
 
@@ -326,7 +388,10 @@ export class ProductFormComponent implements OnInit {
       const maxSizeBytes = 5 * 1024 * 1024;
 
       if (file.size > maxSizeBytes) {
-        this.notification.showError(`File "${file.name}" exceeds 5MB. Please upload an image less than 5MB.`, 'Close');
+        this.notification.showError(
+          `File "${file.name}" exceeds 5MB. Please upload an image less than 5MB.`,
+          'Close',
+        );
         input.value = '';
         delete this.selectFiles[index];
         return;
@@ -349,23 +414,32 @@ export class ProductFormComponent implements OnInit {
         name: formValue.title,
         description: formValue.description,
         price: formValue.price,
-        stockQuantity: (formValue.stockQuantity !== null && formValue.stockQuantity !== undefined && formValue.stockQuantity !== '') ? Number(formValue.stockQuantity) : 0,
+        stockQuantity:
+          formValue.stockQuantity !== null &&
+          formValue.stockQuantity !== undefined &&
+          formValue.stockQuantity !== ''
+            ? Number(formValue.stockQuantity)
+            : 0,
         brandId: formValue.brand,
-        categoryId: formValue.category
+        categoryId: formValue.category,
       };
 
       if (this.isEditMode && this.productId) {
-        this.store.dispatch(ProductActions.updateProduct({
-          id: this.productId,
-          productData: productPayload,
-          newFiles: this.selectFiles,
-          deletedImageIds: this.deletedImageIds
-        }));
+        this.store.dispatch(
+          ProductActions.updateProduct({
+            id: this.productId,
+            productData: productPayload,
+            newFiles: this.selectFiles,
+            deletedImageIds: this.deletedImageIds,
+          }),
+        );
       } else {
-        this.store.dispatch(ProductActions.createProduct({
-          productData: productPayload,
-          files: this.selectFiles
-        }));
+        this.store.dispatch(
+          ProductActions.createProduct({
+            productData: productPayload,
+            files: this.selectFiles,
+          }),
+        );
       }
     } else {
       this.notification.showError('Please fill all required fields', 'Close');
@@ -374,31 +448,39 @@ export class ProductFormComponent implements OnInit {
 
   fetchAllBrands(): void {
     this.store.dispatch(BrandActions.loadBrands());
-    this.store.select(selectAllBrands).subscribe({
-      next: (data: Brand[]) => {
-        if (data) {
-          this.brands = data;
-          if (this.brandControl.value) {
-            this.brandControl.setValue(this.brandControl.value);
+    this.store
+      .select(selectAllBrands)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Brand[]) => {
+          if (data) {
+            this.brands = data;
+            if (this.brandControl.value) {
+              this.brandControl.setValue(this.brandControl.value);
+            }
           }
-        }
-      },
-      error: (error: unknown) => console.error('Error fetching brands:', error)
-    });
+        },
+        error: (error: unknown) =>
+          console.error('Error fetching brands:', error),
+      });
   }
 
   fetchAllCategories(): void {
     this.store.dispatch(CategoryActions.loadCategories());
-    this.store.select(selectAllCategories).subscribe({
-      next: (data: Category[]) => {
-        if (data) {
-          this.categories = data;
-          if (this.categoryControl.value) {
-            this.categoryControl.setValue(this.categoryControl.value);
+    this.store
+      .select(selectAllCategories)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Category[]) => {
+          if (data) {
+            this.categories = data;
+            if (this.categoryControl.value) {
+              this.categoryControl.setValue(this.categoryControl.value);
+            }
           }
-        }
-      },
-      error: (error: unknown) => console.error('Error fetching categories:', error)
-    });
+        },
+        error: (error: unknown) =>
+          console.error('Error fetching categories:', error),
+      });
   }
 }

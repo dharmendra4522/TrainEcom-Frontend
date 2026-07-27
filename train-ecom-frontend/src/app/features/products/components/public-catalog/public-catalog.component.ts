@@ -1,9 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-import { Product, Brand, Category } from '../../../../core/models/product.model';
+import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
+import { map, startWith, take, takeUntil } from 'rxjs/operators';
+import { Product } from '../../../../core/models/product.model';
+import { Brand } from '../../../../core/models/brand.model';
+import { Category } from '../../../../core/models/category.model';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { Location } from '@angular/common';
@@ -18,7 +20,7 @@ import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
   templateUrl: './public-catalog.component.html',
   styleUrl: './public-catalog.component.css'
 })
-export class PublicCatalogComponent implements OnInit {
+export class PublicCatalogComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   public route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -28,6 +30,7 @@ export class PublicCatalogComponent implements OnInit {
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
+  private destroy$ = new Subject<void>();
  
   filteredProducts$!: Observable<Product[]>;
  
@@ -48,9 +51,18 @@ export class PublicCatalogComponent implements OnInit {
     this.initStoreData();
     this.setupFilteredProducts();
   }
+
+ 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
  
   private initStoreData(): void {
-    this.products$.pipe(map(p => p.length === 0)).subscribe(isEmpty => {
+    this.products$.pipe(
+      map(p => p.length === 0),
+      take(1)
+    ).subscribe(isEmpty => {
       if (isEmpty) {
         this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 20 }));
       }
@@ -61,9 +73,11 @@ export class PublicCatalogComponent implements OnInit {
   }
  
   private setupFilteredProducts(): void {
-    this.route.queryParamMap.subscribe(params => {
-      this.dispatchLoadWithCurrentParams();
-    });
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.dispatchLoadWithCurrentParams();
+      });
  
     this.filteredProducts$ = combineLatest([
       this.products$,

@@ -7,21 +7,20 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../shared/shared.module';
 import { ProfileComponent } from './components/profile/profile.component';
 import { WishlistComponent } from './components/wishlist/wishlist.component';
-import { CartComponent } from './cart/cart.component';
-
+import { CartComponent } from './components/cart/cart.component';
 
 @NgModule({
   declarations: [
     AddressComponent,
     ProfileComponent,
     WishlistComponent,
-    CartComponent
+    CartComponent,
   ],
   imports: [
     CommonModule,
     UsersRoutingModule,
     SharedModule,
-    ReactiveFormsModule
-  ]
+    ReactiveFormsModule,
+  ],
 })
-export class UsersModule { }
+export class UsersModule {}

@@ -19,3 +19,27 @@ export const selectProductTotalRecords = createSelector(
   selectProductState,
   (state: ProductState) => state.totalRecords || 0
 );
+
+export const selectProductById = (productId: string) => createSelector(
+  selectProductState,
+  (state: ProductState) => state.products.find(product => product.id === productId)
+);
+export const selectProductError = createSelector(
+  selectProductState,
+  (state: ProductState) => state.error
+);
+
+export const selectProductPageNumber = createSelector(
+  selectProductState,
+  (state: ProductState) => state.pageNumber
+);
+
+export const selectProductTotalPages = createSelector(
+  selectProductState,
+  (state: ProductState) => state.totalPages
+);
+
+export const selectRelatedProducts = createSelector(
+  selectProductState,
+  (state: ProductState) => state.relatedProducts || []
+);

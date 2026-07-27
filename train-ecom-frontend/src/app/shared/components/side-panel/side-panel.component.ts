@@ -1,18 +1,29 @@
-import { ProductService } from './../../../core/services/product.service';
-import { Component, Input, ViewChild, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  ViewChild,
+  inject,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { WishListItem } from '../../../core/models/wishList.model';
 import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
-import { take } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
-import { CartService } from '../../../core/services/cart.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CartItem } from '../../../core/models/cart.model';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
-
+import { Actions, ofType } from '@ngrx/effects';
+import * as CartActions from '../../../core/store/cart/cart.actions';
+import { selectCartItems } from '../../../core/store/cart/cart.selectors';
+import * as ProductActions from '../../../core/store/product/product.action';
+import { selectProductById } from '../../../core/store/product/product.selectors';
+import { Subject } from 'rxjs';
 
 export interface SidePanelItem {
   id: string;
@@ -30,13 +41,15 @@ export interface SidePanelItem {
   templateUrl: './side-panel.component.html',
   styleUrl: './side-panel.component.css',
 })
-export class SidePanelComponent implements OnInit {
+export class SidePanelComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
-  private cartService = inject(CartService);
+  // private cartService = inject(CartService);
   private notificationService = inject(NotificationService);
-  private productService = inject(ProductService);
+  private actions$ = inject(Actions);
+
+  private destroy$ = new Subject<void>();
 
   @Input() type: 'WishList' | 'Cart' | 'Notification' = 'WishList';
   @Input() items: SidePanelItem[] = [];
@@ -45,6 +58,11 @@ export class SidePanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializePanelData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initializePanelData(): void {
@@ -58,57 +76,70 @@ export class SidePanelComponent implements OnInit {
   }
 
   private subscribeToWishlistStream(): void {
-    this.store.select(selectWishlistItems).subscribe({
-      next: (items: WishListItem[]) => {
-        this.items = (items || []).map((item: any) => ({
-          ...item,
-          id: item.productId || item.id,
-          name: item.productName || item.name || '', // <-- name ko string ensure kiya
-          price: item.price || 0
-        }));
-        this.cdr.detectChanges();
-      }
-    });
+    this.store
+      .select(selectWishlistItems)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items: WishListItem[]) => {
+          this.items = (items || []).map((item: any) => ({
+            ...item,
+            id: item.productId || item.id,
+            name: item.productName || item.name || '', // <-- name ko string ensure kiya
+            price: item.price || 0,
+          }));
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private watchAuthStatusForWishlist(): void {
-    this.store.select(selectIsLoggedIn).subscribe((isLoggedIn: boolean) => {
-      if (isLoggedIn) {
-        this.store.dispatch(WishlistActions.loadWishlist());
-      } else {
-        this.items = [];
-        this.cdr.detectChanges();
-      }
-    })
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          this.store.dispatch(WishlistActions.loadWishlist());
+        } else {
+          this.items = [];
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   private subscribeToCartStream(): void {
-    this.cartService.cartItems$.subscribe({
-      next: (items: CartItem[]) => {
-        this.items = (items || []).map((item: CartItem) => ({
-          ...item,
-          id: item.itemId || item.productId.toString(),
-          name: item.productName,
-          price: item.unitPrice,
-          image: item.thumbnailUrl
-        }));
-        this.cdr.detectChanges();
-      }
-    });
+    this.store
+      .select(selectCartItems)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items: CartItem[]) => {
+          this.items = (items || []).map((item: CartItem) => ({
+            ...item,
+            id: item.itemId || item.productId.toString(),
+            name: item.productName,
+            price: item.unitPrice,
+            image: item.thumbnailUrl,
+          }));
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private watchAuthStatusForCart(): void {
-    this.store.select(selectIsLoggedIn).subscribe(() => {
-      this.cartService.loadCart();
-    });
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(CartActions.loadCart());
+      });
   }
+
 
   open(): void {
     this.drawer.open();
     if (this.type === 'WishList') {
       this.loadWishlistItems();
     } else if (this.type === 'Cart') {
-      this.cartService.getCartItems().subscribe();
+      this.store.dispatch(CartActions.loadCart());
     }
   }
 
@@ -139,23 +170,29 @@ export class SidePanelComponent implements OnInit {
     return this.items.reduce((sum: number, item: any) => {
       const price = item.price || item.unitPrice || 0;
       const quantity = item.quantity || 1;
-      return sum + (price * quantity);
+      return sum + price * quantity;
     }, 0);
   }
 
   get totalQuantity(): number {
-    return this.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+    return this.items.reduce(
+      (sum: number, item: any) => sum + (item.quantity || 1),
+      0,
+    );
   }
 
   loadWishlistItems(): void {
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
-      if (!isLoggedIn) {
-        this.items = [];
-        this.cdr.detectChanges();
-        return;
-      }
-      this.store.dispatch(WishlistActions.loadWishlist());
-    });
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(take(1))
+      .subscribe((isLoggedIn: boolean) => {
+        if (!isLoggedIn) {
+          this.items = [];
+          this.cdr.detectChanges();
+          return;
+        }
+        this.store.dispatch(WishlistActions.loadWishlist());
+      });
   }
 
   navigateToShopping(): void {
@@ -165,14 +202,20 @@ export class SidePanelComponent implements OnInit {
 
   navigateToCheckout(): void {
     this.close();
-    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe((isLoggedIn: boolean) => {
-      if (isLoggedIn) {
-        this.router.navigate(['/checkout']);
-      } else {
-        this.notificationService.showInfo('Please log in to proceed to checkout.', 'Close');
-        this.router.navigate(['/login']);
-      }
-    });
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(take(1))
+      .subscribe((isLoggedIn: boolean) => {
+        if (isLoggedIn) {
+          this.router.navigate(['/checkout']);
+        } else {
+          this.notificationService.showInfo(
+            'Please log in to proceed to checkout.',
+            'Close',
+          );
+          this.router.navigate(['/login']);
+        }
+      });
   }
 
   handleRemove(itemId: string): void {
@@ -184,18 +227,21 @@ export class SidePanelComponent implements OnInit {
   }
 
   private removeCartItem(itemId: string): void {
-    this.cartService.deleteCartItem(itemId).subscribe({
-      error: (err: unknown) => console.error('Failed to remove cart item:', err)
-    })
+    this.store.dispatch(CartActions.deleteCartItem({ itemId }));
   }
 
   private removeWishlistItem(productId: string): void {
     this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
   }
 
-  handleQuantity(event: { id: string | number; action: 'add' | 'subtract' }): void {
+  handleQuantity(event: {
+    id: string | number;
+    action: 'add' | 'subtract';
+  }): void {
     if (this.type !== 'Cart') return;
-    const item: any = this.items.find((i: any) => i.id === event.id || i.productId === event.id);
+    const item: any = this.items.find(
+      (i: any) => i.id === event.id || i.productId === event.id,
+    );
     if (!item) return;
 
     const currQty = item.quantity || 1;
@@ -213,7 +259,9 @@ export class SidePanelComponent implements OnInit {
   }
 
   private confirmAndRemoveItem(itemId: string): void {
-    const confirmDelete = window.confirm('Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?');
+    const confirmDelete = window.confirm(
+      'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
+    );
     if (confirmDelete) {
       this.handleRemove(itemId);
     }
@@ -221,29 +269,41 @@ export class SidePanelComponent implements OnInit {
 
   private verifyStockAndUpdateQuantity(item: any, newQty: number): void {
     const productId = item.productId || item.id;
-    this.productService.getProductById(productId.toString()).subscribe({
-      next: (product) => {
-        const stock = product.stockQuantity;
-        if (stock !== undefined && newQty > stock) {
-          this.notificationService.showError(`Only ${stock} items are available in stock.`, 'Close');
-          return;
+    this.store.dispatch(
+      ProductActions.loadProductById({ id: productId.toString() }),
+    );
+
+    this.actions$
+      .pipe(
+        ofType(
+          ProductActions.loadProductByIdSuccess,
+          ProductActions.loadProductByIdFailure,
+        ),
+        takeUntil(this.destroy$),
+        take(1),
+      )
+      .subscribe((action) => {
+        if (action.type === '[Product] Load Product By Id Success') {
+          const product = action.product;
+          const stock = product.stockQuantity;
+          if (stock !== undefined && newQty > stock) {
+            this.notificationService.showError(
+              `Only ${stock} items are available in stock.`,
+              'Close',
+            );
+            return;
+          }
         }
         this.updateCartItemQuantity(item.id, newQty);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to verify stock:', err);
-        this.updateCartItemQuantity(item.id, newQty); // Fallback update
-      }
-    });
+      });
   }
 
   private updateCartItemQuantity(itemId: string, newQty: number): void {
-    this.cartService.updateCartItem(itemId, newQty).subscribe({
-      error: (err: unknown) => console.error('Failed to update quantity:', err)
-    });
+    this.store.dispatch(
+      CartActions.updateCartItem({ itemId, quantity: newQty })
+    );
   }
 
-  // Wishlist item ko Cart mein move karna
   handleMoveToCart(item: any): void {
     if (this.type !== 'WishList') return;
 
@@ -256,13 +316,22 @@ export class SidePanelComponent implements OnInit {
       thumbnailUrl: item.thumbnailUrl || item.image,
     };
 
-    this.cartService.addToCart(productId.toString(), 1, productDetails).subscribe({
-      next: () => {
+    this.store.dispatch(
+      CartActions.addToCart({
+        productId: productId.toString(),
+        quantity: 1,
+        productDetails,
+      })
+    );
+
+    this.actions$
+      .pipe(
+        ofType(CartActions.addToCartSuccess),
+        takeUntil(this.destroy$),
+        take(1)
+      )
+      .subscribe(() => {
         this.removeWishlistItem(productId);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to add to cart:', err);
-      }
-    });
+      });
   }
 }
