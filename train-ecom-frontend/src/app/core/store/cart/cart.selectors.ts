@@ -10,12 +10,12 @@ export const selectCartItems = createSelector(
 
 export const selectCartTotalQuantity = createSelector(
     selectCartState,
-    (state) => state.totalQuantity || 0
+    (state) => state.totalQuantity || (state.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
 )
 
 export const selectCartTotalAmount = createSelector(
     selectCartState,
-    (state) => state.totalAmount || 0
+    (state) => state.totalAmount || (state.items || []).reduce((sum, item) => sum + ((item.unitPrice || 0) * (item.quantity || 0)), 0)
 )
 
 export const selectCartLoading = createSelector(

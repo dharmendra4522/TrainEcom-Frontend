@@ -7,6 +7,7 @@ import { NotificationService } from './notification.service';
 import { Store } from '@ngrx/store';
 import { of, take, tap } from 'rxjs';
 import { selectIsLoggedIn } from '../store/auth/auth.selectors';
+import * as CartActions from '../store/cart/cart.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -58,11 +59,14 @@ export class CartService {
   }
 
   loadCart(): void {
-    if (!this.isUserLoggedIn()) return;
+    if (!this.isUserLoggedIn()) {
+      this.store.dispatch(CartActions.loadCart());
+      return;
+    }
 
     const localCartStr = localStorage.getItem('cart');
     if (!localCartStr) {
-      this.getCartItems().subscribe();
+      this.store.dispatch(CartActions.loadCart());
       return;
     }
 
@@ -75,22 +79,15 @@ export class CartService {
           productId: i.productId,
           quantity: i.quantity,
         }));
-        this.mergeCart(mergePayload as CartItem[]).subscribe({
-          error: (err: unknown) => {
-            console.error('Failed to merge cart on login:', err);
-            this.getCartItems().subscribe();
-          },
-        });
+        this.store.dispatch(CartActions.mergeCart({ cartItems: mergePayload as CartItem[] }));
         return;
       }
     } catch (e: unknown) {
       console.error('Failed to parse local cart:', e);
     }
 
-    this.getCartItems().subscribe();
+    this.store.dispatch(CartActions.loadCart());
   }
-
-
 
   addToCart(productId: string, quantity: number, productDetails?: Record<string, unknown>): Observable<CartResponse> {
     if (!this.isUserLoggedIn()) {
@@ -112,8 +109,7 @@ export class CartService {
       return of(this.buildLocalCartResponse(items));
     }
     return this.http
-      .post<CartResponse>(`${this.baseAPI}/addItem`, { productId, quantity })
-      .pipe(tap(() => this.loadCart()));
+      .post<CartResponse>(`${this.baseAPI}/addItem`, { productId, quantity });
   }
 
   updateCartItem(itemId: string, quantity: number): Observable<CartResponse> {
@@ -130,11 +126,8 @@ export class CartService {
       return of(this.buildLocalCartResponse(items));
     }
     return this.http
-      .put<CartResponse>(`${this.baseAPI}/updateItem/${itemId}`, { quantity })
-      .pipe(tap(() => this.loadCart()));
+      .put<CartResponse>(`${this.baseAPI}/updateItem/${itemId}`, { quantity });
   }
-
-
 
   deleteCartItem(itemId: string): Observable<CartResponse> {
     if (!this.isUserLoggedIn()) {
@@ -145,14 +138,12 @@ export class CartService {
     }
 
     return this.http
-      .delete<CartResponse>(`${this.baseAPI}/deleteItem/${itemId}`)
-      .pipe(tap(() => this.loadCart()));
+      .delete<CartResponse>(`${this.baseAPI}/deleteItem/${itemId}`);
   }
 
   mergeCart(cartItems: CartItem[]): Observable<CartResponse> {
     return this.http
-      .post<CartResponse>(`${this.baseAPI}/merge`, { items: cartItems })
-      .pipe(tap(() => this.loadCart()));
+      .post<CartResponse>(`${this.baseAPI}/merge`, { items: cartItems });
   }
 
   clearCart(): Observable<CartResponse> {
@@ -162,9 +153,6 @@ export class CartService {
     }
 
     return this.http
-      .delete<CartResponse>(`${this.baseAPI}/clear`)
-      .pipe(tap(() => this.loadCart()));
+      .delete<CartResponse>(`${this.baseAPI}/clear`);
   }
-
-
 }

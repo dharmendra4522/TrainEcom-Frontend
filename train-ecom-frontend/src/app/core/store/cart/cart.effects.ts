@@ -4,7 +4,7 @@ import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
-import { map, catchError, of, exhaustMap, mergeMap, concatMap } from 'rxjs';
+import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap } from 'rxjs';
 
 @Injectable()
 export class CartEffects {
@@ -38,12 +38,19 @@ export class CartEffects {
         return this.cartService
           .addToCart(action.productId, action.quantity, action.productDetails)
           .pipe(
-            map((cartResponse) => {
-              this.notification.showSuccess(
-                'Item added to cart successfully',
-                'Close'
+            switchMap((response) => {
+              return this.cartService.getCartItems().pipe(
+                map((cartResponse) => {
+                  this.notification.showSuccess(
+                    'Item added to cart successfully',
+                    'Close'
+                  );
+                  return CartActions.addToCartSuccess({ cart: cartResponse });
+                }),
+                catchError(() => {
+                  return of(CartActions.addToCartSuccess({ cart: response }));
+                })
               );
-              return CartActions.addToCartSuccess({ cart: cartResponse });
             }),
             catchError((error) => {
               const errMsg =
@@ -65,12 +72,19 @@ export class CartEffects {
         return this.cartService
           .updateCartItem(action.itemId, action.quantity)
           .pipe(
-            map((cartResponse) => {
-              this.notification.showSuccess(
-                'Cart item updated successfully',
-                'Close'
+            switchMap((response) => {
+              return this.cartService.getCartItems().pipe(
+                map((cartResponse) => {
+                  this.notification.showSuccess(
+                    'Cart item updated successfully',
+                    'Close'
+                  );
+                  return CartActions.updateCartItemSuccess({ cart: cartResponse });
+                }),
+                catchError(() => {
+                  return of(CartActions.updateCartItemSuccess({ cart: response }));
+                })
               );
-              return CartActions.updateCartItemSuccess({ cart: cartResponse });
             }),
             catchError((error) => {
               const errMsg =
@@ -90,12 +104,19 @@ export class CartEffects {
       ofType(CartActions.deleteCartItem),
       mergeMap((action) => {
         return this.cartService.deleteCartItem(action.itemId).pipe(
-          map((cartResponse) => {
-            this.notification.showSuccess(
-              'Cart item deleted successfully',
-              'Close'
+          switchMap((response) => {
+            return this.cartService.getCartItems().pipe(
+              map((cartResponse) => {
+                this.notification.showSuccess(
+                  'Cart item deleted successfully',
+                  'Close'
+                );
+                return CartActions.deleteCartItemSuccess({ cart: cartResponse });
+              }),
+              catchError(() => {
+                return of(CartActions.deleteCartItemSuccess({ cart: response }));
+              })
             );
-            return CartActions.deleteCartItemSuccess({ cart: cartResponse });
           }),
           catchError((error) => {
             const errMsg =
@@ -115,9 +136,16 @@ export class CartEffects {
       ofType(CartActions.clearCart),
       exhaustMap(() => {
         return this.cartService.clearCart().pipe(
-          map((cartResponse) => {
-            this.notification.showSuccess('Cart cleared successfully', 'Close');
-            return CartActions.clearCartSuccess({ cart: cartResponse });
+          switchMap((response) => {
+            return this.cartService.getCartItems().pipe(
+              map((cartResponse) => {
+                this.notification.showSuccess('Cart cleared successfully', 'Close');
+                return CartActions.clearCartSuccess({ cart: cartResponse });
+              }),
+              catchError(() => {
+                return of(CartActions.clearCartSuccess({ cart: response }));
+              })
+            );
           }),
           catchError((error) => {
             const errMsg =
@@ -135,9 +163,16 @@ export class CartEffects {
       ofType(CartActions.mergeCart),
       exhaustMap((action) => {
         return this.cartService.mergeCart(action.cartItems).pipe(
-          map((cartResponse) => {
-            this.notification.showSuccess('Cart merged successfully', 'Close');
-            return CartActions.mergeCartSuccess({ cart: cartResponse });
+          switchMap((response) => {
+            return this.cartService.getCartItems().pipe(
+              map((cartResponse) => {
+                this.notification.showSuccess('Cart merged successfully', 'Close');
+                return CartActions.mergeCartSuccess({ cart: cartResponse });
+              }),
+              catchError(() => {
+                return of(CartActions.mergeCartSuccess({ cart: response }));
+              })
+            );
           }),
           catchError((error) => {
             const errMsg =

@@ -18,6 +18,14 @@ export const initialCartState: CartState = {
   error: null,
 };
 
+const calculateTotalQuantity = (items: CartItem[]): number => {
+  return (items || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+};
+
+const calculateTotalAmount = (items: CartItem[]): number => {
+  return (items || []).reduce((sum, item) => sum + ((item.unitPrice || 0) * (item.quantity || 0)), 0);
+};
+
 export const cartReducer = createReducer(
   initialCartState,
   on(CartActions.loadCart, (state) => ({
@@ -26,78 +34,113 @@ export const cartReducer = createReducer(
     error: null,
   })),
 
-  on(CartActions.loadCartSuccess, (state, { cart }) => ({
-    ...state,
-    items: cart.items,
-    totalQuantity: cart.totalQuantity,
-    totalAmount: cart.totalAmount,
-    loading: false,
-    error: null,
-  })),
+  on(CartActions.loadCartSuccess, (state, { cart }) => {
+    const items = cart.items || [];
+    return {
+      ...state,
+      items: items,
+      totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
+      totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
+      loading: false,
+      error: null,
+    };
+  }),
+
+
   on(CartActions.loadCartFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error: error,
   })),
+
+  
   on(CartActions.addToCart, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
-  on(CartActions.addToCartSuccess, (state, { cart }) => ({
-    ...state,
-    items: cart.items,
-    totalQuantity: cart.totalQuantity,
-    totalAmount: cart.totalAmount,
-    loading: false,
-    error: null,
-  })),
+
+  on(CartActions.addToCartSuccess, (state, { cart }) => {
+    const items = cart.items || [];
+    return {
+      ...state,
+      items: items,
+      totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
+      totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
+      loading: false,
+      error: null,
+    };
+  }),
+
+
   on(CartActions.addToCartFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error: error,
   })),
+
+
   on(CartActions.updateCartItem, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
-  on(CartActions.updateCartItemSuccess, (state, { cart }) => ({
-    ...state,
-    items: cart.items,
-    totalQuantity: cart.totalQuantity,
-    totalAmount: cart.totalAmount,
-    loading: false,
-    error: null,
-  })),
+
+
+  on(CartActions.updateCartItemSuccess, (state, { cart }) => {
+    const items = cart.items || [];
+    return {
+      ...state,
+      items: items,
+      totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
+      totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
+      loading: false,
+      error: null,
+    };
+  }),
+
+
   on(CartActions.updateCartItemFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error: error,
   })),
+
+
   on(CartActions.deleteCartItem, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
-  on(CartActions.deleteCartItemSuccess, (state, { cart }) => ({
-    ...state,
-    items: cart.items,
-    totalQuantity: cart.totalQuantity,
-    totalAmount: cart.totalAmount,
-    loading: false,
-    error: null,
-  })),
+
+
+  on(CartActions.deleteCartItemSuccess, (state, { cart }) => {
+    const items = cart.items || [];
+    return {
+      ...state,
+      items: items,
+      totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
+      totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
+      loading: false,
+      error: null,
+    };
+  }),
+
+
   on(CartActions.deleteCartItemFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error: error,
   })),
+
+
   on(CartActions.clearCart, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
+
+
   on(CartActions.clearCartSuccess, (state) => ({
     ...state,
     items: [],
@@ -106,24 +149,35 @@ export const cartReducer = createReducer(
     loading: false,
     error: null,
   })),
+
+  
   on(CartActions.clearCartFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error: error,
   })),
+
+
   on(CartActions.mergeCart, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
-  on(CartActions.mergeCartSuccess, (state, { cart }) => ({
-    ...state,
-    items: cart.items,
-    totalQuantity: cart.totalQuantity,
-    totalAmount: cart.totalAmount,
-    loading: false,
-    error: null,
-  })),
+
+
+  on(CartActions.mergeCartSuccess, (state, { cart }) => {
+    const items = cart.items || [];
+    return {
+      ...state,
+      items: items,
+      totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
+      totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
+      loading: false,
+      error: null,
+    };
+  }),
+
+  
   on(CartActions.mergeCartFailure, (state, { error }) => ({
     ...state,
     loading: false,

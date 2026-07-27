@@ -67,7 +67,6 @@ image-container:hover {
   color: #ef4444 !important;
 }
 
-/* Hover Add to Cart Button styles */
 .hover-add-to-cart-btn {
   position: absolute !important;
   bottom: 0 !important;
@@ -103,14 +102,12 @@ image-container:hover {
   border-radius: 8px !important;
 }
 
-/* Responsive Button styling for Mat Card Actions */
 .product-card mat-card-actions {
   display: flex !important;
   justify-content: center !important;
   padding: 12px 16px !important;
 }
 
-/* Stack buttons vertically on tablet and smaller screens (up to 992px) to prevent layout squishing */
 @media (max-width: 992px) {
   .product-card mat-card-actions {
     padding: 8px 12px !important;
@@ -159,7 +156,6 @@ image-container:hover {
   }
 }
 
-/* Force Add to Cart button to be visible on touch devices without pointer hover */
 @media (hover: none) {
   .hover-add-to-cart-btn {
     transform: translateY(0) !important;
