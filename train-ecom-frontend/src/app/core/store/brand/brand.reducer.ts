@@ -4,6 +4,7 @@ import { createReducer, on } from '@ngrx/store';
 
 export interface BrandState {
     brand: Brand[];
+    paginatedBrands: Brand[];
     totalRecords: number;
     pageNumber: number;
     pageSize: number;
@@ -14,6 +15,7 @@ export interface BrandState {
 
 export const initialBrandState: BrandState = {
     brand: [],
+    paginatedBrands: [],
     totalRecords: 0,
     pageNumber: 1,
     pageSize: 10,
@@ -31,18 +33,34 @@ export const brandReducer = createReducer(
         error: null
     })),
 
-    on(BrandActions.loadBrandsSuccess, (state, { brands, totalRecords, pageNumber, pageSize, totalPages }) => ({
+    on(BrandActions.loadBrandsSuccess, (state, { brands }) => ({
         ...state,
         isLoading: false,
         error: null,
-        brand: brands,
-        totalRecords: totalRecords ?? brands.length,
-        pageNumber: pageNumber ?? state.pageNumber,
-        pageSize: pageSize ?? state.pageSize,
-        totalPages: totalPages ?? state.totalPages
+        brand: brands
     })),
 
     on(BrandActions.loadBrandsFailure, (state, { error }) => ({
+        ...state,
+        isLoading: false,
+        error
+    })),
+    on(BrandActions.loadPaginatedBrands, (state) => ({
+        ...state,
+        isLoading: true,
+        error: null
+    })),
+    on(BrandActions.loadPaginatedBrandsSuccess, (state, { brands, totalRecords, pageNumber, pageSize, totalPages }) => ({
+        ...state,
+        isLoading: false,
+        error: null,
+        paginatedBrands: brands,
+        totalRecords,
+        pageNumber,
+        pageSize,
+        totalPages
+    })),
+    on(BrandActions.loadPaginatedBrandsFailure, (state, { error }) => ({
         ...state,
         isLoading: false,
         error
@@ -75,6 +93,7 @@ export const brandReducer = createReducer(
         isLoading: false,
         error: null,
         brand: [...state.brand, brand],
+        paginatedBrands: [brand, ...state.paginatedBrands].slice(0, state.pageSize),
         totalRecords: state.totalRecords + 1
     })),
     on(BrandActions.createBrandFailure, (state, { error }) => ({
@@ -91,7 +110,8 @@ export const brandReducer = createReducer(
         ...state,
         isLoading: false,
         error: null,
-        brand: [...state.brand.filter(b => b.id !== brand.id), brand]
+        brand: [...state.brand.filter(b => b.id !== brand.id), brand],
+        paginatedBrands: state.paginatedBrands.map(b => b.id === brand.id ? brand : b)
     })),
     on(BrandActions.updateBrandFailure, (state, { error }) => ({
         ...state,
@@ -108,6 +128,7 @@ export const brandReducer = createReducer(
         isLoading: false,
         error: null,
         brand: state.brand.filter(b => b.id !== brandId),
+        paginatedBrands: state.paginatedBrands.filter(b => b.id !== brandId),
         totalRecords: Math.max(0, state.totalRecords - 1)
     })),
     on(BrandActions.deleteBrandFailure, (state, { error }) => ({

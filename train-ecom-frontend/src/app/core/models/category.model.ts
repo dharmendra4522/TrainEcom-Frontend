@@ -13,3 +13,11 @@ export interface UpdateCategoryRequest {
   name: string;
   description: string;
 }
+
+export interface PaginatedCategoryResponse {
+  items: Category[];
+  pageNumber: number;
+  pageSize: number;
+  totalRecords: number;
+  totalPages: number;
+}

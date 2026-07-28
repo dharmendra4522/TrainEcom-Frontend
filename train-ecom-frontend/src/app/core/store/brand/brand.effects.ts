@@ -4,8 +4,8 @@ import { BrandService } from "../../services/brand.service";
 import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
-import { selectAllBrands } from "./brand.selectors";
-import { withLatestFrom, filter, exhaustMap, map, catchError, of } from "rxjs";
+import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands } from "./brand.selectors";
+import { exhaustMap, map, catchError, of, withLatestFrom } from "rxjs";
 
 @Injectable()
 export class BrandEffects {
@@ -19,18 +19,48 @@ export class BrandEffects {
             ofType(BrandActions.loadBrands),
             exhaustMap(() =>
                 this.brandService.getAllBrands().pipe(
-                    map((response) => BrandActions.loadBrandsSuccess({ 
-                        brands: response.items || [], 
-                        totalRecords: response.totalRecords || 0,
-                        pageNumber: response.pageNumber || 1,
-                        pageSize: response.pageSize || 10,
-                        totalPages: response.totalPages || 1
-                    })),
+                    map((brands) => BrandActions.loadBrandsSuccess({ brands })),
                     catchError((error) =>
                         of(BrandActions.loadBrandsFailure({ error: error?.message || 'Failed to load brands' }))
                     )
                 )
             )
+        )
+    );
+
+    loadPaginatedBrands$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(BrandActions.loadPaginatedBrands),
+            withLatestFrom(
+                this.store.select(selectPaginatedBrands),
+                this.store.select(selectBrandPageNumber),
+                this.store.select(selectBrandPageSize),
+                this.store.select(selectBrandTotalRecords),
+            ),
+            exhaustMap(([{ pageNumber, pageSize }, brands, currentPageNumber, currentPageSize, totalRecords]) => {
+                if (brands.length > 0 && pageNumber === currentPageNumber && pageSize === currentPageSize) {
+                    return of(BrandActions.loadPaginatedBrandsSuccess({
+                        brands,
+                        totalRecords,
+                        pageNumber: currentPageNumber,
+                        pageSize: currentPageSize,
+                        totalPages: Math.ceil(totalRecords / currentPageSize) || 1,
+                    }));
+                }
+
+                return this.brandService.getPaginatedBrands(pageNumber, pageSize).pipe(
+                    map((response) => BrandActions.loadPaginatedBrandsSuccess({
+                        brands: response.items,
+                        totalRecords: response.totalRecords,
+                        pageNumber: response.pageNumber,
+                        pageSize: response.pageSize,
+                        totalPages: response.totalPages,
+                    })),
+                    catchError((error) =>
+                        of(BrandActions.loadPaginatedBrandsFailure({ error: error?.message || 'Failed to load brands' }))
+                    )
+                );
+            }),
         )
     );
 

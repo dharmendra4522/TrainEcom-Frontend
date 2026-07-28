@@ -42,3 +42,8 @@ export const selectBrandByName = (brandName: string) => createSelector(
   selectBrandState,
   (state: BrandState) => (state.brand || []).find(brand => brand.name === brandName),
 );
+
+export const selectPaginatedBrands = createSelector(
+  selectBrandState,
+  (state: BrandState) => state.paginatedBrands || [],
+);

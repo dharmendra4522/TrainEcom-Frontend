@@ -11,11 +11,12 @@ import {
 import { Store } from '@ngrx/store';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
 import {
-  selectAllBrands,
   selectBrandLoading,
+  selectBrandTotalRecords,
+  selectPaginatedBrands,
 } from '../../../../core/store/brand/brand.selectors';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { startWith, map, distinctUntilChanged, debounceTime, take } from 'rxjs/operators';
+import { startWith, map, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -27,15 +28,15 @@ export class BrandComponent implements OnInit {
   private matDialog = inject(MatDialog);
   private store = inject(Store);
 
-  allBrands$: Observable<Brand[]> = this.store.select(selectAllBrands);
+  paginatedBrands$: Observable<Brand[]> = this.store.select(selectPaginatedBrands);
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
+  totalRecords$: Observable<number> = this.store.select(selectBrandTotalRecords);
 
   searchControl = new FormControl('');
   pageIndex$ = new BehaviorSubject<number>(0);
   pageSize$ = new BehaviorSubject<number>(10);
 
-  pagedBrands$!: Observable<Brand[]>;
-  filteredTotalCount$!: Observable<number>;
+  filteredBrands$!: Observable<Brand[]>;
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
@@ -66,11 +67,7 @@ export class BrandComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.select(selectAllBrands).pipe(take(1)).subscribe((brands) => {
-      if (!brands || brands.length === 0) {
-        this.store.dispatch(BrandActions.loadBrands());
-      }
-    });
+    this.loadPage();
 
     const search$ = this.searchControl.valueChanges.pipe(
       startWith(''),
@@ -78,7 +75,7 @@ export class BrandComponent implements OnInit {
       distinctUntilChanged()
     );
 
-    const filteredBrands$ = combineLatest([this.allBrands$, search$]).pipe(
+    this.filteredBrands$ = combineLatest([this.paginatedBrands$, search$]).pipe(
       map(([brands, search]) => {
         const query = (search || '').toLowerCase().trim();
         if (!query) return brands;
@@ -90,29 +87,19 @@ export class BrandComponent implements OnInit {
       })
     );
 
-    this.filteredTotalCount$ = filteredBrands$.pipe(
-      map((brands) => (brands || []).length)
-    );
-
-    this.pagedBrands$ = combineLatest([
-      filteredBrands$,
-      this.pageIndex$,
-      this.pageSize$,
-    ]).pipe(
-      map(([brands, pageIndex, pageSize]) => {
-        const start = pageIndex * pageSize;
-        return (brands || []).slice(start, start + pageSize);
-      })
-    );
-
-    search$.subscribe(() => {
-      this.pageIndex$.next(0);
-    });
   }
 
   handlePageChange(event: PageEvent): void {
     this.pageIndex$.next(event.pageIndex);
     this.pageSize$.next(event.pageSize);
+    this.loadPage(event.pageIndex, event.pageSize);
+  }
+
+  private loadPage(pageIndex = this.pageIndex$.value, pageSize = this.pageSize$.value): void {
+    this.store.dispatch(BrandActions.loadPaginatedBrands({
+      pageNumber: pageIndex + 1,
+      pageSize,
+    }));
   }
 
   openBrandDialog(brand?: Brand): void {

@@ -7,7 +7,7 @@ export const loadBrands = createAction(
 
 export const loadBrandsSuccess = createAction(
   '[Brand] Load Brands Success',
-  props<{ brands: Brand[]; totalRecords?: number; pageNumber?: number; pageSize?: number; totalPages?: number }>()
+  props<{ brands: Brand[] }>()
 );
 
 export const loadBrandsFailure = createAction(
@@ -74,5 +74,20 @@ export const deleteBrandSuccess = createAction(
 
 export const deleteBrandFailure = createAction(
   `[Brand] Delete Brand Failure`,
+  props<{ error: string }>(),
+);
+
+export const loadPaginatedBrands = createAction(
+  '[Brand] Load Paginated Brands',
+  props<{ pageNumber: number; pageSize: number }>(),
+);
+
+export const loadPaginatedBrandsSuccess = createAction(
+  '[Brand] Load Paginated Brands Success',
+  props<{ brands: Brand[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number }>(),
+);
+
+export const loadPaginatedBrandsFailure = createAction(
+  '[Brand] Load Paginated Brands Failure',
   props<{ error: string }>(),
 );

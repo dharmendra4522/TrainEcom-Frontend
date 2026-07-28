@@ -72,3 +72,18 @@ export const deleteCategoryFailure = createAction(
   `[Category] Delete Category Failure`,
   props<{ error: string }>(),
 );
+
+export const loadPaginatedCategories = createAction(
+  '[Category] Load Paginated Categories',
+  props<{ pageNumber: number; pageSize: number }>(),
+);
+
+export const loadPaginatedCategoriesSuccess = createAction(
+  '[Category] Load Paginated Categories Success',
+  props<{ categories: Category[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number }>(),
+);
+
+export const loadPaginatedCategoriesFailure = createAction(
+  '[Category] Load Paginated Categories Failure',
+  props<{ error: string }>(),
+);

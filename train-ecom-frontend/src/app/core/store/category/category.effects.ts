@@ -4,8 +4,8 @@ import { CategoryService } from '../../services/category.service';
 import { NotificationService } from '../../services/notification.service';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from './category.action';
-import { selectAllCategories } from './category.selectors';
-import { withLatestFrom, filter, map, catchError, of, exhaustMap } from 'rxjs';
+import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories } from './category.selectors';
+import { withLatestFrom, map, catchError, of, exhaustMap } from 'rxjs';
 
 @Injectable()
 export class CategoryEffects {
@@ -37,6 +37,42 @@ export class CategoryEffects {
           ),
         );
       })
+    ),
+  );
+
+  loadPaginatedCategories$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CategoryActions.loadPaginatedCategories),
+      withLatestFrom(
+        this.store.select(selectPaginatedCategories),
+        this.store.select(selectCategoryPageNumber),
+        this.store.select(selectCategoryPageSize),
+        this.store.select(selectCategoryTotalRecords),
+      ),
+      exhaustMap(([{ pageNumber, pageSize }, categories, currentPageNumber, currentPageSize, totalRecords]) => {
+        if (categories.length > 0 && pageNumber === currentPageNumber && pageSize === currentPageSize) {
+          return of(CategoryActions.loadPaginatedCategoriesSuccess({
+            categories,
+            totalRecords,
+            pageNumber: currentPageNumber,
+            pageSize: currentPageSize,
+            totalPages: Math.ceil(totalRecords / currentPageSize) || 1,
+          }));
+        }
+
+        return this.categoryService.getPaginatedCategories(pageNumber, pageSize).pipe(
+          map((response) => CategoryActions.loadPaginatedCategoriesSuccess({
+            categories: response.items,
+            totalRecords: response.totalRecords,
+            pageNumber: response.pageNumber,
+            pageSize: response.pageSize,
+            totalPages: response.totalPages,
+          })),
+          catchError((error) => of(CategoryActions.loadPaginatedCategoriesFailure({
+            error: error?.message || 'Failed to load categories',
+          }))),
+        );
+      }),
     ),
   );
 

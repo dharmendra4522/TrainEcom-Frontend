@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Brand, CreateBrandRequest, PaginatedBrandResponse } from '../models/brand.model';
@@ -14,10 +14,20 @@ export class BrandService {
 
   constructor() { }
 
-  getAllBrands(): Observable<PaginatedBrandResponse> {
+  getAllBrands(): Observable<Brand[]> {
     return this.http.get<any>(`${this.baseApi}/all`).pipe(
       catchError(() => this.http.get<any>(this.baseApi)),
       catchError(() => this.http.get<any>(`${this.baseApi}/getAll`)),
+      map((response) => Array.isArray(response) ? response : response?.items || [])
+    );
+  }
+
+  getPaginatedBrands(pageNumber: number = 1, pageSize: number = 10): Observable<PaginatedBrandResponse> {
+    const params = new HttpParams()
+      .set('PageNumber', pageNumber.toString())
+      .set('PageSize', pageSize.toString());
+
+    return this.http.get<PaginatedBrandResponse | Brand[]>(`${this.baseApi}/all`, { params }).pipe(
       map((response) => {
         if (Array.isArray(response)) {
           return {
@@ -28,23 +38,15 @@ export class BrandService {
             totalPages: 1,
           };
         }
-        if (response && Array.isArray(response.items)) {
-          return {
-            items: response.items,
-            pageNumber: response.pageNumber || 1,
-            pageSize: response.pageSize || response.items.length,
-            totalRecords: response.totalRecords ?? response.items.length,
-            totalPages: response.totalPages || 1,
-          };
-        }
+
         return {
-          items: [],
-          pageNumber: 1,
-          pageSize: 10,
-          totalRecords: 0,
-          totalPages: 1,
+          items: response?.items || [],
+          pageNumber: response?.pageNumber || pageNumber,
+          pageSize: response?.pageSize || pageSize,
+          totalRecords: response?.totalRecords ?? response?.items?.length ?? 0,
+          totalPages: response?.totalPages || 1,
         };
-      })
+      }),
     );
   }
 

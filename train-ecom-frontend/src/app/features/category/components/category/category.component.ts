@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 import {
   Category,
   CreateCategoryRequest,
@@ -8,10 +9,10 @@ import { GenericDialogComponent } from '../../../../shared/components/generic-di
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
-import { selectAllCategories, selectCategoryLoading } from '../../../../core/store/category/category.selectors';
+import { selectCategoryLoading, selectCategoryTotalRecords, selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
 
-import { Observable, Subject, combineLatest } from 'rxjs';
-import { takeUntil, map, startWith, distinctUntilChanged, debounceTime, take } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
+import { takeUntil, map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -24,12 +25,15 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private destroy$ = new Subject<void>();
 
-  categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  paginatedCategories$: Observable<Category[]> = this.store.select(selectPaginatedCategories);
   isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
+  totalRecords$: Observable<number> = this.store.select(selectCategoryTotalRecords);
 
   // Search control and filtered observable
   searchControl = new FormControl('');
   filteredCategories$!: Observable<Category[]>;
+  pageIndex$ = new BehaviorSubject<number>(0);
+  pageSize$ = new BehaviorSubject<number>(10);
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },
@@ -42,8 +46,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-    this.fetchAllCategories();
     this.setupSearchFilter();
+    this.loadPage();
   }
 
   ngOnDestroy() {
@@ -53,7 +57,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   setupSearchFilter(): void {
     this.filteredCategories$ = combineLatest([
-      this.categories$,
+      this.paginatedCategories$,
       this.searchControl.valueChanges.pipe(startWith(''), debounceTime(400), distinctUntilChanged())
     ]).pipe(
       map(([categories, search]) => {
@@ -77,12 +81,17 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchAllCategories() {
-    this.categories$.pipe(take(1)).subscribe(categories => {
-      if (!categories || categories.length === 0) {
-        this.store.dispatch(CategoryActions.loadCategories());
-      }
-    });
+  handlePageChange(event: PageEvent): void {
+    this.pageIndex$.next(event.pageIndex);
+    this.pageSize$.next(event.pageSize);
+    this.loadPage(event.pageIndex, event.pageSize);
+  }
+
+  private loadPage(pageIndex = this.pageIndex$.value, pageSize = this.pageSize$.value): void {
+    this.store.dispatch(CategoryActions.loadPaginatedCategories({
+      pageNumber: pageIndex + 1,
+      pageSize,
+    }));
   }
 
   createCategory(payload: CreateCategoryRequest): void {

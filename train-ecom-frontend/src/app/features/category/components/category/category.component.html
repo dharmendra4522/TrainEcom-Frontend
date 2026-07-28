@@ -19,6 +19,12 @@
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 
+    [showPaginator]="true"
+    [totalRecords]="(totalRecords$ | async) || 0"
+    [pageSize]="(pageSize$ | async) || 10"
+    [pageIndex]="(pageIndex$ | async) || 0"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (pageChange)="handlePageChange($event)"
     emptyMessage="No categories found."
     (actionClick)="handleTableAction($event)">
   </app-generic-table>

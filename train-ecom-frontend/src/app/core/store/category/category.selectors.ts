@@ -18,6 +18,26 @@ export const selectCategoryError = createSelector(
     (categoryState: CategoryState) => categoryState.error
 );
 
+export const selectPaginatedCategories = createSelector(
+    selectCateGoryState,
+    (categoryState: CategoryState) => categoryState.paginatedCategories
+);
+
+export const selectCategoryTotalRecords = createSelector(
+    selectCateGoryState,
+    (categoryState: CategoryState) => categoryState.totalRecords
+);
+
+export const selectCategoryPageNumber = createSelector(
+    selectCateGoryState,
+    (categoryState: CategoryState) => categoryState.pageNumber
+);
+
+export const selectCategoryPageSize = createSelector(
+    selectCateGoryState,
+    (categoryState: CategoryState) => categoryState.pageSize
+);
+
 export const selectCategoryById = (categoryId: string) => createSelector(
     selectCateGoryState,
     (categoryState: CategoryState) => categoryState.categories.find(category => category.id === categoryId)
