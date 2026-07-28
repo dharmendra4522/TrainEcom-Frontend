@@ -8,6 +8,7 @@ import { Address } from '../../../../core/models/user.model';
 import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 type AddressFormResult = Omit<Address, 'id' | 'country'>;
 
@@ -22,6 +23,7 @@ export class AddressComponent implements OnInit {
   private dialog = inject(MatDialog);
   private store = inject(Store); 
   private notification = inject(NotificationService);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   addresses: Address[] = [];
 
@@ -122,7 +124,8 @@ export class AddressComponent implements OnInit {
   }
 
   deleteAddress(id: string): void {
-    if (confirm('Are you sure you want to delete this address?')) {
+    this.confirmDialog.confirm('Are you sure you want to delete this address?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      if (confirmed) {
       this.userService.deleteAddress(id).subscribe({
         next: () => {
           this.showSuccess('Address deleted successfully!');
@@ -131,7 +134,8 @@ export class AddressComponent implements OnInit {
         },
         error: (error: unknown) => this.showError('Error deleting address.')
       });
-    }
+      }
+    });
   }
 
   private showSuccess(message: string): void {

@@ -14,6 +14,7 @@ import {
   selectCartTotalQuantity,
   selectCartLoading,
 } from '../../../../core/store/cart/cart.selectors';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-cart',
@@ -25,6 +26,7 @@ export class CartComponent implements OnInit {
   private notification = inject(NotificationService);
   private store = inject(Store);
   private actions$ = inject(Actions);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   cartItems$: Observable<CartItem[]> = this.store.select(selectCartItems);
   subtotal$: Observable<number> = this.store.select(selectCartTotalAmount);
@@ -70,12 +72,15 @@ export class CartComponent implements OnInit {
   }
 
   private confirmAndDeleteItem(productId: string | number): void {
-    const confirmDelete = window.confirm(
+    this.confirmDialog.confirm(
       'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
-    );
-    if (confirmDelete) {
-      this.removeItem(productId, false);
-    }
+      'Delete',
+      'Cancel',
+    ).subscribe((confirmed) => {
+      if (confirmed) {
+        this.removeItem(productId, false);
+      }
+    });
   }
 
   private verifyStockAndExecuteUpdate(item: CartItem, newQty: number): void {
@@ -124,18 +129,28 @@ export class CartComponent implements OnInit {
       if (!item) return;
 
       if (forceConfirm) {
-        const confirmDelete = window.confirm(
+        this.confirmDialog.confirm(
           `Are you sure you want to remove "${item.productName || 'this item'}" from your cart?`,
-        );
-        if (!confirmDelete) return;
+          'Remove',
+          'Cancel',
+        ).subscribe((confirmed) => {
+          if (confirmed) {
+            this.dispatchRemoveItem(item);
+          }
+        });
+        return;
       }
 
-      const targetId = item.itemId
-        ? item.itemId.toString()
-        : item.productId.toString();
-
-      this.store.dispatch(CartActions.deleteCartItem({ itemId: targetId }));
+      this.dispatchRemoveItem(item);
     });
+  }
+
+  private dispatchRemoveItem(item: CartItem): void {
+    const targetId = item.itemId
+      ? item.itemId.toString()
+      : item.productId.toString();
+
+    this.store.dispatch(CartActions.deleteCartItem({ itemId: targetId }));
   }
 
   continueShopping(): void {

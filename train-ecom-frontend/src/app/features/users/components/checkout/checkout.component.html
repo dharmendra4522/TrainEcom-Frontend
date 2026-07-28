@@ -1,1 +1,166 @@
-<p>checkout works!</p>
+<div class="checkout-container py-4 px-2 px-md-4">
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb bg-transparent p-0 mb-0">
+        <li class="breadcrumb-item"><span class="text-muted">Home</span></li>
+        <li class="breadcrumb-item"><span class="text-muted">Cart</span></li>
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Checkout</li>
+      </ol>
+    </nav>
+    <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1">
+      <mat-icon>arrow_back</mat-icon> Back to Cart
+    </button>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <mat-card class="checkout-card mb-4" appearance="outlined">
+        <mat-card-header class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <mat-card-title class="fs-5 fw-bold m-0 d-flex align-items-center gap-2">
+            <mat-icon class="text-primary">local_shipping</mat-icon>
+            1. Select Delivery Address
+          </mat-card-title>
+          <button mat-flat-button color="primary" class="add-address-btn">
+            <mat-icon>add</mat-icon> Add New Address
+          </button>
+        </mat-card-header>
+
+        <mat-card-content class="pt-2">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="address-tile active-address rounded-3 p-3 position-relative border cursor-pointer transition-all">
+                <div class="position-absolute top-0 end-0 p-3">
+                  <mat-icon class="text-primary">check_circle</mat-icon>
+                </div>
+                <h6 class="fw-bold text-dark mb-2 pr-4">Dharmendra Vishvkarm</h6>
+                <p class="text-secondary small mb-1 leading-relaxed">
+                  123, MG Road<br>
+                  Near City Mall<br>
+                  Indore, Madhya Pradesh - 452001<br>
+                  India
+                </p>
+                <div class="d-flex align-items-center text-secondary small mt-2">
+                  <mat-icon class="fs-6 align-middle me-1" style="width: 16px; height: 16px;">phone</mat-icon>
+                  <span>+91 98765 43210</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="address-tile rounded-3 p-3 position-relative border cursor-pointer transition-all">
+                <div class="position-absolute top-0 end-0 p-3">
+                  <mat-icon class="text-muted">radio_button_unchecked</mat-icon>
+                </div>
+                <h6 class="fw-bold text-dark mb-2 pr-4">Office Address</h6>
+                <p class="text-secondary small mb-1 leading-relaxed">
+                  42, Vijay Nagar<br>
+                  Scheme No. 54<br>
+                  Indore, Madhya Pradesh - 452010<br>
+                  India
+                </p>
+                <div class="d-flex align-items-center text-secondary small mt-2">
+                  <mat-icon class="fs-6 align-middle me-1" style="width: 16px; height: 16px;">phone</mat-icon>
+                  <span>+91 98765 43210</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="checkout-card mb-4" appearance="outlined">
+        <mat-card-header class="mb-3">
+          <mat-card-title class="fs-5 fw-bold m-0 d-flex align-items-center gap-2">
+            <mat-icon class="text-primary">payment</mat-icon>
+            2. Choose Payment Method
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="pt-2">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="payment-tile active-payment rounded-3 p-3 text-center border cursor-pointer transition-all">
+                <mat-icon class="fs-1 mb-2 text-primary" style="width: 40px; height: 40px;">local_atm</mat-icon>
+                <h6 class="fw-bold text-dark m-0">Cash on Delivery</h6>
+                <small class="text-secondary d-block mt-1">Pay at your doorstep</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="payment-tile rounded-3 p-3 text-center border cursor-pointer transition-all">
+                <mat-icon class="fs-1 mb-2 text-primary" style="width: 40px; height: 40px;">qr_code_2</mat-icon>
+                <h6 class="fw-bold text-dark m-0">UPI Payment</h6>
+                <small class="text-secondary d-block mt-1">Pay via Google Pay / UPI</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="payment-tile rounded-3 p-3 text-center border cursor-pointer transition-all">
+                <mat-icon class="fs-1 mb-2 text-primary" style="width: 40px; height: 40px;">credit_card</mat-icon>
+                <h6 class="fw-bold text-dark m-0">Credit / Debit Card</h6>
+                <small class="text-secondary d-block mt-1">Visa, MasterCard, RuPay</small>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="sticky-top" style="top: 85px; z-index: 10;">
+        <mat-card class="checkout-card border-0 shadow-sm" appearance="outlined">
+          <mat-card-header class="border-bottom pb-3 mb-3">
+            <mat-card-title class="fs-5 fw-bold m-0 d-flex align-items-center gap-2">
+              <mat-icon class="text-primary">shopping_bag</mat-icon>
+              Order Summary
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content class="pt-2">
+            <div class="checkout-items-list overflow-auto mb-4 pe-1 custom-scrollbar" style="max-height: 260px;">
+              <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+                <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center">
+                  <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa?auto=format&amp;fit=crop&amp;w=120&amp;q=80" alt="Smartphone" class="img-fluid item-img">
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <h6 class="fw-bold text-dark text-truncate m-0">Smartphone Pro Max</h6>
+                  <small class="text-secondary">Quantity: 1</small>
+                </div>
+                <div class="text-end fw-bold text-dark">₹24,999.00</div>
+              </div>
+
+              <div class="d-flex align-items-center gap-3 py-2 border-bottom last-border-none">
+                <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center">
+                  <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&amp;fit=crop&amp;w=120&amp;q=80" alt="Wireless headphones" class="img-fluid item-img">
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <h6 class="fw-bold text-dark text-truncate m-0">Wireless Headphones</h6>
+                  <small class="text-secondary">Quantity: 1</small>
+                </div>
+                <div class="text-end fw-bold text-dark">₹2,499.00</div>
+              </div>
+            </div>
+
+            <div class="totals-section bg-light rounded-3 p-3 mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Subtotal</span>
+                <span class="fw-semibold text-dark">₹27,498.00</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary">Shipping</span>
+                <span class="fw-semibold text-success">FREE</span>
+              </div>
+              <mat-divider class="my-2"></mat-divider>
+              <div class="d-flex justify-content-between align-items-baseline">
+                <span class="fw-bold text-dark fs-6">Grand Total</span>
+                <span class="display-6 fw-bold text-primary font-monospace">₹27,498.00</span>
+              </div>
+            </div>
+
+            <button mat-raised-button class="place-order-btn w-100 py-3 rounded-3">
+              <span class="fw-bold text-uppercase fs-6">Place Order</span>
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,6 +14,7 @@ import { selectCategoryLoading, selectCategoryTotalRecords, selectPaginatedCateg
 import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
 import { takeUntil, map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-category',
@@ -23,6 +24,7 @@ import { FormControl } from '@angular/forms';
 export class CategoryComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private store = inject(Store);
+  private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
 
   paginatedCategories$: Observable<Category[]> = this.store.select(selectPaginatedCategories);
@@ -103,9 +105,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   deleteCategory(id: string): void {
-    if (confirm('Are you sure you want to delete this category?')) {
-      this.store.dispatch(CategoryActions.deleteCategory({ categoryId: id }));
-    }
+    this.confirmDialog.confirm('Are you sure you want to delete this category?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      if (confirmed) {
+        this.store.dispatch(CategoryActions.deleteCategory({ categoryId: id }));
+      }
+    });
   }
 
   openCategoryDialog(category?: Category) {

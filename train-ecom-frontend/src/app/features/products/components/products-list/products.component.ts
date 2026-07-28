@@ -13,6 +13,7 @@ import * as BrandActions from '../../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { combineLatest, Subject, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, startWith, take } from 'rxjs/operators';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-products',
@@ -22,6 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil, startWith, take } from '
 export class ProductsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   private destroy$ = new Subject<void>();
 
@@ -146,9 +148,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   deleteProduct(productId: string) {
-    if (!confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
-    this.store.dispatch(ProductActions.deleteProduct({ productId }));
+    this.confirmDialog.confirm('Are you sure you want to delete this product?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      if (confirmed) {
+        this.store.dispatch(ProductActions.deleteProduct({ productId }));
+      }
+    });
   }
 }

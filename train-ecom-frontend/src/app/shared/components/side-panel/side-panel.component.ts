@@ -25,6 +25,7 @@ import * as CartActions from '../../../core/store/cart/cart.actions';
 import { selectCartItems } from '../../../core/store/cart/cart.selectors';
 import * as ProductActions from '../../../core/store/product/product.action';
 import { Subject, combineLatest } from 'rxjs';
+import { ConfirmDialogServiceService } from '../../../core/services/confirm-dialog.service';
 
 export interface SidePanelItem {
   id: string;
@@ -48,6 +49,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private notificationService = inject(NotificationService);
   private actions$ = inject(Actions);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   private destroy$ = new Subject<void>();
 
@@ -233,17 +235,17 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   handleRemove(itemId: string): void {
     if (this.type === 'Cart') {
-      const confirmDelete = window.confirm(
-        'Are you sure you want to remove this item from your cart?',
-      );
-      if (!confirmDelete) return;
-      this.removeCartItem(itemId);
+      this.confirmDialog.confirm('Are you sure you want to remove this item from your cart?', 'Remove', 'Cancel')
+        .pipe(take(1))
+        .subscribe((confirmed) => {
+          if (confirmed) this.removeCartItem(itemId);
+        });
     } else if (this.type === 'WishList') {
-      const confirmDelete = window.confirm(
-        'Are you sure you want to remove this item from your wishlist?',
-      );
-      if (!confirmDelete) return;
-      this.removeWishlistItem(itemId);
+      this.confirmDialog.confirm('Are you sure you want to remove this item from your wishlist?', 'Remove', 'Cancel')
+        .pipe(take(1))
+        .subscribe((confirmed) => {
+          if (confirmed) this.removeWishlistItem(itemId);
+        });
     }
   }
 
@@ -280,12 +282,13 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   private confirmAndRemoveItem(itemId: string): void {
-    const confirmDelete = window.confirm(
+    this.confirmDialog.confirm(
       'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
-    );
-    if (confirmDelete) {
-      this.handleRemove(itemId);
-    }
+      'Delete',
+      'Cancel',
+    ).pipe(take(1)).subscribe((confirmed) => {
+      if (confirmed) this.removeCartItem(itemId);
+    });
   }
 
   private verifyStockAndUpdateQuantity(item: any, newQty: number): void {

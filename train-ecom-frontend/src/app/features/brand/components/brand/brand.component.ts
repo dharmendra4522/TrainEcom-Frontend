@@ -18,6 +18,7 @@ import {
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
 import { startWith, map, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-brand',
@@ -27,6 +28,7 @@ import { FormControl } from '@angular/forms';
 export class BrandComponent implements OnInit {
   private matDialog = inject(MatDialog);
   private store = inject(Store);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   paginatedBrands$: Observable<Brand[]> = this.store.select(selectPaginatedBrands);
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
@@ -157,8 +159,10 @@ export class BrandComponent implements OnInit {
   }
 
   deleteBrand(brandId: string): void {
-    if (confirm('Are you sure you want to delete this brand?')) {
+    this.confirmDialog.confirm('Are you sure you want to delete this brand?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      if (confirmed) {
       this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
-    }
+      }
+    });
   }
 }

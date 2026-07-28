@@ -7,6 +7,7 @@ import { Product } from '../../../../core/models/product.model';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectProductById, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import { take, takeUntil } from 'rxjs';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-admin-product-detail',
@@ -19,6 +20,7 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private action$ = inject(Actions);
+  private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
 
   product: Product | null = null;
@@ -79,7 +81,10 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
   }
 
   onDeleteProduct(): void {
-    if (this.product && confirm('Are you sure you want to delete this product?')) {
+    if (!this.product) return;
+
+    this.confirmDialog.confirm('Are you sure you want to delete this product?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      if (!confirmed || !this.product) return;
       const id = this.product.id.toString();
       this.store.dispatch(ProductActions.deleteProduct({ productId: id }));
       
@@ -92,7 +97,7 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.router.navigate(['/admin/products/manage']);
         });
-    }
+    });
   }
 
 

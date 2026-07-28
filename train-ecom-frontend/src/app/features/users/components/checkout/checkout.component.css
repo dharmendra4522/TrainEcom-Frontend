@@ -1,0 +1,111 @@
+.checkout-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.checkout-card {
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+.add-address-btn {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Address Tile Styling */
+.address-tile {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 160px;
+}
+
+.address-tile:hover {
+  border-color: #3f51b5;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.08);
+}
+
+.active-address {
+  border-color: #3f51b5 !important;
+  border-width: 2px !important;
+  background-color: rgba(63, 81, 181, 0.02) !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.1) !important;
+}
+
+/* Payment Tile Styling */
+.payment-tile {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+
+.payment-tile:hover {
+  border-color: #3f51b5;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.08);
+}
+
+.active-payment {
+  border-color: #3f51b5 !important;
+  border-width: 2px !important;
+  background-color: rgba(63, 81, 181, 0.02) !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.1) !important;
+}
+
+/* Item image preview wrapper */
+.item-img-wrapper {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 8px;
+}
+
+.item-img {
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.last-border-none:last-child {
+  border-bottom: none !important;
+}
+
+/* Custom scrollbars */
+.checkout-items-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.checkout-items-list::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Place Order Gradient Button */
+.place-order-btn {
+  background: linear-gradient(135deg, #3f51b5 0%, #2b3a8c 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.place-order-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(63, 81, 181, 0.3) !important;
+}
+
+.place-order-btn:disabled {
+  background: #cbd5e1 !important;
+  color: #94a3b8 !important;
+}
+
+@media (max-width: 991.98px) {
+  .sticky-top {
+    position: static !important;
+  }
+}
