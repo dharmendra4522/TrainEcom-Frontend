@@ -39,7 +39,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   categories$ = this.store.select(selectAllCategories);
 
   pageNumber: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalRecords: number = 0;
 
   columns: TableColumn[] = [
@@ -54,7 +54,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
  actions: TableAction[] = [
     { actionKey: 'delete', icon: 'delete', color: 'warn', tooltip: 'Delete Product' },
-    { actionKey: 'edit', icon: 'edit', color: 'primary', tooltip: 'Edit Product' }
+    { actionKey: 'edit', icon: 'edit', color: 'primary', tooltip: 'Edit Product' },
+    { actionKey: 'view', icon: 'visibility', color: 'accent', tooltip: 'View Product' }
   ];
 
 
@@ -84,6 +85,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // setupSearchFilter method to handle search, category, and brand filtering
   setupSearchFilter(): void {
     combineLatest([
       this.searchControl.valueChanges.pipe(
@@ -138,6 +140,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.router.navigate(['/admin/products/edit', event.row.id]);
     } else if (event.action === 'delete') {
       this.deleteProduct(event.row.id.toString());
+    } else if (event.action === 'view') {
+      this.router.navigate(['/admin/products/view', event.row.id]);
     }
   }
 

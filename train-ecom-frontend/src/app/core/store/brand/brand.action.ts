@@ -1,16 +1,18 @@
 import { createAction, props } from '@ngrx/store';
 import { Brand } from '../../models/brand.model';
 
-export const loadBrands = createAction('[Brand] Load Brands');
+export const loadBrands = createAction(
+  '[Brand] Load Brands'
+);
 
 export const loadBrandsSuccess = createAction(
   '[Brand] Load Brands Success',
-  props<{ brands: Brand[] }>(),
+  props<{ brands: Brand[]; totalRecords?: number; pageNumber?: number; pageSize?: number; totalPages?: number }>()
 );
 
 export const loadBrandsFailure = createAction(
   '[Brand] Load Brands Failure',
-  props<{ error: string }>(),
+  props<{ error: string }>()
 );
 
 export const loadSingleBrand = createAction(

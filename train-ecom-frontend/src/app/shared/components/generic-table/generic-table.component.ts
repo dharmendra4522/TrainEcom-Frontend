@@ -20,7 +20,7 @@ export class GenericTableComponent {
 
   @Input() showPaginator: boolean = false;
   @Input() totalRecords: number = 0;
-  @Input() pageSize: number = 10;
+  @Input() pageSize: number = 5;
   @Input() pageIndex: number = 0;
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
 

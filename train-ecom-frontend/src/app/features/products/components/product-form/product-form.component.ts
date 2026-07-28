@@ -24,6 +24,7 @@ import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import { Actions, ofType } from '@ngrx/effects';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-product-form',
@@ -39,6 +40,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private actions$ = inject(Actions);
   private destroy$ = new Subject<void>();
+  private location = inject(Location);
 
   brandControl = new FormControl('');
   categoryControl = new FormControl('');
@@ -485,4 +487,9 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           console.error('Error fetching categories:', error),
       });
   }
+
+  onBack(): void{
+    this.location.back();
+  }
+
 }

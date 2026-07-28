@@ -85,11 +85,14 @@ export class AuthEffects {
 
           this.store.dispatch(UserActions.loadProfileReq());
 
-          this.cartService.loadCart(); 
-
           const role = payload.role
             ? payload.role.toString().toLowerCase()
             : '';
+
+            if (role !== 'admin') {
+              this.cartService.loadCart();
+            }
+
           const route = role === 'admin' ? '/admin/dashboard' : '/';
           this.router.navigate([route]);
         }),

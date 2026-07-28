@@ -4,7 +4,7 @@ import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
-import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap } from 'rxjs';
+import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, EMPTY } from 'rxjs';
 
 @Injectable()
 export class CartEffects {
@@ -188,8 +188,12 @@ export class CartEffects {
   loginSuccessCartLoad$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(AuthActions.loginSuccess),
-      map(() => {
-        return CartActions.loadCart();
+      switchMap((action) => {
+        const role = action.payload.role;
+        if (role === 'Admin') {
+          return EMPTY;
+        }
+        return of(CartActions.loadCart());
       })
     );
   });

@@ -4,7 +4,7 @@
             <mat-card-title class="fs-4 fw-bold text-dark m-0">
                 {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
             </mat-card-title>
-            <a mat-stroked-button color="primary" routerLink="/admin/products">
+            <a mat-stroked-button color="primary" (click)="onBack()" >
                 <mat-icon>arrow_back</mat-icon>
                 Back to Products
             </a>
@@ -149,7 +149,7 @@
                     {{ isEditMode ? 'Update Product' : 'Add Product' }}
                 </button>
 
-                <button mat-stroked-button color="warn" type="button" routerLink="/admin/products">
+                <button mat-stroked-button color="warn" type="button" routerLink="/admin/products/view/{{ productId }}">
                     Cancel
                 </button>
             </div>

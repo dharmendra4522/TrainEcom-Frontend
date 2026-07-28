@@ -13,3 +13,12 @@ export interface UpdateBrandRequest {
   name: string;
   description: string;
 }
+
+
+export interface PaginatedBrandResponse {
+  items: Brand[];
+  pageNumber: number;
+  pageSize: number;
+  totalRecords: number;
+  totalPages: number;
+}

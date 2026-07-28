@@ -15,10 +15,16 @@
   </div>
 
   <app-generic-table 
-    [data]="(filteredBrands$ | async) || []" 
+    [data]="(pagedBrands$ | async) || []" 
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 
+    [showPaginator]="true"
+    [totalRecords]="(filteredTotalCount$ | async) || 0"
+    [pageSize]="(pageSize$ | async) || 10"
+    [pageIndex]="(pageIndex$ | async) || 0"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (pageChange)="handlePageChange($event)"
     emptyMessage="No brands found."
     (actionClick)="handleTableAction($event)">
   </app-generic-table>

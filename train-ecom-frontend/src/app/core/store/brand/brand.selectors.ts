@@ -5,7 +5,7 @@ export const selectBrandState = createFeatureSelector<BrandState>('brand');
 
 export const selectAllBrands = createSelector(
   selectBrandState,
-  (state: BrandState) => state.brands,
+  (state: BrandState) => state.brand || [],
 );
 
 export const selectBrandLoading = createSelector(
@@ -18,12 +18,27 @@ export const selectBrandError = createSelector(
   (state: BrandState) => state.error,
 );
 
+export const selectBrandTotalRecords = createSelector(
+  selectBrandState,
+  (state: BrandState) => state.totalRecords || 0,
+);
+
+export const selectBrandPageNumber = createSelector(
+  selectBrandState,
+  (state: BrandState) => state.pageNumber || 1,
+);
+
+export const selectBrandPageSize = createSelector(
+  selectBrandState,
+  (state: BrandState) => state.pageSize || 10,
+);
+
 export const selectBrandById = (brandId: string) => createSelector(
   selectBrandState,
-  (state: BrandState) => state.brands.find(brand => brand.id === brandId),
+  (state: BrandState) => (state.brand || []).find(brand => brand.id === brandId),
 );
 
 export const selectBrandByName = (brandName: string) => createSelector(
   selectBrandState,
-  (state: BrandState) => state.brands.find(brand => brand.name === brandName),
+  (state: BrandState) => (state.brand || []).find(brand => brand.name === brandName),
 );

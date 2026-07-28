@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Confirmation</h2>
+
+<mat-dialog-content class="mat-typography py-2">
+    <p class="mb-0 text-secondary">{{ data.message }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="p-3">
+    <button mat-button color="basic" (click)="onCancel()" class="me-2">
+        {{ data.noLabel ?? 'No' }}
+    </button>
+    <button mat-flat-button color="primary" (click)="onConfirm()">
+        {{ data.yesLabel ?? 'Yes' }}
+    </button>
+</mat-dialog-actions>

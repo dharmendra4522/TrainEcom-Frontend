@@ -18,6 +18,7 @@ import { ProductFilterComponent } from './components/product-filter/product-filt
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
 import { GroupedProductRowComponent } from './components/grouped-product-row/grouped-product-row.component';
 import { SideItemCardComponent } from './components/side-item-card/side-item-card.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { SideItemCardComponent } from './components/side-item-card/side-item-car
     GenericTableComponent,
     GroupedProductRowComponent,
     SideItemCardComponent,
+    ConfirmDialogComponent,
   ],
   imports: [
     CommonModule,

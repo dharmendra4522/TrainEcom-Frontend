@@ -51,6 +51,6 @@ export class HomeComponent implements OnInit {
   }
 
   private fetchProducts(): void {
-    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 20 }));
+    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 50 }));
   }
 }
