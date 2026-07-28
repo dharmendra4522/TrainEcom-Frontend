@@ -1,13 +1,9 @@
 <div class="generic-table-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
   <div class="table-responsive position-relative">
 
-    <div *ngIf="isLoading"
-      class="table-loading-container d-flex flex-column align-items-center justify-content-center py-5 px-4 my-2 text-center">
-      <mat-spinner diameter="40" color="primary"></mat-spinner>
-      <span class="text-secondary small fw-semibold mt-3">Loading data, please wait...</span>
-    </div>
+    <mat-progress-bar *ngIf="isLoading" mode="indeterminate" class="position-absolute top-0 start-0 w-100" style="height: 3px; z-index: 100;"></mat-progress-bar>
 
-    <table *ngIf="!isLoading" mat-table [dataSource]="data" class="custom-mat-table w-100">
+    <table mat-table [dataSource]="data" class="custom-mat-table w-100">
 
       <ng-container matColumnDef="sno" *ngIf="showIndex">
         <th mat-header-cell *matHeaderCellDef class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7">#</th>

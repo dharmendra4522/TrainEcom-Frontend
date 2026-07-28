@@ -5,7 +5,7 @@ import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
-import { map, Observable } from 'rxjs';
+import { map, Observable, take } from 'rxjs';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
@@ -32,8 +32,18 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.fetchProducts();
-    this.store.dispatch(BrandActions.loadBrands());
-    this.store.dispatch(CategoryActions.loadCategories());
+    
+    this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+      if (!brands || brands.length === 0) {
+        this.store.dispatch(BrandActions.loadBrands());
+      }
+    });
+
+    this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+      if (!categories || categories.length === 0) {
+        this.store.dispatch(CategoryActions.loadCategories());
+      }
+    });
   }
 
   onBannerBuyNow() {

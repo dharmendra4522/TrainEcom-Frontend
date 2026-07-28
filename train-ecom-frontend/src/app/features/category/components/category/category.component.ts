@@ -11,7 +11,7 @@ import * as CategoryActions from '../../../../core/store/category/category.actio
 import { selectAllCategories, selectCategoryLoading } from '../../../../core/store/category/category.selectors';
 
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { takeUntil, map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { takeUntil, map, startWith, distinctUntilChanged, debounceTime, take } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -78,7 +78,11 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   fetchAllCategories() {
-    this.store.dispatch(CategoryActions.loadCategories());
+    this.categories$.pipe(take(1)).subscribe(categories => {
+      if (!categories || categories.length === 0) {
+        this.store.dispatch(CategoryActions.loadCategories());
+      }
+    });
   }
 
   createCategory(payload: CreateCategoryRequest): void {

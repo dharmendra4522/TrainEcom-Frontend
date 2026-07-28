@@ -12,7 +12,7 @@ import { selectAllCategories } from '../../../../core/store/category/category.se
 import * as BrandActions from '../../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { combineLatest, Subject, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, startWith } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, startWith, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-products',
@@ -62,11 +62,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isAdminRoute = this.router.url.includes('/admin');
-    this.store.dispatch(BrandActions.loadBrands());
-    this.store.dispatch(CategoryActions.loadCategories());
+    
+    this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+      if (!brands || brands.length === 0) {
+        this.store.dispatch(BrandActions.loadBrands());
+      }
+    });
+
+    this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+      if (!categories || categories.length === 0) {
+        this.store.dispatch(CategoryActions.loadCategories());
+      }
+    });
+
     this.fetchProducts();
     this.setupSearchFilter();
-    
   }
 
   ngOnDestroy() {

@@ -14,7 +14,7 @@ import {
   selectBrandLoading,
 } from '../../../../core/store/brand/brand.selectors';
 import { Observable, combineLatest } from 'rxjs';
-import { map, startWith, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, debounceTime, take } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -84,7 +84,11 @@ export class BrandComponent implements OnInit {
   }
 
   fetchAllBrands(): void {
-    this.store.dispatch(BrandActions.loadBrands());
+    this.brands$.pipe(take(1)).subscribe(brands => {
+      if (!brands || brands.length === 0) {
+        this.store.dispatch(BrandActions.loadBrands());
+      }
+    });
   }
 
   openBrandDialog(brand?: Brand): void {

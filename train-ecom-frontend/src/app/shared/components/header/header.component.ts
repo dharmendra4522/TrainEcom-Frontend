@@ -16,7 +16,7 @@ import {
 import { selectUserProfile } from '../../../core/store/user/user.selectors';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
 import { selectWishlistCount } from '../../../core/store/wish-list/wishList.selectors';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
 import * as CartActions from '../../../core/store/cart/cart.actions';
 
@@ -53,12 +53,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private initAuthSubscription(): void {
-    this.isLoggedIn$.pipe(takeUntil(this.destroy$)).subscribe((isLoggedIn) => {
-      if (isLoggedIn) {
-        this.store.dispatch(WishlistActions.loadWishlist());
-      }
-      this.store.dispatch(CartActions.loadCart());
-    });
+    combineLatest([this.isLoggedIn$, this.userRole$]).pipe(takeUntil(this.destroy$))
+      .subscribe(([isLoggedIn, role]) => {
+        if (isLoggedIn) {
+          if(role && role === 'Admin'){
+            return;
+          }
+          this.store.dispatch(WishlistActions.loadWishlist());
+          this.store.dispatch(CartActions.loadCart());
+        } else{
+          // for guest users, 
+          this.store.dispatch(CartActions.loadCart());
+        }
+      });
   }
 
   onLogout(): void {

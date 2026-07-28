@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { PublicCatalogComponent } from './components/public-catalog/public-catalog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { AdminProductDetailComponent } from './components/admin-product-detail/admin-product-detail.component';
 
 @NgModule({
   declarations: [
@@ -16,13 +17,14 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     ProductFormComponent,
     ProductDetailComponent,
     PublicCatalogComponent,
+    AdminProductDetailComponent,
   ],
   imports: [
     CommonModule,
     ProductsRoutingModule,
     SharedModule,
     ReactiveFormsModule,
-    ScrollingModule
-  ]
+    ScrollingModule,
+  ],
 })
-export class ProductsModule { }
+export class ProductsModule {}

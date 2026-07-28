@@ -3,7 +3,7 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, take } from 'rxjs/operators';
 import * as ProductActions from '../../../core/store/product/product.action';
 import * as BrandActions from '../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../core/store/category/category.action';
@@ -36,8 +36,17 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
   }
  
   private loadFilterMetadata(): void {
-    this.store.dispatch(BrandActions.loadBrands());
-    this.store.dispatch(CategoryActions.loadCategories());
+    this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+      if (!brands || brands.length === 0) {
+        this.store.dispatch(BrandActions.loadBrands());
+      }
+    });
+
+    this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+      if (!categories || categories.length === 0) {
+        this.store.dispatch(CategoryActions.loadCategories());
+      }
+    });
   }
  
   private setupQueryAndSearchSubscription(): void {

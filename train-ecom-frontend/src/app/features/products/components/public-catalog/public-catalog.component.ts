@@ -59,8 +59,26 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   }
  
   private initStoreData(): void {
-    this.store.dispatch(CategoryActions.loadCategories());
-    this.store.dispatch(BrandActions.loadBrands());
+    this.products$.pipe(
+      map(p => p.length === 0),
+      take(1)
+    ).subscribe(isEmpty => {
+      if (isEmpty) {
+        this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 20 }));
+      }
+    });
+ 
+    this.categories$.pipe(take(1)).subscribe(categories => {
+      if (!categories || categories.length === 0) {
+        this.store.dispatch(CategoryActions.loadCategories());
+      }
+    });
+
+    this.brands$.pipe(take(1)).subscribe(brands => {
+      if (!brands || brands.length === 0) {
+        this.store.dispatch(BrandActions.loadBrands());
+      }
+    });
   }
  
   private setupFilteredProducts(): void {

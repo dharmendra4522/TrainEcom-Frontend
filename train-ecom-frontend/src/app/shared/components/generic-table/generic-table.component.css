@@ -112,3 +112,29 @@
 tr.cursor-pointer {
   cursor: pointer;
 }
+
+/* Responsive Paginator styles */
+@media (max-width: 575.98px) {
+  ::ng-deep .mat-mdc-paginator-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px;
+    padding: 16px 8px !important;
+    justify-content: center !important;
+  }
+
+  ::ng-deep .mat-mdc-paginator-page-size {
+    margin: 0 auto !important;
+    justify-content: center;
+  }
+
+  ::ng-deep .mat-mdc-paginator-range-actions {
+    width: 100%;
+    justify-content: center !important;
+    gap: 8px;
+  }
+
+  ::ng-deep .mat-mdc-paginator-range-label {
+    margin: 0 8px 0 0 !important;
+  }
+}

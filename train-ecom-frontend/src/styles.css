@@ -16,12 +16,43 @@ body {
   box-sizing: inherit;
 }
 
-.success-snackbar {
-  background-color: #28a745 !important;
-  color: white !important;
+/* MDC SnackBar Color Customizations */
+.success-snackbar .mdc-snackbar__surface {
+  background-color: #2e7d32 !important;
+}
+.success-snackbar .mdc-snackbar__label {
+  color: #ffffff !important;
+}
+.success-snackbar .mdc-snackbar__actions button {
+  color: #ffffff !important;
 }
 
-.error-snackbar {
-  background-color: #dc3545 !important;
-  color: white !important;
+.error-snackbar .mdc-snackbar__surface {
+  background-color: #d32f2f !important;
+}
+.error-snackbar .mdc-snackbar__label {
+  color: #ffffff !important;
+}
+.error-snackbar .mdc-snackbar__actions button {
+  color: #ffffff !important;
+}
+
+.info-snackbar .mdc-snackbar__surface {
+  background-color: #0288d1 !important;
+}
+.info-snackbar .mdc-snackbar__label {
+  color: #ffffff !important;
+}
+.info-snackbar .mdc-snackbar__actions button {
+  color: #ffffff !important;
+}
+
+.warning-snackbar .mdc-snackbar__surface {
+  background-color: #ed6c02 !important;
+}
+.warning-snackbar .mdc-snackbar__label {
+  color: #ffffff !important;
+}
+.warning-snackbar .mdc-snackbar__actions button {
+  color: #ffffff !important;
 }

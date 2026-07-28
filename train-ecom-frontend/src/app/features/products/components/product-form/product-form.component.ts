@@ -447,17 +447,18 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   fetchAllBrands(): void {
-    this.store.dispatch(BrandActions.loadBrands());
     this.store
       .select(selectAllBrands)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Brand[]) => {
-          if (data) {
+          if (data && data.length > 0) {
             this.brands = data;
             if (this.brandControl.value) {
               this.brandControl.setValue(this.brandControl.value);
             }
+          } else {
+            this.store.dispatch(BrandActions.loadBrands());
           }
         },
         error: (error: unknown) =>
@@ -466,17 +467,18 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   fetchAllCategories(): void {
-    this.store.dispatch(CategoryActions.loadCategories());
     this.store
       .select(selectAllCategories)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Category[]) => {
-          if (data) {
+          if (data && data.length > 0) {
             this.categories = data;
             if (this.categoryControl.value) {
               this.categoryControl.setValue(this.categoryControl.value);
             }
+          } else {
+            this.store.dispatch(CategoryActions.loadCategories());
           }
         },
         error: (error: unknown) =>

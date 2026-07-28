@@ -11,9 +11,11 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { WishListItem } from '../../../core/models/wishList.model';
-import { selectIsLoggedIn } from '../../../core/store/auth/auth.selectors';
+import {
+  selectIsLoggedIn,
+  selectUserRole,
+} from '../../../core/store/auth/auth.selectors';
 import { take, takeUntil } from 'rxjs/operators';
-import { ProductCardComponent } from '../product-card/product-card.component';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CartItem } from '../../../core/models/cart.model';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
@@ -22,8 +24,7 @@ import { Actions, ofType } from '@ngrx/effects';
 import * as CartActions from '../../../core/store/cart/cart.actions';
 import { selectCartItems } from '../../../core/store/cart/cart.selectors';
 import * as ProductActions from '../../../core/store/product/product.action';
-import { selectProductById } from '../../../core/store/product/product.selectors';
-import { Subject } from 'rxjs';
+import { Subject, combineLatest } from 'rxjs';
 
 export interface SidePanelItem {
   id: string;
@@ -45,7 +46,6 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
   private cdr = inject(ChangeDetectorRef);
-  // private cartService = inject(CartService);
   private notificationService = inject(NotificationService);
   private actions$ = inject(Actions);
 
@@ -81,10 +81,10 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (items: WishListItem[]) => {
-          this.items = (items || []).map((item: any) => ({
+          this.items = (items || []).map((item: WishListItem) => ({
             ...item,
             id: item.productId || item.id,
-            name: item.productName || item.name || '', // <-- name ko string ensure kiya
+            name: item.productName || item.name || '',
             price: item.price || 0,
           }));
           this.cdr.detectChanges();
@@ -93,11 +93,18 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   private watchAuthStatusForWishlist(): void {
-    this.store
-      .select(selectIsLoggedIn)
+    combineLatest([
+      this.store.select(selectIsLoggedIn),
+      this.store.select(selectUserRole),
+    ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe((isLoggedIn: boolean) => {
+      .subscribe(([isLoggedIn, role]: [boolean, string | null]) => {
         if (isLoggedIn) {
+          if (role && role === 'Admin') {
+            this.items = [];
+            this.cdr.detectChanges();
+            return;
+          }
           this.store.dispatch(WishlistActions.loadWishlist());
         } else {
           this.items = [];
@@ -125,15 +132,18 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   private watchAuthStatusForCart(): void {
-    this.store
-      .select(selectIsLoggedIn)
+    combineLatest([
+      this.store.select(selectIsLoggedIn),
+      this.store.select(selectUserRole),
+    ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
+      .subscribe(([isLoggedIn, role]: [boolean, string | null]) => {
+        if (role && role === 'Admin') {
+          return;
+        }
         this.store.dispatch(CartActions.loadCart());
       });
   }
-
-
   open(): void {
     this.drawer.open();
   }
@@ -215,8 +225,16 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   handleRemove(itemId: string): void {
     if (this.type === 'Cart') {
+      const confirmDelete = window.confirm(
+        'Are you sure you want to remove this item from your cart?',
+      );
+      if (!confirmDelete) return;
       this.removeCartItem(itemId);
     } else if (this.type === 'WishList') {
+      const confirmDelete = window.confirm(
+        'Are you sure you want to remove this item from your wishlist?',
+      );
+      if (!confirmDelete) return;
       this.removeWishlistItem(itemId);
     }
   }
@@ -295,7 +313,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   private updateCartItemQuantity(itemId: string, newQty: number): void {
     this.store.dispatch(
-      CartActions.updateCartItem({ itemId, quantity: newQty })
+      CartActions.updateCartItem({ itemId, quantity: newQty }),
     );
   }
 
@@ -316,14 +334,14 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         productId: productId.toString(),
         quantity: 1,
         productDetails,
-      })
+      }),
     );
 
     this.actions$
       .pipe(
         ofType(CartActions.addToCartSuccess),
         takeUntil(this.destroy$),
-        take(1)
+        take(1),
       )
       .subscribe(() => {
         this.removeWishlistItem(productId);

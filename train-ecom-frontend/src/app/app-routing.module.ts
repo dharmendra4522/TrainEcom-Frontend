@@ -36,8 +36,8 @@ const routes: Routes = [
 
       {
         path: 'checkout',
-        canActivate: [authGuard],
-        component: NotFoundComponent,
+        redirectTo: 'account/checkout',
+        pathMatch: 'full',
       },
 
       {

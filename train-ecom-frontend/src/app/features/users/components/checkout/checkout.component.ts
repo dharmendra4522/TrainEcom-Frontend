@@ -5,10 +5,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.css'
+  styleUrl: './checkout.component.css',
 })
 export class CheckoutComponent {
   private orderService = inject(OrderService);
   private notification = inject(NotificationService);
-  
 }
