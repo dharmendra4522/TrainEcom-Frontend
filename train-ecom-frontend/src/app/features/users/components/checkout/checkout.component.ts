@@ -25,6 +25,7 @@ import { Validators } from '@angular/forms';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { DialogData } from '../../../../core/models/dialog.model';
 import { CheckoutItem } from '../../../../core/models/order.model';
+import { SelectionDialogComponent, SelectionDialogData } from '../../../../shared/components/selection-dialog/selection-dialog.component';
 
 type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
 
@@ -48,7 +49,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   directQty: number | null = null;
 
   addresses: Address[] = [];
-  selectedAddress: Address | null = null;
   selectedAddressid: string | null = null;
 
   checkoutItems: CheckoutItem[] = [];
@@ -71,22 +71,52 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // Currently selected delivery address.
+  get selectedAddress(): Address | undefined {
+    return this.addresses.find((address) => address.id === this.selectedAddressid);
+  }
+
+  // Open the saved-address selection dialog.
+  openChangeAddressDialog(): void {
+    const dialogData: SelectionDialogData<Address> = {
+      title: 'Select Delivery Address',
+      items: this.addresses,
+      selectedId: this.selectedAddressid || '',
+      displayKey: 'fullName',
+      addButtonLabel: 'Add Address',
+    };
+
+    this.dialog
+      .open<SelectionDialogComponent<Address>, SelectionDialogData<Address>, Address | 'add'>(SelectionDialogComponent, {
+        width: '750px',
+        data: dialogData,
+      })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result === 'add') {
+          this.openAddNewAddressDialog();
+        } else if (result) {
+          this.selectAddress(result.id);
+        }
+      });
+  }
+
   // Load user addresses and set the default or first address as selected
-  private loadUserAddresses(): void {
+  private loadUserAddresses(preferredAddressId?: string): void {
     this.userService
       .getAllAddress()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.addresses = data || [];
-          const defaultAddress = this.addresses.find(
+          const selectedAddress = this.addresses.find(
+            (address) => address.id === preferredAddressId,
+          ) || this.addresses.find(
             (address) => address.isDefault,
-          );
-          if (defaultAddress) {
-            this.selectedAddressid = defaultAddress.id;
-          } else if (this.addresses.length > 0) {
-            this.selectedAddressid = this.addresses[0].id;
-          }
+          ) || this.addresses[0];
+
+          this.selectedAddressid = selectedAddress?.id || null;
         },
         error: (err) => {
           console.error('Error fetching addresses:', err);
@@ -264,10 +294,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (newAddress: Address) => {
           this.notification.showSuccess('Address added successfully', 'Close');
-          this.loadUserAddresses();
-          if (newAddress && newAddress.id) {
-            this.selectAddress(newAddress.id);
-          }
+          this.loadUserAddresses(newAddress.id);
         },
         error: (err) => {
           console.error('Error adding address:', err);

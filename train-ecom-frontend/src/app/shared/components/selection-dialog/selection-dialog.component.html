@@ -1,0 +1,67 @@
+<!-- Dialog Header Section -->
+<h2 mat-dialog-title class="fw-bold d-flex align-items-center justify-content-between m-0 pb-2 border-bottom">
+  <!-- Dynamic Title jo parent component se pass hoga -->
+  <span>{{ data.title }}</span>
+  
+  <div class="d-flex align-items-center gap-1">
+    <button *ngIf="data.addButtonLabel" mat-stroked-button color="primary" (click)="onAdd()">
+      <mat-icon>add</mat-icon>
+      {{ data.addButtonLabel }}
+    </button>
+    <button mat-icon-button (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</h2>
+
+<!-- Dialog Content / Scrollable Items List -->
+<mat-dialog-content class="mat-typography py-3">
+  
+  <!-- Empty State: Agar items ki list khali hai -->
+  <div *ngIf="!data.items || data.items.length === 0" class="text-center py-4 text-muted">
+    <mat-icon class="fs-1 text-secondary mb-2" style="width: 48px; height: 48px;">inbox</mat-icon>
+    <p class="m-0 fw-semibold">No items available to select.</p>
+  </div>
+
+  <!-- Items Grid / List Loop -->
+  <div class="row g-3" *ngIf="data.items && data.items.length > 0">
+    <div class="col-12" *ngFor="let item of data.items">
+      
+      <!-- Reusable Selection Tile -->
+      <div
+        class="selection-tile rounded-3 p-3 position-relative border cursor-pointer transition-all"
+        [class.active-selection]="data.selectedId === item.id"
+        (click)="onSelect(item)">
+        
+        <!-- Selection Indicator Icon (Radio style check circle) -->
+        <div class="position-absolute top-0 end-0 p-3">
+          <mat-icon *ngIf="data.selectedId === item.id" class="text-primary">check_circle</mat-icon>
+          <mat-icon *ngIf="data.selectedId !== item.id" class="text-muted">radio_button_unchecked</mat-icon>
+        </div>
+
+        <!-- Primary Display Text (Dynamic key mapping, e.g., item['fullName'] or item['name']) -->
+        <h6 class="fw-bold text-dark mb-2 pr-4">{{ getItemValue(item, data.displayKey) }}</h6>
+
+        <!-- Secondary Details Text (Optional, e.g., Address lines or Description) -->
+        <p class="text-secondary small mb-1 leading-relaxed" *ngIf="data.secondaryKey">
+          {{ getItemValue(item, data.secondaryKey) }}
+        </p>
+
+        <!-- Fallback/Extra details specifically tailored if it's an address object -->
+        <p class="text-secondary small mb-1 leading-relaxed" *ngIf="!data.secondaryKey && getItemValue(item, 'addressLine1')">
+          {{ getItemValue(item, 'addressLine1') }}<br>
+          <span *ngIf="getItemValue(item, 'addressLine2')">{{ getItemValue(item, 'addressLine2') }}<br></span>
+          {{ getItemValue(item, 'city') }}, {{ getItemValue(item, 'state') }} - {{ getItemValue(item, 'postalCode') }}<br>
+          {{ getItemValue(item, 'country') }}
+        </p>
+
+        <!-- Phone Number section if present in item -->
+        <div class="d-flex align-items-center text-secondary small mt-2" *ngIf="getItemValue(item, 'phone')">
+          <mat-icon class="fs-6 align-middle me-1" style="width: 16px; height: 16px;">phone</mat-icon>
+          <span>{{ getItemValue(item, 'phone') }}</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

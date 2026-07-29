@@ -19,6 +19,7 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
 import { GroupedProductRowComponent } from './components/grouped-product-row/grouped-product-row.component';
 import { SideItemCardComponent } from './components/side-item-card/side-item-card.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { SelectionDialogComponent } from './components/selection-dialog/selection-dialog.component';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
     GroupedProductRowComponent,
     SideItemCardComponent,
     ConfirmDialogComponent,
+    SelectionDialogComponent,
   ],
   imports: [
     CommonModule,

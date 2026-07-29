@@ -1,0 +1,38 @@
+/* Selection Tile Base Styling */
+.selection-tile {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selection-tile:hover {
+  border-color: #3f51b5;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.08);
+}
+
+/* Active / Selected State Styling */
+.active-selection {
+  border-color: #3f51b5 !important;
+  border-width: 2px !important;
+  background-color: rgba(63, 81, 181, 0.02) !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.1) !important;
+}
+
+mat-dialog-content {
+  max-height: 60    0px !important;
+  overflow-y: auto !important;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+mat-dialog-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+mat-dialog-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}

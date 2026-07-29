@@ -10,24 +10,42 @@ export enum OrderStatus {
   Shipped = 'Shipped',
   Delivered = 'Delivered',
   Cancelled = 'Cancelled',
+  Confirmed = 'Confirmed',
 }
 
 export enum PaymentStatus {
   Pending = 'Pending',
   Success = 'Success',
   Failed = 'Failed',
+
+}
+
+export interface PaymentSimulationRequest{
+  paymentMethod: PaymentMethod;
+  amount: number;
+}
+
+export interface PaymentSimulationResponse{
+  transactionId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  paidAt: string;
 }
 
 export interface CreateOrderRequest {
   addressId: string;
   paymentMethod: PaymentMethod;
+  transactionId?: string;
 }
+
 
 export interface BuyNowRequest {
   addressId: string;
   productId: string;
   quantity: number;
   paymentMethod: PaymentMethod;
+  transactionId?: string;
 }
 
 export interface CreateOrderResponse {
@@ -36,6 +54,7 @@ export interface CreateOrderResponse {
   totalAmount: number;
   paymentStatus: PaymentStatus;
 }
+
 
 export interface OrderListItem extends Record<string, unknown> {
   orderId: string;
@@ -46,6 +65,8 @@ export interface OrderListItem extends Record<string, unknown> {
   paymentStatus?: PaymentStatus;
   totalItems: number;
 }
+
+
 export interface CheckoutItem {
   itemId?: string;
   productId: string;
