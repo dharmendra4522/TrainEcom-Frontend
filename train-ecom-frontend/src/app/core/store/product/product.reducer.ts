@@ -59,12 +59,23 @@ export const productReducer = createReducer(
     error: null,
   })),
 
-  on(ProductActions.updateProductSuccess, (state, { product }) => ({
-    ...state,
-    products: state.products.map((p) => (p.id === product.id ? product : p)),
-    isLoading: false,
-    error: null,
-  })),
+  on(ProductActions.updateProductSuccess, (state, { product }) => {
+    const existingProduct = state.products.find((p) => p.id.toString() === product.id.toString());
+    const primaryImg = product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl;
+    const resolvedThumbnailUrl = product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
+
+    const updatedProduct = {
+      ...product,
+      thumbnailUrl: resolvedThumbnailUrl
+    };
+
+    return {
+      ...state,
+      products: state.products.map((p) => p.id.toString() === product.id.toString() ? updatedProduct : p),
+      isLoading: false,
+      error: null,
+    };
+  }),
 
   on(ProductActions.createProductFailure, (state, { error }) => ({
     ...state,
@@ -110,14 +121,25 @@ export const productReducer = createReducer(
     error: null,
   })),
 
-  on(ProductActions.loadProductByIdSuccess, (state, { product }) => ({
-    ...state,
-    products: state.products.some((p) => p.id.toString() === product.id.toString())
-      ? state.products.map((p) => p.id.toString() === product.id.toString() ? product : p)
-      : [...state.products, product],
-    isLoading: false,
-    error: null,
-  })),
+  on(ProductActions.loadProductByIdSuccess, (state, { product }) => {
+    const existingProduct = state.products.find((p) => p.id.toString() === product.id.toString());
+    const primaryImg = product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl;
+    const resolvedThumbnailUrl = product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
+
+    const updatedProduct = {
+      ...product,
+      thumbnailUrl: resolvedThumbnailUrl
+    };
+
+    return {
+      ...state,
+      products: existingProduct
+        ? state.products.map((p) => p.id.toString() === product.id.toString() ? updatedProduct : p)
+        : [...state.products, updatedProduct],
+      isLoading: false,
+      error: null,
+    };
+  }),
 
   on(ProductActions.loadProductByIdFailure, (state, { error }) => ({
     ...state,

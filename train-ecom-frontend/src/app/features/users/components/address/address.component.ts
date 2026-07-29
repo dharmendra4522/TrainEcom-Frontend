@@ -9,19 +9,21 @@ import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { Subject, takeUntil } from 'rxjs';
+import { OnDestroy } from '@angular/core';
 
 type AddressFormResult = Omit<Address, 'id' | 'country'>;
 
 @Component({
   selector: 'app-address',
   templateUrl: './address.component.html',
-  styleUrl: './address.component.css'
+  styleUrl: './address.component.css',
 })
-export class AddressComponent implements OnInit {
-
+export class AddressComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
-  private store = inject(Store); 
+  private store = inject(Store);
   private notification = inject(NotificationService);
   private confirmDialog = inject(ConfirmDialogServiceService);
 
@@ -31,26 +33,77 @@ export class AddressComponent implements OnInit {
     this.getAddresses();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   getAddresses(): void {
-    this.userService.getAllAddress().subscribe({
-      next: (addresses: Address[]) => {
-        this.addresses = addresses;
-      },
-      error: (error: unknown) => {
-        this.showError('Error fetching addresses');
-      }
-    });
+    this.userService
+      .getAllAddress()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (addresses: Address[]) => {
+          this.addresses = addresses;
+        },
+        error: (error: unknown) => {
+          this.showError('Error fetching addresses');
+        },
+      });
   }
 
   private getAddressFields(address?: Address): FieldConfig[] {
     return [
-      { key: 'fullName', label: 'Full Name', type: 'text', value: address?.fullName || '', validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)] },
-      { key: 'phone', label: 'Phone Number', type: 'text', value: address?.phone || '', validation: [Validators.required, Validators.pattern(/^\d{10}$/)], maxLength: 10 },
-      { key: 'addressLine1', label: 'Address Line 1', type: 'text', value: address?.addressLine1 || '', validation: [Validators.required] },
-      { key: 'addressLine2', label: 'Address Line 2 (Optional)', type: 'text', value: address?.addressLine2 || '' },
-      { key: 'city', label: 'City', type: 'text', value: address?.city || '', validation: [Validators.required] },
-      { key: 'state', label: 'State', type: 'text', value: address?.state || '', validation: [Validators.required] },
-      { key: 'postalCode', label: 'Postal Code', type: 'text', value: address?.postalCode || '', validation: [Validators.required], maxLength: 6 },
+      {
+        key: 'fullName',
+        label: 'Full Name',
+        type: 'text',
+        value: address?.fullName || '',
+        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+      },
+      {
+        key: 'phone',
+        label: 'Phone Number',
+        type: 'text',
+        value: address?.phone || '',
+        validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
+        maxLength: 10,
+      },
+      {
+        key: 'addressLine1',
+        label: 'Address Line 1',
+        type: 'text',
+        value: address?.addressLine1 || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'addressLine2',
+        label: 'Address Line 2 (Optional)',
+        type: 'text',
+        value: address?.addressLine2 || '',
+      },
+      {
+        key: 'city',
+        label: 'City',
+        type: 'text',
+        value: address?.city || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'state',
+        label: 'State',
+        type: 'text',
+        value: address?.state || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'postalCode',
+        label: 'Postal Code',
+        type: 'text',
+        value: address?.postalCode || '',
+        validation: [Validators.required],
+        maxLength: 6,
+      },
     ];
   }
 
@@ -59,33 +112,40 @@ export class AddressComponent implements OnInit {
     return {
       title: isEdit ? 'Update Address' : 'Add New Address',
       submitButtonText: isEdit ? 'Update Address' : 'Save Address',
-      fields: this.getAddressFields(address)
+      fields: this.getAddressFields(address),
     };
   }
 
-  private formatAddressPayload(result: AddressFormResult, originalAddress?: Address): Address {
+  private formatAddressPayload(
+    result: AddressFormResult,
+    originalAddress?: Address,
+  ): Address {
     return {
       ...result,
       id: originalAddress?.id || '',
       phone: String(result.phone),
       postalCode: String(result.postalCode),
       country: 'India',
-      isDefault: originalAddress?.isDefault || false
+      isDefault: originalAddress?.isDefault || false,
     } as Address;
   }
 
   private saveAddressData(payload: Address, isEdit: boolean): void {
-    const request$ = isEdit && payload.id
-      ? this.userService.updateAddress(payload.id, payload)
-      : this.userService.addAddress(payload);
+    const request$ =
+      isEdit && payload.id
+        ? this.userService.updateAddress(payload.id, payload)
+        : this.userService.addAddress(payload);
 
-    request$.subscribe({
+    request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.showSuccess(`Address ${isEdit ? 'updated' : 'added'} successfully!`);
+        this.showSuccess(
+          `Address ${isEdit ? 'updated' : 'added'} successfully!`,
+        );
         this.getAddresses();
-        this.store.dispatch(UserActions.loadProfileReq()); 
+        this.store.dispatch(UserActions.loadProfileReq());
       },
-      error: (error: unknown) => this.showError(`Failed to ${isEdit ? 'update' : 'add'} address.`)
+      error: (error: unknown) =>
+        this.showError(`Failed to ${isEdit ? 'update' : 'add'} address.`),
     });
   }
 
@@ -94,14 +154,17 @@ export class AddressComponent implements OnInit {
 
     const dialogRef = this.dialog.open(GenericDialogComponent, {
       width: '600px',
-      data: dialogConfig
+      data: dialogConfig,
     });
 
-    dialogRef.afterClosed().subscribe((result: AddressFormResult | undefined) => {
-      if (!result) return;
-      const payload = this.formatAddressPayload(result, address);
-      this.saveAddressData(payload, !!address);
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result: AddressFormResult | undefined) => {
+        if (!result) return;
+        const payload = this.formatAddressPayload(result, address);
+        this.saveAddressData(payload, !!address);
+      });
   }
 
   openAddAddressDialog(): void {
@@ -113,29 +176,44 @@ export class AddressComponent implements OnInit {
   }
 
   markAsDefault(id: string): void {
-    this.userService.setDefaultAddress(id).subscribe({
-      next: () => {
-        this.showSuccess('Default address updated!');
-        this.getAddresses();
-        this.store.dispatch(UserActions.loadProfileReq()); 
-      },
-      error: (error: unknown) => this.showError('Error updating default address.')
-    })
+    this.userService
+      .setDefaultAddress(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.showSuccess('Default address updated!');
+          this.getAddresses();
+          this.store.dispatch(UserActions.loadProfileReq());
+        },
+        error: (error: unknown) =>
+          this.showError('Error updating default address.'),
+      });
   }
 
   deleteAddress(id: string): void {
-    this.confirmDialog.confirm('Are you sure you want to delete this address?', 'Delete', 'Cancel').subscribe((confirmed) => {
-      if (confirmed) {
-      this.userService.deleteAddress(id).subscribe({
-        next: () => {
-          this.showSuccess('Address deleted successfully!');
-          this.getAddresses();
-          this.store.dispatch(UserActions.loadProfileReq()); 
-        },
-        error: (error: unknown) => this.showError('Error deleting address.')
+    this.confirmDialog
+      .confirm(
+        'Are you sure you want to delete this address?',
+        'Delete',
+        'Cancel',
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.userService
+            .deleteAddress(id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                this.showSuccess('Address deleted successfully!');
+                this.getAddresses();
+                this.store.dispatch(UserActions.loadProfileReq());
+              },
+              error: (error: unknown) =>
+                this.showError('Error deleting address.'),
+            });
+        }
       });
-      }
-    });
   }
 
   private showSuccess(message: string): void {

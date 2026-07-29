@@ -68,4 +68,10 @@ export class UserService {
     );
   }
 
+  // Admin: Fetch all users
+  getAllUsers(): Observable<any[]> {
+    const url = `${environment.apiBaseUrl}/admin/users`;
+    return this.http.get<any[]>(url);
+  }
+
 }

@@ -6,6 +6,7 @@ export interface FieldConfig {
     | 'number'
     | 'email'
     | 'password'
+    | 'tel'
     | 'select'
     | 'radio'
     | 'checkbox';

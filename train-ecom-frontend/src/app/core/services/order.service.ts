@@ -24,4 +24,9 @@ export class OrderService {
   getOrderHistory(): Observable<OrderListItem[]> {
     return this.http.get<OrderListItem[]>(this.baseAPI);
   }
+
+  // Admin: Fetch all orders (across all users)
+  getAllOrders(): Observable<OrderListItem[]> {
+    return this.http.get<OrderListItem[]>(`${this.baseAPI}/all`);
+  }
 }

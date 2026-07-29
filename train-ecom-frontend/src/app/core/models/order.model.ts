@@ -1,7 +1,7 @@
 export enum PaymentMethod {
   CashOnDelivery = 'CashOnDelivery',
   Card = 'Card',
-  UPI = 'UPI'
+  UPI = 'UPI',
 }
 
 export enum OrderStatus {
@@ -9,13 +9,13 @@ export enum OrderStatus {
   Processing = 'Processing',
   Shipped = 'Shipped',
   Delivered = 'Delivered',
-  Cancelled = 'Cancelled'
+  Cancelled = 'Cancelled',
 }
 
 export enum PaymentStatus {
   Pending = 'Pending',
   Success = 'Success',
-  Failed = 'Failed'
+  Failed = 'Failed',
 }
 
 export interface CreateOrderRequest {
@@ -45,4 +45,11 @@ export interface OrderListItem {
   paymentMethod?: PaymentMethod;
   paymentStatus?: PaymentStatus;
   totalItems: number;
+}
+export interface CheckoutItem {
+  productId: string;
+  productName: string;
+  unitPrice: number;
+  quantity: number;
+  thumbnailUrl?: string;
 }

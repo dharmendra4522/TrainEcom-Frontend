@@ -76,7 +76,7 @@ export class CartComponent implements OnInit {
       'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
       'Delete',
       'Cancel',
-    ).subscribe((confirmed) => {
+    ).pipe(take(1)).subscribe((confirmed) => {
       if (confirmed) {
         this.removeItem(productId, false);
       }
@@ -133,7 +133,7 @@ export class CartComponent implements OnInit {
           `Are you sure you want to remove "${item.productName || 'this item'}" from your cart?`,
           'Remove',
           'Cancel',
-        ).subscribe((confirmed) => {
+        ).pipe(take(1)).subscribe((confirmed) => {
           if (confirmed) {
             this.dispatchRemoveItem(item);
           }

@@ -1,0 +1,10 @@
+.user-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .w-md-50 {
+    max-width: 400px;
+  }
+}

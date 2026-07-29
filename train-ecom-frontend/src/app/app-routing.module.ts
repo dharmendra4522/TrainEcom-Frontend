@@ -78,6 +78,20 @@ const routes: Routes = [
                 (m) => m.CategoryModule,
               ),
           },
+          {
+            path: 'users',
+            loadChildren: () =>
+              import('./features/admin-users/admin-users.module').then(
+                (m) => m.AdminUsersModule,
+              ),
+          },
+          {
+            path: 'orders',
+            loadChildren: () =>
+              import('./features/admin-orders/admin-orders.module').then(
+                (m) => m.AdminOrdersModule,
+              ),
+          },
         ],
       },
       {
