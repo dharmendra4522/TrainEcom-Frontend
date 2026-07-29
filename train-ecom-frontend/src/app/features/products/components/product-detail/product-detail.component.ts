@@ -12,6 +12,7 @@ import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.s
 import { Observable, of, Subject } from 'rxjs';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
+import { CartProductDetails } from '../../../../core/models/cart.model';
 
 import {
   selectProductById,
@@ -162,11 +163,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const productId = this.product.id.toString();
 
     // Product object pass kiya hai taaki guest user ke liye local storage mein details save ho sakein
-    const productDetails: Record<string, unknown> = {
+    const productDetails: CartProductDetails = {
       productName: this.product.name,
       unitPrice: this.product.price,
       thumbnailUrl: this.selectedImageUrl || this.product.thumbnailUrl,
-      stockQuantity: this.product.stockQuantity,
     };
     this.store.dispatch(
       CartActions.addToCart({

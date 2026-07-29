@@ -75,11 +75,12 @@ export class CategoryComponent implements OnInit, OnDestroy {
     );
   }
 
-  handleTableAction(event: TableActionEvent<Category>): void {
+  handleTableAction(event: TableActionEvent): void {
+    const category = event.row as Category;
     if (event.action === 'edit') {
-      this.openCategoryDialog(event.row);
+      this.openCategoryDialog(category);
     } else if (event.action === 'delete') {
-      this.deleteCategory(event.row.id);
+      this.deleteCategory(category.id);
     }
   }
 

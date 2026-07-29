@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
 import { map, startWith, take, takeUntil } from 'rxjs/operators';
@@ -115,7 +115,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.activeSort = sort;
   }
  
-  private filterProductsList(products: Product[], params: any, minPrice: number | null, maxPrice: number | null, rating: number | null): Product[] {
+  private filterProductsList(products: Product[], params: Params, minPrice: number | null, maxPrice: number | null, rating: number | null): Product[] {
     const brand = params['brand']?.toLowerCase().trim();
     const category = params['category']?.toLowerCase().trim();
  
@@ -130,7 +130,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       const matchesMaxPrice = maxPrice !== null ? product.price <= maxPrice : true;
  
       const numId = Number(product.id) || 0;
-      const prodRating = (product as any).rating || (4.0 + (numId % 10) / 10.0);
+      const prodRating = product.rating || (4.0 + (numId % 10) / 10.0);
       const matchesRating = rating !== null ? prodRating >= rating : true;
  
       return matchesBrand && matchesCategory && matchesMinPrice && matchesMaxPrice && matchesRating;

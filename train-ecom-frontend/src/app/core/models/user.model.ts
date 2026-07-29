@@ -32,3 +32,13 @@ export interface UpdateProfilePayload {
     newPassword?: string;
     confirmPassword?: string;
 }
+
+export interface AdminUser extends Record<string, unknown> {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    role: string;
+    isActive?: boolean;
+    createdAt?: string;
+}

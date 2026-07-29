@@ -5,16 +5,7 @@ import { TableColumn, TableAction, TableActionEvent } from '../../../../core/mod
 import { Subject, BehaviorSubject, combineLatest } from 'rxjs';
 import { startWith, debounceTime, distinctUntilChanged, map, takeUntil, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../../core/services/notification.service';
-
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  isActive?: boolean;
-  createdAt?: string;
-}
+import { AdminUser } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-management',
@@ -98,10 +89,11 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     this.totalRecords = this.filteredUsers.length;
   }
 
-  handleTableAction(event: TableActionEvent<AdminUser>): void {
+  handleTableAction(event: TableActionEvent): void {
+    const user = event.row as AdminUser;
     if (event.action === 'view') {
       // Future: open a detail dialog or navigate
-      this.notification.showSuccess(`Viewing user: ${event.row.name}`, 'Close');
+      this.notification.showSuccess(`Viewing user: ${user.name}`, 'Close');
     }
   }
 

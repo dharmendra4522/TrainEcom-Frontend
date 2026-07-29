@@ -17,7 +17,7 @@ import {
 } from '../../../core/store/auth/auth.selectors';
 import { take, takeUntil } from 'rxjs/operators';
 import { NotificationService } from '../../../core/services/notification.service';
-import { CartItem } from '../../../core/models/cart.model';
+import { CartItem, CartProductDetails } from '../../../core/models/cart.model';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
 import { Actions, ofType } from '@ngrx/effects';
@@ -29,7 +29,7 @@ import { ConfirmDialogServiceService } from '../../../core/services/confirm-dial
 
 export interface SidePanelItem {
   id: string;
-  productId: string;
+  productId?: string;
   productName?: string;
   name: string;
   unitPrice?: number;
@@ -182,7 +182,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   get getTotalPrice(): number {
-    return this.items.reduce((sum: number, item: any) => {
+    return this.items.reduce((sum: number, item: SidePanelItem) => {
       const price = item.price || item.unitPrice || 0;
       const quantity = item.quantity || 1;
       return sum + price * quantity;
@@ -191,7 +191,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   get totalQuantity(): number {
     return this.items.reduce(
-      (sum: number, item: any) => sum + (item.quantity || 1),
+      (sum: number, item: SidePanelItem) => sum + (item.quantity || 1),
       0,
     );
   }
@@ -262,8 +262,8 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     action: 'add' | 'subtract';
   }): void {
     if (this.type !== 'Cart') return;
-    const item: any = this.items.find(
-      (i: any) => i.id === event.id || i.productId === event.id,
+    const item: SidePanelItem | undefined = this.items.find(
+      (i: SidePanelItem) => i.id === event.id || i.productId === event.id,
     );
     if (!item) return;
 
@@ -291,7 +291,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  private verifyStockAndUpdateQuantity(item: any, newQty: number): void {
+  private verifyStockAndUpdateQuantity(item: SidePanelItem, newQty: number): void {
     const productId = item.productId || item.id;
     this.store.dispatch(
       ProductActions.loadProductById({ id: productId.toString() }),
@@ -328,13 +328,13 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     );
   }
 
-  handleMoveToCart(item: any): void {
+  handleMoveToCart(item: SidePanelItem): void {
     if (this.type !== 'WishList') return;
 
     const productId = item.productId || item.id;
     if (!productId) return;
 
-    const productDetails: Record<string, unknown> = {
+    const productDetails: CartProductDetails = {
       productName: item.productName || item.name,
       unitPrice: item.unitPrice || item.price,
       thumbnailUrl: item.thumbnailUrl || item.image,

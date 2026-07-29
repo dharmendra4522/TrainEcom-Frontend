@@ -26,6 +26,8 @@ import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { DialogData } from '../../../../core/models/dialog.model';
 import { CheckoutItem } from '../../../../core/models/order.model';
 
+type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
+
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -69,6 +71,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // Load user addresses and set the default or first address as selected
   private loadUserAddresses(): void {
     this.userService
       .getAllAddress()
@@ -91,6 +94,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+
+  // Parse route parameters to determine if it's a direct buy or cart checkout and load the appropriate details
   private parseRouteParamsAndSetContext(): void {
     this.route.queryParamMap
       .pipe(takeUntil(this.destroy$))
@@ -111,6 +116,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+
+  // Load product details for direct buy and set the checkout items and subtotal
   private loadDirectProductDetails(productId: string, quantity: number): void {
     this.store.dispatch(ProductActions.loadProductById({ id: productId }));
 
@@ -150,6 +157,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([items, total]) => {
         this.checkoutItems = (items || []).map((item) => ({
+          itemId: item.itemId,
           productId: item.productId,
           productName: item.productName,
           unitPrice: item.unitPrice,
@@ -161,6 +169,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Calculate shipping cost and grand total based on subtotal
   private calculateTotals(): void {
     this.shippingCost = this.subtotal > 999 ? 0 : 99;
     this.grandTotal = this.subtotal + this.shippingCost;
@@ -174,80 +183,115 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.paymentMethods = method;
   }
 
+
+  // Open a dialog to add a new address and handle the submission to update the user's address list
   openAddNewAddressDialog(): void {
-    const dialogData: DialogData = {
-      title: 'Add New Address',
-      fields: [
-        { key: 'fullName', label: 'Full Name', type: 'text', required: true },
-        {
-          key: 'phone',
-          label: 'Phone Number',
-          type: 'text',
-          required: true,
-          maxLength: 10,
-          validation: [Validators.pattern(/^\d{10}$/)],
-        },
-        {
-          key: 'addressLine1',
-          label: 'Street Address / Suite',
-          type: 'text',
-          required: true,
-        },
-        {
-          key: 'addressLine2',
-          label: 'Apartment, landmark (optional)',
-          type: 'text',
-        },
-        { key: 'city', label: 'City', type: 'text', required: true },
-        { key: 'state', label: 'State', type: 'text', required: true },
-        { key: 'country', label: 'Country', type: 'text', required: true },
-        {
-          key: 'postalCode',
-          label: 'Postal Code / PIN',
-          type: 'text',
-          required: true,
-          maxLength: 6,
-          validation: [Validators.pattern(/^\d{6}$/)],
-        },
-        {
-          key: 'isDefault',
-          label: 'Set as Default Address',
-          type: 'checkbox',
-        },
-      ],
-      submitButtonText: 'Add Address',
-    };
+    const dialogData = this.getAddressDialogConfig();
 
     this.dialog
       .open(GenericDialogComponent, {
-        width: '500px',
+        width: '550px',
         data: dialogData,
       })
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
+      .subscribe((result: AddressFormResult | undefined) => {
         if (result) {
-          this.userService
-            .addAddress(result)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (newAddress: Address) => {
-                this.notification.showSuccess(
-                  'Address added successfully',
-                  'Close',
-                );
-                this.loadUserAddresses();
-                if (newAddress && newAddress.id) {
-                  this.selectedAddressid = newAddress.id;
-                }
-              },
-              error: (err) => {
-                console.error('Error adding address:', err);
-                this.notification.showError('Failed to add address', 'Close');
-              },
-            });
+          this.handleAddressSubmission(result);
         }
       });
+  }
+
+  private getAddressDialogConfig(): DialogData {
+    return {
+      title: 'Add New Address',
+      fields: [
+        {
+          key: 'fullName',
+          label: 'Full Name',
+          type: 'text',
+          validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+        },
+        {
+          key: 'phone',
+          label: 'Phone Number',
+          type: 'text',
+          maxLength: 10,
+          validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
+        },
+        {
+          key: 'addressLine1',
+          label: 'Address Line 1',
+          type: 'text',
+          validation: [Validators.required],
+        },
+        {
+          key: 'addressLine2',
+          label: 'Address Line 2 (Optional)',
+          type: 'text',
+        },
+        { key: 'city', label: 'City', type: 'text', validation: [Validators.required] },
+        { key: 'state', label: 'State', type: 'text', validation: [Validators.required] },
+        {
+          key: 'postalCode',
+          label: 'Postal Code',
+          type: 'text',
+          maxLength: 6,
+          validation: [Validators.required],
+        },
+      ],
+      submitButtonText: 'Save Address',
+    };
+  }
+
+  private mapFormResultToAddress(result: AddressFormResult): Address {
+    return {
+      ...result,
+      id: '',
+      phone: String(result.phone),
+      postalCode: String(result.postalCode),
+      country: 'India',
+      isDefault: false,
+    };
+  }
+
+  private handleAddressSubmission(result: AddressFormResult): void {
+    const address: Address = this.mapFormResultToAddress(result);
+
+    this.userService
+      .addAddress(address)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (newAddress: Address) => {
+          this.notification.showSuccess('Address added successfully', 'Close');
+          this.loadUserAddresses();
+          if (newAddress && newAddress.id) {
+            this.selectAddress(newAddress.id);
+          }
+        },
+        error: (err) => {
+          console.error('Error adding address:', err);
+          this.notification.showError('Failed to add address', 'Close');
+        },
+      });
+  }
+
+  removeCheckoutItem(item: CheckoutItem): void {
+    if (this.isDirectBuy) {
+      this.checkoutItems = this.checkoutItems.filter(
+        (checkoutItem) => checkoutItem.productId !== item.productId,
+      );
+      this.subtotal = this.checkoutItems.reduce(
+        (total, checkoutItem) => total + checkoutItem.unitPrice * checkoutItem.quantity,
+        0,
+      );
+      this.calculateTotals();
+      return;
+    }
+
+    this.store.dispatch(
+      CartActions.deleteCartItem({ itemId: item.itemId || item.productId }),
+    );
   }
 
   onPlaceOrder(): void {

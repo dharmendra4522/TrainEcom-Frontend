@@ -111,7 +111,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  onRowClick(product: Product): void {
+  onRowClick(row: Record<string, unknown>): void {
+    const product = row as Product;
     this.router.navigate(['/admin/products/view', product.id]);
   }
 
@@ -137,13 +138,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.fetchProducts();
   }
 
-  handleTableAction(event: TableActionEvent<Product>): void {
+  handleTableAction(event: TableActionEvent): void {
+    const product = event.row as Product;
     if (event.action === 'edit') {
-      this.router.navigate(['/admin/products/edit', event.row.id]);
+      this.router.navigate(['/admin/products/edit', product.id]);
     } else if (event.action === 'delete') {
-      this.deleteProduct(event.row.id.toString());
+      this.deleteProduct(product.id.toString());
     } else if (event.action === 'view') {
-      this.router.navigate(['/admin/products/view', event.row.id]);
+      this.router.navigate(['/admin/products/view', product.id]);
     }
   }
 

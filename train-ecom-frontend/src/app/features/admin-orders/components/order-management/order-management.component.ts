@@ -91,9 +91,10 @@ export class OrderManagementComponent implements OnInit, OnDestroy {
     this.totalRecords = this.filteredOrders.length;
   }
 
-  handleTableAction(event: TableActionEvent<OrderListItem>): void {
+  handleTableAction(event: TableActionEvent): void {
+    const order = event.row as OrderListItem;
     if (event.action === 'view') {
-      this.notification.showSuccess(`Viewing order: ${event.row.orderId}`, 'Close');
+      this.notification.showSuccess(`Viewing order: ${order.orderId}`, 'Close');
     }
   }
 

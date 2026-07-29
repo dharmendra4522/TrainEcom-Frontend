@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Address, UserProfile, UpdateProfilePayload } from '../models/user.model';
+import { Address, AdminUser, UserProfile, UpdateProfilePayload } from '../models/user.model';
 import { Observable, of, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -69,9 +69,9 @@ export class UserService {
   }
 
   // Admin: Fetch all users
-  getAllUsers(): Observable<any[]> {
+  getAllUsers(): Observable<AdminUser[]> {
     const url = `${environment.apiBaseUrl}/admin/users`;
-    return this.http.get<any[]>(url);
+    return this.http.get<AdminUser[]>(url);
   }
 
 }

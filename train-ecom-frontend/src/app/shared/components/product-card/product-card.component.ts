@@ -16,6 +16,8 @@ import { Observable } from 'rxjs/internal/Observable';
 import * as WishlistActions from '../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems } from '../../../core/store/wish-list/wishList.selectors';
 import * as CartActions from '../../../core/store/cart/cart.actions';
+import { CartProductDetails } from '../../../core/models/cart.model';
+import { WishListItem } from '../../../core/models/wishList.model';
 
 @Component({
   selector: 'app-product-card',
@@ -47,10 +49,10 @@ export class ProductCardComponent implements OnInit {
     const productId = this.product.id.toString();
 
     this.isFavorite$ = this.store.select(selectWishlistItems).pipe(
-      map((items: any[]) => {
+      map((items: WishListItem[]) => {
         if (!items) return false;
         return items.some(
-          (item: any) => (item.productId || item.id).toString() === productId,
+          (item: WishListItem) => (item.productId || item.id).toString() === productId,
         );
       }),
     );
@@ -85,11 +87,10 @@ export class ProductCardComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    const productDetails: Record<string, unknown> = {
+    const productDetails: CartProductDetails = {
       productName: product.name,
       unitPrice: product.price,
       thumbnailUrl: product.thumbnailUrl,
-      stockQuantity: product.stockQuantity,
     };
     this.store.dispatch(
       CartActions.addToCart({

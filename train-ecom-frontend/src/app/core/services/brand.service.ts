@@ -15,9 +15,9 @@ export class BrandService {
   constructor() { }
 
   getAllBrands(): Observable<Brand[]> {
-    return this.http.get<any>(`${this.baseApi}/all`).pipe(
-      catchError(() => this.http.get<any>(this.baseApi)),
-      catchError(() => this.http.get<any>(`${this.baseApi}/getAll`)),
+    return this.http.get<Brand[] | PaginatedBrandResponse>(`${this.baseApi}/all`).pipe(
+      catchError(() => this.http.get<Brand[] | PaginatedBrandResponse>(this.baseApi)),
+      catchError(() => this.http.get<Brand[] | PaginatedBrandResponse>(`${this.baseApi}/getAll`)),
       map((response) => Array.isArray(response) ? response : response?.items || [])
     );
   }

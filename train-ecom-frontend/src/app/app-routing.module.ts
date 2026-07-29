@@ -6,6 +6,7 @@ import { AuthLayoutComponent } from './shared/layouts/auth-layout/auth-layout.co
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { publicGuard } from './core/guards/public.guard';
+import { guestOrCustomerGuard } from './core/guards/guest-or-customer.guard';
 
 const routes: Routes = [
   {
@@ -15,6 +16,7 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
+        canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
           import('./features/home/home.module').then((m) => m.HomeModule),
       },
@@ -28,6 +30,7 @@ const routes: Routes = [
 
       {
         path: 'products',
+        canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
           import('./features/products/products.module').then(
             (m) => m.ProductsModule,

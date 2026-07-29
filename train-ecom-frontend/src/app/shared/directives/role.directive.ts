@@ -8,7 +8,7 @@ import { selectUserRole } from '../../core/store/auth/auth.selectors';
 })
 export class RoleDirective {
 
-  private templateRef = inject(TemplateRef<any>);
+  private templateRef = inject(TemplateRef<unknown>);
   private viewContainer = inject(ViewContainerRef);
   private store = inject(Store);
 

@@ -12,7 +12,7 @@ export class GenericTableComponent {
 
 
   @Input() isLoading: boolean = false;
-  @Input() data: any[] = [];
+  @Input() data: Record<string, unknown>[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];
   @Input() showIndex: boolean = true;
@@ -25,10 +25,10 @@ export class GenericTableComponent {
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
 
 
-  @Output() actionClick = new EventEmitter<TableActionEvent<any>>();
+  @Output() actionClick = new EventEmitter<TableActionEvent>();
 
   @Output() pageChange = new EventEmitter<PageEvent>();
-  @Output() rowClick = new EventEmitter<any>();
+  @Output() rowClick = new EventEmitter<Record<string, unknown>>();
 
   get displayedColumns(): string[] {
     const cols: string[] = [];
@@ -44,7 +44,7 @@ export class GenericTableComponent {
     return cols;
   }
 
-  onActionClick(actionKey: string, row: any): void {
+  onActionClick(actionKey: string, row: Record<string, unknown>): void {
     this.actionClick.emit({ action: actionKey, row });
   }
 
@@ -52,7 +52,7 @@ export class GenericTableComponent {
     this.pageChange.emit(event);
   }
 
-  onRowClick(row: any, event: MouseEvent): void {
+  onRowClick(row: Record<string, unknown>, event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if(target.closest('.action-btn')) {
       return;

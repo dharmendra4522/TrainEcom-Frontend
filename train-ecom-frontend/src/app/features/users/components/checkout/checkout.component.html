@@ -111,7 +111,7 @@
           <mat-card-content class="pt-2">
             <div class="checkout-items-list overflow-auto mb-4 pe-1 custom-scrollbar" style="max-height: 260px;">
               <div
-                class="d-flex align-items-center gap-3 py-2 border-bottom last-border-none"
+                class="checkout-item d-flex align-items-center gap-3 py-3 border-bottom last-border-none"
                 *ngFor="let item of checkoutItems">
                 <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center">
                   <img
@@ -123,7 +123,13 @@
                   <h6 class="fw-bold text-dark text-truncate m-0">{{ item.productName }}</h6>
                   <small class="text-secondary">Quantity: {{ item.quantity }}</small>
                 </div>
-                <div class="text-end fw-bold text-dark">₹{{ item.unitPrice | number:'1.2-2' }}</div>
+                <div class="checkout-item-actions text-end">
+                  <div class="fw-bold text-dark">₹{{ (item.unitPrice * item.quantity) | number:'1.2-2' }}</div>
+                  <button mat-button class="remove-item-btn" (click)="removeCheckoutItem(item)">
+                    <mat-icon>delete_outline</mat-icon>
+                    <span>Remove</span>
+                  </button>
+                </div>
               </div>
             </div>
 

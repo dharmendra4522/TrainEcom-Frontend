@@ -1,3 +1,5 @@
+import { ValidatorFn } from '@angular/forms';
+
 export interface FieldConfig {
   key: string;
   label: string;
@@ -10,8 +12,8 @@ export interface FieldConfig {
     | 'select'
     | 'radio'
     | 'checkbox';
-  validation?: any[];
-  value?: any;
+  validation?: ValidatorFn[];
+  value?: string | number | boolean;
   maxLength?: number;
   required?: boolean;
   options?: SelectOption[];

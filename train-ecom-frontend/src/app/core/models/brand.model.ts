@@ -1,4 +1,4 @@
-export interface Brand {
+export interface Brand extends Record<string, unknown> {
   id: string;
   name: string;
   description: string;

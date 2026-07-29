@@ -7,6 +7,13 @@ export interface CartItem {
     thumbnailUrl?: string;
 }
 
+export interface CartProductDetails {
+    productName: string;
+    unitPrice: number;
+    thumbnailUrl?: string;
+    image?: string;
+}
+
 export interface CartWarning {
     productId: string;
     productName: string;

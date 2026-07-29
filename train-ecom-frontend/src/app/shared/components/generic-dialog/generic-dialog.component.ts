@@ -22,7 +22,7 @@ export class GenericDialogComponent {
   }
 
   buildDynamicForm(): void {
-    const group: any = {};
+    const group: Record<string, unknown> = {};
     this.data.fields.forEach(field => {
       let defaultValue = field.value !== undefined ? field.value : (field.type === 'checkbox' ? false : '');
       let validations = field.validation || [];

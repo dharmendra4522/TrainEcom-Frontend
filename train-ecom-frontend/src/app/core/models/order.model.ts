@@ -37,7 +37,7 @@ export interface CreateOrderResponse {
   paymentStatus: PaymentStatus;
 }
 
-export interface OrderListItem {
+export interface OrderListItem extends Record<string, unknown> {
   orderId: string;
   orderDate: string;
   totalAmount: number;
@@ -47,6 +47,7 @@ export interface OrderListItem {
   totalItems: number;
 }
 export interface CheckoutItem {
+  itemId?: string;
   productId: string;
   productName: string;
   unitPrice: number;

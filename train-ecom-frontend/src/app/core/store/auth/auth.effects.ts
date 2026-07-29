@@ -9,7 +9,7 @@ import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { Role } from '../../models/app.model';
-import { BackendError } from '../../models/auth.model';
+import { BackendError, UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { CartService } from '../../services/cart.service';
 import { UserService } from '../../services/user.service';
@@ -78,7 +78,7 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(({ payload, isRefresh }: any) => {
+        tap(({ payload, isRefresh }: { payload: UserSessionPayload; isRefresh?: boolean }) => {
           if (isRefresh) {
             return;
           }
@@ -146,13 +146,14 @@ export class AuthEffects {
 
   private decodeRole(token: string): Role | null {
     try {
-      const decoded: any = jwtDecode(token);
+      const decoded = jwtDecode<Record<string, unknown>>(token);
       const roleKey =
         'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
       const rawRole = decoded[roleKey];
-      console.log('Decoded Raw Role:', rawRole);
-      return rawRole ? (rawRole as Role) : null;
+      const role = Array.isArray(rawRole) ? rawRole[0] : rawRole;
+      console.log('Decoded Raw Role:', role);
+      return typeof role === 'string' ? (role as Role) : null;
     } catch (error) {
       console.error('Token decoding failed:', error);
       return null;

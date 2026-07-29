@@ -60,11 +60,12 @@ export class BrandComponent implements OnInit {
     },
   ];
 
-  handleTableAction(event: TableActionEvent<Brand>): void {
+  handleTableAction(event: TableActionEvent): void {
+    const brand = event.row as Brand;
     if (event.action === 'edit') {
-      this.openBrandDialog(event.row);
+      this.openBrandDialog(brand);
     } else if (event.action === 'delete') {
-      this.deleteBrand(event.row.id);
+      this.deleteBrand(brand.id);
     }
   }
 

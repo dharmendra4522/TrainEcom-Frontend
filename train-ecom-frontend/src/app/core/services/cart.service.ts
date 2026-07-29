@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs/internal/Observable';
 import { HttpClient } from '@angular/common/http';
-import { CartItem, CartResponse } from '../models/cart.model';
+import { CartItem, CartProductDetails, CartResponse } from '../models/cart.model';
 import { NotificationService } from './notification.service';
 import { Store } from '@ngrx/store';
 import { of, take, tap } from 'rxjs';
@@ -89,7 +89,7 @@ export class CartService {
     this.store.dispatch(CartActions.loadCart());
   }
 
-  addToCart(productId: string, quantity: number, productDetails?: Record<string, unknown>): Observable<CartResponse> {
+  addToCart(productId: string, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
       const existing = items.find((i: CartItem) => i.productId.toString() === productId.toString());
@@ -98,10 +98,10 @@ export class CartService {
       } else {
         const newItem: CartItem = {
           productId: productId,
-          productName: productDetails?.['productName'] as string || 'Unknown Product',
-          unitPrice: productDetails?.['unitPrice'] as number || 0,
+          productName: productDetails?.productName || 'Unknown Product',
+          unitPrice: productDetails?.unitPrice || 0,
           quantity: quantity,
-          thumbnailUrl: (productDetails?.['thumbnailUrl'] as string) || (productDetails?.['image'] as string) || '',
+          thumbnailUrl: productDetails?.thumbnailUrl || productDetails?.image || '',
         }
         items.push(newItem);
       }

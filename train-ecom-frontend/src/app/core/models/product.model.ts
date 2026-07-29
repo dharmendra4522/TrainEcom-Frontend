@@ -4,7 +4,7 @@ export interface ProductImage {
   isPrimary: boolean;
 }
 
-export interface Product {
+export interface Product extends Record<string, unknown> {
   id: string | number;
   name: string;
   description: string;
@@ -15,6 +15,7 @@ export interface Product {
   categoryName: string;
   stockQuantity?: number;
   thumbnailUrl?: string;
+  rating?: number;
   images: ProductImage[];
 }
 
