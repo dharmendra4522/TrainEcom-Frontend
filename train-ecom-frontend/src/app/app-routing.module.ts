@@ -38,9 +38,21 @@ const routes: Routes = [
       },
 
       {
+        path: 'cart',
+        canActivate: [guestOrCustomerGuard],
+        loadChildren: () =>
+          import('./features/cart/cart.module').then((m) => m.CartModule),
+      },
+      {
         path: 'checkout',
-        redirectTo: 'account/checkout',
-        pathMatch: 'full',
+        canActivate: [guestOrCustomerGuard],
+        loadChildren: () =>
+          import('./features/checkout/checkout.module').then((m) => m.CheckoutModule),
+      },
+      {
+        path: 'orders',
+        loadChildren: () =>
+          import('./features/orders/orders.module').then((m) => m.OrdersModule),
       },
 
       {
@@ -83,17 +95,13 @@ const routes: Routes = [
           },
           {
             path: 'users',
-            loadChildren: () =>
-              import('./features/admin-users/admin-users.module').then(
-                (m) => m.AdminUsersModule,
-              ),
+            redirectTo: '/account/manage',
+            pathMatch: 'full'
           },
           {
             path: 'orders',
-            loadChildren: () =>
-              import('./features/admin-orders/admin-orders.module').then(
-                (m) => m.AdminOrdersModule,
-              ),
+            redirectTo: '/orders/manage',
+            pathMatch: 'full'
           },
         ],
       },

@@ -7,20 +7,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../shared/shared.module';
 import { ProfileComponent } from './components/profile/profile.component';
 import { WishlistComponent } from './components/wishlist/wishlist.component';
-import { CartComponent } from './components/cart/cart.component';
-import { CheckoutComponent } from './components/checkout/checkout.component';
-import { CheckoutSuccessComponent } from './components/checkout-success/checkout-success.component';
-import { OrderHistoryComponent } from './components/order-history/order-history.component';
-
+import { UserManagementComponent } from './components/user-management/user-management.component';
 @NgModule({
   declarations: [
     AddressComponent,
     ProfileComponent,
     WishlistComponent,
-    CartComponent,
-    CheckoutComponent,
-    CheckoutSuccessComponent,
-    OrderHistoryComponent,
+    UserManagementComponent
   ],
   imports: [
     CommonModule,

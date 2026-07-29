@@ -72,7 +72,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       if (!this.isDirectBuy && (!this.checkoutItems || this.checkoutItems.length === 0)) {
         this.notification.showError('No items in cart to checkout.');
-        this.router.navigate(['/account/cart'], { replaceUrl: true });
+        this.router.navigate(['/cart'], { replaceUrl: true });
         
       }
     }, 500);
@@ -408,7 +408,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.store.dispatch(CartActions.clearCart());
     }
     this.notification.showSuccess('Order placed successfully!');
-    this.router.navigate(['/account/checkout-success'], {
+    this.router.navigate(['/checkout/success'], {
       queryParams: { orderId: response.orderId },
       replaceUrl: true,
     });

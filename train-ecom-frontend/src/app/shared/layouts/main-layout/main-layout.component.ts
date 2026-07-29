@@ -40,8 +40,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Categories', icon: 'category', route: '/admin/categories' },
-    { label: 'Manage Users', icon: 'people', route: '/admin/users' },
-    { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
+    { label: 'Manage Users', icon: 'people', route: '/account/manage' },
+    { label: 'Manage Orders', icon: 'shopping_cart', route: '/orders/manage' },
 
   ];
 
@@ -49,8 +49,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'My Profile', icon: 'person', route: '/account/profile' },
     { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
     { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
-    { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
-    { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
+    { label: 'My Cart', icon: 'shopping_cart', route: '/cart' },
+    { label: 'My Orders', icon: 'shopping_bag', route: '/orders/history' },
   ];
 
   isMobile$: Observable<boolean> = this.breakpointObserver
@@ -86,7 +86,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   private checkAccountRoute(url: string): void {
-    this.isAccountRoute = url.includes('/account');
+    this.isAccountRoute = url.includes('/account') || 
+                          url.includes('/cart') || 
+                          url.includes('/checkout') || 
+                          url.includes('/orders');
   }
 
   private checkDetailsRoute(url: string): void {
