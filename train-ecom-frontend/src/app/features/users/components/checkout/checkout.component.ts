@@ -12,7 +12,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs/internal/Subject';
 import { Address } from '../../../../core/models/user.model';
-import { switchMap, takeUntil, of, combineLatest } from 'rxjs';
+import { switchMap, takeUntil, of, combineLatest, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectProductById } from '../../../../core/store/product/product.selectors';
@@ -64,6 +64,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadUserAddresses();
     this.parseRouteParamsAndSetContext();
+    this.validateRouteParams();
+  }
+
+  // validate routes 
+  private validateRouteParams(): void {
+    setTimeout(() => {
+      if (!this.isDirectBuy && (!this.checkoutItems || this.checkoutItems.length === 0)) {
+        this.notification.showError('No items in cart to checkout.');
+        this.router.navigate(['/account/cart'], { replaceUrl: true });
+        
+      }
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -124,7 +136,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
-
   // Parse route parameters to determine if it's a direct buy or cart checkout and load the appropriate details
   private parseRouteParamsAndSetContext(): void {
     this.route.queryParamMap
@@ -145,7 +156,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         }
       });
   }
-
 
   // Load product details for direct buy and set the checkout items and subtotal
   private loadDirectProductDetails(productId: string, quantity: number): void {
@@ -201,8 +211,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // Calculate shipping cost and grand total based on subtotal
   private calculateTotals(): void {
-    this.shippingCost = this.subtotal > 999 ? 0 : 99;
-    this.grandTotal = this.subtotal + this.shippingCost;
+    this.shippingCost = 0;
+    this.grandTotal = this.subtotal;
   }
 
   selectAddress(addressId: string): void {
@@ -212,7 +222,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   selectPaymentMethod(method: PaymentMethod): void {
     this.paymentMethods = method;
   }
-
 
   // Open a dialog to add a new address and handle the submission to update the user's address list
   openAddNewAddressDialog(): void {
@@ -321,6 +330,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     );
   }
 
+  // validate and place the order based on the selected payment method (COD or Online)
   onPlaceOrder(): void {
     if (!this.selectedAddressid) {
       this.notification.showError('Please select a shipping address');
@@ -334,58 +344,80 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
 
+    if (this.paymentMethods === PaymentMethod.UPI || this.paymentMethods === PaymentMethod.Card) {
+      this.handleOnlinePaymentOrder();
+    } else {
+      this.handleCashOnDeliveryOrder();
+    }
+  }
+
+  // Helper 1: Handle Online Payment Simulation and Order Placement
+  private handleOnlinePaymentOrder(): void {
+    const simulationPayload = {
+      paymentMethod: this.paymentMethods,
+      amount: this.grandTotal,
+    };
+
+    this.orderService.simulateOnlinePayment(simulationPayload).pipe(
+      takeUntil(this.destroy$),
+      switchMap((simResponse) => {
+        const transactionId = simResponse.transactionId;
+        return this.executeOrderPlacement(transactionId);
+      })
+    ).subscribe({
+      next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
+      error: (err) => this.onOrderError(err?.error?.message || 'Payment simulation or order placement failed'),
+    });
+  }
+
+  // Helper 2: Handle Cash on Delivery (COD) Order Placement
+  private handleCashOnDeliveryOrder(): void {
+    this.executeOrderPlacement().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
+      error: (err) => this.onOrderError(err?.error?.message || 'Order placement failed'),
+    });
+  }
+
+  // Helper 3: Common Order Execution Observable (Direct Buy vs Cart Checkout)
+  private executeOrderPlacement(transactionId?: string): Observable<CreateOrderResponse> {
     if (this.isDirectBuy && this.directProductId) {
-      const payload: BuyNowRequest = {
-        addressId: this.selectedAddressid,
+      const buyNowPayload: BuyNowRequest = {
+        addressId: this.selectedAddressid as string,
         productId: this.directProductId,
         quantity: this.directQty ?? 1,
         paymentMethod: this.paymentMethods,
+        transactionId: transactionId,
       };
-
-      this.orderService
-        .placeDirectOrder(payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response: CreateOrderResponse) => {
-            this.isSubmitting = false;
-            this.notification.showSuccess('Order placed successfully!');
-            this.router.navigate(['/account/checkout-success'], {
-              queryParams: { orderId: response.orderId },
-            });
-          },
-          error: (err) => {
-            this.isSubmitting = false;
-            this.notification.showError(
-              err?.error?.message || 'Failed to place order',
-            );
-          },
-        });
+      return this.orderService.placeDirectOrder(buyNowPayload);
     } else {
-      const payload: CreateOrderRequest = {
-        addressId: this.selectedAddressid,
+      const cartOrderPayload: CreateOrderRequest = {
+        addressId: this.selectedAddressid as string,
         paymentMethod: this.paymentMethods,
+        transactionId: transactionId,
       };
-
-      this.orderService
-        .placeCartOrder(payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response: CreateOrderResponse) => {
-            this.isSubmitting = false;
-            this.store.dispatch(CartActions.clearCart());
-            this.notification.showSuccess('Order placed successfully!');
-            this.router.navigate(['/account/checkout-success'], {
-              queryParams: { orderId: response.orderId },
-            });
-          },
-          error: (err) => {
-            this.isSubmitting = false;
-            this.notification.showError(
-              err?.error?.message || 'Failed to place order',
-            );
-          },
-        });
+      return this.orderService.placeCartOrder(cartOrderPayload);
     }
+  }
+
+  // Helper 4: Success Handler
+  private onOrderSuccess(response: CreateOrderResponse): void {
+    this.isSubmitting = false;
+    if (!this.isDirectBuy) {
+      this.store.dispatch(CartActions.clearCart());
+    }
+    this.notification.showSuccess('Order placed successfully!');
+    this.router.navigate(['/account/checkout-success'], {
+      queryParams: { orderId: response.orderId },
+      replaceUrl: true,
+    });
+  }
+
+  // Helper 5: Error Handler
+  private onOrderError(errorMessage: string): void {
+    this.isSubmitting = false;
+    this.notification.showError(errorMessage);
   }
 
   goBack(): void {

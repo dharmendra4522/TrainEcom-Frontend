@@ -25,7 +25,7 @@ import { WishListItem } from '../../../core/models/wishList.model';
   styleUrl: './product-card.component.css',
 })
 export class ProductCardComponent implements OnInit {
-  private notificationService = inject(NotificationService);
+  private notification = inject(NotificationService);
   private store = inject(Store);
   private router = inject(Router);
 
@@ -100,4 +100,22 @@ export class ProductCardComponent implements OnInit {
       }),
     );
   }
+
+  
+  buyNow(): void {
+    if (!this.product?.id) {
+      this.notification.showError('Product information is not available');
+      return;
+    }
+    const productId = this.product.id.toString();
+
+    this.router.navigate(['/account/checkout'], {
+      queryParams: {
+        productId: productId,
+        quantity:1,
+      },
+    });
+  }
+
+
 }

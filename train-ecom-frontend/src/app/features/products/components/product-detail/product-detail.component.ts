@@ -1,3 +1,4 @@
+import { OrderService } from './../../../../core/services/order.service';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../../../../core/models/product.model';
@@ -32,6 +33,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private notification = inject(NotificationService);
   private location = inject(Location);
+  private OrderService = inject(OrderService);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
@@ -206,10 +208,18 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   buyNow(): void {
-    this.notification.showSuccess(
-      `Proceeding to buy ${this.quantity} item(s) of ${this.product?.name}!`,
-      'Close',
-    );
+    if (!this.product?.id) {
+      this.notification.showError('Product information is not available');
+      return;
+    }
+    const productId = this.product.id.toString();
+
+    this.router.navigate(['/account/checkout'], {
+      queryParams: {
+        productId: productId,
+        quantity: this.quantity,
+      },
+    });
   }
 
   goBack(): void {

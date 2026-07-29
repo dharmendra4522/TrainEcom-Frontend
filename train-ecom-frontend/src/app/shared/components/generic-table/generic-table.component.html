@@ -45,19 +45,25 @@
           Actions
         </th>
         <td mat-cell *matCellDef="let row" class="px-4 py-3 text-end">
-          <div class="d-inline-flex justify-content-end">
-            <!-- 3 Dots Menu Button -->
-            <button mat-icon-button [matMenuTriggerFor]="actionMenu" class="action-btn" matTooltip="More Actions">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-
-            <!-- Dropdown Menu containing options passed from parent component -->
-            <mat-menu #actionMenu="matMenu" xPosition="before">
-              <button *ngFor="let act of actions" mat-menu-item (click)="onActionClick(act.actionKey, row)">
-                <mat-icon *ngIf="act.icon">{{ act.icon }}</mat-icon>
-                <span>{{ act.tooltip || act.actionKey | titlecase }}</span>
+          <div class="d-inline-flex justify-content-end align-items-center gap-1">
+            <ng-container *ngIf="showInlineActions; else actionMenu">
+              <button *ngFor="let act of actions" mat-icon-button [color]="act.color" class="action-btn"
+                [matTooltip]="act.tooltip || (act.actionKey | titlecase)" (click)="onActionClick(act.actionKey, row)">
+                <mat-icon>{{ act.icon }}</mat-icon>
               </button>
-            </mat-menu>
+            </ng-container>
+
+            <ng-template #actionMenu>
+              <button mat-icon-button [matMenuTriggerFor]="tableActionMenu" class="action-btn" matTooltip="More Actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #tableActionMenu="matMenu" xPosition="before">
+                <button *ngFor="let act of actions" mat-menu-item (click)="onActionClick(act.actionKey, row)">
+                  <mat-icon *ngIf="act.icon">{{ act.icon }}</mat-icon>
+                  <span>{{ act.tooltip || act.actionKey | titlecase }}</span>
+                </button>
+              </mat-menu>
+            </ng-template>
           </div>
         </td>
       </ng-container>

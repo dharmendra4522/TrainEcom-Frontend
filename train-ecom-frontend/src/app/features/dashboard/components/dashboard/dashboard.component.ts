@@ -17,6 +17,8 @@ export class DashboardComponent {
     { title: 'Orders', value: '128', icon: 'shopping_cart', color: '#2196f3' },
     { title: 'Customers', value: '850', icon: 'people', color: '#ff9800' },
     { title: 'Products', value: '45', icon: 'inventory_2', color: '#f44336' },
+    { title: 'Brands', value: '12', icon: 'branding_watermark', color: '#9c27b0' },
+    { title: 'Categories', value: '8', icon: 'category', color: '#3f51b5' },
   ];
 
 recentOrders: OrderListItem[] = [

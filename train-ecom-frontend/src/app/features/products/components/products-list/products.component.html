@@ -50,7 +50,7 @@
   </div>
 
   <app-generic-table [data]="(products$ | async) || []" [isLoading]="(isLoading$ | async) || false" [columns]="columns"
-    [actions]="actions" [showPaginator]="true" [totalRecords]="(totalRecords$ | async) || 0" [pageSize]="pageSize"
+    [actions]="actions" [showInlineActions]="true" [showPaginator]="true" [totalRecords]="(totalRecords$ | async) || 0" [pageSize]="pageSize"
     [pageIndex]="pageNumber - 1" emptyMessage="No products found." (rowClick)="onRowClick($event)"
     (actionClick)="handleTableAction($event)" (pageChange)="onPageChange($event)">
   </app-generic-table>

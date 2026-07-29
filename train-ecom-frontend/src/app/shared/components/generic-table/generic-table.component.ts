@@ -15,6 +15,7 @@ export class GenericTableComponent {
   @Input() data: Record<string, unknown>[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];
+  @Input() showInlineActions: boolean = false;
   @Input() showIndex: boolean = true;
   @Input() emptyMessage: string = 'No records found.';
 
