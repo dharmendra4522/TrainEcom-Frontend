@@ -16,6 +16,11 @@ body {
   box-sizing: inherit;
 }
 
+/* Ensure material dialogs appear on top of bootstrap/custom overlays */
+.cdk-overlay-container {
+  z-index: 9999 !important;
+}
+
 /* MDC SnackBar Color Customizations */
 .success-snackbar .mdc-snackbar__surface {
   background-color: #2e7d32 !important;

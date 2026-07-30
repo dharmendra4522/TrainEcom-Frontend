@@ -25,7 +25,10 @@ import { Validators } from '@angular/forms';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { DialogData } from '../../../../core/models/dialog.model';
 import { CheckoutItem } from '../../../../core/models/order.model';
-import { SelectionDialogComponent, SelectionDialogData } from '../../../../shared/components/selection-dialog/selection-dialog.component';
+import {
+  SelectionDialogComponent,
+  SelectionDialogData,
+} from '../../../../shared/components/selection-dialog/selection-dialog.component';
 
 type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
 
@@ -67,13 +70,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.validateRouteParams();
   }
 
-  // validate routes 
+  // validate routes
   private validateRouteParams(): void {
     setTimeout(() => {
-      if (!this.isDirectBuy && (!this.checkoutItems || this.checkoutItems.length === 0)) {
+      if (
+        !this.isDirectBuy &&
+        (!this.checkoutItems || this.checkoutItems.length === 0)
+      ) {
         this.notification.showError('No items in cart to checkout.');
         this.router.navigate(['/cart'], { replaceUrl: true });
-        
       }
     }, 500);
   }
@@ -85,7 +90,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // Currently selected delivery address.
   get selectedAddress(): Address | undefined {
-    return this.addresses.find((address) => address.id === this.selectedAddressid);
+    return this.addresses.find(
+      (address) => address.id === this.selectedAddressid,
+    );
   }
 
   // Open the saved-address selection dialog.
@@ -99,7 +106,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     };
 
     this.dialog
-      .open<SelectionDialogComponent<Address>, SelectionDialogData<Address>, Address | 'add'>(SelectionDialogComponent, {
+      .open<
+        SelectionDialogComponent<Address>,
+        SelectionDialogData<Address>,
+        Address | 'add'
+      >(SelectionDialogComponent, {
         width: '750px',
         data: dialogData,
       })
@@ -122,11 +133,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.addresses = data || [];
-          const selectedAddress = this.addresses.find(
-            (address) => address.id === preferredAddressId,
-          ) || this.addresses.find(
-            (address) => address.isDefault,
-          ) || this.addresses[0];
+          const selectedAddress =
+            this.addresses.find(
+              (address) => address.id === preferredAddressId,
+            ) ||
+            this.addresses.find((address) => address.isDefault) ||
+            this.addresses[0];
 
           this.selectedAddressid = selectedAddress?.id || null;
         },
@@ -249,7 +261,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           key: 'fullName',
           label: 'Full Name',
           type: 'text',
-          validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+          validation: [
+            Validators.required,
+            Validators.pattern(/^[a-zA-Z\s]+$/),
+          ],
         },
         {
           key: 'phone',
@@ -269,8 +284,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           label: 'Address Line 2 (Optional)',
           type: 'text',
         },
-        { key: 'city', label: 'City', type: 'text', validation: [Validators.required] },
-        { key: 'state', label: 'State', type: 'text', validation: [Validators.required] },
+        {
+          key: 'city',
+          label: 'City',
+          type: 'text',
+          validation: [Validators.required],
+        },
+        {
+          key: 'state',
+          label: 'State',
+          type: 'text',
+          validation: [Validators.required],
+        },
         {
           key: 'postalCode',
           label: 'Postal Code',
@@ -318,7 +343,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         (checkoutItem) => checkoutItem.productId !== item.productId,
       );
       this.subtotal = this.checkoutItems.reduce(
-        (total, checkoutItem) => total + checkoutItem.unitPrice * checkoutItem.quantity,
+        (total, checkoutItem) =>
+          total + checkoutItem.unitPrice * checkoutItem.quantity,
         0,
       );
       this.calculateTotals();
@@ -344,44 +370,57 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
 
-    if (this.paymentMethods === PaymentMethod.UPI || this.paymentMethods === PaymentMethod.Card) {
+    if (
+      this.paymentMethods === PaymentMethod.UPI ||
+      this.paymentMethods === PaymentMethod.Card
+    ) {
       this.handleOnlinePaymentOrder();
     } else {
       this.handleCashOnDeliveryOrder();
     }
   }
 
-  // Helper 1: Handle Online Payment Simulation and Order Placement
+  // Handle Online Payment Simulation and Order Placement
   private handleOnlinePaymentOrder(): void {
     const simulationPayload = {
       paymentMethod: this.paymentMethods,
       amount: this.grandTotal,
     };
 
-    this.orderService.simulateOnlinePayment(simulationPayload).pipe(
-      takeUntil(this.destroy$),
-      switchMap((simResponse) => {
-        const transactionId = simResponse.transactionId;
-        return this.executeOrderPlacement(transactionId);
-      })
-    ).subscribe({
-      next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
-      error: (err) => this.onOrderError(err?.error?.message || 'Payment simulation or order placement failed'),
-    });
+    this.orderService
+      .simulateOnlinePayment(simulationPayload)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((simResponse) => {
+          const transactionId = simResponse.transactionId;
+          return this.executeOrderPlacement(transactionId);
+        }),
+      )
+      .subscribe({
+        next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
+        error: (err) =>
+          this.onOrderError(
+            err?.error?.message ||
+              'Payment simulation or order placement failed',
+          ),
+      });
   }
 
-  // Helper 2: Handle Cash on Delivery (COD) Order Placement
+  // Handle Cash on Delivery (COD) Order Placement
   private handleCashOnDeliveryOrder(): void {
-    this.executeOrderPlacement().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
-      error: (err) => this.onOrderError(err?.error?.message || 'Order placement failed'),
-    });
+    this.executeOrderPlacement()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
+        error: (err) =>
+          this.onOrderError(err?.error?.message || 'Order placement failed'),
+      });
   }
 
-  // Helper 3: Common Order Execution Observable (Direct Buy vs Cart Checkout)
-  private executeOrderPlacement(transactionId?: string): Observable<CreateOrderResponse> {
+  // Common Order Execution Observable (Direct Buy vs Cart Checkout)
+  private executeOrderPlacement(
+    transactionId?: string,
+  ): Observable<CreateOrderResponse> {
     if (this.isDirectBuy && this.directProductId) {
       const buyNowPayload: BuyNowRequest = {
         addressId: this.selectedAddressid as string,
@@ -401,7 +440,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Helper 4: Success Handler
+  // Success Handler
   private onOrderSuccess(response: CreateOrderResponse): void {
     this.isSubmitting = false;
     if (!this.isDirectBuy) {
@@ -414,7 +453,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Helper 5: Error Handler
+  // Error Handler
   private onOrderError(errorMessage: string): void {
     this.isSubmitting = false;
     this.notification.showError(errorMessage);

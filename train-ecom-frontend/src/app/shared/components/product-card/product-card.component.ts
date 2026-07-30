@@ -107,14 +107,25 @@ export class ProductCardComponent implements OnInit {
       this.notification.showError('Product information is not available');
       return;
     }
-    const productId = this.product.id.toString();
 
-    this.router.navigate(['/account/checkout'], {
-      queryParams: {
-        productId: productId,
-        quantity:1,
-      },
-    });
+    this.store
+      .select(selectIsLoggedIn)
+      .pipe(take(1))
+      .subscribe((isLoggedIn: boolean) => {
+        if (!isLoggedIn) {
+          this.notification.showInfo('Please log in to proceed to checkout.');
+          this.router.navigate(['/login']);
+          return;
+        }
+
+        const productId = this.product.id.toString();
+        this.router.navigate(['/checkout'], {
+          queryParams: {
+            productId: productId,
+            quantity: 1,
+          },
+        });
+      });
   }
 
 

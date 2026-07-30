@@ -195,19 +195,21 @@
             </div>
           </div>
 
-          <a mat-menu-item routerLink="/" class="d-lg-none py-2">
-            <mat-icon class="text-dark me-2">home</mat-icon>
-            <span class="fw-medium">Home</span>
-          </a>
-          <a mat-menu-item routerLink="/contact" class="d-lg-none py-2">
-            <mat-icon class="text-dark me-2">contact_support</mat-icon>
-            <span class="fw-medium">Contact</span>
-          </a>
-          <a mat-menu-item routerLink="/about" class="d-lg-none py-2">
-            <mat-icon class="text-dark me-2">info</mat-icon>
-            <span class="fw-medium">About</span>
-          </a>
-          <mat-divider class="d-lg-none"></mat-divider>
+          <ng-container *ngIf="auth.role !== 'Admin'">
+            <a mat-menu-item routerLink="/" class="d-lg-none py-2">
+              <mat-icon class="text-dark me-2">home</mat-icon>
+              <span class="fw-medium">Home</span>
+            </a>
+            <a mat-menu-item routerLink="/contact" class="d-lg-none py-2">
+              <mat-icon class="text-dark me-2">contact_support</mat-icon>
+              <span class="fw-medium">Contact</span>
+            </a>
+            <a mat-menu-item routerLink="/about" class="d-lg-none py-2">
+              <mat-icon class="text-dark me-2">info</mat-icon>
+              <span class="fw-medium">About</span>
+            </a>
+            <mat-divider class="d-lg-none"></mat-divider>
+          </ng-container>
 
           <a mat-menu-item routerLink="/account" class="py-2">
             <mat-icon class="text-primary me-2">manage_accounts</mat-icon>

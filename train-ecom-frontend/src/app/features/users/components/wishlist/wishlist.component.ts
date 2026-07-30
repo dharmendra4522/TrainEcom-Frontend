@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../../../core/models/product.model';
 import { WishListItem } from '../../../../core/models/wishList.model';
 import { Store } from '@ngrx/store';
@@ -9,6 +10,8 @@ import * as WishlistActions from '../../../../core/store/wish-list/wishList.acti
 import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts } from '../../../../core/store/product/product.selectors';
+import * as CartActions from '../../../../core/store/cart/cart.actions';
+import { Actions, ofType } from '@ngrx/effects';
 import { takeUntil, Subject, take } from 'rxjs';
 
 @Component({
@@ -20,6 +23,8 @@ export class WishlistComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private store = inject(Store);
   private notificationService = inject(NotificationService);
+  private router = inject(Router);
+  private actions$ = inject(Actions);
   private destroy$ = new Subject<void>();
 
   wishlist$!: Observable<Product[]>;
@@ -93,14 +98,45 @@ export class WishlistComponent implements OnInit, OnDestroy {
   }
 
   addToCart(item: Product): void {
-    console.log('Adding to cart:', item);
+    const productDetails = {
+      productName: item.name,
+      unitPrice: item.price,
+      thumbnailUrl: item.thumbnailUrl || (item.images && item.images.length > 0 ? item.images[0].imageUrl : ''),
+    };
+
+    this.store.dispatch(
+      CartActions.addToCart({
+        productId: item.id.toString(),
+        quantity: 1,
+        productDetails,
+      }),
+    );
+
+    this.actions$
+      .pipe(
+        ofType(CartActions.addToCartSuccess),
+        takeUntil(this.destroy$),
+        take(1),
+      )
+      .subscribe(() => {
+        this.removeFromWishlist(item);
+      });
   }
 
   moveAllToBag(): void {
-    console.log('Moving all wishlist items to bag');
+    this.wishlist$.pipe(take(1)).subscribe((items) => {
+      if (!items || items.length === 0) return;
+      
+      const itemsToMove = [...items];
+      itemsToMove.forEach(item => {
+        this.addToCart(item);
+      });
+      
+      this.notificationService.showSuccess('All items moved to cart successfully', 'Close');
+    });
   }
 
   seeAllRecommendations(): void {
-    console.log('See all recommendations clicked');
+    this.router.navigate(['/products']);
   }
 }

@@ -19,7 +19,7 @@
 }
 
 mat-dialog-content {
-  max-height: 60    0px !important;
+  max-height: 600px !important;
   overflow-y: auto !important;
 }
 

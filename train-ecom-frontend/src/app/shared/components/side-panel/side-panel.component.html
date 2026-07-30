@@ -74,7 +74,7 @@
           <mat-icon>arrow_forward</mat-icon>
         </button>
 
-        <button *ngIf="type === 'WishList'" mat-raised-button color="primary"
+        <button *ngIf="type === 'WishList'" mat-raised-button color="primary" (click)="moveAllToCart()"
           class="w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2">
           <mat-icon>shopping_cart</mat-icon>
           <span>Move All to Cart</span>

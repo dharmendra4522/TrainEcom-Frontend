@@ -80,19 +80,33 @@
 
 .text-truncate-clamp {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
-  max-width: 280px;
+  max-width: 200px;
   word-break: break-word;
 }
 
 @media (max-width: 991.98px) {
   .custom-mat-table {
     min-width: 900px;
+  }
+}
+
+@media (max-width: 576px) {
+  ::ng-deep .mat-mdc-paginator-page-size {
+    display: none !important;
+  }
+  ::ng-deep .mat-mdc-paginator-range-label {
+    white-space: nowrap !important;
+    margin: 0 8px 0 0 !important;
+  }
+  ::ng-deep .mat-mdc-paginator-container {
+    justify-content: center !important;
+    padding: 0 8px !important;
   }
 }
 

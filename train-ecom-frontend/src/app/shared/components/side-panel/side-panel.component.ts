@@ -235,13 +235,23 @@ export class SidePanelComponent implements OnInit, OnDestroy {
 
   handleRemove(itemId: string): void {
     if (this.type === 'Cart') {
-      this.confirmDialog.confirm('Are you sure you want to remove this item from your cart?', 'Remove', 'Cancel')
+      this.confirmDialog
+        .confirm(
+          'Are you sure you want to remove this item from your cart?',
+          'Remove',
+          'Cancel',
+        )
         .pipe(take(1))
         .subscribe((confirmed) => {
           if (confirmed) this.removeCartItem(itemId);
         });
     } else if (this.type === 'WishList') {
-      this.confirmDialog.confirm('Are you sure you want to remove this item from your wishlist?', 'Remove', 'Cancel')
+      this.confirmDialog
+        .confirm(
+          'Are you sure you want to remove this item from your wishlist?',
+          'Remove',
+          'Cancel',
+        )
         .pipe(take(1))
         .subscribe((confirmed) => {
           if (confirmed) this.removeWishlistItem(itemId);
@@ -282,16 +292,22 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   private confirmAndRemoveItem(itemId: string): void {
-    this.confirmDialog.confirm(
-      'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
-      'Delete',
-      'Cancel',
-    ).pipe(take(1)).subscribe((confirmed) => {
-      if (confirmed) this.removeCartItem(itemId);
-    });
+    this.confirmDialog
+      .confirm(
+        'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
+        'Delete',
+        'Cancel',
+      )
+      .pipe(take(1))
+      .subscribe((confirmed) => {
+        if (confirmed) this.removeCartItem(itemId);
+      });
   }
 
-  private verifyStockAndUpdateQuantity(item: SidePanelItem, newQty: number): void {
+  private verifyStockAndUpdateQuantity(
+    item: SidePanelItem,
+    newQty: number,
+  ): void {
     const productId = item.productId || item.id;
     this.store.dispatch(
       ProductActions.loadProductById({ id: productId.toString() }),
@@ -357,5 +373,22 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.removeWishlistItem(productId);
       });
+  }
+
+  moveAllToCart(): void {
+    if (this.type !== 'WishList' || !this.items || this.items.length === 0)
+      return;
+
+    // Copy items to a new array to prevent issues when items are removed during iteration
+    const itemsToMove = [...this.items];
+    itemsToMove.forEach((item) => {
+      this.handleMoveToCart(item);
+    });
+
+    this.close();
+    this.notificationService.showSuccess(
+      'All items moved to cart successfully',
+      'Close',
+    );
   }
 }

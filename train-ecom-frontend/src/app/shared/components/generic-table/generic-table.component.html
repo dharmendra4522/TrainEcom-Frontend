@@ -18,11 +18,11 @@
           {{ col.label }}
         </th>
         <td mat-cell *matCellDef="let row" class="px-4 py-3 text-dark">
-          <span *ngIf="!col.type || col.type === 'text'" class="fw-medium"
-            [class.text-truncate-clamp]="col.truncate || col.key === 'description'"
-            [matTooltip]="(col.truncate || col.key === 'description') ? row[col.key] : ''" matTooltipPosition="below">
+          <div *ngIf="!col.type || col.type === 'text'" class="fw-medium"
+            [class.text-truncate-clamp]="col.truncate || col.key === 'description' || col.key === 'title' || col.key === 'name'"
+            [matTooltip]="(col.truncate || col.key === 'description' || col.key === 'title' || col.key === 'name') && row[col.key] ? row[col.key] + '' : null" matTooltipPosition="below">
             {{ row[col.key] || 'N/A' }}
-          </span>
+          </div>
 
           <div *ngIf="col.type === 'image'" class="image-thumb-wrapper rounded-3 overflow-hidden border">
             <img *ngIf="row[col.key]" [src]="row[col.key]" [alt]="col.label" class="table-img img-fluid">
