@@ -7,6 +7,7 @@ export interface CartState {
   totalQuantity: number;
   totalAmount: number;
   loading: boolean;
+  loaded: boolean;
   error: string | null;
 }
 
@@ -15,6 +16,7 @@ export const initialCartState: CartState = {
   totalAmount: 0,
   totalQuantity: 0,
   loading: false,
+  loaded: false,
   error: null,
 };
 
@@ -42,6 +44,7 @@ export const cartReducer = createReducer(
       totalQuantity: cart.totalQuantity !== undefined && cart.totalQuantity !== null ? cart.totalQuantity : calculateTotalQuantity(items),
       totalAmount: cart.totalAmount !== undefined && cart.totalAmount !== null ? cart.totalAmount : calculateTotalAmount(items),
       loading: false,
+      loaded: true,
       error: null,
     };
   }),
@@ -50,6 +53,7 @@ export const cartReducer = createReducer(
   on(CartActions.loadCartFailure, (state, { error }) => ({
     ...state,
     loading: false,
+    loaded: true,
     error: error,
   })),
 

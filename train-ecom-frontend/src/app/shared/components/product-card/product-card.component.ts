@@ -68,7 +68,9 @@ export class ProductCardComponent implements OnInit {
       .pipe(take(1))
       .subscribe((isLoggedIn) => {
         if (!isLoggedIn) {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: this.router.url },
+          });
           return;
         }
 
@@ -114,7 +116,12 @@ export class ProductCardComponent implements OnInit {
       .subscribe((isLoggedIn: boolean) => {
         if (!isLoggedIn) {
           this.notification.showInfo('Please log in to proceed to checkout.');
-          this.router.navigate(['/login']);
+          const checkoutUrl = this.router
+            .createUrlTree(['/checkout'], {
+              queryParams: { productId: this.product.id.toString(), quantity: 1 },
+            })
+            .toString();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: checkoutUrl } });
           return;
         }
 

@@ -1,21 +1,31 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
-import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, EMPTY } from 'rxjs';
+import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, EMPTY, withLatestFrom } from 'rxjs';
+import { selectCartLoaded, selectCartItems } from './cart.selectors';
 
 @Injectable()
 export class CartEffects {
   private actions$ = inject(Actions);
   private cartService = inject(CartService);
   private notification = inject(NotificationService);
+  private store = inject(Store);
 
   loadCart$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(CartActions.loadCart),
-      exhaustMap(() => {
+      withLatestFrom(
+        this.store.select(selectCartLoaded),
+        this.store.select(selectCartItems)
+      ),
+      switchMap(([_, loaded, items]) => {
+        if (loaded) {
+          return EMPTY;
+        }
         return this.cartService.getCartItems().pipe(
           map((cartResponse) => {
             return CartActions.loadCartSuccess({ cart: cartResponse });

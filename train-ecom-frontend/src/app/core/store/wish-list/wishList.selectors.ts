@@ -14,6 +14,11 @@ export const selectWishlistLoading = createSelector(
     (wishlistState) => wishlistState.loading
 );
 
+export const selectWishlistLoaded = createSelector(
+    selectWishListState,
+    (wishlistState) => wishlistState.loaded
+);
+
 export const selectWishlistCount = createSelector(
     selectWishlistItems,
     (wishlistItems) => wishlistItems.length

@@ -5,10 +5,12 @@ import { adminGuard } from '../../core/guards/admin.guard';
 import { customerGuard } from '../../core/guards/customer.guard';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { OrderManagementComponent } from './components/order-management/order-management.component';
+import { OrderDetailsComponent } from './components/order-details/order-details.component';
 
 const routes: Routes = [
   { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
   { path: 'manage', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
+  { path: 'details/:orderId', canActivate: [customerGuard], component: OrderDetailsComponent },
   { path: '', redirectTo: 'history', pathMatch: 'full' }
 ];
 

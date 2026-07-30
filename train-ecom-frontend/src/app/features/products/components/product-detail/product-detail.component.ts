@@ -67,6 +67,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.productDestroy$.next();
 
     this.store.dispatch(ProductActions.loadProductById({ id }));
+    this.store.dispatch(ProductActions.loadRelatedProducts({ productId: id }));
+
     this.store
       .select(selectProductById(id))
       .pipe(takeUntil(this.productDestroy$))
@@ -74,7 +76,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         if (product) {
           this.product = product;
           this.setInitialImage(product);
-          this.loadRelatedProducts();
         }
       });
 
@@ -97,6 +98,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       .subscribe((loading) => {
         this.isLoading = loading;
       });
+
     this.store
       .select(selectProductError)
       .pipe(takeUntil(this.productDestroy$))
@@ -156,7 +158,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
             );
           }),
         );
-        this.store.dispatch(WishlistActions.loadWishlist());
       });
   }
 
@@ -164,7 +165,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
 
-    // Product object pass kiya hai taaki guest user ke liye local storage mein details save ho sakein
     const productDetails: CartProductDetails = {
       productName: this.product.name,
       unitPrice: this.product.price,
@@ -191,7 +191,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
           this.notification.showError(
             'Please login to add products to your wishlist.',
           );
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: this.router.url },
+          });
           return;
         }
 
@@ -219,7 +221,15 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       .subscribe((isLoggedIn: boolean) => {
         if (!isLoggedIn) {
           this.notification.showInfo('Please log in to proceed to checkout.');
-          this.router.navigate(['/login']);
+          const checkoutUrl = this.router
+            .createUrlTree(['/checkout'], {
+              queryParams: {
+                productId: this.product!.id.toString(),
+                quantity: this.quantity,
+              },
+            })
+            .toString();
+          this.router.navigate(['/login'], { queryParams: { returnUrl: checkoutUrl } });
           return;
         }
 

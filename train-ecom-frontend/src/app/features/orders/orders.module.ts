@@ -6,17 +6,20 @@ import { OrdersRoutingModule } from './orders-routing.module';
 import { SharedModule } from '../../shared/shared.module';
 import { OrderManagementComponent } from './components/order-management/order-management.component';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
-
+import { OrderDetailsComponent } from './components/order-details/order-details.component';
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     OrderManagementComponent,
-    OrderHistoryComponent
+    OrderHistoryComponent,
+    OrderDetailsComponent,
   ],
   imports: [
     CommonModule,
     OrdersRoutingModule,
     SharedModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ]
 })
 export class OrdersModule { }

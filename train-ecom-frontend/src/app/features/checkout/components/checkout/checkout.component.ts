@@ -61,8 +61,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   paymentMethods: PaymentMethod = PaymentMethod.CashOnDelivery;
   isSubmitting: boolean = false;
+  isProcessing: boolean = false;
 
-  PaymentMethod = PaymentMethod; // Expose the enum to the template
+  PaymentMethod = PaymentMethod; 
 
   ngOnInit(): void {
     this.loadUserAddresses();
@@ -369,6 +370,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmitting = true;
+    this.isProcessing = true;
 
     if (
       this.paymentMethods === PaymentMethod.UPI ||
@@ -443,6 +445,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // Success Handler
   private onOrderSuccess(response: CreateOrderResponse): void {
     this.isSubmitting = false;
+    this.isProcessing = false;
     if (!this.isDirectBuy) {
       this.store.dispatch(CartActions.clearCart());
     }
@@ -456,6 +459,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // Error Handler
   private onOrderError(errorMessage: string): void {
     this.isSubmitting = false;
+    this.isProcessing = false;
     this.notification.showError(errorMessage);
   }
 

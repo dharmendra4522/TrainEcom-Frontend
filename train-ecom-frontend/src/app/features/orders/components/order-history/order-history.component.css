@@ -1,0 +1,46 @@
+.card.order-card {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #f1f3f6 !important;
+}
+
+.card.order-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-2px);
+}
+
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.search-input-group {
+    max-width: 380px;
+}
+
+.order-thumb {
+    width: 60px;
+    height: 60px;
+}
+
+.order-title {
+    font-size: 0.95rem;
+}
+
+.fs-7 {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 576px) {
+    .search-input-group {
+        max-width: 100%;
+    }
+    
+    .order-thumb {
+        width: 48px;
+        height: 48px;
+    }
+
+    .order-title {
+        font-size: 0.85rem;
+    }
+}

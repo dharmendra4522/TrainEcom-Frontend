@@ -228,7 +228,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
             'Please log in to proceed to checkout.',
             'Close',
           );
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: '/checkout' },
+          });
         }
       });
   }

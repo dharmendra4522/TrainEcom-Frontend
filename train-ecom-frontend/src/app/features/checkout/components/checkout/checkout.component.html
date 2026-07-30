@@ -1,3 +1,16 @@
+<div *ngIf="isProcessing"
+  class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-50"
+  style="z-index: 9999; backdrop-filter: blur(5px);">
+  <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="max-width: 320px;">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <h5 class="fw-bold text-dark mb-1">Processing Order...</h5>
+    <p class="text-secondary small mb-0">Please do not refresh or go back while we process your transaction.</p>
+  </div>
+</div>
+
+
 <div class="checkout-container py-4 px-2 px-md-4">
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <nav aria-label="breadcrumb">
@@ -21,8 +34,8 @@
             1. Delivery Address
           </mat-card-title>
 
-          <button mat-stroked-button color="primary" class="add-address-btn" *ngIf="addresses.length > 0; else addAddress"
-            (click)="openChangeAddressDialog()">
+          <button mat-stroked-button color="primary" class="add-address-btn"
+            *ngIf="addresses.length > 0; else addAddress" (click)="openChangeAddressDialog()">
             Change Address
           </button>
           <ng-template #addAddress>
@@ -33,14 +46,12 @@
         </mat-card-header>
 
         <mat-card-content class="pt-2">
-          <!-- Empty State -->
           <div *ngIf="addresses.length === 0" class="text-center py-4 text-muted bg-light rounded-3 mb-2">
             <mat-icon class="fs-1 text-secondary mb-2" style="width: 48px; height: 48px;">home_mini</mat-icon>
             <p class="m-0 fw-semibold">No saved addresses found.</p>
             <p class="small text-secondary mb-0">Please click the button above to add an address.</p>
           </div>
 
-          <!-- Single Selected Address Card View -->
           <div *ngIf="selectedAddress as address"
             class="address-tile rounded-3 p-3 position-relative border border-primary bg-light-subtle">
             <div class="position-absolute top-0 end-0 p-3">
@@ -119,7 +130,7 @@
                 *ngFor="let item of checkoutItems">
                 <div
                   class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center">
-                  <img [src]="item.thumbnailUrl || 'assets/images/placeholder.png'" [alt]="item.productName"
+                  <img [src]="item.thumbnailUrl || 'assets/placeholder.jpg'" [alt]="item.productName"
                     class="img-fluid item-img">
                 </div>
                 <div class="flex-grow-1 min-w-0">

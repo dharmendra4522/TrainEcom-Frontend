@@ -1,0 +1,42 @@
+.last-border-none:last-child {
+  border-bottom: none !important;
+}
+
+.card, mat-card {
+  transition: all 0.2s ease;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Spinner & Button Alignment Fixes */
+.custom-spinner {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+}
+
+::ng-deep .custom-spinner circle {
+  stroke: #ffffff !important;
+}
+
+.cancel-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 576px) {
+  .products-card .card-body,
+  .address-card .card-body,
+  .payment-card .card-body,
+  .summary-card .card-body {
+    padding: 1rem !important;
+  }
+
+  .item-img-wrapper img {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}

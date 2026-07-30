@@ -13,6 +13,7 @@ import {
   selectCartTotalAmount,
   selectCartTotalQuantity,
   selectCartLoading,
+  selectCartLoaded,
 } from '../../../../core/store/cart/cart.selectors';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
@@ -42,8 +43,8 @@ export class CartComponent implements OnInit {
   }
 
   private loadCartItems(): void {
-    this.cartItems$.pipe(take(1)).subscribe((items) => {
-      if (!items || items.length === 0) {
+    this.store.select(selectCartLoaded).pipe(take(1)).subscribe((loaded) => {
+      if (!loaded) {
         this.store.dispatch(CartActions.loadCart());
       }
     });

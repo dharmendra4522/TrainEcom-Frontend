@@ -6,12 +6,14 @@ import * as WishlistActions from './wishList.actions';
 export interface WishlistState {
     items: WishListItem[];
     loading: boolean;
+    loaded: boolean;
     error: unknown;
 }
 
 export const initialState: WishlistState = {
     items: [],
     loading: false,
+    loaded: false,
     error: null
 };
 
@@ -28,12 +30,14 @@ export const wishlistReducer = createReducer(
         ...state,
         items: items,
         loading: false,
+        loaded: true,
         error: null
     })),
 
     on(WishlistActions.loadWishlistFailure, (state, { error }) => ({
         ...state,
         loading: false,
+        loaded: true,
         error: error
     })),
 

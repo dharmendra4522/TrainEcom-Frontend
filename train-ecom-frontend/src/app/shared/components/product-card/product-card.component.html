@@ -8,7 +8,7 @@
 
   <div
     class="image-container bg-light rounded-3 m-3 d-flex align-items-center justify-content-center position-relative overflow-hidden">
-    <img [src]="product.thumbnailUrl" [alt]="product.name" loading="lazy" class="product-img" />
+    <img [src]="product.thumbnailUrl || 'assets/placeholder.jpg'" [alt]="product.name" loading="lazy" class="product-img" />
     <button class="hover-add-to-cart-btn d-flex align-items-center justify-content-center gap-1"
       (click)="addToCart(product); $event.stopPropagation()">
       <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_shopping_cart</mat-icon>

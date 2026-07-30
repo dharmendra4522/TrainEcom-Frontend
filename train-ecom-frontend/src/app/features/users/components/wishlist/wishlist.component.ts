@@ -7,7 +7,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { Observable } from 'rxjs/internal/Observable';
 import { map } from 'rxjs/internal/operators/map';
 import * as WishlistActions from '../../../../core/store/wish-list/wishList.actions';
-import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
+import { selectWishlistItems, selectWishlistLoaded } from '../../../../core/store/wish-list/wishList.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts } from '../../../../core/store/product/product.selectors';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
@@ -45,8 +45,8 @@ export class WishlistComponent implements OnInit, OnDestroy {
       .select(selectWishlistItems)
       .pipe(map((items: WishListItem[]) => this.mapWishlistToProducts(items)));
 
-    this.store.select(selectWishlistItems).pipe(take(1)).subscribe((items) => {
-      if (!items || items.length === 0) {
+    this.store.select(selectWishlistLoaded).pipe(take(1)).subscribe((loaded) => {
+      if (!loaded) {
         this.store.dispatch(WishlistActions.loadWishlist());
       }
     });

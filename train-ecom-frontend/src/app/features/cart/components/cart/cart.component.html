@@ -47,7 +47,7 @@
           <div class="col-12 col-md-5">
             <div class="d-flex align-items-center gap-3 ps-2">
               <img
-                [src]="item.thumbnailUrl"
+                [src]="item.thumbnailUrl || 'assets/placeholder.jpg'"
                 class="rounded-3 object-fit-cover border"
                 style="width: 65px; height: 65px"
               />

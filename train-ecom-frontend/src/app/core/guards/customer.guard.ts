@@ -21,7 +21,9 @@ export const customerGuard: CanActivateFn = (route, state) => {
         return router.createUrlTree(['/admin/dashboard']);
       }
 
-      return router.createUrlTree(['/login']);
+      return router.createUrlTree(['/login'], {
+        queryParams: { returnUrl: state.url },
+      });
     })
   );
 };

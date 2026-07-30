@@ -11,7 +11,7 @@ import { Product, ProductImage } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
 import { Category } from '../../../../core/models/category.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { selectProductById } from '../../../../core/store/product/product.selectors';
+import { selectProductById, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { startWith, map, filter, take, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
@@ -58,8 +58,10 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   brands: Brand[] = [];
   categories: Category[] = [];
   selectFiles: File[] = [];
+  previewUrls: (string | null)[] = [];
   existingImages: { id: string; imageUrl: string }[] = [];
   deletedImageIds: string[] = [];
+  isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
   ngOnInit(): void {
     this.initFormAndData();
@@ -69,6 +71,11 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.previewUrls.forEach((url) => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    });
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -381,6 +388,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   addImageField(): void {
     (this.productForm.get('images') as FormArray).push(this.fb.control(''));
+    this.previewUrls.push(null);
   }
 
   onFileChange(event: Event, index: number): void {
@@ -395,22 +403,35 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           'Close',
         );
         input.value = '';
+        if (this.previewUrls[index]) {
+          URL.revokeObjectURL(this.previewUrls[index]!);
+          this.previewUrls[index] = null;
+        }
         delete this.selectFiles[index];
         return;
       }
 
+      if (this.previewUrls[index]) {
+        URL.revokeObjectURL(this.previewUrls[index]!);
+      }
       this.selectFiles[index] = file;
+      this.previewUrls[index] = URL.createObjectURL(file);
     }
   }
 
   removeImageField(index: number): void {
     (this.productForm.get('images') as FormArray).removeAt(index);
+    if (this.previewUrls[index]) {
+      URL.revokeObjectURL(this.previewUrls[index]!);
+    }
+    this.previewUrls.splice(index, 1);
     this.selectFiles.splice(index, 1);
   }
 
   onSubmit(): void {
     if (this.productForm.valid) {
       const formValue = this.productForm.value;
+      const cleanFiles = this.selectFiles.filter((f): f is File => !!f);
 
       const productPayload: Partial<Product> = {
         name: formValue.title,
@@ -431,7 +452,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           ProductActions.updateProduct({
             id: this.productId,
             productData: productPayload,
-            newFiles: this.selectFiles,
+            newFiles: cleanFiles,
             deletedImageIds: this.deletedImageIds,
           }),
         );
@@ -439,7 +460,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         this.store.dispatch(
           ProductActions.createProduct({
             productData: productPayload,
-            files: this.selectFiles,
+            files: cleanFiles,
           }),
         );
       }

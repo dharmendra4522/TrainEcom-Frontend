@@ -93,8 +93,7 @@ export class AuthEffects {
               this.cartService.loadCart();
             }
 
-          const route = role === 'admin' ? '/admin/dashboard' : '/';
-          this.router.navigate([route]);
+          this.router.navigateByUrl(this.getPostLoginRoute(role));
         }),
       ),
     { dispatch: false },
@@ -158,6 +157,21 @@ export class AuthEffects {
       console.error('Token decoding failed:', error);
       return null;
     }
+  }
+
+  private getPostLoginRoute(role: string): string {
+    const fallbackRoute = role === 'admin' ? '/admin/dashboard' : '/';
+    const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+
+    if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+      return fallbackRoute;
+    }
+
+    if (role === 'admin') {
+      return returnUrl.startsWith('/admin') ? returnUrl : fallbackRoute;
+    }
+
+    return returnUrl.startsWith('/admin') ? fallbackRoute : returnUrl;
   }
 
   private showToast(msg: string, panelClass: string) {

@@ -4,10 +4,8 @@ import { Store } from "@ngrx/store";
 import { NotificationService } from "../../services/notification.service";
 import { WishListService } from "../../services/wish-list.service";
 import * as WishlistActions from './wishList.actions';
-import { map, catchError, of, exhaustMap, mergeMap } from 'rxjs';
-import { WishListItem } from "../../models/wishList.model";
-
-
+import { map, catchError, of, exhaustMap, mergeMap, withLatestFrom, switchMap } from 'rxjs';
+import { selectWishlistLoaded, selectWishlistItems } from "./wishList.selectors";
 
 @Injectable()
 export class WishlistEffects {
@@ -20,7 +18,14 @@ export class WishlistEffects {
     loadWishlist$ = createEffect(() => {
         return this.actions$.pipe(
             ofType(WishlistActions.loadWishlist),
-            exhaustMap(() => {
+            withLatestFrom(
+                this.store.select(selectWishlistLoaded),
+                this.store.select(selectWishlistItems)
+            ),
+            switchMap(([_, loaded, items]) => {
+                if (loaded) {
+                    return of(WishlistActions.loadWishlistSuccess({ items }));
+                }
                 return this.wishlistService.getWishList().pipe(
                     map((wishlistItems) => {
                         return WishlistActions.loadWishlistSuccess({ items: wishlistItems });
@@ -75,8 +80,11 @@ export class WishlistEffects {
 
     refreshWishlist$ = createEffect(() => {
         return this.actions$.pipe(
-            ofType(WishlistActions.addToWishlistSuccess, WishlistActions.removeFromWishlistSuccess),
-            map(() => WishlistActions.loadWishlist())
+            ofType(WishlistActions.addToWishlistSuccess),
+            mergeMap(() => this.wishlistService.getWishList().pipe(
+                map((wishlistItems) => WishlistActions.loadWishlistSuccess({ items: wishlistItems })),
+                catchError(() => of(WishlistActions.loadWishlistFailure({ error: 'Failed to refresh wishlist' })))
+            ))
         );
     });
 }

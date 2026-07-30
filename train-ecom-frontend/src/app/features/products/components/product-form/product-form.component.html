@@ -102,21 +102,22 @@
             </mat-form-field>
 
             <div class="mt-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="d-flex align-items-center justify-content-between mb-2">
                     <label class="form-label fw-bold m-0">Product Images</label>
-                    <small class="text-muted fs-7">Maximum file size: 5MB</small>
+                    <small class="text-muted fs-7">Maximum file size: 5MB per image</small>
                 </div>
 
+                <!-- Existing Product Images (Edit Mode) -->
                 <div class="row mt-2 mb-3" *ngIf="existingImages.length > 0">
                     <div class="col-12">
-                        <label class="form-label text-muted small">Current Product Images</label>
+                        <label class="form-label text-muted small fw-semibold">Current Product Images</label>
                         <div class="d-flex flex-wrap gap-3">
-                            <div *ngFor="let img of existingImages; let i = index" class="position-relative">
-                                <img [src]="img.imageUrl" class="img-thumbnail"
-                                    style="width: 90px; height: 90px; object-fit: cover;">
-
-                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-1"
-                                    style="line-height: 1;" (click)="removeExistingImage(img.id, i)">
+                            <div *ngFor="let img of existingImages; let i = index" class="position-relative preview-card">
+                                <img [src]="img.imageUrl" class="img-thumbnail rounded shadow-sm"
+                                    style="width: 100px; height: 100px; object-fit: cover;">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center"
+                                    style="width: 22px; height: 22px; line-height: 1;" (click)="removeExistingImage(img.id, i)"
+                                    title="Remove Image">
                                     &times;
                                 </button>
                             </div>
@@ -124,32 +125,47 @@
                     </div>
                 </div>
 
-                <div formArrayName="images" class="d-flex flex-column gap-2">
-                    <div *ngFor="let image of imageControls; let i = index" class="d-flex align-items-center gap-2">
-
-                        <div class="border p-2 rounded flex-grow-1">
-                            <span class="text-muted small me-2">New Image {{i + 1}} (Max 5MB)</span>
-                            <input type="file" accept="image/*" (change)="onFileChange($event, i)" class="ms-2">
+                <!-- Dynamic Image Upload Inputs & Live Previews -->
+                <div formArrayName="images" class="d-flex flex-column gap-3">
+                    <div *ngFor="let image of imageControls; let i = index" class="card border p-3 rounded shadow-xs">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold text-secondary small">Image File #{{ i + 1 }}</span>
+                            <button type="button" mat-icon-button color="warn" *ngIf="imageControls.length > 1"
+                                (click)="removeImageField(i)" title="Remove Image Input">
+                                <mat-icon>delete</mat-icon>
+                            </button>
                         </div>
 
-                        <button type="button" mat-icon-button color="warn" *ngIf="imageControls.length > 1"
-                            (click)="removeImageField(i)">
-                            <mat-icon>delete</mat-icon>
-                        </button>
+                        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                            <div class="flex-grow-1">
+                                <input type="file" accept="image/*" (change)="onFileChange($event, i)" class="form-control">
+                            </div>
+
+                            <!-- Live Image Preview for Newly Uploaded File -->
+                            <div *ngIf="previewUrls[i]" class="position-relative flex-shrink-0 preview-card">
+                                <img [src]="previewUrls[i]" class="img-thumbnail rounded shadow-sm"
+                                    style="width: 100px; height: 100px; object-fit: cover;">
+                                <span class="badge bg-success position-absolute bottom-0 start-0 m-1 small">Preview</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <button type="button" mat-stroked-button color="primary" class="mt-3" (click)="addImageField()">
-                    <mat-icon>add</mat-icon> Add More
+                    <mat-icon>add</mat-icon> Add More Image
                 </button>
             </div>
 
-            <div class="mt-4 d-flex justify-content-end gap-3">
-                <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid">
-                    {{ isEditMode ? 'Update Product' : 'Add Product' }}
+            <div class="mt-4 d-flex justify-content-end gap-3 align-items-center">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid || (isLoading$ | async)">
+                    <span *ngIf="!(isLoading$ | async)">{{ isEditMode ? 'Update Product' : 'Add Product' }}</span>
+                    <span *ngIf="isLoading$ | async" class="d-flex align-items-center gap-2">
+                        <mat-spinner diameter="20" color="accent"></mat-spinner>
+                        <span>{{ isEditMode ? 'Updating Product...' : 'Adding Product...' }}</span>
+                    </span>
                 </button>
 
-                <button mat-stroked-button color="warn" type="button" routerLink="/admin/products/view/{{ productId }}">
+                <button mat-stroked-button color="warn" type="button" [disabled]="isLoading$ | async" (click)="onBack()">
                     Cancel
                 </button>
             </div>

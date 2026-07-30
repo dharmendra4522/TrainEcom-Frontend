@@ -23,7 +23,12 @@ export const selectCartLoading = createSelector(
     (state) => state.loading || false
 )
 
+export const selectCartLoaded = createSelector(
+    selectCartState,
+    (state) => state.loaded || false
+);
+
 export const selectCartError = createSelector(
     selectCartState,
     (state) => state.error || null
-)
+);
