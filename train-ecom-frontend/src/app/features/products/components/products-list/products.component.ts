@@ -41,7 +41,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   categories$ = this.store.select(selectAllCategories);
 
   pageNumber: number = 1;
-  pageSize: number = 5;
+  pageSize: number = 10;
   totalRecords: number = 0;
 
   columns: TableColumn[] = [

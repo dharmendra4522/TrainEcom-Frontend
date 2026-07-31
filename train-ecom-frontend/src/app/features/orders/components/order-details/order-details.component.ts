@@ -7,6 +7,7 @@ import { ConfirmDialogServiceService } from '../../../../core/services/confirm-d
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { OrderStatus } from '../../../../core/models/order.model';
+import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 
 @Component({
   selector: 'app-order-details',
@@ -17,7 +18,6 @@ export class OrderDetailsComponent {
   private orderService = inject(OrderHistoryService);
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
-  private confirmDialog = inject(ConfirmDialogServiceService);
   private dialog = inject(MatDialog);
 
   orderDetail: OrderDetailsResponse | null = null;
@@ -98,6 +98,19 @@ export class OrderDetailsComponent {
         })
       }
     })
+  }
+
+  openTrackingDialog(): void {
+    const orderId = this.orderDetail?.orderId;
+    if (orderId) {
+      this.dialog.open(OrderTrackingDialogComponent, {
+        width: '600px',
+        data: { orderId }
+      });
+    }
+    else{
+      this.notification.showError('Order ID is not available for tracking.');
+    }
   }
 
 }

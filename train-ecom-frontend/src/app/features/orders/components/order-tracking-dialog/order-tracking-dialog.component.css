@@ -1,0 +1,52 @@
+.timeline-item {
+  min-height: 60px;
+}
+.timeline-icon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.timeline-line {
+  width: 2px;
+  background-color: #e0e0e0;
+  flex-grow: 1;
+  margin-top: 4px;
+  border-radius: 2px;
+  transition:
+    background-color 0.4s ease,
+    height 0.4s ease-in-out;
+}
+
+.timeline-item.completed .timeline-line {
+  background-color: #3f51b5;
+}
+
+@keyframes pulse {
+  from {
+    height: 0px;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+.timeline-item.completed .timeline-line {
+  background-color: #3f51b5;
+  animation: growLine 0.6s ease-in-out forwards;
+}
+
+.timeline-item.completed mat-icon {
+  animation: popIcon 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes popIcon {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

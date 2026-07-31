@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { OrderDetailsResponse, OrderHistoryFilterParams, OrderHistoryResponse } from '../models/order-history.model';
+import { OrderDetailsResponse, OrderHistoryFilterParams, OrderHistoryResponse, OrderTrackingResponse } from '../models/order-history.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -43,6 +43,10 @@ export class OrderHistoryService {
 
   cancelOrder(orderId: string): Observable<void> {
     return this.http.patch<void>(`${this.baseAPI}/${orderId}/cancel`, {});
+  }
+
+  getOrderTracking(orderId: string): Observable<OrderTrackingResponse> {
+    return this.http.get<OrderTrackingResponse>(`${this.baseAPI}/${orderId}/tracking`);
   }
 
 }

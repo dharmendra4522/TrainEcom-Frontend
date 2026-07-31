@@ -3,13 +3,18 @@
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <nav aria-label="breadcrumb" class="min-w-0 me-2">
             <ol class="breadcrumb bg-transparent p-0 mb-0 flex-nowrap overflow-hidden">
-                <li class="breadcrumb-item flex-shrink-0"><a routerLink="/" class="text-decoration-none text-muted">Home</a></li>
-                <li class="breadcrumb-item flex-shrink-0"><a routerLink="/orders/history" class="text-decoration-none text-muted">My History</a></li>
-                <li class="breadcrumb-item active text-dark fw-semibold text-truncate" aria-current="page">{{orderDetail?.orderId}}</li>
+                <li class="breadcrumb-item flex-shrink-0"><a routerLink="/"
+                        class="text-decoration-none text-muted">Home</a></li>
+                <li class="breadcrumb-item flex-shrink-0"><a routerLink="/orders/history"
+                        class="text-decoration-none text-muted">My History</a></li>
+                <li class="breadcrumb-item active text-dark fw-semibold text-truncate" aria-current="page">
+                    {{orderDetail?.orderId}}</li>
             </ol>
         </nav>
-        <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0" routerLink="/orders/history">
-            <mat-icon>arrow_back</mat-icon> <span class="d-none d-sm-inline">Back to Orders</span><span class="d-inline d-sm-none">Back</span>
+        <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0"
+            routerLink="/orders/history">
+            <mat-icon>arrow_back</mat-icon> <span class="d-none d-sm-inline">Back to Orders</span><span
+                class="d-inline d-sm-none">Back</span>
         </button>
     </div>
 
@@ -22,13 +27,20 @@
             <mat-card class="order-info-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 bg-white">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
-                        <span class="text-secondary small">Ordered on: {{ orderDetail.orderDate | date:'medium' }}</span>
+                        <span class="text-secondary small">Ordered on: {{ orderDetail.orderDate | date:'medium'
+                            }}</span>
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
                         <span class="badge text-success px-3 py-2 rounded-pill fw-bold fs-6"
                             [ngClass]="getStatusClass(orderDetail.orderStatus)">
                             {{ orderDetail.orderStatus }}
                         </span>
+
+                        <!-- 👈 Track Order Button yahan sabse best lagega -->
+                        <button mat-flat-button color="primary" class="d-flex align-items-center gap-1 py-1 px-3"
+                            (click)="openTrackingDialog()">
+                            <mat-icon>local_shipping</mat-icon> Track Order
+                        </button>
                     </div>
                 </div>
             </mat-card>
@@ -45,21 +57,25 @@
                         class="product-item d-flex align-items-center justify-content-between gap-2 gap-sm-3 py-3 border-bottom last-border-none">
 
                         <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 min-w-0">
-                            <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0" style="width: 48px; height: 48px;">
+                            <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0"
+                                style="width: 48px; height: 48px;">
                                 <img [src]="getImageUrl(item.thumbnailUrl) || 'assets/placeholder.jpg'"
-                                    (error)="onImageError($event)"
-                                    [alt]="item.productName" class="img-fluid object-fit-cover w-100 h-100">
+                                    (error)="onImageError($event)" [alt]="item.productName"
+                                    class="img-fluid object-fit-cover w-100 h-100">
                             </div>
 
                             <div class="min-w-0 flex-grow-1">
-                                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6" [title]="item.productName">{{ item.productName }}</h6>
-                                <div class="text-secondary small fs-7">Qty: {{ item.quantity }} &times; ₹{{ item.unitPrice | number:'1.2-2' }}</div>
+                                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6" [title]="item.productName">{{
+                                    item.productName }}</h6>
+                                <div class="text-secondary small fs-7">Qty: {{ item.quantity }} &times; ₹{{
+                                    item.unitPrice | number:'1.2-2' }}</div>
                             </div>
                         </div>
 
                         <div class="text-end flex-shrink-0 ps-1">
                             <span class="text-muted small d-none d-sm-inline me-1">Total:</span>
-                            <span class="fw-bold text-dark fs-6 text-nowrap">₹{{ item.totalPrice | number:'1.2-2' }}</span>
+                            <span class="fw-bold text-dark fs-6 text-nowrap">₹{{ item.totalPrice | number:'1.2-2'
+                                }}</span>
                         </div>
 
                     </div>
@@ -76,8 +92,10 @@
                     <h6 class="fw-bold text-dark mb-1">{{ orderDetail.deliveryAddress.fullName }}</h6>
                     <p class="text-secondary small mb-1 text-break">
                         {{ orderDetail.deliveryAddress.addressLine1 }},
-                        <span *ngIf="orderDetail.deliveryAddress.addressLine2">{{ orderDetail.deliveryAddress.addressLine2 }}, </span>
-                        {{ orderDetail.deliveryAddress.city }}, {{ orderDetail.deliveryAddress.state }} - {{ orderDetail.deliveryAddress.postalCode }}
+                        <span *ngIf="orderDetail.deliveryAddress.addressLine2">{{
+                            orderDetail.deliveryAddress.addressLine2 }}, </span>
+                        {{ orderDetail.deliveryAddress.city }}, {{ orderDetail.deliveryAddress.state }} - {{
+                        orderDetail.deliveryAddress.postalCode }}
                     </p>
                     <div class="d-flex align-items-center text-secondary small mt-2">
                         <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px;">phone</mat-icon>
@@ -103,10 +121,13 @@
                 <div class="d-flex justify-content-between align-items-center mb-2 small">
                     <span class="text-secondary">Status:</span>
                     <span class="fw-semibold text-success">{{ orderDetail.payment.paymentStatus }}</span>
+
                 </div>
-                <div class="d-flex justify-content-between align-items-center small gap-2" *ngIf="orderDetail.payment.transactionId">
+                <div class="d-flex justify-content-between align-items-center small gap-2"
+                    *ngIf="orderDetail.payment.transactionId">
                     <span class="text-secondary flex-shrink-0">Txn ID:</span>
-                    <span class="text-muted text-truncate font-monospace" style="max-width: 180px;">{{ orderDetail.payment.transactionId }}</span>
+                    <span class="text-muted text-truncate font-monospace" style="max-width: 180px;">{{
+                        orderDetail.payment.transactionId }}</span>
                 </div>
             </mat-card>
 
@@ -118,7 +139,8 @@
                 </h5>
                 <div class="d-flex justify-content-between mb-2 small text-secondary">
                     <span>Total Items Price</span>
-                    <span class="fw-semibold text-dark">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2' }}</span>
+                    <span class="fw-semibold text-dark">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2'
+                        }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2 small text-secondary">
                     <span>Shipping Charges</span>
@@ -127,11 +149,13 @@
                 <mat-divider class="my-3"></mat-divider>
                 <div class="d-flex justify-content-between align-items-baseline mb-4">
                     <span class="fw-bold text-dark">Total Amount</span>
-                    <span class="fw-bold text-primary fs-4">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2' }}</span>
+                    <span class="fw-bold text-primary fs-4">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2'
+                        }}</span>
                 </div>
 
-                <button mat-flat-button color="warn" class="w-100 py-3 rounded-3 fw-bold cancel-btn" *ngIf="orderDetail.canCancel"
-                    [disabled]="isCancelling" (click)="onCancelOrder(orderDetail.orderId)">
+                <button mat-flat-button color="warn" class="w-100 py-3 rounded-3 fw-bold cancel-btn"
+                    *ngIf="orderDetail.canCancel" [disabled]="isCancelling"
+                    (click)="onCancelOrder(orderDetail.orderId)">
                     <span class="d-flex align-items-center justify-content-center gap-2 w-100">
                         <mat-spinner *ngIf="isCancelling" diameter="20" class="custom-spinner"></mat-spinner>
                         <span>{{ isCancelling ? 'Cancelling...' : 'Cancel Order' }}</span>

@@ -8,11 +8,13 @@ import { OrderManagementComponent } from './components/order-management/order-ma
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { FormsModule } from '@angular/forms';
+import { OrderTrackingDialogComponent } from './components/order-tracking-dialog/order-tracking-dialog.component';
 @NgModule({
   declarations: [
     OrderManagementComponent,
     OrderHistoryComponent,
     OrderDetailsComponent,
+    OrderTrackingDialogComponent,
   ],
   imports: [
     CommonModule,

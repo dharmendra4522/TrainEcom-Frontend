@@ -1,0 +1,57 @@
+<div class="tracking-dialog-container p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <div>
+            <h3 class="mb-0 fw-bold">Track Order Status</h3>
+        </div>
+        <button mat-icon-button (click)="closeDialog()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-4">
+        <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+        <p class="mt-2 text-secondary">Fetching latest status...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Tracking Timeline Content -->
+    <div *ngIf="!isLoading && trackingData" class="tracking-content">
+        <div class="mb-3">
+            <span class="badge bg-primary fs-6 px-3 py-2">
+                Current Status: {{ trackingData.currentStatus }}
+            </span>
+        </div>
+
+        <!-- Stepper / Timeline -->
+        <div class="timeline mt-4">
+            <div *ngFor="let step of trackingData.trackingSteps; let i = index; let last = last"
+                class="timeline-item d-flex position-relative" [class.completed]="step.completed"
+                [style.animation-delay.ms]="i * 200">
+
+                <div class="timeline-icon me-3">
+                    <mat-icon [color]="step.completed ? 'primary' : 'disabled'">
+                        {{ step.completed ? 'check_circle' : 'radio_button_unchecked' }}
+                    </mat-icon>
+                    <div *ngIf="!last" class="timeline-line"></div>
+                </div>
+
+                <div class="timeline-body pb-4">
+                    <h6 class="mb-0 fw-semibold" [class.text-muted]="!step.completed"
+                        [class.text-danger]="step.status === 'Cancelled' && step.completed">
+                        {{ step.status }}
+                    </h6>
+                    <small *ngIf="step.statusDate" class="text-muted d-block">
+                        {{ step.statusDate | date:'medium' }}
+                    </small>
+                    <small *ngIf="step.remarks" class="text-info d-block">
+                        {{ step.remarks }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

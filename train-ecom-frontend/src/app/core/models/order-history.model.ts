@@ -69,3 +69,16 @@ export interface OrderDetailsResponse{
     }
     canCancel: boolean;
 }
+
+export interface OrderTrackingStep{
+    status: OrderStatus;
+    completed: boolean;
+    statusDate?: string | null;
+    remarks?: string | null;
+}
+
+export interface OrderTrackingResponse{
+    orderId: string;
+    currentStatus: string;
+    trackingSteps: OrderTrackingStep[];
+}
