@@ -43,7 +43,7 @@ export class OrderHistoryComponent {
     }
     const query = this.searchQuery.toLowerCase();
     return this.orderHistory.filter(order =>
-      (order as any).orderName?.toLowerCase().includes(query) ||
+      order.orderName?.toLowerCase().includes(query) ||
       order.orderId.toLowerCase().includes(query)
     );
   }

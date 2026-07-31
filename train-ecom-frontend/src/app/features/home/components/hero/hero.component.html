@@ -1,4 +1,17 @@
-<div id="homeHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+<div id="homeHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+    
+    <!-- Story-style Progress Indicators -->
+    <div class="carousel-indicators custom-story-indicators">
+        <button type="button" *ngFor="let banner of banners; let i = index" 
+                data-bs-target="#homeHeroCarousel" 
+                [attr.data-bs-slide-to]="i" 
+                [class.active]="i === 0" 
+                [attr.aria-current]="i === 0 ? 'true' : null" 
+                [attr.aria-label]="'Slide ' + (i + 1)">
+            <div class="story-progress-fill"></div>
+        </button>
+    </div>
+
     <div class="carousel-inner">
         <div *ngFor="let banner of banners; let i = index" class="carousel-item" [class.active]="i === 0">
             <img [src]="banner.imageUrl" class="d-block w-100 object-fit-cover hero-banner-img" alt="Banner {{ i + 1 }}">
@@ -11,14 +24,4 @@
 
         </div>
     </div>
-
-    <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-
 </div>

@@ -65,6 +65,7 @@
             formControlName="phoneNumber"
             placeholder="Ex. 9876543210"
             maxlength="10"
+            (keypress)="allowOnlyNumbers($event)"
           />
  
           <mat-error
@@ -105,10 +106,11 @@
           <mat-error *ngIf="registerForm.get('password')?.hasError('required')">
             Password is required.
           </mat-error>
-          <mat-error
-            *ngIf="registerForm.get('password')?.hasError('minlength')"
-          >
+          <mat-error *ngIf="registerForm.get('password')?.hasError('minlength') && !registerForm.get('password')?.hasError('required')">
             Password must be at least 6 characters long.
+          </mat-error>
+          <mat-error *ngIf="registerForm.get('password')?.hasError('pattern') && !registerForm.get('password')?.hasError('minlength') && !registerForm.get('password')?.hasError('required')" style="white-space: normal; line-height: 1.2; font-size: 11px; margin-top: 4px;">
+            Must have 1 uppercase, 1 number & 1 special char.
           </mat-error>
         </mat-form-field>
  
