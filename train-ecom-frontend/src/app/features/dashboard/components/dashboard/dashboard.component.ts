@@ -1,84 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   OrderListItem,
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
 } from '../../../../core/models/order.model';
+import { DashboardService } from '../../../../core/services/dashboard.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   stats = [
-    {
-      title: 'Total Revenue',
-      value: '₹5,420',
-      icon: 'attach_money',
-      color: '#4caf50',
-    },
-    { title: 'Orders', value: '128', icon: 'shopping_cart', color: '#2196f3' },
-    { title: 'Customers', value: '850', icon: 'people', color: '#ff9800' },
-    { title: 'Products', value: '45', icon: 'inventory_2', color: '#f44336' },
-    {
-      title: 'Brands',
-      value: '12',
-      icon: 'branding_watermark',
-      color: '#9c27b0',
-    },
-    { title: 'Categories', value: '8', icon: 'category', color: '#3f51b5' },
+    { title: 'Total Revenue', value: '₹...', icon: 'attach_money', color: '#4caf50' },
+    { title: 'Orders', value: '...', icon: 'shopping_cart', color: '#2196f3' },
+    { title: 'Customers', value: '...', icon: 'people', color: '#ff9800' },
+    { title: 'Products', value: '...', icon: 'inventory_2', color: '#f44336' },
+    { title: 'Brands', value: '...', icon: 'branding_watermark', color: '#9c27b0' },
+    { title: 'Categories', value: '...', icon: 'category', color: '#3f51b5' },
   ];
 
-  recentOrders: OrderListItem[] = [
-    {
-      orderId: '#ORD-1001',
-      orderDate: '12 Jul 2026',
-      totalAmount: 120.5,
-      orderStatus: 'Delivered' as OrderStatus,
-      paymentMethod: PaymentMethod.UPI,
-      paymentStatus: PaymentStatus.Success,
-      totalItems: 3,
-    },
-    {
-      orderId: '#ORD-1002',
-      orderDate: '11 Jul 2026',
-      totalAmount: 45,
-      orderStatus: 'Pending' as OrderStatus,
-      paymentMethod: PaymentMethod.CashOnDelivery,
-      paymentStatus: PaymentStatus.Pending,
-      totalItems: 1,
-    },
-    {
-      orderId: '#ORD-1003',
-      orderDate: '10 Jul 2026',
-      totalAmount: 250,
-      orderStatus: 'Shipped' as OrderStatus,
-      paymentMethod: PaymentMethod.Card,
-      paymentStatus: PaymentStatus.Success,
-      totalItems: 5,
-    },
-    {
-      orderId: '#ORD-1004',
-      orderDate: '09 Jul 2026',
-      totalAmount: 89.99,
-      orderStatus: 'Processing' as OrderStatus,
-      paymentMethod: PaymentMethod.UPI,
-      paymentStatus: PaymentStatus.Pending,
-      totalItems: 2,
-    },
-    {
-      orderId: '#ORD-1005',
-      orderDate: '08 Jul 2026',
-      totalAmount: 320,
-      orderStatus: 'Cancelled' as OrderStatus,
-      paymentMethod: PaymentMethod.Card,
-      paymentStatus: PaymentStatus.Failed,
-      totalItems: 4,
-    },
-  ];
-
+  recentOrders: OrderListItem[] = [];
   displayedColumns: string[] = [
     'orderId',
     'orderDate',
@@ -86,4 +31,40 @@ export class DashboardComponent {
     'orderStatus',
   ];
   dataSource = this.recentOrders;
+
+  constructor(private dashboardService: DashboardService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.dashboardService.getDashboardData().subscribe({
+      next: (data) => {
+        this.stats = [
+          { title: 'Total Revenue', value: `₹${data.totalRevenue}`, icon: 'attach_money', color: '#4caf50' },
+          { title: 'Orders', value: data.totalOrders.toString(), icon: 'shopping_cart', color: '#2196f3' },
+          { title: 'Customers', value: data.totalUsers.toString(), icon: 'people', color: '#ff9800' },
+          { title: 'Products', value: data.totalProducts.toString(), icon: 'inventory_2', color: '#f44336' },
+          { title: 'Brands', value: data.totalBrands.toString(), icon: 'branding_watermark', color: '#9c27b0' },
+          { title: 'Categories', value: data.totalCategories.toString(), icon: 'category', color: '#3f51b5' },
+        ];
+
+        this.recentOrders = data.recentOrders.map(order => ({
+          orderId: order.orderId,
+          orderDate: order.orderDate,
+          totalAmount: order.totalPrice,
+          orderStatus: order.orderStatus as OrderStatus,
+          paymentMethod: PaymentMethod.Card,
+          paymentStatus: PaymentStatus.Success,
+          totalItems: 1
+        }));
+        this.dataSource = this.recentOrders;
+      },
+      error: (err) => {
+        console.error('Failed to fetch dashboard data', err);
+      }
+    });
+  }
+
+  navigateToOrders(): void{
+    this.router.navigate(['/orders/manage']);
+  }
+
 }

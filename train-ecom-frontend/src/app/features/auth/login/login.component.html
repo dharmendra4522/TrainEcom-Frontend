@@ -1,11 +1,11 @@
-<div class="bg-image-container container-fluid d-flex justify-content-center justify-content-md-start align-items-center min-vh-100 bg-light py-4 px-3 px-sm-4">
-  <mat-card class="glass-card p-4 p-md-5 shadow-sm border-0 rounded-4 bg-white" style="width: 100%; max-width: 450px;">
-    
+<div
+  class="bg-image-container container-fluid d-flex justify-content-center justify-content-md-start align-items-center min-vh-100 bg-light py-4 px-3 px-sm-4"
+>
+  <mat-card
+    class="glass-card p-4 p-md-5 shadow-sm border-0 rounded-4 bg-white"
+    style="width: 100%; max-width: 450px"
+  >
     <div [ngSwitch]="currentStep" class="fade-in-container">
-
-      <!-- ============================== -->
-      <!-- STEP: LOGIN                    -->
-      <!-- ============================== -->
       <ng-container *ngSwitchCase="'LOGIN'">
         <div class="text-center mb-4">
           <h2 class="fw-bold mb-2 text-dark fs-3">Log in to TrainEcom</h2>
@@ -13,11 +13,20 @@
         </div>
 
         <mat-card-content class="p-0">
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+          <form
+            [formGroup]="loginForm"
+            (ngSubmit)="onSubmit()"
+            class="d-flex flex-column gap-3"
+          >
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Email</mat-label>
               <mat-icon matPrefix class="me-2 text-secondary">email</mat-icon>
-              <input matInput type="email" formControlName="email" placeholder="Ex. user@example.com" />
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="Ex. user@example.com"
+              />
 
               <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
                 Email address is required.
@@ -30,36 +39,70 @@
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Password</mat-label>
               <mat-icon matPrefix class="me-2 text-secondary">lock</mat-icon>
-              <input matInput [type]="isShowingPassword ? 'text' : 'password'" formControlName="password" />
-              <button type="button" mat-icon-button matSuffix (click)="togglePasswordVisibility()" [attr.aria-label]="isShowingPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="isShowingPassword">
-                <mat-icon>{{ isShowingPassword ? "visibility" : "visibility_off" }}</mat-icon>
+              <input
+                matInput
+                [type]="isShowingPassword ? 'text' : 'password'"
+                formControlName="password"
+              />
+              <button
+                type="button"
+                mat-icon-button
+                matSuffix
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="
+                  isShowingPassword ? 'Hide password' : 'Show password'
+                "
+                [attr.aria-pressed]="isShowingPassword"
+              >
+                <mat-icon>{{
+                  isShowingPassword ? "visibility" : "visibility_off"
+                }}</mat-icon>
               </button>
 
-              <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              <mat-error
+                *ngIf="loginForm.get('password')?.hasError('required')"
+              >
                 Password is required.
               </mat-error>
-              <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+              <mat-error
+                *ngIf="loginForm.get('password')?.hasError('minlength')"
+              >
                 Password must be at least 6 characters long.
               </mat-error>
             </mat-form-field>
 
             <div class="d-flex justify-content-end mt-n2">
-              <span class="forget-pwd-link fw-medium" style="cursor:pointer;" (click)="goToForgotPassword()">
+              <span
+                class="forget-pwd-link fw-medium"
+                style="cursor: pointer"
+                (click)="goToForgotPassword()"
+              >
                 Forget Password?
               </span>
             </div>
 
-            <mat-error *ngIf="error$ | async as serverError" class="text-center text-danger fw-medium mt-2">
+            <mat-error
+              *ngIf="error$ | async as serverError"
+              class="text-center text-danger fw-medium mt-2"
+            >
               {{ serverError }}
             </mat-error>
 
-            <button type="submit" mat-flat-button color="primary" class="w-100 py-3 mt-2 fs-6 fw-bold rounded-3 shadow-sm" [disabled]="loginForm.invalid">
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              class="w-100 py-3 mt-2 fs-6 fw-bold rounded-3 shadow-sm"
+              [disabled]="loginForm.invalid"
+            >
               Log In
             </button>
 
             <p class="text-center mt-4 text-secondary">
               Don't have an account?
-              <a routerLink="/signup" class="auth-accent-link ms-1">Register here</a>
+              <a routerLink="/signup" class="auth-accent-link ms-1"
+                >Register here</a
+              >
             </p>
           </form>
         </mat-card-content>
@@ -71,28 +114,61 @@
       <ng-container *ngSwitchCase="'FORGOT_EMAIL'">
         <div class="text-center mb-4">
           <h2 class="fw-bold text-dark fs-3 mb-2">Forgot Password</h2>
-          <p class="text-secondary mb-0">Enter your registered email and we'll send you an OTP.</p>
+          <p class="text-secondary mb-0">
+            Enter your registered email and we'll send you an OTP.
+          </p>
         </div>
-        
-        <form [formGroup]="emailForm" (ngSubmit)="onSendOtp()" class="d-flex flex-column gap-3">
+
+        <form
+          [formGroup]="emailForm"
+          (ngSubmit)="onSendOtp()"
+          class="d-flex flex-column gap-3"
+        >
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Email</mat-label>
             <mat-icon matPrefix class="me-2 text-secondary">email</mat-icon>
-            <input matInput type="email" formControlName="email" placeholder="user@example.com" />
-            <mat-error *ngIf="emailForm.get('email')?.hasError('required')">Email is required.</mat-error>
-            <mat-error *ngIf="emailForm.get('email')?.hasError('email')">Enter a valid email.</mat-error>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="user@example.com"
+            />
+            <mat-error *ngIf="emailForm.get('email')?.hasError('required')"
+              >Email is required.</mat-error
+            >
+            <mat-error *ngIf="emailForm.get('email')?.hasError('email')"
+              >Enter a valid email.</mat-error
+            >
           </mat-form-field>
 
-          <button mat-flat-button color="primary" type="submit" class="w-100 py-3 rounded-pill fw-bold fs-6 mt-2 shadow-sm" [style.pointer-events]="isLoading ? 'none' : 'auto'" [class.opacity-75]="isLoading">
-            <div class="d-flex justify-content-center align-items-center w-100 h-100">
-              <mat-spinner diameter="20" color="accent" *ngIf="isLoading" class="me-2"></mat-spinner>
-              <span>{{ isLoading ? 'Sending...' : 'Send OTP' }}</span>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="w-100 py-3 rounded-pill fw-bold fs-6 mt-2 shadow-sm"
+            [style.pointer-events]="isLoading ? 'none' : 'auto'"
+            [class.opacity-75]="isLoading"
+          >
+            <div
+              class="d-flex justify-content-center align-items-center w-100 h-100"
+            >
+              <mat-spinner
+                diameter="20"
+                color="accent"
+                *ngIf="isLoading"
+                class="me-2"
+              ></mat-spinner>
+              <span>{{ isLoading ? "Sending..." : "Send OTP" }}</span>
             </div>
           </button>
         </form>
 
         <div class="text-center mt-4 pt-2">
-          <a (click)="goBackToLogin()" style="cursor:pointer;" class="text-primary fw-semibold text-decoration-none d-inline-flex align-items-center gap-1 hover-primary transition-colors">
+          <a
+            (click)="goBackToLogin()"
+            style="cursor: pointer"
+            class="text-primary fw-semibold text-decoration-none d-inline-flex align-items-center gap-1 hover-primary transition-colors"
+          >
             <mat-icon class="fs-6">arrow_back</mat-icon>
             Back to Login
           </a>
@@ -105,65 +181,157 @@
       <ng-container *ngSwitchCase="'FORGOT_RESET_PASSWORD'">
         <div class="text-center mb-4">
           <h2 class="fw-bold text-dark fs-3 mb-2">Reset Password</h2>
-          <p class="text-secondary mb-0">Enter the OTP sent to <strong class="text-dark">{{ userEmail }}</strong> and set a new password.</p>
+          <p class="text-secondary mb-0">
+            Enter the OTP sent to
+            <strong class="text-dark">{{ userEmail }}</strong> and set a new
+            password.
+          </p>
           <div class="mt-2">
-            <span class="badge" [ngClass]="expiryTimer > 60 ? 'bg-info' : 'bg-danger'">
+            <span
+              class="badge"
+              [ngClass]="expiryTimer > 60 ? 'bg-info' : 'bg-danger'"
+            >
               OTP Expires in: {{ formattedExpiryTime }}
             </span>
           </div>
         </div>
 
-        <form [formGroup]="resetPasswordForm" (ngSubmit)="onResetPassword()" class="d-flex flex-column gap-2">
-          
+        <form
+          [formGroup]="resetPasswordForm"
+          (ngSubmit)="onResetPassword()"
+          class="d-flex flex-column gap-2"
+        >
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>6-Digit OTP</mat-label>
             <mat-icon matPrefix class="me-2 text-secondary">pin</mat-icon>
-            <input matInput type="text" formControlName="otp" placeholder="123456" maxlength="6" />
-            <mat-error *ngIf="resetPasswordForm.get('otp')?.hasError('required')">OTP is required.</mat-error>
-            <mat-error *ngIf="resetPasswordForm.get('otp')?.hasError('pattern')">OTP must be 6 digits.</mat-error>
+            <input
+              matInput
+              type="text"
+              formControlName="otp"
+              placeholder="123456"
+              maxlength="6"
+            />
+            <mat-error
+              *ngIf="resetPasswordForm.get('otp')?.hasError('required')"
+              >OTP is required.</mat-error
+            >
+            <mat-error *ngIf="resetPasswordForm.get('otp')?.hasError('pattern')"
+              >OTP must be 6 digits.</mat-error
+            >
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>New Password</mat-label>
             <mat-icon matPrefix class="me-2 text-secondary">lock</mat-icon>
-            <input matInput [type]="isShowingNewPassword ? 'text' : 'password'" formControlName="newPassword" />
-            <button type="button" mat-icon-button matSuffix (click)="toggleNewPasswordVisibility()">
-              <mat-icon>{{ isShowingNewPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+            <input
+              matInput
+              [type]="isShowingNewPassword ? 'text' : 'password'"
+              formControlName="newPassword"
+            />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="toggleNewPasswordVisibility()"
+            >
+              <mat-icon>{{
+                isShowingNewPassword ? "visibility" : "visibility_off"
+              }}</mat-icon>
             </button>
-            <mat-error *ngIf="resetPasswordForm.get('newPassword')?.hasError('required')">Password is required.</mat-error>
-            <mat-error *ngIf="resetPasswordForm.get('newPassword')?.hasError('pattern')" style="white-space: normal; line-height: 1.2; font-size: 11px;">
-              Must have at least 1 uppercase, 1 lowercase, 1 number & 1 special char.
+            <mat-error
+              *ngIf="resetPasswordForm.get('newPassword')?.hasError('required')"
+              >Password is required.</mat-error
+            >
+            <mat-error
+              *ngIf="resetPasswordForm.get('newPassword')?.hasError('pattern')"
+              style="white-space: normal; line-height: 1.2; font-size: 11px"
+            >
+              Must have at least 1 uppercase, 1 lowercase, 1 number & 1 special
+              char.
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Confirm New Password</mat-label>
-            <mat-icon matPrefix class="me-2 text-secondary">lock_outline</mat-icon>
-            <input matInput [type]="isShowingConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" />
-            <button type="button" mat-icon-button matSuffix (click)="toggleConfirmPasswordVisibility()">
-              <mat-icon>{{ isShowingConfirmPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+            <mat-icon matPrefix class="me-2 text-secondary"
+              >lock_outline</mat-icon
+            >
+            <input
+              matInput
+              [type]="isShowingConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+            />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+              <mat-icon>{{
+                isShowingConfirmPassword ? "visibility" : "visibility_off"
+              }}</mat-icon>
             </button>
-            <mat-error *ngIf="resetPasswordForm.get('confirmPassword')?.hasError('required')">Confirm password is required.</mat-error>
-            <mat-error *ngIf="resetPasswordForm.hasError('passwordMismatch')">Passwords do not match.</mat-error>
+            <mat-error
+              *ngIf="
+                resetPasswordForm.get('confirmPassword')?.hasError('required')
+              "
+              >Confirm password is required.</mat-error
+            >
+            <mat-error *ngIf="resetPasswordForm.hasError('passwordMismatch')"
+              >Passwords do not match.</mat-error
+            >
           </mat-form-field>
 
-          <button mat-flat-button color="primary" type="submit" class="w-100 py-3 rounded-pill fw-bold fs-6 mt-3 shadow-sm" [style.pointer-events]="(isLoading || expiryTimer <= 0) ? 'none' : 'auto'" [class.opacity-75]="isLoading || expiryTimer <= 0">
-            <div class="d-flex justify-content-center align-items-center w-100 h-100">
-              <mat-spinner diameter="20" color="accent" *ngIf="isLoading" class="me-2"></mat-spinner>
-              <span>{{ isLoading ? 'Updating...' : 'Update Password' }}</span>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="w-100 py-3 rounded-pill fw-bold fs-6 mt-3 shadow-sm"
+            [style.pointer-events]="
+              isLoading || expiryTimer <= 0 ? 'none' : 'auto'
+            "
+            [class.opacity-75]="isLoading || expiryTimer <= 0"
+          >
+            <div
+              class="d-flex justify-content-center align-items-center w-100 h-100"
+            >
+              <mat-spinner
+                diameter="20"
+                color="accent"
+                *ngIf="isLoading"
+                class="me-2"
+              ></mat-spinner>
+              <span>{{ isLoading ? "Updating..." : "Update Password" }}</span>
             </div>
           </button>
         </form>
 
-        <div class="d-flex justify-content-between align-items-center mt-4 pt-2">
-          <button mat-button color="primary" (click)="goBackToEmail()" class="fw-semibold px-0" [disabled]="isLoading">Change Email</button>
-          
-          <button mat-button color="primary" class="fw-semibold px-0" [disabled]="resendTimer > 0 || isLoading" (click)="onSendOtp()">
-            {{ resendTimer > 0 ? 'Resend in ' + resendTimer + 's' : 'Resend OTP' }}
+        <div
+          class="d-flex justify-content-between align-items-center mt-4 pt-2"
+        >
+          <button
+            mat-button
+            color="primary"
+            (click)="goBackToEmail()"
+            class="fw-semibold px-0"
+            [disabled]="isLoading"
+          >
+            Change Email
+          </button>
+
+          <button
+            mat-button
+            color="primary"
+            class="fw-semibold px-0"
+            [disabled]="resendTimer > 0 || isLoading"
+            (click)="onSendOtp()"
+          >
+            {{
+              resendTimer > 0 ? "Resend in " + resendTimer + "s" : "Resend OTP"
+            }}
           </button>
         </div>
       </ng-container>
-
     </div>
   </mat-card>
 </div>
