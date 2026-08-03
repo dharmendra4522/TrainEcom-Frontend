@@ -463,6 +463,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.notification.showError(errorMessage);
   }
 
+  checkoutBreadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Cart', url: '/cart' },
+  { label: 'Checkout' }
+];
+
   goBack(): void {
     window.history.back();
   }

@@ -6,7 +6,7 @@ import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
 import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, EMPTY, withLatestFrom } from 'rxjs';
-import { selectCartLoaded, selectCartItems } from './cart.selectors';
+import { selectCartLoaded, selectCartItems, selectCartTotalQuantity, selectCartTotalAmount } from './cart.selectors';
 
 @Injectable()
 export class CartEffects {
@@ -20,11 +20,17 @@ export class CartEffects {
       ofType(CartActions.loadCart),
       withLatestFrom(
         this.store.select(selectCartLoaded),
-        this.store.select(selectCartItems)
+        this.store.select(selectCartItems),
+        this.store.select(selectCartTotalQuantity),
+        this.store.select(selectCartTotalAmount)
       ),
-      switchMap(([_, loaded, items]) => {
-        if (loaded) {
-          return EMPTY;
+      switchMap(([action, loaded, items, totalQuantity, totalAmount]) => {
+        if (loaded && !action?.force) {
+          return of(
+            CartActions.loadCartSuccess({
+              cart: { items, totalQuantity, totalAmount },
+            })
+          );
         }
         return this.cartService.getCartItems().pipe(
           map((cartResponse) => {
@@ -191,19 +197,6 @@ export class CartEffects {
             return of(CartActions.mergeCartFailure({ error: errMsg }));
           })
         );
-      })
-    );
-  });
-
-  loginSuccessCartLoad$ = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(AuthActions.loginSuccess),
-      switchMap((action) => {
-        const role = action.payload.role;
-        if (role === 'Admin') {
-          return EMPTY;
-        }
-        return of(CartActions.loadCart());
       })
     );
   });

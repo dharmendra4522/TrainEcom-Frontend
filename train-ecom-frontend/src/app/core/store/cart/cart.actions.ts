@@ -2,7 +2,8 @@ import { createAction, props } from '@ngrx/store';
 import { CartResponse, CartItem, CartProductDetails } from '../../models/cart.model';
 
 export const loadCart = createAction(
-    '[Cart] Load Cart'
+  '[Cart] Load Cart',
+  (props?: { force?: boolean }) => props || {}
 );
 
 export const loadCartSuccess = createAction(

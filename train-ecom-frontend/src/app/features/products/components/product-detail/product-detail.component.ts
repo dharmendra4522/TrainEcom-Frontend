@@ -43,6 +43,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
 
+  productBreadcrumbs: { label: string; url?: string }[] = [];
+
   private destroy$ = new Subject<void>();
   private productDestroy$ = new Subject<void>();
 
@@ -76,6 +78,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         if (product) {
           this.product = product;
           this.setInitialImage(product);
+
+          this.productBreadcrumbs = [
+            { label: 'Home', url: '/' },
+            { label: 'Products', url: '/products' },
+            { label: product.name }
+          ];
         }
       });
 

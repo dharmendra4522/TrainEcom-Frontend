@@ -51,7 +51,7 @@
           </button>
         </div>
 
-        <!-- 🔹 Reusable Side Item Card Integration -->
+        <!-- Reusable Side Item Card Integration -->
         <div *ngIf="items.length > 0" class="d-flex flex-column gap-3">
           <app-side-item-card *ngFor="let item of items" [item]="item" [mode]="type === 'Cart' ? 'cart' : 'wishlist'"
             (remove)="handleRemove($event)" (quantityChange)="handleQuantity($event)"
@@ -61,7 +61,7 @@
 
       </div>
 
-      <!-- Footer Section -->
+      <!-- Footer Section for cart-->
       <div *ngIf="items.length > 0" class="panel-footer p-4 border-top bg-white">
         <div class="d-flex align-items-center justify-content-between mb-3" *ngIf="type === 'Cart'">
           <span class="text-muted fw-semibold">Subtotal</span>

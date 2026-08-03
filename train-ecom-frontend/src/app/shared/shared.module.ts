@@ -21,6 +21,7 @@ import { SideItemCardComponent } from './components/side-item-card/side-item-car
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { SelectionDialogComponent } from './components/selection-dialog/selection-dialog.component';
 import { ImgFallbackDirective } from './directives/img-fallback.directive';
+import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { ImgFallbackDirective } from './directives/img-fallback.directive';
     ConfirmDialogComponent,
     SelectionDialogComponent,
     ImgFallbackDirective,
+    BreadcrumbComponent,
   ],
   imports: [
     CommonModule,
@@ -67,6 +69,7 @@ import { ImgFallbackDirective } from './directives/img-fallback.directive';
     SidePanelComponent,
     ProductFilterComponent,
     ImgFallbackDirective,
+    BreadcrumbComponent
 
   ]
 })

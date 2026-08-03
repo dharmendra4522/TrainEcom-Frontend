@@ -1,16 +1,6 @@
 <div class="product-detail-container py-4 px-2 px-md-4">
-  <!-- Breadcrumb and Back Button Row -->
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb bg-transparent p-0 mb-0">
-        <li class="breadcrumb-item"><a routerLink="/" class="text-decoration-none text-muted">Home</a></li>
-        <li class="breadcrumb-item"><a routerLink="/products" class="text-decoration-none text-muted">Products</a></li>
-        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">
-          {{ product?.name || 'Product Details' }}
-        </li>
-      </ol>
-    </nav>
-
+    <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
     <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
       <mat-icon>arrow_back</mat-icon>
       Back
@@ -111,7 +101,7 @@
 
             <button mat-icon-button class="wishlist-detail-btn" [class.is-favorite]="isFavorite$ | async"
               (click)="addToWishlist()" matTooltip="Add to Wishlist">
-              <mat-icon >{{ (isFavorite$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
+              <mat-icon>{{ (isFavorite$ | async) ? 'favorite' : 'favorite_border' }}</mat-icon>
             </button>
           </div>
         </div>

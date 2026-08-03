@@ -1,7 +1,4 @@
-<div class="breadcrumb" *appRole="'Customer'">
-    <a routerLink="/">Home</a> / <span>My Account</span>
-</div>
-
+<app-breadcrumb [items]="profileBreadcrumbs" *appRole="'Customer'"></app-breadcrumb>
 <ng-container *ngIf="{loading: isLoading$ | async, error: error$ | async } as state">
     <div class="profile-content">
 
@@ -27,7 +24,8 @@
                 </div>
                 <div class="detail-row">
                     <span class="label">Phone:</span>
-                    <span class="value">{{ (userProfile.phoneNumber && !userProfile.phoneNumber.startsWith('+91')) ? '+91 ' : '' }}{{ userProfile.phoneNumber }}</span>
+                    <span class="value">{{ (userProfile.phoneNumber && !userProfile.phoneNumber.startsWith('+91')) ?
+                        '+91 ' : '' }}{{ userProfile.phoneNumber }}</span>
                 </div>
 
                 <ng-container *appRole="'Customer'">
@@ -73,12 +71,15 @@
                     <label>Phone Number</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-secondary fw-semibold border">+91</span>
-                        <input type="text" formControlName="phoneNumber" class="form-control" maxlength="10" placeholder="Enter 10-digit number">
+                        <input type="text" formControlName="phoneNumber" class="form-control" maxlength="10"
+                            placeholder="Enter 10-digit number">
                     </div>
                     <div class="error-text"
                         *ngIf="profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched">
-                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
-                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['pattern']">Only numbers are allowed, must be exactly 10 digits.</small>
+                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['required']">Phone number is
+                            required.</small>
+                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['pattern']">Only numbers are allowed,
+                            must be exactly 10 digits.</small>
                     </div>
                 </div>
 

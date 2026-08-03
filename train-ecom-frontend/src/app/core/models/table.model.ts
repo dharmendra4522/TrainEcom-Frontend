@@ -17,3 +17,9 @@ export interface TableActionEvent<T = unknown> {
   action: string;
   row: T;
 }
+
+
+export interface BreadcrumbItem {
+  label: string;
+  url?: string;
+} 

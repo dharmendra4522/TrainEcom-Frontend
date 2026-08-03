@@ -2,8 +2,16 @@
   position: relative;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.product-card mat-card-title,
+.product-card mat-card-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .image-container {

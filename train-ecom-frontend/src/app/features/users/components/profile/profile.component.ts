@@ -167,4 +167,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  profileBreadcrumbs = [
+    { label: 'Home', url: '/' },
+    { label: 'My Account' }
+  ];
+
 }

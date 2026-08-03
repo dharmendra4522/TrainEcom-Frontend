@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   // Forgot password variables
   userEmail: string = '';
   resendTimer: number = 0;
-  expiryTimer: number = 300; // 5 minutes
+  expiryTimer: number = 300;
   timerInterval: any;
   isShowingNewPassword = false;
   isShowingConfirmPassword = false;
@@ -115,7 +115,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isShowingPassword = !this.isShowingPassword;
   }
 
-  // ==== Forgot Password Logic ====
+  //Forgot Password Logic
 
   goToForgotPassword() {
     this.currentStep = 'FORGOT_EMAIL';

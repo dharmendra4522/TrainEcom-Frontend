@@ -26,6 +26,7 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
   product: Product | null = null;
   selectedImageUrl: string | null = '';
   isLoading: boolean = false;
+  adminProductBreadcrumbs: { label: string; url?: string }[] = [];
 
   ngOnInit() {
     this.loadProductDetails();
@@ -36,9 +37,7 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
-      // Dispatch action to load product details by ID
       this.store.dispatch(ProductActions.loadProductById({ id }));
-      // Subscribe to product data from store 
       this.store
         .select(selectProductById(id))
         .pipe(takeUntil(this.destroy$))
@@ -46,6 +45,12 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
           if (prod) {
             this.product = prod;
             this.setInitialImage(prod);
+
+            this.adminProductBreadcrumbs = [
+              { label: 'Home', url: '/' },
+              { label: 'Admin Products', url: '/admin/products/manage' },
+              { label: prod.name }
+            ];
           }
         });
     }
@@ -87,7 +92,7 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
       if (!confirmed || !this.product) return;
       const id = this.product.id.toString();
       this.store.dispatch(ProductActions.deleteProduct({ productId: id }));
-      
+
       this.action$
         .pipe(
           ofType(ProductActions.deleteProductSuccess),
@@ -104,6 +109,8 @@ export class AdminProductDetailComponent implements OnInit, OnDestroy {
   onBackToList(): void {
     this.router.navigate(['/admin/products']);
   }
+
+
 
   ngOnDestroy() {
     this.destroy$.next();
