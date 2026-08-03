@@ -4,7 +4,7 @@ import { CategoryService } from '../../services/category.service';
 import { NotificationService } from '../../services/notification.service';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from './category.action';
-import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories } from './category.selectors';
+import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories, selectCategoryPagesCache } from './category.selectors';
 import { withLatestFrom, map, catchError, of, exhaustMap } from 'rxjs';
 
 @Injectable()
@@ -44,19 +44,21 @@ export class CategoryEffects {
     this.actions$.pipe(
       ofType(CategoryActions.loadPaginatedCategories),
       withLatestFrom(
-        this.store.select(selectPaginatedCategories),
-        this.store.select(selectCategoryPageNumber),
-        this.store.select(selectCategoryPageSize),
+        this.store.select(selectCategoryPagesCache),
         this.store.select(selectCategoryTotalRecords),
       ),
-      exhaustMap(([{ pageNumber, pageSize }, categories, currentPageNumber, currentPageSize, totalRecords]) => {
-        if (categories.length > 0 && pageNumber === currentPageNumber && pageSize === currentPageSize) {
+      exhaustMap(([action, pagesCache, totalRecords]) => {
+        const { pageNumber, pageSize } = action;
+        const cacheKey = `${pageNumber}-${pageSize}`;
+
+        if (pagesCache[cacheKey]) {
           return of(CategoryActions.loadPaginatedCategoriesSuccess({
-            categories,
+            categories: pagesCache[cacheKey],
             totalRecords,
-            pageNumber: currentPageNumber,
-            pageSize: currentPageSize,
-            totalPages: Math.ceil(totalRecords / currentPageSize) || 1,
+            pageNumber,
+            pageSize,
+            totalPages: Math.ceil(totalRecords / pageSize) || 1,
+            cacheKey
           }));
         }
 
@@ -67,6 +69,7 @@ export class CategoryEffects {
             pageNumber: response.pageNumber,
             pageSize: response.pageSize,
             totalPages: response.totalPages,
+            cacheKey
           })),
           catchError((error) => of(CategoryActions.loadPaginatedCategoriesFailure({
             error: error?.message || 'Failed to load categories',

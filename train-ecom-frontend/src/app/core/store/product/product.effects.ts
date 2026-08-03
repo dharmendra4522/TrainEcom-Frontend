@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import * as ProductActions from './product.action';
 import { map, catchError, filter, of, switchMap, exhaustMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords } from './product.selectors';
+import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords, selectProductPagesCache } from './product.selectors';
 
 @Injectable()
 export class ProductEffects {
@@ -20,28 +20,32 @@ export class ProductEffects {
         this.action$.pipe(
             ofType(ProductActions.loadProducts),
             withLatestFrom(
-                this.store.select(selectAllProducts),
-                this.store.select(selectProductPageNumber),
+                this.store.select(selectProductPagesCache),
                 this.store.select(selectProductTotalPages),
                 this.store.select(selectProductTotalRecords)
             ),
-            switchMap(([action, products, currentPageNumber, totalPages, totalRecords]) => {
-                const isSamePage = (action.pageNumber || 1) === (currentPageNumber || 1);
-                const isSamePageSize = (action.pageSize || 10) === products.length;
-                const hasNoFilters = !action.brandName && !action.categoryName && !action.search;
+            switchMap(([action, pagesCache, totalPages, totalRecords]) => {
+                const pageNumber = action.pageNumber || 1;
+                const pageSize = action.pageSize || 10;
+                const brandName = action.brandName || '';
+                const categoryName = action.categoryName || '';
+                const search = action.search || '';
+                
+                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}`;
 
-                if (products && products.length > 0 && isSamePage && isSamePageSize && hasNoFilters) {
+                if (pagesCache[cacheKey]) {
                     return of(ProductActions.loadProductsSuccess({
-                        products,
+                        products: pagesCache[cacheKey],
                         totalPages,
-                        pageNumber: currentPageNumber,
-                        totalRecords
+                        pageNumber,
+                        totalRecords,
+                        cacheKey
                     }));
                 }
 
                 return this.productService.getPaginatedProducts(
-                    action.pageNumber || 1, 
-                    action.pageSize || 10, 
+                    pageNumber, 
+                    pageSize, 
                     action.brandName, 
                     action.categoryName,
                     action.search
@@ -49,8 +53,9 @@ export class ProductEffects {
                     map((response) => ProductActions.loadProductsSuccess({
                         products: response?.items || [],
                         totalPages: response?.totalPages || 1,
-                        pageNumber: action.pageNumber || 1,
-                        totalRecords: response?.totalRecords || 0
+                        pageNumber: pageNumber,
+                        totalRecords: response?.totalRecords || 0,
+                        cacheKey
                     })),
                     catchError((error) =>
                         of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))

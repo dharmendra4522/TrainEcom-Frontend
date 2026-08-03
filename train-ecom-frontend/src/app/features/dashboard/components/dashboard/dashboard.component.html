@@ -3,7 +3,7 @@
 </div>
 
 <!-- Stats Cards -->
-<div class="stats-grid">
+<div class="stats-grid" *ngIf="!isLoadingStats; else statsLoader">
   <mat-card *ngFor="let stat of stats" class="stat-card">
     <mat-card-content>
       <div class="stat-info">
@@ -15,6 +15,26 @@
   </mat-card>
 </div>
 
+<ng-template #statsLoader>
+  <div class="stats-grid">
+    <mat-card *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="stat-card">
+      <mat-card-content>
+        <div class="stat-info w-75">
+          <div class="placeholder-glow mb-2">
+            <span class="placeholder col-8 rounded stat-title"></span>
+          </div>
+          <div class="placeholder-glow">
+            <span class="placeholder col-6 rounded stat-value"></span>
+          </div>
+        </div>
+        <div class="placeholder-glow">
+          <span class="placeholder rounded-circle" style="width: 40px; height: 40px;"></span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</ng-template>
+
 <!-- Recent Orders -->
 <div class="orders-table-container mat-elevation-z2">
   <div class="table-header d-flex justify-content-between align-items-center">
@@ -25,76 +45,10 @@
     </button>
   </div>
 
-  <table mat-table [dataSource]="dataSource" class="orders-table">
-
-    <!-- Order ID -->
-    <ng-container matColumnDef="orderId">
-      <th mat-header-cell *matHeaderCellDef>Order ID</th>
-      <td mat-cell *matCellDef="let element" class="order-id">
-        {{ element.orderId }}
-      </td>
-    </ng-container>
-
-    <!-- Order Date -->
-    <ng-container matColumnDef="orderDate">
-      <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.orderDate }}
-      </td>
-    </ng-container>
-
-    <!-- Total Amount -->
-    <ng-container matColumnDef="totalAmount">
-      <th mat-header-cell *matHeaderCellDef>Total Amount</th>
-      <td mat-cell *matCellDef="let element" class="order-total">
-        {{ element.totalAmount | currency }}
-      </td>
-    </ng-container>
-
-    <!-- Total Items -->
-    <ng-container matColumnDef="totalItems">
-      <th mat-header-cell *matHeaderCellDef>Items</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.totalItems }}
-      </td>
-    </ng-container>
-
-    <!-- Payment Method -->
-    <ng-container matColumnDef="paymentMethod">
-      <th mat-header-cell *matHeaderCellDef>Payment</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.paymentMethod }}
-      </td>
-    </ng-container>
-
-    <!-- Payment Status -->
-    <ng-container matColumnDef="paymentStatus">
-      <th mat-header-cell *matHeaderCellDef>Payment Status</th>
-      <td mat-cell *matCellDef="let element">
-        <span
-          class="status-badge"
-          [ngClass]="element.paymentStatus?.toLowerCase()"
-        >
-          {{ element.paymentStatus }}
-        </span>
-      </td>
-    </ng-container>
-
-    <!-- Order Status -->
-    <ng-container matColumnDef="orderStatus">
-      <th mat-header-cell *matHeaderCellDef>Order Status</th>
-      <td mat-cell *matCellDef="let element">
-        <span
-          class="status-badge"
-          [ngClass]="element.orderStatus.toLowerCase()"
-        >
-          {{ element.orderStatus }}
-        </span>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-  </table>
+  <app-generic-table
+    [data]="dataSource"
+    [columns]="tableColumns"
+    [isLoading]="isLoadingStats"
+    emptyMessage="No recent orders found."
+  ></app-generic-table>
 </div>

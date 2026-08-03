@@ -4,6 +4,7 @@ import * as ProductActions from './product.action';
 
 export interface ProductState {
   products: Product[];
+  pagesCache: { [key: string]: Product[] };
   relatedProducts: Product[];
   pageNumber: number;
   totalPages: number;
@@ -14,6 +15,7 @@ export interface ProductState {
 
 export const initialProductState: ProductState = {
   products: [],
+  pagesCache: {},
   relatedProducts: [],
   pageNumber: 1,
   totalPages: 1,
@@ -35,13 +37,17 @@ export const productReducer = createReducer(
     ProductActions.loadProductsSuccess,
     (
       state,
-      { products, totalPages = 1, pageNumber = 1, totalRecords = 0 },
+      { products, totalPages = 1, pageNumber = 1, totalRecords = 0, cacheKey },
     ) => ({
       ...state,
       products: products,
       totalPages: totalPages,
       pageNumber: pageNumber,
       totalRecords: totalRecords,
+      pagesCache: {
+        ...state.pagesCache,
+        [cacheKey]: products,
+      },
       isLoading: false,
       error: null,
     }),
@@ -55,6 +61,7 @@ export const productReducer = createReducer(
   on(ProductActions.createProductSuccess, (state, { product }) => ({
     ...state,
     products: [...state.products, product],
+    pagesCache: {},
     isLoading: false,
     error: null,
   })),
@@ -72,6 +79,7 @@ export const productReducer = createReducer(
     return {
       ...state,
       products: state.products.map((p) => p.id.toString() === product.id.toString() ? updatedProduct : p),
+      pagesCache: {},
       isLoading: false,
       error: null,
     };
@@ -106,6 +114,7 @@ export const productReducer = createReducer(
     ...state,
     products: state.products.filter((p) => p.id.toString() !== productId.toString()),
     totalRecords: Math.max(0, state.totalRecords - 1),
+    pagesCache: {},
     isLoading: false,
     error: null,
   })),

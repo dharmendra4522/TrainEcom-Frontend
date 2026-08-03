@@ -3,6 +3,7 @@ export interface TableColumn {
   label: string;
   type?: 'text' | 'image' | 'badge' | 'currency';
   truncate?: boolean;
+  badgeClassKey?: string;
 }
 
 export interface TableAction {

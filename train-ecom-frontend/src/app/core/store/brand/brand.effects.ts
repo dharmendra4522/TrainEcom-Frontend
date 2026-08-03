@@ -4,7 +4,7 @@ import { BrandService } from "../../services/brand.service";
 import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
-import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands } from "./brand.selectors";
+import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands, selectBrandPagesCache } from "./brand.selectors";
 import { exhaustMap, map, catchError, of, withLatestFrom } from "rxjs";
 
 @Injectable()
@@ -32,19 +32,21 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.loadPaginatedBrands),
             withLatestFrom(
-                this.store.select(selectPaginatedBrands),
-                this.store.select(selectBrandPageNumber),
-                this.store.select(selectBrandPageSize),
+                this.store.select(selectBrandPagesCache),
                 this.store.select(selectBrandTotalRecords),
             ),
-            exhaustMap(([{ pageNumber, pageSize }, brands, currentPageNumber, currentPageSize, totalRecords]) => {
-                if (brands.length > 0 && pageNumber === currentPageNumber && pageSize === currentPageSize) {
+            exhaustMap(([action, pagesCache, totalRecords]) => {
+                const { pageNumber, pageSize } = action;
+                const cacheKey = `${pageNumber}-${pageSize}`;
+
+                if (pagesCache[cacheKey]) {
                     return of(BrandActions.loadPaginatedBrandsSuccess({
-                        brands,
+                        brands: pagesCache[cacheKey],
                         totalRecords,
-                        pageNumber: currentPageNumber,
-                        pageSize: currentPageSize,
-                        totalPages: Math.ceil(totalRecords / currentPageSize) || 1,
+                        pageNumber,
+                        pageSize,
+                        totalPages: Math.ceil(totalRecords / pageSize) || 1,
+                        cacheKey
                     }));
                 }
 
@@ -55,6 +57,7 @@ export class BrandEffects {
                         pageNumber: response.pageNumber,
                         pageSize: response.pageSize,
                         totalPages: response.totalPages,
+                        cacheKey
                     })),
                     catchError((error) =>
                         of(BrandActions.loadPaginatedBrandsFailure({ error: error?.message || 'Failed to load brands' }))

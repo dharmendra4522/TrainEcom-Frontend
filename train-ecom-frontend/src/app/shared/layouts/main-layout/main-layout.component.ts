@@ -26,6 +26,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   userRole$: Observable<string | null> = this.store.select(selectUserRole);
   isAccountRoute: boolean = false;
   isDetailsOrFormRoute: boolean = false;
+  isCheckoutRoute: boolean = false;
   currentMenuItems: MenuItem[] = [];
 
   @ViewChild('drawer') drawer!: MatSidenav;
@@ -67,6 +68,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkAccountRoute(this.router.url);
     this.checkDetailsRoute(this.router.url);
+    this.checkCheckoutRoute(this.router.url);
 
     // Router events ko track karo
     this.router.events
@@ -77,6 +79,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       .subscribe((event: NavigationEnd) => {
         this.checkAccountRoute(event.urlAfterRedirects);
         this.checkDetailsRoute(event.urlAfterRedirects);
+        this.checkCheckoutRoute(event.urlAfterRedirects);
         window.scrollTo({ top: 0, behavior: 'instant' });
       });
 
@@ -97,7 +100,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.isDetailsOrFormRoute = basePath.includes('/products/') && basePath !== '/products';
   }
 
+  private checkCheckoutRoute(url: string): void {
+    this.isCheckoutRoute = url.includes('/checkout');
+  }
+
   shouldShowSidebar(role: string | null): boolean {
+    if (this.isCheckoutRoute) return false;
     if (role === 'Admin') return true;
     if (role === 'Customer' && this.isAccountRoute) return true;
     return false;

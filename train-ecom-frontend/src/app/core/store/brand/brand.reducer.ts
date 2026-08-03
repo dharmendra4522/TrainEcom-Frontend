@@ -5,6 +5,7 @@ import { createReducer, on } from '@ngrx/store';
 export interface BrandState {
     brand: Brand[];
     paginatedBrands: Brand[];
+    pagesCache: { [key: string]: Brand[] };
     totalRecords: number;
     pageNumber: number;
     pageSize: number;
@@ -16,6 +17,7 @@ export interface BrandState {
 export const initialBrandState: BrandState = {
     brand: [],
     paginatedBrands: [],
+    pagesCache: {},
     totalRecords: 0,
     pageNumber: 1,
     pageSize: 10,
@@ -50,11 +52,15 @@ export const brandReducer = createReducer(
         isLoading: true,
         error: null
     })),
-    on(BrandActions.loadPaginatedBrandsSuccess, (state, { brands, totalRecords, pageNumber, pageSize, totalPages }) => ({
+    on(BrandActions.loadPaginatedBrandsSuccess, (state, { brands, totalRecords, pageNumber, pageSize, totalPages, cacheKey }) => ({
         ...state,
         isLoading: false,
         error: null,
         paginatedBrands: brands,
+        pagesCache: {
+            ...state.pagesCache,
+            [cacheKey]: brands
+        },
         totalRecords,
         pageNumber,
         pageSize,
@@ -94,6 +100,7 @@ export const brandReducer = createReducer(
         error: null,
         brand: [...state.brand, brand],
         paginatedBrands: [brand, ...state.paginatedBrands].slice(0, state.pageSize),
+        pagesCache: {},
         totalRecords: state.totalRecords + 1
     })),
     on(BrandActions.createBrandFailure, (state, { error }) => ({
@@ -111,7 +118,8 @@ export const brandReducer = createReducer(
         isLoading: false,
         error: null,
         brand: [...state.brand.filter(b => b.id !== brand.id), brand],
-        paginatedBrands: state.paginatedBrands.map(b => b.id === brand.id ? brand : b)
+        paginatedBrands: state.paginatedBrands.map(b => b.id === brand.id ? brand : b),
+        pagesCache: {}
     })),
     on(BrandActions.updateBrandFailure, (state, { error }) => ({
         ...state,
@@ -129,6 +137,7 @@ export const brandReducer = createReducer(
         error: null,
         brand: state.brand.filter(b => b.id !== brandId),
         paginatedBrands: state.paginatedBrands.filter(b => b.id !== brandId),
+        pagesCache: {},
         totalRecords: Math.max(0, state.totalRecords - 1)
     })),
     on(BrandActions.deleteBrandFailure, (state, { error }) => ({

@@ -10,6 +10,11 @@ export const selectAllProducts = createSelector(
   (state: ProductState) => state.products
 );
 
+export const selectProductPagesCache = createSelector(
+  selectProductState,
+  (state: ProductState) => state.pagesCache
+);
+
 export const selectProductsLoading = createSelector(
   selectProductState,
   (state: ProductState) => state.isLoading

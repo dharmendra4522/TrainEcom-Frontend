@@ -8,6 +8,11 @@ export const selectAllCategories = createSelector(
     (categoryState: CategoryState) => categoryState.categories
 );
 
+export const selectCategoryPagesCache = createSelector(
+    selectCateGoryState,
+    (categoryState: CategoryState) => categoryState.pagesCache
+);
+
 export const selectCategoryLoading = createSelector(
     selectCateGoryState,
     (categoryState: CategoryState) => categoryState.isLoading

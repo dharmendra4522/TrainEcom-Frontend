@@ -84,7 +84,7 @@ export const loadPaginatedBrands = createAction(
 
 export const loadPaginatedBrandsSuccess = createAction(
   '[Brand] Load Paginated Brands Success',
-  props<{ brands: Brand[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number }>(),
+  props<{ brands: Brand[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number; cacheKey: string }>(),
 );
 
 export const loadPaginatedBrandsFailure = createAction(

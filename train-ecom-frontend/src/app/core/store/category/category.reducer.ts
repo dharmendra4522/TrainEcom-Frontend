@@ -5,6 +5,7 @@ import { createReducer, on } from '@ngrx/store';
 export interface CategoryState {
     categories: Category[];
     paginatedCategories: Category[];
+    pagesCache: { [key: string]: Category[] };
     totalRecords: number;
     pageNumber: number;
     pageSize: number;
@@ -17,6 +18,7 @@ export interface CategoryState {
 export const initialCategoryState: CategoryState = {
     categories: [],
     paginatedCategories: [],
+    pagesCache: {},
     totalRecords: 0,
     pageNumber: 1,
     pageSize: 10,
@@ -51,11 +53,15 @@ export const categoryReducer = createReducer(
         isLoading: true,
         error: null
     })),
-    on(CategoryActions.loadPaginatedCategoriesSuccess, (state, { categories, totalRecords, pageNumber, pageSize, totalPages }) => ({
+    on(CategoryActions.loadPaginatedCategoriesSuccess, (state, { categories, totalRecords, pageNumber, pageSize, totalPages, cacheKey }) => ({
         ...state,
         isLoading: false,
         error: null,
         paginatedCategories: categories,
+        pagesCache: {
+            ...state.pagesCache,
+            [cacheKey]: categories
+        },
         totalRecords,
         pageNumber,
         pageSize,
@@ -93,6 +99,7 @@ export const categoryReducer = createReducer(
         error: null,
         categories: [...state.categories, category],
         paginatedCategories: [category, ...state.paginatedCategories].slice(0, state.pageSize),
+        pagesCache: {},
         totalRecords: state.totalRecords + 1
     })),
     on(CategoryActions.createCategoryFailure, (state: CategoryState, { error }) => ({
@@ -110,7 +117,8 @@ export const categoryReducer = createReducer(
         isLoading: false,
         error: null,
         categories: [...state.categories.filter(c => c.id !== category.id), category],
-        paginatedCategories: state.paginatedCategories.map(c => c.id === category.id ? category : c)
+        paginatedCategories: state.paginatedCategories.map(c => c.id === category.id ? category : c),
+        pagesCache: {}
     })),
     on(CategoryActions.updateCategoryFailure, (state: CategoryState, { error }) => ({
         ...state,
@@ -128,6 +136,7 @@ export const categoryReducer = createReducer(
         error: null,
         categories: state.categories.filter(c => c.id !== categoryId),
         paginatedCategories: state.paginatedCategories.filter(c => c.id !== categoryId),
+        pagesCache: {},
         totalRecords: Math.max(0, state.totalRecords - 1)
     })),
     on(CategoryActions.deleteCategoryFailure, (state: CategoryState, { error }) => ({

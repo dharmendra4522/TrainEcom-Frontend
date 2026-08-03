@@ -8,6 +8,11 @@ export const selectAllBrands = createSelector(
   (state: BrandState) => state.brand || [],
 );
 
+export const selectBrandPagesCache = createSelector(
+  selectBrandState,
+  (state: BrandState) => state.pagesCache
+);
+
 export const selectBrandLoading = createSelector(
   selectBrandState,
   (state: BrandState) => state.isLoading,

@@ -19,6 +19,7 @@ export const loadProductsSuccess = createAction(
     totalPages: number;
     pageNumber: number;
     totalRecords: number;
+    cacheKey: string;
   }>(),
 );
 

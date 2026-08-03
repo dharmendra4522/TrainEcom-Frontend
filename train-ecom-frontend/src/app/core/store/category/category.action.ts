@@ -80,7 +80,7 @@ export const loadPaginatedCategories = createAction(
 
 export const loadPaginatedCategoriesSuccess = createAction(
   '[Category] Load Paginated Categories Success',
-  props<{ categories: Category[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number }>(),
+  props<{ categories: Category[]; totalRecords: number; pageNumber: number; pageSize: number; totalPages: number; cacheKey: string }>(),
 );
 
 export const loadPaginatedCategoriesFailure = createAction(

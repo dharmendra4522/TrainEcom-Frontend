@@ -34,7 +34,8 @@
           </span>
 
           <span *ngIf="col.type === 'badge'"
-            class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill">
+            class="badge fw-semibold px-3 py-2 rounded-pill"
+            [ngClass]="col.badgeClassKey && row[col.badgeClassKey] ? row[col.badgeClassKey] : 'bg-primary-subtle text-primary'">
             {{ row[col.key] || 'General' }}
           </span>
         </td>
