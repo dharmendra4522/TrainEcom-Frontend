@@ -20,6 +20,7 @@ import { GroupedProductRowComponent } from './components/grouped-product-row/gro
 import { SideItemCardComponent } from './components/side-item-card/side-item-card.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { SelectionDialogComponent } from './components/selection-dialog/selection-dialog.component';
+import { ImgFallbackDirective } from './directives/img-fallback.directive';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { SelectionDialogComponent } from './components/selection-dialog/selectio
     SideItemCardComponent,
     ConfirmDialogComponent,
     SelectionDialogComponent,
+    ImgFallbackDirective,
   ],
   imports: [
     CommonModule,
@@ -64,6 +66,7 @@ import { SelectionDialogComponent } from './components/selection-dialog/selectio
     SideItemCardComponent,
     SidePanelComponent,
     ProductFilterComponent,
+    ImgFallbackDirective,
 
   ]
 })

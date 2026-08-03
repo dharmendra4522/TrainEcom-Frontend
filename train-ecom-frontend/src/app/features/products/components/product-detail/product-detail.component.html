@@ -26,7 +26,7 @@
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
         <div class="main-image-wrapper rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3">
-          <img [src]="selectedImageUrl" [alt]="product.name" class="main-image img-fluid">
+          <img [src]="selectedImageUrl" [alt]="product.name" appImgFallback class="main-image img-fluid">
         </div>
 
         <div class="d-flex gap-2 overflow-auto py-1 custom-scrollbar"
@@ -34,7 +34,7 @@
           <div *ngFor="let img of product.images" (click)="selectImage(img.imageUrl)"
             class="thumbnail-box rounded-3 overflow-hidden cursor-pointer"
             [class.active-thumbnail]="selectedImageUrl === img.imageUrl">
-            <img [src]="img.imageUrl" [alt]="product.name" class="img-fluid">
+            <img [src]="img.imageUrl" [alt]="product.name" appImgFallback class="img-fluid">
           </div>
         </div>
       </div>

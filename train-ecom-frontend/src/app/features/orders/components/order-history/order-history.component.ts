@@ -74,13 +74,8 @@ export class OrderHistoryComponent {
     return url;
   }
 
-  onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/placeholder.png';
-  }
 
   navigateToOrderDetails(orderId: string): void {
     this.router.navigate(['/orders/details', orderId]);
   }
-
-
 }

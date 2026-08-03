@@ -25,7 +25,7 @@
           </div>
 
           <div *ngIf="col.type === 'image'" class="image-thumb-wrapper rounded-3 overflow-hidden border">
-            <img *ngIf="row[col.key]" [src]="row[col.key]" [alt]="col.label" class="table-img img-fluid">
+            <img *ngIf="row[col.key]" [src]="row[col.key]" [alt]="col.label" appImgFallback class="table-img img-fluid">
             <span *ngIf="!row[col.key]" class="text-muted small px-2">No Image</span>
           </div>
 

@@ -20,10 +20,8 @@
 
     <div class="row g-3 g-md-4" *ngIf="orderDetail">
 
-        <!-- Left Side: Order Status, Items List & Address -->
         <div class="col-12 col-lg-8">
 
-            <!-- Order Summary Header Card -->
             <mat-card class="order-info-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 bg-white">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
@@ -36,7 +34,6 @@
                             {{ orderDetail.orderStatus }}
                         </span>
 
-                        <!-- 👈 Track Order Button yahan sabse best lagega -->
                         <button mat-flat-button color="primary" class="d-flex align-items-center gap-1 py-1 px-3"
                             (click)="openTrackingDialog()">
                             <mat-icon>local_shipping</mat-icon> Track Order
@@ -45,7 +42,6 @@
                 </div>
             </mat-card>
 
-            <!-- Products List Card -->
             <mat-card class="products-card mb-3 mb-md-4 shadow-sm border-0 rounded-3 rounded-sm-4 p-3 p-sm-4 bg-white">
                 <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
                     <mat-icon class="text-primary">inventory_2</mat-icon>
@@ -60,7 +56,8 @@
                             <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0"
                                 style="width: 48px; height: 48px;">
                                 <img [src]="getImageUrl(item.thumbnailUrl) || 'assets/placeholder.jpg'"
-                                    (error)="onImageError($event)" [alt]="item.productName"
+                                    appImgFallback
+                                    [alt]="item.productName"
                                     class="img-fluid object-fit-cover w-100 h-100">
                             </div>
 
