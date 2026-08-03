@@ -1,6 +1,5 @@
 import { PaymentMethod, PaymentStatus, OrderStatus } from './order.model';
 
-
 export interface OrderHistoryItem {
   orderId: string;
   orderName: string;
@@ -22,9 +21,10 @@ export interface OrderHistoryResponse{
 }
 
 export interface OrderHistoryFilterParams{
+    search?: string;
     fromDate?: string;
     toDate?: string;
-    orderStatus?: OrderStatus;
+    orderStatus?: OrderStatus | string;
     pageNumber?: number;
     pageSize?: number;    
 }

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { OrderDetailsResponse, OrderHistoryFilterParams, OrderHistoryResponse, OrderTrackingResponse } from '../models/order-history.model';
 import { environment } from '../../../environments/environment';
-
+import { AdminOrderFilterParams, AdminOrderListResponse } from '../models/order.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -18,6 +18,9 @@ export class OrderHistoryService {
   getAllOrderHistory(filter?: OrderHistoryFilterParams): Observable<OrderHistoryResponse> {
     let params = new HttpParams();
     if (filter) {
+      if (filter.search) {
+        params = params.set('search', filter.search.trim());
+      }
       if (filter.fromDate) {
         params = params.set('fromDate', filter.fromDate);
       }
@@ -47,6 +50,34 @@ export class OrderHistoryService {
 
   getOrderTracking(orderId: string): Observable<OrderTrackingResponse> {
     return this.http.get<OrderTrackingResponse>(`${this.baseAPI}/${orderId}/tracking`);
+  }
+
+  getAdminOrders(filter?: AdminOrderFilterParams): Observable<AdminOrderListResponse> {
+    let params = new HttpParams();
+    if (filter) {
+      if (filter.search) {
+        params = params.set('search', filter.search);
+      }
+      if (filter.orderStatus) {
+        params = params.set('orderStatus', filter.orderStatus);
+      }
+      if (filter.paymentStatus) {
+        params = params.set('paymentStatus', filter.paymentStatus);
+      }
+      if (filter.fromDate) {
+        params = params.set('fromDate', filter.fromDate);
+      }
+      if (filter.toDate) {
+        params = params.set('toDate', filter.toDate);
+      }
+      if (filter.pageNumber !== undefined) {
+        params = params.set('pageNumber', filter.pageNumber.toString());
+      }
+      if (filter.pageSize !== undefined) {
+        params = params.set('pageSize', filter.pageSize.toString());
+      }
+    }
+    return this.http.get<AdminOrderListResponse>(`${environment.apiBaseUrl}/admin/orders/all`, { params });
   }
 
 }

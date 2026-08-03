@@ -161,6 +161,7 @@ export class BrandComponent implements OnInit {
 
   deleteBrand(brandId: string): void {
     this.confirmDialog.confirm('Are you sure you want to delete this brand?', 'Delete', 'Cancel').subscribe((confirmed) => {
+      debugger; 
       if (confirmed) {
       this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
       }

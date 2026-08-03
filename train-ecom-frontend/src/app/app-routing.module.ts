@@ -51,8 +51,14 @@ const routes: Routes = [
       },
       {
         path: 'orders',
-        loadChildren: () =>
-          import('./features/orders/orders.module').then((m) => m.OrdersModule),
+        children: [
+          { path: '', redirectTo: 'history', pathMatch: 'full' },
+          {
+            path: '',
+            loadChildren: () =>
+              import('./features/orders/orders.module').then((m) => m.OrdersModule),
+          }
+        ]
       },
 
       {
@@ -100,8 +106,8 @@ const routes: Routes = [
           },
           {
             path: 'orders',
-            redirectTo: '/orders/manage',
-            pathMatch: 'full'
+            loadChildren: () =>
+              import('./features/orders/orders.module').then((m) => m.OrdersModule),
           },
         ],
       },

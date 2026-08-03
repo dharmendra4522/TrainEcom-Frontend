@@ -132,7 +132,7 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToOrders(): void{
-    this.router.navigate(['/orders/manage']);
+    this.router.navigate(['/admin/orders']);
   }
 
 }

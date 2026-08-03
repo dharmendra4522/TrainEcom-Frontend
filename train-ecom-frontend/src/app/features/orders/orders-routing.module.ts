@@ -8,10 +8,10 @@ import { OrderManagementComponent } from './components/order-management/order-ma
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 
 const routes: Routes = [
-  { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
+  { path: '', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
   { path: 'manage', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
+  { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
   { path: 'details/:orderId', canActivate: [customerGuard], component: OrderDetailsComponent },
-  { path: '', redirectTo: 'history', pathMatch: 'full' }
 ];
 
 @NgModule({

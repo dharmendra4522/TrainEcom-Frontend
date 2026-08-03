@@ -31,16 +31,20 @@ export class GenericTableComponent {
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
 
-  // get displayed columns for the table
+  // get displayed columns for the table safely
   get displayedColumns(): string[] {
     const cols: string[] = [];
     if (this.showIndex) {
       cols.push('sno');
     }
     if (this.columns) {
-      cols.push(...this.columns.map((c) => c.key));
+      this.columns.forEach((c) => {
+        if (c && c.key && !cols.includes(c.key)) {
+          cols.push(c.key);
+        }
+      });
     }
-    if (this.actions && this.actions.length > 0) {
+    if (this.actions && this.actions.length > 0 && !cols.includes('actions')) {
       cols.push('actions');
     }
     return cols;

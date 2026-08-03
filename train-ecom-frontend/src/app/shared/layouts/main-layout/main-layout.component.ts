@@ -42,7 +42,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Categories', icon: 'category', route: '/admin/categories' },
     { label: 'Manage Users', icon: 'people', route: '/account/manage' },
-    { label: 'Manage Orders', icon: 'shopping_cart', route: '/orders/manage' },
+    { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
 
   ];
 

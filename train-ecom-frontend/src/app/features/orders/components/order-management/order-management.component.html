@@ -1,5 +1,4 @@
 <div class="order-management-container py-4 px-2 px-md-4">
-
   <!-- Page Header -->
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <div>
@@ -8,11 +7,72 @@
     </div>
   </div>
 
-  <!-- Orders Table -->
-  <app-generic-table
-    [data]="orders"
-    [columns]="columns"
-    emptyMessage="Orders will appear here once the API is connected.">
-  </app-generic-table>
+  <!-- Filters Card -->
+  <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
+    <div class="row g-3 align-items-center">
+      <!-- Search Input -->
+      <div class="col-12 col-md-6 col-xl-3">
+        <mat-form-field appearance="outline" class="w-100 density-compact">
+          <mat-label>Search Customer / Order ID</mat-label>
+          <input matInput [value]="searchQuery" (input)="onSearchInput($event)" placeholder="Enter name or ID..." />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
 
+      <!-- Order Status Filter -->
+      <div class="col-12 col-sm-6 col-md-3 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact">
+          <mat-label>Order Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Statuses</mat-option>
+            <mat-option *ngFor="let status of orderStatusOptions" [value]="status">
+              {{ status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Payment Status Filter -->
+      <div class="col-12 col-sm-6 col-md-3 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact">
+          <mat-label>Payment Status</mat-label>
+          <mat-select [(ngModel)]="selectedPaymentStatus" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Payments</mat-option>
+            <mat-option *ngFor="let payment of paymentStatusOptions" [value]="payment">
+              {{ payment }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- From Date -->
+      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact">
+          <mat-label>From Date</mat-label>
+          <input matInput type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+        </mat-form-field>
+      </div>
+
+      <!-- To Date -->
+      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact">
+          <mat-label>To Date</mat-label>
+          <input matInput type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+        </mat-form-field>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="col-12 col-sm-4 col-md-3 col-xl-1 text-sm-end">
+        <button mat-stroked-button color="warn" class="w-100" (click)="resetFilters()" title="Reset Filters">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <app-generic-table [data]="orders" [columns]="columns" [isLoading]="isLoading" [showPaginator]="true"
+    [totalRecords]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageChange)="onPageChange($event)"
+    emptyMessage="No orders found matching the filter criteria.">
+  </app-generic-table>
 </div>

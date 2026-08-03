@@ -90,9 +90,9 @@
   word-break: break-word;
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 1200px) {
   .custom-mat-table {
-    min-width: 900px;
+    min-width: 800px;
   }
 }
 

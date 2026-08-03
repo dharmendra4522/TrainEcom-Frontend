@@ -16,17 +16,17 @@ export enum OrderStatus {
 export enum PaymentStatus {
   Pending = 'Pending',
   Success = 'Success',
-  Failed = 'Failed',
+  Cancelled = 'Cancelled',
   Refunded = 'Refunded',
 
 }
 
-export interface PaymentSimulationRequest{
+export interface PaymentSimulationRequest {
   paymentMethod: PaymentMethod;
   amount: number;
 }
 
-export interface PaymentSimulationResponse{
+export interface PaymentSimulationResponse {
   transactionId: string;
   amount: number;
   paymentMethod: PaymentMethod;
@@ -75,4 +75,31 @@ export interface CheckoutItem {
   unitPrice: number;
   quantity: number;
   thumbnailUrl?: string;
+}
+
+export interface AdminOrderItem extends Record<string, unknown> {
+  orderId: string;
+  customerName: string;
+  totalAmount: number;
+  totalItems: number;
+  orderStatus: OrderStatus;
+  paymentStatus: PaymentStatus;
+  orderDate: string;
+}
+
+export interface AdminOrderListResponse {
+  items: AdminOrderItem[];
+  pageNumber: number;
+  pageSize: number;
+  totalRecords: number;
+}
+
+export interface AdminOrderFilterParams {
+  search?: string;
+  orderStatus?: string;
+  paymentStatus?: string;
+  fromDate?: string;
+  toDate?: string;
+  pageNumber?: number;
+  pageSize?: number;
 }
