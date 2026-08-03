@@ -5,11 +5,13 @@ import { CheckoutRoutingModule } from './checkout-routing.module';
 import { SharedModule } from '../../shared/shared.module';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { CheckoutSuccessComponent } from './components/checkout-success/checkout-success.component';
+import { CheckoutAddressComponent } from './components/checkout-address/checkout-address.component';
 
 @NgModule({
   declarations: [
     CheckoutComponent,
-    CheckoutSuccessComponent
+    CheckoutSuccessComponent,
+    CheckoutAddressComponent
   ],
   imports: [
     CommonModule,

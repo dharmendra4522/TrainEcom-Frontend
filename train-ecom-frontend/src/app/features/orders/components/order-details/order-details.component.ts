@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
-import { OrderDetailsResponse } from '../../../../core/models/order-history.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { OrderStatus } from '../../../../core/models/order.model';
+import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 
 @Component({

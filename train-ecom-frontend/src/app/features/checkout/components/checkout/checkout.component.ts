@@ -1,12 +1,13 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { OrderService } from '../../../../core/services/order.service';
+import { CheckoutService } from '../../../../core/services/checkout.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import {
   BuyNowRequest,
   CreateOrderRequest,
   CreateOrderResponse,
   PaymentMethod,
-} from '../../../../core/models/order.model';
+  CheckoutItem,
+} from '../../../../core/models/checkout.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -24,7 +25,6 @@ import { GenericDialogComponent } from '../../../../shared/components/generic-di
 import { Validators } from '@angular/forms';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { DialogData } from '../../../../core/models/dialog.model';
-import { CheckoutItem } from '../../../../core/models/order.model';
 import {
   SelectionDialogComponent,
   SelectionDialogData,
@@ -41,7 +41,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private userService = inject(UserService);
-  private orderService = inject(OrderService);
+  private checkoutService = inject(CheckoutService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
@@ -63,7 +63,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   isProcessing: boolean = false;
 
-  PaymentMethod = PaymentMethod; 
+  PaymentMethod = PaymentMethod;
 
   ngOnInit(): void {
     this.loadUserAddresses();
@@ -94,36 +94,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return this.addresses.find(
       (address) => address.id === this.selectedAddressid,
     );
-  }
-
-  // Open the saved-address selection dialog.
-  openChangeAddressDialog(): void {
-    const dialogData: SelectionDialogData<Address> = {
-      title: 'Select Delivery Address',
-      items: this.addresses,
-      selectedId: this.selectedAddressid || '',
-      displayKey: 'fullName',
-      addButtonLabel: 'Add Address',
-    };
-
-    this.dialog
-      .open<
-        SelectionDialogComponent<Address>,
-        SelectionDialogData<Address>,
-        Address | 'add'
-      >(SelectionDialogComponent, {
-        width: '750px',
-        data: dialogData,
-      })
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (result === 'add') {
-          this.openAddNewAddressDialog();
-        } else if (result) {
-          this.selectAddress(result.id);
-        }
-      });
   }
 
   // Load user addresses and set the default or first address as selected
@@ -236,95 +206,19 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.paymentMethods = method;
   }
 
-  // Open a dialog to add a new address and handle the submission to update the user's address list
-  openAddNewAddressDialog(): void {
-    const dialogData = this.getAddressDialogConfig();
 
-    this.dialog
-      .open(GenericDialogComponent, {
-        width: '550px',
-        data: dialogData,
-      })
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result: AddressFormResult | undefined) => {
-        if (result) {
-          this.handleAddressSubmission(result);
-        }
-      });
-  }
-
-  private getAddressDialogConfig(): DialogData {
-    return {
-      title: 'Add New Address',
-      fields: [
-        {
-          key: 'fullName',
-          label: 'Full Name',
-          type: 'text',
-          validation: [
-            Validators.required,
-            Validators.pattern(/^[a-zA-Z\s]+$/),
-          ],
-        },
-        {
-          key: 'phone',
-          label: 'Phone Number',
-          type: 'text',
-          maxLength: 10,
-          validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
-        },
-        {
-          key: 'addressLine1',
-          label: 'Address Line 1',
-          type: 'text',
-          validation: [Validators.required],
-        },
-        {
-          key: 'addressLine2',
-          label: 'Address Line 2 (Optional)',
-          type: 'text',
-        },
-        {
-          key: 'city',
-          label: 'City',
-          type: 'text',
-          validation: [Validators.required],
-        },
-        {
-          key: 'state',
-          label: 'State',
-          type: 'text',
-          validation: [Validators.required],
-        },
-        {
-          key: 'postalCode',
-          label: 'Postal Code',
-          type: 'text',
-          maxLength: 6,
-          validation: [Validators.required],
-        },
-      ],
-      submitButtonText: 'Save Address',
-    };
-  }
-
-  private mapFormResultToAddress(result: AddressFormResult): Address {
-    return {
-      ...result,
+  handleAddressSubmission(formResult: AddressFormResult): void {
+    const addressPayload: Address = {
+      ...formResult,
       id: '',
-      phone: String(result.phone),
-      postalCode: String(result.postalCode),
+      phone: String(formResult.phone),
+      postalCode: String(formResult.postalCode),
       country: 'India',
       isDefault: false,
     };
-  }
-
-  private handleAddressSubmission(result: AddressFormResult): void {
-    const address: Address = this.mapFormResultToAddress(result);
 
     this.userService
-      .addAddress(address)
+      .addAddress(addressPayload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (newAddress: Address) => {
@@ -389,7 +283,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       amount: this.grandTotal,
     };
 
-    this.orderService
+    this.checkoutService
       .simulateOnlinePayment(simulationPayload)
       .pipe(
         takeUntil(this.destroy$),
@@ -403,7 +297,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         error: (err) =>
           this.onOrderError(
             err?.error?.message ||
-              'Payment simulation or order placement failed',
+            'Payment simulation or order placement failed',
           ),
       });
   }
@@ -431,14 +325,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         paymentMethod: this.paymentMethods,
         transactionId: transactionId,
       };
-      return this.orderService.placeDirectOrder(buyNowPayload);
+      return this.checkoutService.placeDirectOrder(buyNowPayload);
     } else {
       const cartOrderPayload: CreateOrderRequest = {
         addressId: this.selectedAddressid as string,
         paymentMethod: this.paymentMethods,
         transactionId: transactionId,
       };
-      return this.orderService.placeCartOrder(cartOrderPayload);
+      return this.checkoutService.placeCartOrder(cartOrderPayload);
     }
   }
 
@@ -464,10 +358,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   checkoutBreadcrumbs = [
-  { label: 'Home', url: '/' },
-  { label: 'Cart', url: '/cart' },
-  { label: 'Checkout' }
-];
+    { label: 'Home', url: '/' },
+    { label: 'Cart', url: '/cart' },
+    { label: 'Checkout' }
+  ];
 
   goBack(): void {
     window.history.back();

@@ -1,7 +1,7 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { OrderTrackingResponse } from '../../../../core/models/order-history.model';
+import { OrderTrackingResponse } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-order-tracking-dialog',

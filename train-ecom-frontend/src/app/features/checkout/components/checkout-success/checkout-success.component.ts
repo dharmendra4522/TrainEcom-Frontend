@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { OrderService } from '../../../../core/services/order.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Subject, takeUntil, timer } from 'rxjs';

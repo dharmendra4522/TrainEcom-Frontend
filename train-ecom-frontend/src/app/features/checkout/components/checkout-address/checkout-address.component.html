@@ -1,0 +1,56 @@
+<mat-card class="checkout-card mb-4" appearance="outlined">
+
+    <!-- Card Header: Title and Action Buttons inside header -->
+    <mat-card-header class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 w-100">
+        <mat-card-title class="fs-5 fw-bold m-0 d-flex align-items-center gap-2">
+            <mat-icon class="text-primary">local_shipping</mat-icon>
+            Delivery Address
+        </mat-card-title>
+
+        <!-- If saved address is available: Change Address button -->
+        <button mat-stroked-button color="primary" class="add-address-btn" *ngIf="addresses.length > 0; else addAddress"
+            (click)="onChangeAddress()">
+            Change Address
+        </button>
+
+        <!-- If no address found: Add New Address button template -->
+        <ng-template #addAddress>
+            <button mat-flat-button color="primary" class="add-address-btn" (click)="onAddNewAddress()">
+                <mat-icon>add</mat-icon> Add New Address
+            </button>
+        </ng-template>
+    </mat-card-header>
+
+    <!-- Card Content: Selected Address or Empty State -->
+    <mat-card-content class="pt-2">
+        <!-- Empty State: Jab koi address saved na ho -->
+        <div *ngIf="addresses.length === 0" class="text-center py-4 text-muted bg-light rounded-3 mb-2">
+            <mat-icon class="fs-1 text-secondary mb-2" style="width: 48px; height: 48px;">
+                home_mini
+            </mat-icon>
+            <p class="m-0 fw-semibold">No saved addresses found.</p>
+            <p class="small text-secondary mb-0">Please click the button above to add an address.</p>
+        </div>
+
+        <!-- Selected Address Display -->
+        <div *ngIf="selectedAddress as address"
+            class="address-tile rounded-3 p-3 position-relative border border-primary bg-light-subtle">
+            <div class="position-absolute top-0 end-0 p-3">
+                <span class="badge bg-primary text-white px-2 py-1 rounded-pill small">Selected</span>
+            </div>
+            <h6 class="fw-bold text-dark mb-2">{{ address.fullName }}</h6>
+            <p class="text-secondary small mb-1 leading-relaxed">
+                {{ address.addressLine1 }}<br>
+                <span *ngIf="address.addressLine2">{{ address.addressLine2 }}<br></span>
+                {{ address.city }}, {{ address.state }} - {{ address.postalCode }}<br>
+                {{ address.country }}
+            </p>
+            <div class="d-flex align-items-center text-secondary small mt-2">
+                <mat-icon class="fs-6 align-middle me-1" style="width: 16px; height: 16px;">phone</mat-icon>
+                <span>{{ address.phone }}</span>
+            </div>
+        </div>
+
+    </mat-card-content>
+
+</mat-card>

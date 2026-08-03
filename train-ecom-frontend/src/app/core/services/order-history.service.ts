@@ -1,9 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
-import { OrderDetailsResponse, OrderHistoryFilterParams, OrderHistoryResponse, OrderTrackingResponse } from '../models/order-history.model';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AdminOrderFilterParams, AdminOrderListResponse } from '../models/order.model';
+import {
+  AdminOrderFilterParams,
+  AdminOrderListResponse,
+  OrderDetailsResponse,
+  OrderHistoryFilterParams,
+  OrderHistoryResponse,
+  OrderTrackingResponse
+} from '../models/order.model';
 @Injectable({
   providedIn: 'root'
 })

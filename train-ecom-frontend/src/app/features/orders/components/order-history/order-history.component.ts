@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
-import { OrderHistoryFilterParams, OrderHistoryItem } from '../../../../core/models/order-history.model';
-import { OrderStatus } from '../../../../core/models/order.model';
+import { OrderHistoryFilterParams, OrderHistoryItem, OrderStatus } from '../../../../core/models/order.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
