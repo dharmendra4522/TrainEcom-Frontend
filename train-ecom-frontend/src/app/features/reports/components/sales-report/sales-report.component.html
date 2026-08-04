@@ -1,0 +1,61 @@
+<div class="reports-container p-6">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Sales Report</h1>
+    <p class="text-sm text-gray-600">Generate and download PDF sales reports for a specific date range.</p>
+  </div>
+
+  <!-- Report Filter Card -->
+  <mat-card class="p-6 max-w-xl shadow-md">
+    <mat-card-content>
+      <form [formGroup]="reportForm" (ngSubmit)="downloadReport()" class="flex flex-col gap-4">
+        
+        <!-- Date Range Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- From Date Picker -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>From Date</mat-label>
+            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" placeholder="YYYY-MM-DD">
+            <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+            <mat-error *ngIf="reportForm.get('fromDate')?.hasError('required')">
+              From Date is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- To Date Picker -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>To Date</mat-label>
+            <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="YYYY-MM-DD">
+            <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+            <mat-error *ngIf="reportForm.get('toDate')?.hasError('required')">
+              To Date is required
+            </mat-error>
+          </mat-form-field>
+
+        </div>
+
+        <!-- Download Button with Loading Spinner -->
+        <div class="flex justify-end mt-4">
+          <button 
+            mat-flat-button 
+            color="primary" 
+            type="submit" 
+            [disabled]="reportForm.invalid || isLoading"
+            class="flex items-center gap-2 px-6 py-2">
+            
+            <!-- Loading Indicator -->
+            <mat-spinner *ngIf="isLoading" diameter="20" class="inline-block mr-2"></mat-spinner>
+            
+            <!-- Button Icon & Text -->
+            <mat-icon *ngIf="!isLoading">picture_as_pdf</mat-icon>
+            <span>{{ isLoading ? 'Generating PDF...' : 'Download PDF Report' }}</span>
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

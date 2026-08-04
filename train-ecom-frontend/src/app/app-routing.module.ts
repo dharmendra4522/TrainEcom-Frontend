@@ -134,6 +134,13 @@ const routes: Routes = [
             loadChildren: () =>
               import('./features/orders/orders.module').then((m) => m.OrdersModule),
           },
+          {
+            path: 'reports',
+            loadChildren: () =>
+              import('./features/reports/reports.module').then(
+                (m) => m.ReportsModule
+              ),
+          },
         ],
       },
       {
