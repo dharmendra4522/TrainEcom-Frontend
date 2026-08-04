@@ -34,11 +34,40 @@ export interface UpdateProfilePayload {
 }
 
 export interface AdminUser extends Record<string, unknown> {
-    id: string;
+    userId: string;
     name: string;
     email: string;
     phoneNumber: string;
-    role: string;
-    isActive?: boolean;
-    createdAt?: string;
+    address: {
+        addressLine1: string;
+        addressLine2?: string;
+        city: string;
+        state: string;
+        country: string;
+        postalCode: string;
+    }
+    isBlocked: boolean;
+    userStatusClass?: string
+}
+
+
+export interface AdminUserListResponse {
+    items: AdminUser[];
+    pageNumber: number;
+    pageSize: number;
+    totalRecord: number;
+    totalPages: number;
+}
+
+
+export interface AdminUserFilterParams {
+    search?: string;
+    status?: string;
+    pageNumber?: number;
+    pageSize?: number;
+}
+
+
+export interface UpdateUserStatusPayload{
+    isBlocked: boolean;
 }

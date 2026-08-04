@@ -7,11 +7,53 @@
     </div>
   </div>
 
+  <!-- filter section -->
+
+  <mat-card class="filter-card mb-4 shadow-sm border-0 rounded-4 p-3 bg-white">
+    <div class="row g-3 align-items-center">
+
+      <div class="col-12 col-md-8">
+        <mat-form-field appearance="outline" class="w-100 mb-0">
+          <mat-label>Search by Name or Email</mat-label>
+         <input matInput 
+         [value]="searchQuery" 
+         (input)="onSearchInput($event)" 
+         placeholder="Type to search users...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100 mb-0">
+          <mat-label>Filter by Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChange($event.value)">
+            <mat-option *ngFor="let status of statusOptions" [value]="status">
+              {{ status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+
+    </div>
+  </mat-card>
+
   <!-- Users Table -->
-  <app-generic-table
-    [data]="users"
-    [columns]="columns"
-    emptyMessage="Users will appear here once the API is connected.">
+  <app-generic-table 
+  [data]="users"
+  [columns]="columns"
+  [actions]="actions"
+  [isLoading]="isLoading"
+  [showPaginator]="true"
+  [showInlineActions]="true"
+  [totalRecords]="totalRecords"
+  [pageSize]="pageSize"
+  [pageIndex]="pageIndex"
+  [pageSizeOptions]="[5, 10, 20]"
+  (pageChange)="onPageChange($event)"
+(actionClick)="onActionClick($event)"
+    emptyMessage="Users will appear here once the API is connected."
+    >
   </app-generic-table>
 
 </div>

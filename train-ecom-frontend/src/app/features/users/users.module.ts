@@ -8,6 +8,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { ProfileComponent } from './components/profile/profile.component';
 import { WishlistComponent } from './components/wishlist/wishlist.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -20,6 +21,7 @@ import { UserManagementComponent } from './components/user-management/user-manag
     UsersRoutingModule,
     SharedModule,
     ReactiveFormsModule,
+    FormsModule
   ],
 })
 export class UsersModule {}

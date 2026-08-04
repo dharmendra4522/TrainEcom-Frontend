@@ -1,3 +1,4 @@
+import { AdminUser } from '../models/user.model';
 export interface TableColumn {
   key: string;
   label: string;
@@ -7,12 +8,12 @@ export interface TableColumn {
 }
 
 export interface TableAction {
-  actionKey: 'edit' | 'delete' | 'view';
-  icon: string;
-  color: 'primary' | 'warn' | 'accent';
+  actionKey: string;
+  icon: string | ((row: AdminUser) => string);       
+  color: 'primary' | 'warn' | 'accent' | ((row: AdminUser) => any); 
   tooltip?: string;
+  label?: string | ((row: AdminUser) => string);        
 }
-
 export interface TableActionEvent<T = unknown> {
   action: string;
   row: T;
