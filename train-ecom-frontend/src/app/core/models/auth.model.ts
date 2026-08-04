@@ -1,4 +1,7 @@
-import { Role } from "./app.model";
+export enum Role{
+    Admin = 'Admin',
+    Customer = 'Customer',
+}
 
 export interface loginRequest{
     email: string;

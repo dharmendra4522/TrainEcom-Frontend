@@ -7,7 +7,7 @@ import { Validators } from '@angular/forms';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/internal/operators/take';
 
-type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
+export type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
 
 // Dialog configuration for adding a new address, including form fields and validation rules.
 const ADD_ADDRESS_DIALOG_CONFIG: DialogData = {

@@ -1,0 +1,93 @@
+<mat-card class="checkout-card border-0 shadow-sm" appearance="outlined">
+  <!-- Card Header: Title -->
+  <mat-card-header class="border-bottom pb-3 mb-3">
+    <mat-card-title class="fs-5 fw-bold m-0 d-flex align-items-center gap-2">
+      <mat-icon class="text-primary">shopping_bag</mat-icon>
+      Order Summary
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content class="pt-2">
+    <!-- Items List: Checkout ya cart ke products ki list -->
+    <div
+      class="checkout-items-list overflow-auto mb-4 pe-1 custom-scrollbar"
+      style="max-height: 260px"
+    >
+      <div
+        class="checkout-item d-flex align-items-center gap-3 py-3 border-bottom last-border-none"
+        *ngFor="let item of items"
+      >
+        <!-- Product Thumbnail -->
+        <div
+          class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center"
+        >
+          <img
+            [src]="item.thumbnailUrl || 'assets/placeholder.jpg'"
+            [alt]="item.productName"
+            appImgFallback
+            class="img-fluid item-img"
+          />
+        </div>
+
+        <!-- Product Name & Quantity -->
+        <div class="flex-grow-1 min-w-0">
+          <h6 class="fw-bold text-dark text-truncate m-0">
+            {{ item.productName }}
+          </h6>
+          <small class="text-secondary">Quantity: {{ item.quantity }}</small>
+        </div>
+
+        <!-- Price & Remove Button -->
+        <div class="checkout-item-actions text-end">
+          <div class="fw-bold text-dark">
+            ₹{{ item.unitPrice * item.quantity | number: "1.2-2" }}
+          </div>
+          <button mat-button class="remove-item-btn" (click)="onRemove(item)">
+            <mat-icon>delete_outline</mat-icon>
+            <span>Remove</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Totals Calculation Section -->
+    <div class="totals-section bg-light rounded-3 p-3 mb-4">
+      <div class="d-flex justify-content-between mb-2">
+        <span class="text-secondary">Subtotal</span>
+        <span class="fw-semibold text-dark"
+          >₹{{ subtotal | number: "1.2-2" }}</span
+        >
+      </div>
+      <div class="d-flex justify-content-between mb-2">
+        <span class="text-secondary">Shipping</span>
+        <span class="fw-semibold" [class.text-success]="shippingCost === 0">
+          {{
+            shippingCost === 0 ? "FREE" : "₹" + (shippingCost | number: "1.2-2")
+          }}
+        </span>
+      </div>
+      <mat-divider class="my-2"></mat-divider>
+      <div class="d-flex justify-content-between align-items-baseline">
+        <span class="fw-bold text-dark fs-6">Grand Total</span>
+        <span class="display-6 fw-bold text-primary font-monospace"
+          >₹{{ grandTotal | number: "1.2-2" }}</span
+        >
+      </div>
+    </div>
+
+    <!-- Place Order Action Button -->
+    <button
+      mat-raised-button
+      class="place-order-btn w-100 py-3 rounded-3"
+      [disabled]="isSubmitting || items.length === 0"
+      (click)="onPlaceOrder()"
+    >
+      <span *ngIf="!isSubmitting" class="fw-bold text-uppercase fs-6"
+        >Place Order</span
+      >
+      <span *ngIf="isSubmitting" class="fw-bold text-uppercase fs-6"
+        >Placing Order...</span
+      >
+    </button>
+  </mat-card-content>
+</mat-card>

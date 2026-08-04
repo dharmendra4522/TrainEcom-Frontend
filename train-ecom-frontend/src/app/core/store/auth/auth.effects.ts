@@ -8,7 +8,7 @@ import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { Role } from '../../models/app.model';
+import { Role } from '../../models/auth.model';
 import { BackendError, UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { CartService } from '../../services/cart.service';

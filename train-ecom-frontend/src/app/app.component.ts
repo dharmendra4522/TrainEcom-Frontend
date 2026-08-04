@@ -3,7 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as AuthActions from './core/store/auth/auth.actions';
 import { jwtDecode } from 'jwt-decode';
-import { Role } from './core/models/app.model';
+import { Role } from './core/models/auth.model';
 import * as UserActions from './core/store/user/user.actions';
 
 interface DecodedToken {

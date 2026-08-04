@@ -1,4 +1,4 @@
-import { Role } from "../../core/models/app.model";
+import { Role } from "../../core/models/auth.model";
 
 export interface MenuItem {
   label: string;

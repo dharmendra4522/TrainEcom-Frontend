@@ -10,7 +10,6 @@ import {
 } from '../../../../core/models/checkout.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
-import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs/internal/Subject';
 import { Address } from '../../../../core/models/user.model';
 import { switchMap, takeUntil, of, combineLatest, Observable } from 'rxjs';
@@ -21,17 +20,8 @@ import {
   selectCartItems,
   selectCartTotalAmount,
 } from '../../../../core/store/cart/cart.selectors';
-import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
-import { Validators } from '@angular/forms';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
-import { DialogData } from '../../../../core/models/dialog.model';
-import {
-  SelectionDialogComponent,
-  SelectionDialogData,
-} from '../../../../shared/components/selection-dialog/selection-dialog.component';
-
-type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
-
+import { AddressFormResult } from '../checkout-address/checkout-address.component';
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -43,7 +33,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private checkoutService = inject(CheckoutService);
   private notification = inject(NotificationService);
-  private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
   private store = inject(Store);
 
@@ -206,7 +195,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.paymentMethods = method;
   }
 
-
   handleAddressSubmission(formResult: AddressFormResult): void {
     const addressPayload: Address = {
       ...formResult,
@@ -297,7 +285,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         error: (err) =>
           this.onOrderError(
             err?.error?.message ||
-            'Payment simulation or order placement failed',
+              'Payment simulation or order placement failed',
           ),
       });
   }
@@ -360,7 +348,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutBreadcrumbs = [
     { label: 'Home', url: '/' },
     { label: 'Cart', url: '/cart' },
-    { label: 'Checkout' }
+    { label: 'Checkout' },
   ];
 
   goBack(): void {

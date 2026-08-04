@@ -16,7 +16,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 import { userReducer } from './core/store/user/user.reducer';
 import { UserEffects } from './core/store/user/user.effects';
-import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+
 import { ProductEffects } from './core/store/product/product.effects';
 import { productReducer } from './core/store/product/product.reducer';
 import { brandReducer } from './core/store/brand/brand.reducer';

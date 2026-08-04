@@ -1,5 +1,5 @@
 import { Component, inject, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { MenuItem } from '../../models/menu-item.model';
+import { MenuItem } from '../../../core/models/menu-item.model';
 import { Store } from '@ngrx/store';
 import { selectUserRole } from '../../../core/store/auth/auth.selectors';
 import { NavigationEnd, Router } from '@angular/router';

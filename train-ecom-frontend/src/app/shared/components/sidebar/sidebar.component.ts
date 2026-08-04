@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Input } from '@angular/core';
-import { MenuItem } from '../../models/menu-item.model';
+import { MenuItem } from '../../../core/models/menu-item.model';
 import { inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { NotificationService } from '../../../core/services/notification.service';
