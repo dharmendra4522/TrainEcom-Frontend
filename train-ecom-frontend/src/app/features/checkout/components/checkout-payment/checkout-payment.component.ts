@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { PaymentMethod } from '../../../../core/models/order.model';
+import { PaymentMethod } from '../../../../core/models/checkout.model';
 
 @Component({
   selector: 'app-checkout-payment',

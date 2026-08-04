@@ -8,7 +8,8 @@ import {
   OrderDetailsResponse,
   OrderHistoryFilterParams,
   OrderHistoryResponse,
-  OrderTrackingResponse
+  OrderTrackingResponse,
+  UpdateOrderStatusResponse
 } from '../models/order.model';
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,20 @@ export class OrderHistoryService {
       }
     }
     return this.http.get<AdminOrderListResponse>(`${environment.apiBaseUrl}/admin/orders/all`, { params });
+  }
+
+
+  // Admin specific methods for order details and status update
+  getAdminOrderDetails(orderId: string): Observable<OrderDetailsResponse> {
+    return this.http.get<OrderDetailsResponse>(`${environment.apiBaseUrl}/admin/orders/getById/${orderId}`);
+  }
+
+  // Method to update order status for admin 
+  updateOrderStatus(orderId: string, status: string, remark?: string): Observable<UpdateOrderStatusResponse> {
+    return this.http.patch<UpdateOrderStatusResponse>(
+      `${environment.apiBaseUrl}/admin/orders/${orderId}/update-status`,
+      { status, remark }
+    );
   }
 
 }

@@ -73,6 +73,7 @@
   <!-- Orders Table -->
   <app-generic-table [data]="orders" [columns]="columns" [isLoading]="isLoading" [showPaginator]="true"
     [totalRecords]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageChange)="onPageChange($event)"
-    emptyMessage="No orders found matching the filter criteria.">
+    emptyMessage="No orders found matching the filter criteria."
+    emptyMessage="No orders found matching the filter criteria." (rowClick)="navigateToOrderDetails($event)">
   </app-generic-table>
 </div>

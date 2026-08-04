@@ -107,6 +107,11 @@ export interface OrderDetailsResponse {
     totalAmount: number;
   };
   canCancel: boolean;
+  customerDetail?: {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  };
 }
 
 export interface OrderTrackingStep {
@@ -120,4 +125,10 @@ export interface OrderTrackingResponse {
   orderId: string;
   currentStatus: string;
   trackingSteps: OrderTrackingStep[];
+}
+
+export interface UpdateOrderStatusResponse {
+  orderId: string;
+  orderStatus: OrderStatus;
+  message: string;
 }

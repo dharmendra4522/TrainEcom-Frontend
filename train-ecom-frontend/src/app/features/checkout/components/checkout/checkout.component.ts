@@ -178,6 +178,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         }));
         this.subtotal = total || 0;
         this.calculateTotals();
+
+        if (!this.isDirectBuy && (!items || items.length === 0)) {
+          this.notification.showError('No items in cart to checkout.');
+          this.router.navigate(['/cart'], { replaceUrl: true });
+        }
       });
   }
 

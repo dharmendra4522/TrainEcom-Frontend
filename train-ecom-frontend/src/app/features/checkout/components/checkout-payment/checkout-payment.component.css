@@ -1,0 +1,40 @@
+.checkout-card {
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+.payment-tile {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  cursor: pointer;
+}
+
+.payment-tile:hover {
+  border-color: #3f51b5;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.08);
+}
+
+.active-payment {
+  border-color: #3f51b5 !important;
+  border-width: 2px !important;
+  background-color: rgba(63, 81, 181, 0.04) !important;
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.15) !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+@media (max-width: 575.98px) {
+  .payment-tile {
+    min-height: 112px;
+  }
+}

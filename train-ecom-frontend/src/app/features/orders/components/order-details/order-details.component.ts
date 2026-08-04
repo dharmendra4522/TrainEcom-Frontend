@@ -1,12 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order.model';
+import { BreadcrumbItem } from '../../../../core/models/table.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
+import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
 
 @Component({
   selector: 'app-order-details',
@@ -18,19 +20,45 @@ export class OrderDetailsComponent {
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   orderDetail: OrderDetailsResponse | null = null;
   isCancelling: boolean = false;
+  isAdmin: boolean = false;
+
+  get breadcrumbs(): BreadcrumbItem[] {
+    const parentRoute = this.isAdmin
+      ? { label: 'Manage Orders', url: '/admin/orders' }
+      : { label: 'My Orders', url: '/orders/history' };
+
+    const orderIdLabel = this.orderDetail?.orderId
+      ? `Order #${this.orderDetail.orderId.slice(0, 8)}`
+      : 'Order Details';
+
+    return [
+      { label: 'Home', url: '/' },
+      parentRoute,
+      { label: orderIdLabel }
+    ];
+  }
 
   ngOnInit(): void {
+    this.setRouteContext();
     const orderId = this.route.snapshot.paramMap.get('orderId');
     if (orderId) {
       this.loadOrderDetails(orderId);
     }
   }
 
+  // check routes for admin or customer
+  private setRouteContext(): void {
+    // Snapshot ensures isAdmin is set before deciding which endpoint to call.
+    this.isAdmin = !!this.route.snapshot.data['isAdmin'];
+  }
+
   private loadOrderDetails(orderId: string): void {
-    this.orderService.getOrderDetails(orderId).subscribe({
+    const orderObservable = this.isAdmin ? this.orderService.getAdminOrderDetails(orderId) : this.orderService.getOrderDetails(orderId);
+    orderObservable.subscribe({
       next: (response) => {
         this.orderDetail = response;
       },
@@ -58,17 +86,14 @@ export class OrderDetailsComponent {
     }
   }
 
-  getImageUrl(url?: string | null): string {
-    if (!url || url === 'null' || url.trim() === '') {
-      return 'assets/images/placeholder.png';
+
+  goBack(): void {
+    if (this.isAdmin) {
+      this.router.navigate(['/admin/orders']);
+    } else {
+      this.router.navigate(['/orders/history']);
     }
-    return url;
   }
-
-  onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/placeholder.png';
-  }
-
   onCancelOrder(orderId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -107,9 +132,24 @@ export class OrderDetailsComponent {
         data: { orderId }
       });
     }
-    else{
+    else {
       this.notification.showError('Order ID is not available for tracking.');
     }
+  }
+
+  openUpdateStatusDialog(): void {
+    if (!this.orderDetail?.orderId) return;
+    const dialogRef = this.dialog.open(AdminOrderStatusDialogComponent, {
+      width: 'min(92vw, 460px)',
+      maxWidth: '95vw',
+      data: { orderId: this.orderDetail.orderId, currentStatus: this.orderDetail.orderStatus }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadOrderDetails(this.orderDetail!.orderId);
+      }
+    })
   }
 
 }

@@ -11,7 +11,12 @@ const routes: Routes = [
   { path: '', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
   { path: 'manage', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
   { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
-  { path: 'details/:orderId', canActivate: [customerGuard], component: OrderDetailsComponent },
+
+  // Customer Details View (Path: /orders/details/:orderId)
+  { path: 'details/:orderId', canActivate: [customerGuard], component: OrderDetailsComponent, data: { isAdmin: false } },
+  
+  // Admin Details View (Path: /admin/orders/details/:orderId - 'admin/' hata dein)
+  { path: 'details-admin/:orderId', canActivate: [authGuard, adminGuard], component: OrderDetailsComponent, data: { isAdmin: true } }
 ];
 
 @NgModule({

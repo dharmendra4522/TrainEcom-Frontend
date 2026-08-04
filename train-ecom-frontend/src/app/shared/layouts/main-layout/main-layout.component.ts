@@ -88,6 +88,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Private methods to check the current route
   private checkAccountRoute(url: string): void {
     this.isAccountRoute = url.includes('/account') || 
                           url.includes('/cart') || 
@@ -95,15 +96,20 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
                           url.includes('/orders');
   }
 
+
+  // Private method to check if the current route is a product details or form route
   private checkDetailsRoute(url: string): void {
     const basePath = url.split('?')[0];
     this.isDetailsOrFormRoute = basePath.includes('/products/') && basePath !== '/products';
   }
 
+  // Private method to check if the current route is a checkout route
   private checkCheckoutRoute(url: string): void {
     this.isCheckoutRoute = url.includes('/checkout');
   }
 
+
+  // Method to determine if the sidebar should be shown based on the user's role and current route
   shouldShowSidebar(role: string | null): boolean {
     if (this.isCheckoutRoute) return false;
     if (role === 'Admin') return true;

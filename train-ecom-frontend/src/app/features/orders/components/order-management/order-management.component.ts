@@ -6,6 +6,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime } from 'rxjs/internal/operators/debounceTime';
 import { distinctUntilChanged } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-order-management',
@@ -14,6 +15,7 @@ import { PageEvent } from '@angular/material/paginator';
 })
 export class OrderManagementComponent {
   private orderService = inject(OrderHistoryService);
+  private router = inject(Router);
 
   orders: AdminOrderItem[] = [];
   isLoading: boolean = false;
@@ -154,4 +156,11 @@ export class OrderManagementComponent {
     this.loadOrders();
   }
 
+
+  navigateToOrderDetails(row: Record<string, unknown>): void {
+    const orderId = row['orderId'] as string;
+    if (orderId) {
+      this.router.navigate(['/admin/orders/details-admin', orderId]);
+    }
+  }
 }

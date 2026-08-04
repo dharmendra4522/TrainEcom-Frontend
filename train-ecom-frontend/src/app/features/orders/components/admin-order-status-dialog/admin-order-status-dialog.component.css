@@ -1,0 +1,32 @@
+.admin-status-dialog-content {
+	max-height: 68vh;
+	overflow: auto;
+}
+
+.admin-status-form {
+	width: 100%;
+}
+
+::ng-deep .admin-status-form .mat-mdc-form-field {
+	width: 100%;
+}
+
+.admin-status-actions {
+	gap: 0.5rem;
+}
+
+.admin-status-actions button {
+	min-width: 132px;
+}
+
+@media (max-width: 576px) {
+	.admin-status-actions {
+		justify-content: stretch !important;
+		padding-right: 0 !important;
+	}
+
+	.admin-status-actions button {
+		flex: 1;
+		min-width: 0;
+	}
+}
