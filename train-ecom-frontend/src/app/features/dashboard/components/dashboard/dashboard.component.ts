@@ -39,9 +39,10 @@ export class DashboardComponent implements OnInit {
   ];
 
   recentOrders: DashboardOrderRow[] = [];
+
   tableColumns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID' },
-    { key: 'orderDate', label: 'Date' },
+    { key: 'orderId', label: 'Order ID', truncate: true },
+    { key: 'orderDate', label: 'Date', type: 'date' },  
     { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
     { key: 'paymentStatus', label: 'Payment Status', type: 'badge', badgeClassKey: 'paymentStatusClass' },
     { key: 'orderStatus', label: 'Order Status', type: 'badge', badgeClassKey: 'orderStatusClass' },
@@ -49,7 +50,7 @@ export class DashboardComponent implements OnInit {
   dataSource = this.recentOrders;
   isLoadingStats = true;
 
-  constructor(private dashboardService: DashboardService, private router: Router) {}
+  constructor(private dashboardService: DashboardService, private router: Router) { }
 
   ngOnInit(): void {
     this.fetchDashboardData();
@@ -83,7 +84,7 @@ export class DashboardComponent implements OnInit {
 
   private updateRecentOrders(orders: any[]): void {
     this.recentOrders = orders.map(order => this.mapOrderToTableRow(order));
-    this.dataSource = this.recentOrders;
+    this.dataSource = [...this.recentOrders];
   }
 
   private mapOrderToTableRow(order: any): DashboardOrderRow {
@@ -131,8 +132,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  navigateToOrders(): void{
+  navigateToOrders(): void {
     this.router.navigate(['/admin/orders']);
   }
+
+
+  
+
 
 }

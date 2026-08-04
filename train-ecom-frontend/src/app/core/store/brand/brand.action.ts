@@ -79,7 +79,7 @@ export const deleteBrandFailure = createAction(
 
 export const loadPaginatedBrands = createAction(
   '[Brand] Load Paginated Brands',
-  props<{ pageNumber: number; pageSize: number }>(),
+  props<{ pageNumber: number; pageSize: number; search?: string }>(),
 );
 
 export const loadPaginatedBrandsSuccess = createAction(

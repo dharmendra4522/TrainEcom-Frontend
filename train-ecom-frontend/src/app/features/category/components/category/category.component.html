@@ -15,7 +15,7 @@
   </div>
 
   <app-generic-table 
-    [data]="(filteredCategories$ | async) || []" 
+    [data]="(paginatedCategories$ | async) || []" 
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 

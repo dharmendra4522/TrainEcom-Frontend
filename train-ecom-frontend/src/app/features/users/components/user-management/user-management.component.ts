@@ -37,7 +37,7 @@ export class UserManagementComponent {
 
   // filter properties
   searchQuery: string = '';
-  selectedStatus: string = 'All'; // 3. Default value 'All' set ki
+  selectedStatus: string = 'All';
   statusOptions: string[] = ['All', 'Active', 'Blocked'];
 
   ngOnInit(): void {
@@ -58,9 +58,10 @@ export class UserManagementComponent {
   }
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'name', label: 'Name', truncate: false },
+    { key: 'email', label: 'Email', truncate: true },
     { key: 'phoneNumber', label: 'Phone' },
+    { key: 'formattedAddress', label: 'Location', truncate: true},
     { key: 'statusDisplay', label: 'Status', type: 'badge', badgeClassKey: 'userStatusClass' },
   ];
 
@@ -85,9 +86,15 @@ export class UserManagementComponent {
             ? 'bg-danger-subtle text-danger border border-danger-subtle'
             : 'bg-success-subtle text-success border border-success-subtle',
           actionLabel: user.isBlocked ? 'Unblock' : 'Block',
-          actionIcon: user.isBlocked ? 'lock_open' : 'block'
+          actionIcon: user.isBlocked ? 'lock_open' : 'block',
+          // short address
+         formattedAddress: user.address ? `${user.address.city || ''}, ${user.address.state || ''}`.replace(/^,\s*|,\s*$/g, '') 
+            : 'N/A',
+
+            // full address on tooltip
+          description: user.address ? `${user.address.addressLine1 || ''}${user.address.addressLine2 ? ', ' + user.address.addressLine2 : ''}, ${user.address.city || ''}, ${user.address.state || ''} - ${user.address.postalCode || ''}` : 'N/A'
         }));
-        this.totalRecords = response.totalRecord;
+       this.totalRecords = response.totalRecords;
         this.isLoading = false;
       },
       error: () => {
@@ -97,8 +104,9 @@ export class UserManagementComponent {
     })
   }
   onSearchInput(event: any): void {
-    const value = event.target.value;
-    this.searchSubject.next(value);
+    const inputElement = event.target as HTMLInputElement;
+    this.searchQuery = inputElement.value;
+    this.searchSubject.next(this.searchQuery);
   }
 
   onStatusChange(status: string): void {

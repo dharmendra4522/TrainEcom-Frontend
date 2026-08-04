@@ -15,8 +15,8 @@ import {
   selectBrandTotalRecords,
   selectPaginatedBrands,
 } from '../../../../core/store/brand/brand.selectors';
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { startWith, map, distinctUntilChanged, debounceTime } from 'rxjs/operators';
+import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
+import { startWith, map, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
@@ -37,6 +37,8 @@ export class BrandComponent implements OnInit {
   searchControl = new FormControl('');
   pageIndex$ = new BehaviorSubject<number>(0);
   pageSize$ = new BehaviorSubject<number>(10);
+
+  private destroy$ = new Subject<void>();
 
   filteredBrands$!: Observable<Brand[]>;
 
@@ -72,36 +74,32 @@ export class BrandComponent implements OnInit {
   ngOnInit(): void {
     this.loadPage();
 
-    const search$ = this.searchControl.valueChanges.pipe(
+    this.searchControl.valueChanges.pipe(
       startWith(''),
       debounceTime(300),
-      distinctUntilChanged()
-    );
-
-    this.filteredBrands$ = combineLatest([this.paginatedBrands$, search$]).pipe(
-      map(([brands, search]) => {
-        const query = (search || '').toLowerCase().trim();
-        if (!query) return brands;
-        return (brands || []).filter(
-          (b) =>
-            (b.name || '').toLowerCase().includes(query) ||
-            (b.description || '').toLowerCase().includes(query)
-        );
-      })
-    );
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe((searchTerm) => {
+      this.pageIndex$.next(0);
+      this.loadPage(0, this.pageSize$.value, searchTerm || '');
+    });
 
   }
 
   handlePageChange(event: PageEvent): void {
     this.pageIndex$.next(event.pageIndex);
     this.pageSize$.next(event.pageSize);
-    this.loadPage(event.pageIndex, event.pageSize);
+    const currentSearch = this.searchControl.value || '';
+    this.loadPage(event.pageIndex, event.pageSize, currentSearch);
   }
 
-  private loadPage(pageIndex = this.pageIndex$.value, pageSize = this.pageSize$.value): void {
+  private loadPage(pageIndex = this.pageIndex$.value,
+    pageSize = this.pageSize$.value,
+    search = this.searchControl.value || ''): void {
     this.store.dispatch(BrandActions.loadPaginatedBrands({
       pageNumber: pageIndex + 1,
       pageSize,
+      search: search.trim() !== '' ? search.trim() : undefined
     }));
   }
 
@@ -161,10 +159,16 @@ export class BrandComponent implements OnInit {
 
   deleteBrand(brandId: string): void {
     this.confirmDialog.confirm('Are you sure you want to delete this brand?', 'Delete', 'Cancel').subscribe((confirmed) => {
-      debugger; 
+      debugger;
       if (confirmed) {
-      this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
+        this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
       }
     });
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 }

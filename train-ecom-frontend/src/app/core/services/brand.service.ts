@@ -22,10 +22,14 @@ export class BrandService {
     );
   }
 
-  getPaginatedBrands(pageNumber: number = 1, pageSize: number = 10): Observable<PaginatedBrandResponse> {
-    const params = new HttpParams()
+  getPaginatedBrands(pageNumber: number = 1, pageSize: number = 10, search?: string): Observable<PaginatedBrandResponse> {
+    let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
+
+    if (search && search.trim() !== '') {
+      params = params.set('Search', search.trim());
+    }
 
     return this.http.get<PaginatedBrandResponse | Brand[]>(`${this.baseApi}/all`, { params }).pipe(
       map((response) => {

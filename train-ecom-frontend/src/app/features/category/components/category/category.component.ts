@@ -48,32 +48,30 @@ export class CategoryComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-    this.setupSearchFilter();
+   
     this.loadPage();
+    this.setupSearchFilter();
   }
+
+  private setupSearchFilter(): void {
+    this.searchControl.valueChanges.pipe(
+      startWith(''),
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe((searchTerm) => {
+      this.pageIndex$.next(0); // Reset to first page on search
+      this.loadPage(0, this.pageSize$.value, searchTerm || '');
+    });
+  }
+
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  setupSearchFilter(): void {
-    this.filteredCategories$ = combineLatest([
-      this.paginatedCategories$,
-      this.searchControl.valueChanges.pipe(startWith(''), debounceTime(400), distinctUntilChanged())
-    ]).pipe(
-      map(([categories, search]) => {
-        const query = (search || '').toLowerCase().trim();
-        if (!query) {
-          return categories;
-        }
-        return categories.filter(category => 
-          (category.name || '').toLowerCase().includes(query) || 
-          (category.description || '').toLowerCase().includes(query)
-        );
-      })
-    );
-  }
+
 
   handleTableAction(event: TableActionEvent): void {
     const category = event.row as Category;
@@ -84,16 +82,22 @@ export class CategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  handlePageChange(event: PageEvent): void {
+ handlePageChange(event: PageEvent): void {
     this.pageIndex$.next(event.pageIndex);
     this.pageSize$.next(event.pageSize);
-    this.loadPage(event.pageIndex, event.pageSize);
+    const currentSearch = this.searchControl.value || '';
+    this.loadPage(event.pageIndex, event.pageSize, currentSearch);
   }
 
-  private loadPage(pageIndex = this.pageIndex$.value, pageSize = this.pageSize$.value): void {
+  private loadPage(
+    pageIndex = this.pageIndex$.value, 
+    pageSize = this.pageSize$.value, 
+    search = this.searchControl.value || ''
+  ): void {
     this.store.dispatch(CategoryActions.loadPaginatedCategories({
       pageNumber: pageIndex + 1,
       pageSize,
+      search: search.trim() !== '' ? search.trim() : undefined
     }));
   }
 

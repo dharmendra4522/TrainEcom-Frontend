@@ -23,10 +23,15 @@ export class CategoryService {
   getPaginatedCategories(
     pageNumber: number = 1,
     pageSize: number = 10,
+    search?: string,
   ): Observable<PaginatedCategoryResponse> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
+
+    if (search && search.trim() !== '') {
+      params = params.set('search', search.trim());
+    }
 
     return this.http.get<PaginatedCategoryResponse | Category[]>(`${this.baseApi}/all`, { params }).pipe(
       map((response) => {

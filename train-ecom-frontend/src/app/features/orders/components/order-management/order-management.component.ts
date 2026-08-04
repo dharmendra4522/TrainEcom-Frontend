@@ -4,7 +4,7 @@ import { TableColumn } from '../../../../core/models/table.model';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime } from 'rxjs/internal/operators/debounceTime';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, takeUntil } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 
@@ -37,10 +37,11 @@ export class OrderManagementComponent {
   paymentStatusOptions = Object.values(PaymentStatus);
 
   private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   // Table Columns Setup
   columns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID' },
+    { key: 'orderId', label: 'Order ID', truncate: true },
     { key: 'customerName', label: 'Customer Name' },
     { key: 'orderDate', label: 'Date', type: 'date' },
     { key: 'totalItems', label: 'Items' },
@@ -122,7 +123,8 @@ export class OrderManagementComponent {
   setupSearchFilter(): void {
     this.searchSubject.pipe(
       debounceTime(300),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
     ).subscribe(() => {
       this.pageIndex = 0;
       this.loadOrders();
@@ -162,5 +164,10 @@ export class OrderManagementComponent {
     if (orderId) {
       this.router.navigate(['/admin/orders/details-admin', orderId]);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

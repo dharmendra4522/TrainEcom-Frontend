@@ -19,31 +19,22 @@ export class OrderHistoryService {
 
   private http = inject(HttpClient);
 
+// helper function that builds HttpParams from a filter object, ensuring that only defined properties are included in the request
+private buildParams<T extends object>(filter?: T): HttpParams {
+  let params = new HttpParams();
+  if(!filter) return params;
 
-  constructor() { }
+  Object.entries(filter).forEach(([key, value]) => {
+    if(value !== null && value !== undefined && value !== '') {
+      const stringvalue = typeof value === 'string' ? value.trim() : value.toString();
+      params = params.set(key, stringvalue);
+    }
+  });
+  return params;
+}
 
   getAllOrderHistory(filter?: OrderHistoryFilterParams): Observable<OrderHistoryResponse> {
-    let params = new HttpParams();
-    if (filter) {
-      if (filter.search) {
-        params = params.set('search', filter.search.trim());
-      }
-      if (filter.fromDate) {
-        params = params.set('fromDate', filter.fromDate);
-      }
-      if (filter.toDate) {
-        params = params.set('toDate', filter.toDate);
-      }
-      if (filter.orderStatus) {
-        params = params.set('orderStatus', filter.orderStatus);
-      }
-      if (filter.pageNumber !== undefined) {
-        params = params.set('pageNumber', filter.pageNumber.toString());
-      }
-      if (filter.pageSize !== undefined) {
-        params = params.set('pageSize', filter.pageSize.toString());
-      }
-    }
+    const params = this.buildParams(filter);
     return this.http.get<OrderHistoryResponse>(`${this.baseAPI}/history`, { params });
   }
 
@@ -60,30 +51,7 @@ export class OrderHistoryService {
   }
 
   getAdminOrders(filter?: AdminOrderFilterParams): Observable<AdminOrderListResponse> {
-    let params = new HttpParams();
-    if (filter) {
-      if (filter.search) {
-        params = params.set('search', filter.search);
-      }
-      if (filter.orderStatus) {
-        params = params.set('orderStatus', filter.orderStatus);
-      }
-      if (filter.paymentStatus) {
-        params = params.set('paymentStatus', filter.paymentStatus);
-      }
-      if (filter.fromDate) {
-        params = params.set('fromDate', filter.fromDate);
-      }
-      if (filter.toDate) {
-        params = params.set('toDate', filter.toDate);
-      }
-      if (filter.pageNumber !== undefined) {
-        params = params.set('pageNumber', filter.pageNumber.toString());
-      }
-      if (filter.pageSize !== undefined) {
-        params = params.set('pageSize', filter.pageSize.toString());
-      }
-    }
+    const params = this.buildParams(filter);
     return this.http.get<AdminOrderListResponse>(`${environment.apiBaseUrl}/admin/orders/all`, { params });
   }
 

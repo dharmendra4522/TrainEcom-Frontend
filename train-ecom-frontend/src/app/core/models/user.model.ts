@@ -55,7 +55,7 @@ export interface AdminUserListResponse {
     items: AdminUser[];
     pageNumber: number;
     pageSize: number;
-    totalRecord: number;
+    totalRecords: number;
     totalPages: number;
 }
 

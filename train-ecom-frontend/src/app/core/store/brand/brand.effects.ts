@@ -36,10 +36,10 @@ export class BrandEffects {
                 this.store.select(selectBrandTotalRecords),
             ),
             exhaustMap(([action, pagesCache, totalRecords]) => {
-                const { pageNumber, pageSize } = action;
-                const cacheKey = `${pageNumber}-${pageSize}`;
+                const { pageNumber, pageSize, search } = action;
+                const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`; // dynamic cache key
 
-                if (pagesCache[cacheKey]) {
+                if (!search && pagesCache[cacheKey]) {
                     return of(BrandActions.loadPaginatedBrandsSuccess({
                         brands: pagesCache[cacheKey],
                         totalRecords,
@@ -50,7 +50,7 @@ export class BrandEffects {
                     }));
                 }
 
-                return this.brandService.getPaginatedBrands(pageNumber, pageSize).pipe(
+                return this.brandService.getPaginatedBrands(pageNumber, pageSize, search).pipe(
                     map((response) => BrandActions.loadPaginatedBrandsSuccess({
                         brands: response.items,
                         totalRecords: response.totalRecords,

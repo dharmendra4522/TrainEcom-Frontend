@@ -15,7 +15,7 @@
   </div>
 
   <app-generic-table 
-    [data]="(filteredBrands$ | async) || []"
+    [data]="(paginatedBrands$ | async) || []"
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
     [actions]="actions" 
@@ -29,4 +29,6 @@
     emptyMessage="No brands found."
     (actionClick)="handleTableAction($event)">
   </app-generic-table>
+
+  
 </div>

@@ -75,7 +75,7 @@ export const deleteCategoryFailure = createAction(
 
 export const loadPaginatedCategories = createAction(
   '[Category] Load Paginated Categories',
-  props<{ pageNumber: number; pageSize: number }>(),
+  props<{ pageNumber: number; pageSize: number; search?: string }>(),
 );
 
 export const loadPaginatedCategoriesSuccess = createAction(
