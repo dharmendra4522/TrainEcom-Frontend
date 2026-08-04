@@ -1,4 +1,6 @@
-<div class="side-item-card p-3 rounded-3 border bg-white shadow-xs d-flex align-items-center gap-3">
+<div class="side-item-card p-3 rounded-3 border bg-white shadow-xs d-flex align-items-center gap-3"
+  role="button" tabindex="0" (click)="onViewProduct()" (keydown.enter)="onViewProduct()"
+  (keydown.space)="onViewProduct()" aria-label="View product details">
   <div class="item-thumb-box rounded-3 border overflow-hidden bg-light flex-shrink-0">
     <img [src]="item.image || item.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback alt="{{ item.name }}" class="item-img" />
   </div>
@@ -8,19 +10,19 @@
     <span class="text-primary fw-bold fs-7">₹{{ item.price | number:'1.2-2' }}</span>
 
     <div class="qty-controller d-flex align-items-center gap-2 mt-2" *ngIf="mode === 'cart'">
-      <button class="qty-btn" (click)="onDecrement()">-</button>
+      <button class="qty-btn" (click)="$event.stopPropagation(); onDecrement()">-</button>
       <span class="qty-text fw-semibold fs-7">{{ item.quantity || 1 }}</span>
-      <button class="qty-btn" (click)="onIncrement()">+</button>
+      <button class="qty-btn" (click)="$event.stopPropagation(); onIncrement()">+</button>
     </div>
   </div>
 
   <div class="action-section d-flex align-items-center gap-1">
-    <button mat-icon-button color="primary" *ngIf="mode === 'wishlist'" (click)="onMoveToCart()"
+    <button mat-icon-button color="primary" *ngIf="mode === 'wishlist'" (click)="$event.stopPropagation(); onMoveToCart()"
       matTooltip="Add to Cart">
       <mat-icon>add_shopping_cart</mat-icon>
     </button>
 
-    <button mat-icon-button color="warn" (click)="onRemove()" matTooltip="Remove">
+    <button mat-icon-button color="warn" (click)="$event.stopPropagation(); onRemove()" matTooltip="Remove">
       <mat-icon>delete_outline</mat-icon>
     </button>
   </div>

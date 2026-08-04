@@ -215,6 +215,17 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
+  viewProductDetails(item: SidePanelItem): void {
+    const productId = item.productId || item.id;
+    if (!productId) {
+      this.notificationService.showError('Product information is not available.');
+      return;
+    }
+
+    this.close();
+    this.router.navigate(['/products', productId]);
+  }
+
   navigateToCheckout(): void {
     this.close();
     this.store

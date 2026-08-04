@@ -29,7 +29,7 @@ export class OrderDetailsComponent {
   get breadcrumbs(): BreadcrumbItem[] {
     const parentRoute = this.isAdmin
       ? { label: 'Manage Orders', url: '/admin/orders' }
-      : { label: 'My Orders', url: '/orders/history' };
+      : { label: 'My Orders', url: '/account/orders/history' };
 
     const orderIdLabel = this.orderDetail?.orderId
       ? `Order #${this.orderDetail.orderId.slice(0, 8)}`
@@ -91,7 +91,7 @@ export class OrderDetailsComponent {
     if (this.isAdmin) {
       this.router.navigate(['/admin/orders']);
     } else {
-      this.router.navigate(['/orders/history']);
+      this.router.navigate(['/account/orders/history']);
     }
   }
   onCancelOrder(orderId: string): void {

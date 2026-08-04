@@ -9,10 +9,15 @@ import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'profile', pathMatch: 'full' },
-  { path: 'profile', canActivate: [authGuard], component: ProfileComponent },
+  // Used when the module is lazy loaded at /admin/users.
+  { path: '', canActivate: [authGuard, adminGuard], component: UserManagementComponent },
+
+  // Customer account routes, lazy loaded at /account/...
+  { path: 'profile', canActivate: [authGuard, customerGuard], component: ProfileComponent },
   { path: 'address', canActivate: [customerGuard], component: AddressComponent },
   { path: 'wishlist', canActivate: [customerGuard], component: WishlistComponent },
+
+  // Keep the existing admin URL working as an alias.
   { path: 'manage', canActivate: [authGuard, adminGuard], component: UserManagementComponent },
 ];
 

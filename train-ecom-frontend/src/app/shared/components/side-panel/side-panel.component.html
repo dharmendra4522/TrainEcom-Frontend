@@ -55,7 +55,7 @@
         <div *ngIf="items.length > 0" class="d-flex flex-column gap-3">
           <app-side-item-card *ngFor="let item of items" [item]="item" [mode]="type === 'Cart' ? 'cart' : 'wishlist'"
             (remove)="handleRemove($event)" (quantityChange)="handleQuantity($event)"
-            (moveToCart)="handleMoveToCart($event)">
+            (moveToCart)="handleMoveToCart($event)" (viewProduct)="viewProductDetails($event)">
           </app-side-item-card>
         </div>
 

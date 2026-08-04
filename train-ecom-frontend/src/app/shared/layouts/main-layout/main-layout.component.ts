@@ -41,7 +41,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Categories', icon: 'category', route: '/admin/categories' },
-    { label: 'Manage Users', icon: 'people', route: '/account/manage' },
+    { label: 'Manage Users', icon: 'people', route: '/admin/users' },
     { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
 
   ];
@@ -50,8 +50,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'My Profile', icon: 'person', route: '/account/profile' },
     { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
     { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
-    { label: 'My Cart', icon: 'shopping_cart', route: '/cart' },
-    { label: 'My Orders', icon: 'shopping_bag', route: '/orders/history' },
+    { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
+    { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
   ];
 
   isMobile$: Observable<boolean> = this.breakpointObserver

@@ -5,6 +5,7 @@ import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.co
 import { AuthLayoutComponent } from './shared/layouts/auth-layout/auth-layout.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { customerGuard } from './core/guards/customer.guard';
 import { publicGuard } from './core/guards/public.guard';
 import { guestOrCustomerGuard } from './core/guards/guest-or-customer.guard';
 
@@ -24,8 +25,32 @@ const routes: Routes = [
       {
         path: 'account',
         canActivate: [authGuard],
-        loadChildren: () =>
-          import('./features/users/users.module').then((m) => m.UsersModule),
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'profile' },
+          {
+            path: 'cart',
+            canActivate: [customerGuard],
+            loadChildren: () =>
+              import('./features/cart/cart.module').then((m) => m.CartModule),
+          },
+          {
+            path: 'orders',
+            canActivate: [customerGuard],
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'history' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/orders/orders.module').then((m) => m.OrdersModule),
+              },
+            ],
+          },
+          {
+            path: '',
+            loadChildren: () =>
+              import('./features/users/users.module').then((m) => m.UsersModule),
+          },
+        ],
       },
 
       {
@@ -101,8 +126,8 @@ const routes: Routes = [
           },
           {
             path: 'users',
-            redirectTo: '/account/manage',
-            pathMatch: 'full'
+            loadChildren: () =>
+              import('./features/users/users.module').then((m) => m.UsersModule),
           },
           {
             path: 'orders',

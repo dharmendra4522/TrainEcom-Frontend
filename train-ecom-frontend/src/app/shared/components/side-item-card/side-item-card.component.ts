@@ -23,6 +23,11 @@ export class SideItemCardComponent {
   @Output() remove = new EventEmitter<string>();
   @Output() quantityChange = new EventEmitter<{ id: string, action: 'add' | 'subtract' }>();
   @Output() moveToCart = new EventEmitter<SideItem>();
+  @Output() viewProduct = new EventEmitter<SideItem>();
+
+  onViewProduct(): void {
+    this.viewProduct.emit(this.item);
+  }
 
   onRemove() {
     this.remove.emit(this.item.id);

@@ -108,7 +108,7 @@ export interface OrderDetailsResponse {
   };
   canCancel: boolean;
   customerDetail?: {
-    fullName: string;
+    customerName: string;
     email: string;
     phoneNumber: string;
   };
