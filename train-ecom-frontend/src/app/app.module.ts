@@ -28,6 +28,8 @@ import { WishlistEffects } from './core/store/wish-list/wishList.effects';
 import { cartReducer } from './core/store/cart/cart.reducer';
 import { CartEffects } from './core/store/cart/cart.effects';
 
+import { errorInterceptor } from './core/interceptors/error.interceptor';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -53,7 +55,7 @@ import { CartEffects } from './core/store/cart/cart.effects';
   ],
   providers: [
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

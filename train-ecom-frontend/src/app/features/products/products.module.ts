@@ -9,7 +9,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { PublicCatalogComponent } from './components/public-catalog/public-catalog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { AdminProductDetailComponent } from './components/admin-product-detail/admin-product-detail.component';
 import { CatalogFilterComponent } from './components/catalog-filter/catalog-filter.component';
 
 @NgModule({
@@ -18,7 +17,6 @@ import { CatalogFilterComponent } from './components/catalog-filter/catalog-filt
     ProductFormComponent,
     ProductDetailComponent,
     PublicCatalogComponent,
-    AdminProductDetailComponent,
     CatalogFilterComponent,
   ],
   imports: [

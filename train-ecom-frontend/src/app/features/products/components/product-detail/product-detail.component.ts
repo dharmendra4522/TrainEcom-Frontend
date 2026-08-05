@@ -20,6 +20,8 @@ import {
   selectProductError,
   selectRelatedProducts,
 } from '../../../../core/store/product/product.selectors';
+import { Actions, ofType } from '@ngrx/effects';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -32,11 +34,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private notification = inject(NotificationService);
   private location = inject(Location);
+  private confirmDialog = inject(ConfirmDialogServiceService);
+  private action$ = inject(Actions);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
   quantity: number = 1;
   isLoading: boolean = true;
+  isAdmin: boolean = false; // for routes check
 
   isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
@@ -47,11 +52,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private productDestroy$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      this.isAdmin = !!data['isAdmin'];
+    });
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params['id'];
       if (id) {
         this.loadProduct(id);
-        this.checkWishlistStatus(id);
+        if (!this.isAdmin) {
+          this.checkWishlistStatus(id);
+        }
       }
     });
   }
@@ -67,7 +77,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.productDestroy$.next();
 
     this.store.dispatch(ProductActions.loadProductById({ id }));
-    this.store.dispatch(ProductActions.loadRelatedProducts({ productId: id }));
+    if (!this.isAdmin) {
+      this.store.dispatch(
+        ProductActions.loadRelatedProducts({ productId: id }),
+      );
+    }
 
     this.store
       .select(selectProductById(id))
@@ -77,26 +91,36 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
           this.product = product;
           this.setInitialImage(product);
 
-          this.productBreadcrumbs = [
-            { label: 'Home', url: '/' },
-            { label: 'Products', url: '/products' },
-            { label: product.name }
-          ];
+          if (this.isAdmin) {
+            this.productBreadcrumbs = [
+              { label: 'Home', url: '/' },
+              { label: 'Admin Products', url: '/admin/products/manage' },
+              { label: product.name },
+            ];
+          } else {
+            this.productBreadcrumbs = [
+              { label: 'Home', url: '/' },
+              { label: 'Products', url: '/products' },
+              { label: product.name },
+            ];
+          }
         }
       });
 
-    this.store
-      .select(selectRelatedProducts)
-      .pipe(takeUntil(this.productDestroy$))
-      .subscribe((products) => {
-        if (products && this.product) {
-          this.relatedProducts = products
-            .filter(
-              (p: Product) => p.id.toString() !== this.product?.id.toString(),
-            )
-            .slice(0, 4);
-        }
-      });
+    if (!this.isAdmin) {
+      this.store
+        .select(selectRelatedProducts)
+        .pipe(takeUntil(this.productDestroy$))
+        .subscribe((products) => {
+          if (products && this.product) {
+            this.relatedProducts = products
+              .filter(
+                (p: Product) => p.id.toString() !== this.product?.id.toString(),
+              )
+              .slice(0, 4);
+          }
+        });
+    }
 
     this.store
       .select(selectProductsLoading)
@@ -235,7 +259,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
               },
             })
             .toString();
-          this.router.navigate(['/login'], { queryParams: { returnUrl: checkoutUrl } });
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: checkoutUrl },
+          });
           return;
         }
 
@@ -249,10 +275,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  goBack(): void {
-    this.location.back();
-  }
-
   private loadRelatedProducts(): void {
     if (!this.product?.id) return;
     this.store.dispatch(
@@ -262,4 +284,43 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Admin specific methods
+  onEditProduct(): void {
+    if (this.product) {
+      this.router.navigate(['/admin/products/edit', this.product.id]);
+    }
+  }
+
+  onDeleteProduct(): void {
+    if (!this.product) return;
+    this.confirmDialog
+      .confirm(
+        'Are you sure you want to delete this product?',
+        'Delete',
+        'Cancel',
+      )
+      .subscribe((confirmed) => {
+        if (!confirmed || !this.product) return;
+        const id = this.product.id.toString();
+        this.store.dispatch(ProductActions.deleteProduct({ productId: id }));
+
+        this.action$
+          .pipe(
+            ofType(ProductActions.deleteProductSuccess),
+            takeUntil(this.destroy$),
+            take(1),
+          )
+          .subscribe(() => {
+            this.router.navigate(['/admin/products/manage']);
+          });
+      });
+  }
+
+goBack(): void {
+    if (this.isAdmin) {
+      this.router.navigate(['/admin/products/manage']);
+    } else {
+      this.location.back();
+    }
+  }
 }

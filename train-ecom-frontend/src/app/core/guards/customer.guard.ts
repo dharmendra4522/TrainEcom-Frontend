@@ -10,6 +10,7 @@ export const customerGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);
   const router = inject(Router);
 
+  // this guard checks if the user is logged in and has the role of 'Customer'. If not, it redirects them to the login page or admin dashboard based on their role.
   return store.select(selectIsLoggedIn).pipe(
     take(1),
     withLatestFrom(store.select(selectUserRole)),

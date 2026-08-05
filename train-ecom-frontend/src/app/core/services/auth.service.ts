@@ -10,6 +10,9 @@ import {
   ResetPasswordRequest,
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
+import { HttpContext } from '@angular/common/http';
+import { SKIP_ERROR_HANDLING } from '../interceptors/error.context';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,11 +25,15 @@ export class AuthService {
   private http = inject(HttpClient);
 
   login(credentials: loginRequest): Observable<loginResponse> {
-    return this.http.post<loginResponse>(this.loginAPI, credentials);
+    return this.http.post<loginResponse>(this.loginAPI, credentials, {
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
+    });
   }
 
   register(userData: registerRequest): Observable<registerResponse> {
-    return this.http.post<registerResponse>(this.registerAPI, userData);
+    return this.http.post<registerResponse>(this.registerAPI, userData, {
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
+    });
   }
 
   sendForgotPasswordOtp(email: string): Observable<ApiBasicResponse>{

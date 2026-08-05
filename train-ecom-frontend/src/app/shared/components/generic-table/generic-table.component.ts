@@ -65,4 +65,20 @@ export class GenericTableComponent {
     }
     this.rowClick.emit(row);
   }
+
+  getActionColor(act: TableAction, row: any): 'primary' | 'accent' | 'warn' | undefined | null {
+    const color = typeof act.color === 'function' ? act.color(row) : act.color;
+    return color as 'primary' | 'accent' | 'warn' | undefined | null;
+  }
+
+  getActionIcon(act: TableAction, row: any): string {
+    return typeof act.icon === 'function' ? act.icon(row) : act.icon;
+  }
+
+  getActionLabel(act: TableAction, row: any): string {
+    if (act.label) {
+      return typeof act.label === 'function' ? act.label(row) : act.label;
+    }
+    return act.tooltip || act.actionKey;
+  }
 }

@@ -8,6 +8,7 @@ export const guestOrCustomerGuard: CanActivateFn = () => {
   const store = inject(Store);
   const router = inject(Router);
 
+  // this guard allows access to both guests and users with the 'Customer' role. If the user is logged in as an 'Admin', they are redirected to the admin dashboard.
   return store.select(selectUserRole).pipe(
     take(1),
     map((role) =>

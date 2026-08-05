@@ -52,9 +52,9 @@
         <td mat-cell *matCellDef="let row" class="px-4 py-3 text-end">
           <div class="d-inline-flex justify-content-end align-items-center gap-1">
             <ng-container *ngIf="showInlineActions; else actionMenu">
-              <button *ngFor="let act of actions" mat-icon-button [color]="act.color" class="action-btn"
-                [matTooltip]="act.tooltip || (act.actionKey | titlecase)" (click)="onActionClick(act.actionKey, row)">
-                <mat-icon>{{ act.icon }}</mat-icon>
+              <button *ngFor="let act of actions" mat-icon-button [color]="getActionColor(act, row)" class="action-btn"
+                [matTooltip]="getActionLabel(act, row) | titlecase" (click)="onActionClick(act.actionKey, row)">
+                <mat-icon>{{ getActionIcon(act, row) }}</mat-icon>
               </button>
             </ng-container>
 
@@ -64,8 +64,8 @@
               </button>
               <mat-menu #tableActionMenu="matMenu" xPosition="before">
                 <button *ngFor="let act of actions" mat-menu-item (click)="onActionClick(act.actionKey, row)">
-                  <mat-icon *ngIf="act.icon">{{ act.icon }}</mat-icon>
-                  <span>{{ act.tooltip || act.actionKey | titlecase }}</span>
+                  <mat-icon *ngIf="act.icon">{{ getActionIcon(act, row) }}</mat-icon>
+                  <span>{{ getActionLabel(act, row) | titlecase }}</span>
                 </button>
               </mat-menu>
             </ng-template>

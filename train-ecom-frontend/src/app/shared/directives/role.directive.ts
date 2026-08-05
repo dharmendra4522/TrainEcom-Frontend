@@ -18,6 +18,7 @@ export class RoleDirective {
 
   constructor() { }
 
+  // here we are using the @Input decorator to bind the required role to the directive. When the role is set, we call the updateView method to check if the current user's role matches the required role and update the view accordingly.
   @Input() set appRole(role: string) {
     this.requiredRole = role;
     this.updateView();
@@ -29,8 +30,6 @@ export class RoleDirective {
         this.updateView();
       });
   }
-
-
 
   private updateView() {
     this.viewContainer.clear();
