@@ -142,6 +142,7 @@ export class OrderDetailsComponent {
     const dialogRef = this.dialog.open(AdminOrderStatusDialogComponent, {
       width: 'min(92vw, 460px)',
       maxWidth: '95vw',
+      height: '500px', 
       data: { orderId: this.orderDetail.orderId, currentStatus: this.orderDetail.orderStatus }
     });
 

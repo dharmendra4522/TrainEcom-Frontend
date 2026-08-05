@@ -14,6 +14,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Address } from '../../../../core/models/user.model';
 import { switchMap, takeUntil, of, combineLatest, Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectProductById } from '../../../../core/store/product/product.selectors';
 import {
@@ -33,6 +34,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private checkoutService = inject(CheckoutService);
   private notification = inject(NotificationService);
+  private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
   private store = inject(Store);
 
@@ -226,6 +228,28 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   removeCheckoutItem(item: CheckoutItem): void {
+    this.confirmDialog
+      .confirm(
+        `Are you sure you want to remove "${item.productName || 'this item'}" from checkout?`,
+        'Remove',
+        'Cancel',
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((confirmed) => {
+        if (!confirmed) {
+          return;
+        }
+
+        if (this.checkoutItems.length <= 1) {
+          this.notification.showWarning('You must keep at least one product in checkout.');
+          return;
+        }
+
+        this.performCheckoutItemRemoval(item);
+      });
+  }
+
+  private performCheckoutItemRemoval(item: CheckoutItem): void {
     if (this.isDirectBuy) {
       this.checkoutItems = this.checkoutItems.filter(
         (checkoutItem) => checkoutItem.productId !== item.productId,

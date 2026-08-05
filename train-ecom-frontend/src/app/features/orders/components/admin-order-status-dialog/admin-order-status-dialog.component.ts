@@ -22,15 +22,30 @@ export class AdminOrderStatusDialogComponent {
   isUpdating: boolean = false;
   statuses: OrderStatus[] = Object.values(OrderStatus);
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { orderId: string, currentStatus: OrderStatus}) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { orderId: string, currentStatus: OrderStatus }) {
     this.form = this.fb.group({
       status: [data.currentStatus, Validators.required],
       remark: ['']
     });
   }
 
+  // helper method to check if the selected status is different from the current status
+  isStatusDisabled(status: OrderStatus): boolean {
+    const statusHierarchy: OrderStatus[] = [
+      OrderStatus.Pending,
+      OrderStatus.Confirmed,
+      OrderStatus.Processing,
+      OrderStatus.Shipped,
+      OrderStatus.Delivered,
+      OrderStatus.Cancelled
+    ]
+    const currentIndex = statusHierarchy.indexOf(this.data.currentStatus);
+    const selectedIndex = statusHierarchy.indexOf(status);
 
-  onSubmit(): void{
+    return selectedIndex <= currentIndex; // Disable if the selected status is earlier or same as current
+  }
+
+  onSubmit(): void {
     if (this.form.invalid) {
       return;
     }
@@ -43,7 +58,7 @@ export class AdminOrderStatusDialogComponent {
     }
 
     this.isUpdating = true;
-    
+
     this.orderService.updateOrderStatus(this.data.orderId, newStatus, remark).subscribe({
       next: () => {
         this.notification.showSuccess('Order status updated successfully', 'Close');
@@ -67,5 +82,5 @@ export class AdminOrderStatusDialogComponent {
     this.dialogRef.close(false);
   }
 
-  
+
 }

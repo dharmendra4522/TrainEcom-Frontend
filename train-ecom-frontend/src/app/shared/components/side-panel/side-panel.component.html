@@ -9,12 +9,13 @@
             class="header-icon-badge rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
             <mat-icon>{{ icon }}</mat-icon>
           </div>
-          <div>
-            <h5 class="fw-bold text-dark m-0">{{ title }}</h5>
-            <small class="text-muted" *ngIf="items.length > 0">
-              {{ type === 'Cart' ? totalQuantity : items.length }}
-              <!-- {{ (type === 'Cart' ? totalQuantity : items.length) === 1 ? 'item' : 'items' }} -->
-            </small>
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="fw-bold text-dark m-0">
+              {{ title }}
+              <span *ngIf="items.length > 0">
+                ({{ type === 'Cart' ? totalQuantity : items.length }})
+              </span>
+            </h5>
           </div>
         </div>
 

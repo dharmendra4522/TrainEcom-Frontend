@@ -99,6 +99,7 @@ export interface OrderDetailsResponse {
   orderId: string;
   orderDate: string;
   orderStatus: OrderStatus;
+  remark?: string | null;
   items: OrderItemDetail[];
   totalItems: number;
   deliveryAddress: DeliveryAddress;

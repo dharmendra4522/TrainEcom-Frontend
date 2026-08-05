@@ -1,23 +1,13 @@
 <div class="product-detail-container py-4 px-2 px-md-4">
-  <div
-    class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2"
-  >
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
-    <button
-      mat-stroked-button
-      color="primary"
-      (click)="goBack()"
-      class="d-flex align-items-center gap-2"
-    >
+    <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
       <mat-icon>arrow_back</mat-icon>
       Back
     </button>
   </div>
 
-  <div
-    *ngIf="isLoading"
-    class="d-flex flex-column align-items-center justify-content-center py-5 my-5"
-  >
+  <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
     <mat-spinner diameter="50"></mat-spinner>
     <p class="mt-3 text-secondary">Loading product details...</p>
   </div>
@@ -25,33 +15,16 @@
   <div *ngIf="!isLoading && product" class="row g-4 mb-5">
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
-        <div
-          class="main-image-wrapper rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3"
-        >
-          <img
-            [src]="selectedImageUrl"
-            [alt]="product.name"
-            appImgFallback
-            class="main-image img-fluid"
-          />
+        <div class="main-image-wrapper rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3">
+          <img [src]="selectedImageUrl" [alt]="product.name" appImgFallback class="main-image img-fluid" />
         </div>
 
-        <div
-          class="d-flex gap-2 overflow-auto py-1 custom-scrollbar"
-          *ngIf="product.images && product.images.length > 0"
-        >
-          <div
-            *ngFor="let img of product.images"
-            (click)="selectImage(img.imageUrl)"
+        <div class="d-flex gap-2 overflow-auto py-1 custom-scrollbar"
+          *ngIf="product.images && product.images.length > 0">
+          <div *ngFor="let img of product.images" (click)="selectImage(img.imageUrl)"
             class="thumbnail-box rounded-3 overflow-hidden cursor-pointer"
-            [class.active-thumbnail]="selectedImageUrl === img.imageUrl"
-          >
-            <img
-              [src]="img.imageUrl"
-              [alt]="product.name"
-              appImgFallback
-              class="img-fluid"
-            />
+            [class.active-thumbnail]="selectedImageUrl === img.imageUrl">
+            <img [src]="img.imageUrl" [alt]="product.name" appImgFallback class="img-fluid" />
           </div>
         </div>
       </div>
@@ -60,16 +33,12 @@
     <div class="col-lg-6">
       <div class="product-info-card p-2 p-md-3">
         <div class="d-flex align-items-center gap-2 mb-2">
-          <span
-            class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill"
-            *ngIf="product.categoryName"
-          >
+          <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill"
+            *ngIf="product.categoryName">
             {{ product.categoryName }}
           </span>
-          <span
-            class="badge bg-secondary-subtle text-dark fw-semibold px-3 py-2 rounded-pill"
-            *ngIf="product.brandName"
-          >
+          <span class="badge bg-secondary-subtle text-dark fw-semibold px-3 py-2 rounded-pill"
+            *ngIf="product.brandName">
             {{ product.brandName }}
           </span>
         </div>
@@ -90,18 +59,14 @@
           <span class="vr d-none d-sm-inline"></span>
 
           <div>
-            <span
-              *ngIf="product.stockQuantity && product.stockQuantity > 0"
-              class="badge bg-success-subtle text-success fw-bold px-2.5 py-1.5 rounded-pill"
-            >
+            <span *ngIf="product.stockQuantity && product.stockQuantity > 0"
+              class="badge bg-success-subtle text-success fw-bold px-2.5 py-1.5 rounded-pill">
               <mat-icon class="fs-6 align-middle me-1">check_circle</mat-icon>
               In Stock ({{ product.stockQuantity }}
               available)
             </span>
-            <span
-              *ngIf="!product.stockQuantity || product.stockQuantity <= 0"
-              class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill"
-            >
+            <span *ngIf="!product.stockQuantity || product.stockQuantity <= 0"
+              class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill">
               <mat-icon class="fs-6 align-middle me-1">cancel</mat-icon> Out of
               Stock
             </span>
@@ -110,13 +75,9 @@
 
         <div class="price-section mb-4 p-3 rounded-3 bg-light border-0">
           <div class="d-flex align-items-baseline gap-3">
-            <span class="display-6 fw-bold text-primary"
-              >₹{{ product.price | number: "1.2-2" }}</span
-            >
+            <span class="display-6 fw-bold text-primary">₹{{ product.price | number: "1.2-2" }}</span>
           </div>
-          <small class="text-muted d-block mt-1"
-            >Inclusive of all taxes & free shipping</small
-          >
+          <small class="text-muted d-block mt-1">Inclusive of all taxes & free shipping</small>
         </div>
 
         <div class="description-section mb-4">
@@ -132,154 +93,117 @@
           <div class="actions-section mb-4">
             <h6 class="fw-bold text-dark mb-2">Quantity</h6>
             <div class="d-flex align-items-center gap-3 flex-wrap">
-              <div
-                class="quantity-counter d-flex align-items-center border rounded-3 bg-white px-1"
-              >
-                <button
-                  mat-icon-button
-                  type="button"
-                  (click)="decrementQuantity()"
-                  [disabled]="quantity <= 1"
-                >
+              <div class="quantity-counter d-flex align-items-center border rounded-3 bg-white px-1">
+                <button mat-icon-button type="button" (click)="decrementQuantity()" [disabled]="quantity <= 1">
                   <mat-icon>remove</mat-icon>
                 </button>
                 <span class="quantity-value px-2 fw-bold fs-6">{{
                   quantity
-                }}</span>
-                <button
-                  mat-icon-button
-                  type="button"
-                  (click)="incrementQuantity()"
-                  [disabled]="
+                  }}</span>
+                <button mat-icon-button type="button" (click)="incrementQuantity()" [disabled]="
                     product.stockQuantity
                       ? quantity >= product.stockQuantity
                       : false
-                  "
-                >
+                  ">
                   <mat-icon>add</mat-icon>
                 </button>
               </div>
 
-              <button
-                mat-icon-button
-                class="wishlist-detail-btn"
-                [class.is-favorite]="isFavorite$ | async"
-                (click)="addToWishlist()"
-                matTooltip="Add to Wishlist"
-              >
+              <button mat-icon-button class="wishlist-detail-btn" [class.is-favorite]="isFavorite$ | async"
+                (click)="addToWishlist()" matTooltip="Add to Wishlist">
                 <mat-icon>{{
                   (isFavorite$ | async) ? "favorite" : "favorite_border"
-                }}</mat-icon>
+                  }}</mat-icon>
               </button>
             </div>
           </div>
+          <div class="d-flex gap-3 mb-4 flex-wrap">
+            <ng-container *ngIf="product.stockQuantity; else detailOutOfStock">
+              <button mat-raised-button color="primary"
+                class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
+                (click)="addToCart()">
+                <mat-icon>shopping_cart</mat-icon>
+                <span class="fw-bold">Add to Cart</span>
+              </button>
+
+              <button mat-flat-button
+                class="btn-lg flex-grow-1 py-3 rounded-3 bg-dark text-white d-flex align-items-center justify-content-center gap-2"
+                (click)="buyNow()">
+                <mat-icon>flash_on</mat-icon>
+                <span class="fw-bold">Buy Now</span>
+              </button>
+            </ng-container>
+
+            <ng-template #detailOutOfStock>
+              <div class="w-100 text-center py-3 text-danger fw-bold bg-danger-subtle rounded-3 fs-5">
+                Out of Stock
+              </div>
+            </ng-template>
+          </div>
         </ng-container>
-
-        <div class="d-flex gap-3 mb-4 flex-wrap">
-          <ng-container *ngIf="product.stockQuantity; else detailOutOfStock">
-            <button
-              mat-raised-button
-              color="primary"
-              class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
-              (click)="addToCart()"
-            >
-              <mat-icon>shopping_cart</mat-icon>
-              <span class="fw-bold">Add to Cart</span>
-            </button>
-
-            <button
-              mat-flat-button
-              class="btn-lg flex-grow-1 py-3 rounded-3 bg-dark text-white d-flex align-items-center justify-content-center gap-2"
-              (click)="buyNow()"
-            >
-              <mat-icon>flash_on</mat-icon>
-              <span class="fw-bold">Buy Now</span>
-            </button>
-          </ng-container>
-
-          <ng-template #detailOutOfStock>
-            <div
-              class="w-100 text-center py-3 text-danger fw-bold bg-danger-subtle rounded-3 fs-5"
-            >
-              Out of Stock
-            </div>
-          </ng-template>
-        </div>
 
         <ng-container *ngIf="isAdmin">
           <div class="d-flex gap-3 mb-4 flex-wrap">
-            <button
-              mat-raised-button
-              color="primary"
+            <button mat-raised-button color="primary"
               class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
-              (click)="onEditProduct()"
-            >
+              (click)="onEditProduct()">
               <mat-icon>edit</mat-icon>
               <span class="fw-bold">Edit Product</span>
             </button>
 
-            <button
-              mat-flat-button
-              color="warn"
+            <button mat-flat-button color="warn"
               class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
-              (click)="onDeleteProduct()"
-            >
+              (click)="onDeleteProduct()">
               <mat-icon>delete</mat-icon>
               <span class="fw-bold">Delete Product</span>
             </button>
           </div>
         </ng-container>
 
-        <div class="row g-2 border-top pt-3 text-secondary text-center">
-          <div class="col-4">
-            <div class="p-2">
-              <mat-icon class="text-primary mb-1">local_shipping</mat-icon>
-              <div class="small fw-semibold text-dark">Free Delivery</div>
-              <div class="extra-small text-muted">Orders over $50</div>
+
+        <ng-container *ngIf="!isAdmin">
+          <div class="row g-2 border-top pt-3 text-secondary text-center">
+            <div class="col-4">
+              <div class="p-2">
+                <mat-icon class="text-primary mb-1">local_shipping</mat-icon>
+                <div class="small fw-semibold text-dark">Free Delivery</div>
+                <div class="extra-small text-muted">Orders over $50</div>
+              </div>
+            </div>
+            <div class="col-4 border-start border-end">
+              <div class="p-2">
+                <mat-icon class="text-primary mb-1">published_with_changes</mat-icon>
+                <div class="small fw-semibold text-dark">30 Days Return</div>
+                <div class="extra-small text-muted">Hassle free policy</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2">
+                <mat-icon class="text-primary mb-1">verified_user</mat-icon>
+                <div class="small fw-semibold text-dark">Secure Payment</div>
+                <div class="extra-small text-muted">100% Protected</div>
+              </div>
             </div>
           </div>
-          <div class="col-4 border-start border-end">
-            <div class="p-2">
-              <mat-icon class="text-primary mb-1"
-                >published_with_changes</mat-icon
-              >
-              <div class="small fw-semibold text-dark">30 Days Return</div>
-              <div class="extra-small text-muted">Hassle free policy</div>
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="p-2">
-              <mat-icon class="text-primary mb-1">verified_user</mat-icon>
-              <div class="small fw-semibold text-dark">Secure Payment</div>
-              <div class="extra-small text-muted">100% Protected</div>
-            </div>
-          </div>
-        </div>
+        </ng-container>
       </div>
     </div>
   </div>
 
-  <div
-    class="related-products-section mt-5 pt-4 border-top"
-    *ngIf="!isAdmin && relatedProducts && relatedProducts.length > 0"
-  >
+  <div class="related-products-section mt-5 pt-4 border-top"
+    *ngIf="!isAdmin && relatedProducts && relatedProducts.length > 0">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
         <h3 class="fw-bold text-dark m-0">Related Products</h3>
         <p class="text-muted small m-0">Explore items customer also viewed</p>
       </div>
-      <a
-        [routerLink]="['/products']"
-        [queryParams]="{ category: product?.categoryName }"
-        class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-decoration-none"
-      >
+      <a [routerLink]="['/products']" [queryParams]="{ category: product?.categoryName }"
+        class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-decoration-none">
         View All
       </a>
     </div>
 
-    <div
-      class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4"
-    >
+    <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
       <div class="col" *ngFor="let item of relatedProducts">
         <app-product-card [product]="item"></app-product-card>
       </div>

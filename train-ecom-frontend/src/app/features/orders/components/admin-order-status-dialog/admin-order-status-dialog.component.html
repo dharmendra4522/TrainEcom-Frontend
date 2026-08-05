@@ -11,7 +11,7 @@
         <mat-form-field appearance="outline" class="w-100">
             <mat-label>Order Status</mat-label>
             <mat-select formControlName="status" required>
-                <mat-option *ngFor="let status of statuses" [value]="status">
+                <mat-option *ngFor="let status of statuses" [value]="status" [disabled]="isStatusDisabled(status)">
                     {{ status }}
                 </mat-option>
             </mat-select>

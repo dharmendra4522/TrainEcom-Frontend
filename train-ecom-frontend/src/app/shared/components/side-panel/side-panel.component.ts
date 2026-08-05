@@ -37,6 +37,7 @@ export interface SidePanelItem {
   thumbnailUrl?: string;
   image?: string;
   quantity?: number;
+  totalproducts?: number;
 }
 @Component({
   selector: 'app-side-panel',

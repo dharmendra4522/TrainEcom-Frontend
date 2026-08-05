@@ -6,11 +6,11 @@ export enum PaymentMethod {
 
 export enum OrderStatus {
   Pending = 'Pending',
+  Confirmed = 'Confirmed',
   Processing = 'Processing',
   Shipped = 'Shipped',
   Delivered = 'Delivered',
   Cancelled = 'Cancelled',
-  Confirmed = 'Confirmed',
 }
 
 export enum PaymentStatus {
