@@ -81,7 +81,10 @@ export class ProductService {
     pageSize: number = 10,
     brandName?: string,
     categoryName?: string,
-    search?: string
+    search?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    sortBy?: string
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -95,6 +98,15 @@ export class ProductService {
     }
     if (search) {
       params = params.set('Search', search);
+    }
+    if (minPrice !== undefined && minPrice !== null) {
+      params = params.set('MinPrice', minPrice.toString());
+    }
+    if (maxPrice !== undefined && maxPrice !== null) {
+      params = params.set('MaxPrice', maxPrice.toString());
+    }
+    if (sortBy) {
+      params = params.set('SortBy', sortBy);
     }
 
     return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params });

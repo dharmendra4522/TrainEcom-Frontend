@@ -1,17 +1,8 @@
-<div
-  *ngIf="isProcessing"
+<div *ngIf="isProcessing"
   class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-50"
-  style="z-index: 9999; backdrop-filter: blur(5px)"
->
-  <div
-    class="bg-white p-4 rounded-4 shadow-lg text-center"
-    style="max-width: 320px"
-  >
-    <div
-      class="spinner-border text-primary mb-3"
-      role="status"
-      style="width: 3rem; height: 3rem"
-    >
+  style="z-index: 9999; backdrop-filter: blur(5px)">
+  <div class="bg-white p-4 rounded-4 shadow-lg text-center" style="max-width: 320px">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem">
       <span class="visually-hidden">Loading...</span>
     </div>
     <h5 class="fw-bold text-dark mb-1">Processing Order...</h5>
@@ -22,50 +13,32 @@
 </div>
 
 <div class="checkout-container py-4 px-2 px-md-4">
-  <div
-    class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2"
-  >
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <app-breadcrumb [items]="checkoutBreadcrumbs"></app-breadcrumb>
-    <button
-      mat-stroked-button
-      color="primary"
-      class="d-flex align-items-center gap-1"
-      (click)="goBack()"
-    >
+    <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon> Back to Cart
     </button>
   </div>
 
   <div class="row g-4">
     <div class="col-lg-7">
-      <app-checkout-address
-        [addresses]="addresses"
-        [selectedAddressId]="selectedAddressid"
-        (selectAddress)="selectAddress($event)"
-        (addAddress)="handleAddressSubmission($event)"
-      >
+      <app-checkout-address [addresses]="addresses" [selectedAddressId]="selectedAddressid"
+        (selectAddress)="selectAddress($event)" (addAddress)="handleAddressSubmission($event)"
+        (updateAddress)="handleAddressUpdate($event)">
       </app-checkout-address>
 
 
 
-      <app-checkout-payment
-        [selectedMethod]="paymentMethods"
-        (methodChange)="selectPaymentMethod($event)"
-      >
+      <app-checkout-payment [selectedMethod]="paymentMethods" (methodChange)="selectPaymentMethod($event)">
       </app-checkout-payment>
     </div>
 
     <div class="col-lg-5">
       <div class="sticky-top" style="top: 85px; z-index: 10">
-        <app-checkout-subtotal
-          [items]="checkoutItems"
-          [subtotal]="subtotal"
-          [shippingCost]="shippingCost"
-          [grandTotal]="grandTotal"
-          [isSubmitting]="isSubmitting"
-          (removeItem)="removeCheckoutItem($event)"
-          (placeOrder)="onPlaceOrder()"
-        ></app-checkout-subtotal>
+        <app-checkout-subtotal [items]="checkoutItems" [subtotal]="subtotal" [shippingCost]="shippingCost"
+          [grandTotal]="grandTotal" [isSubmitting]="isSubmitting"
+          (updateQty)="updateQuantity($event.item, $event.quantity)" (removeItem)="removeCheckoutItem($event)"
+          (placeOrder)="onPlaceOrder()"></app-checkout-subtotal>
       </div>
     </div>
   </div>

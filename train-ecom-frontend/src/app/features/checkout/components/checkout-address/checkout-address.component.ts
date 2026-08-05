@@ -2,62 +2,13 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Address } from '../../../../core/models/user.model';
 import { SelectionDialogComponent, SelectionDialogData } from '../../../../shared/components/selection-dialog/selection-dialog.component';
-import { DialogData } from '../../../../core/models/dialog.model';
+import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { Validators } from '@angular/forms';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/internal/operators/take';
 
-export type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
 
-// Dialog configuration for adding a new address, including form fields and validation rules.
-const ADD_ADDRESS_DIALOG_CONFIG: DialogData = {
-  title: 'Add New Address',
-  fields: [
-    {
-      key: 'fullName',
-      label: 'Full Name',
-      type: 'text',
-      validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
-    },
-    {
-      key: 'phone',
-      label: 'Phone Number',
-      type: 'text',
-      validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
-    },
-    {
-      key: 'addressLine1',
-      label: 'Address Line 1',
-      type: 'text',
-      validation: [Validators.required],
-    },
-    {
-      key: 'addressLine2',
-      label: 'Address Line 2 (Optional)',
-      type: 'text',
-    },
-    {
-      key: 'city',
-      label: 'City',
-      type: 'text',
-      validation: [Validators.required],
-    },
-    {
-      key: 'state',
-      label: 'State',
-      type: 'text',
-      validation: [Validators.required],
-    },
-    {
-      key: 'postalCode',
-      label: 'Postal Code',
-      type: 'text',
-      maxLength: 6,
-      validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
-    },
-  ],
-  submitButtonText: 'Save Address',
-}
+export type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
 
 
 @Component({
@@ -77,10 +28,75 @@ export class CheckoutAddressComponent {
   //  Events to notify the parent component of an action
   @Output() selectAddress = new EventEmitter<string>();
   @Output() addAddress = new EventEmitter<AddressFormResult>();
+  @Output() updateAddress = new EventEmitter<{ id: string; address: AddressFormResult }>();
 
   //Returns the currently selected address object for display in the UI.
   get selectedAddress(): Address | undefined {
     return this.addresses.find(address => address.id === this.selectedAddressId);
+  }
+
+  private getAddressFields(address?: Address): FieldConfig[] {
+    return [
+      {
+        key: 'fullName',
+        label: 'Full Name',
+        type: 'text',
+        value: address?.fullName || '',
+        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+      },
+      {
+        key: 'phone',
+        label: 'Phone Number',
+        type: 'text',
+        value: address?.phone || '',
+        validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
+        maxLength: 10,
+      },
+      {
+        key: 'addressLine1',
+        label: 'Address Line 1',
+        type: 'text',
+        value: address?.addressLine1 || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'addressLine2',
+        label: 'Address Line 2 (Optional)',
+        type: 'text',
+        value: address?.addressLine2 || '',
+      },
+      {
+        key: 'city',
+        label: 'City',
+        type: 'text',
+        value: address?.city || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'state',
+        label: 'State',
+        type: 'text',
+        value: address?.state || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'postalCode',
+        label: 'Postal Code',
+        type: 'text',
+        value: address?.postalCode || '',
+        maxLength: 6,
+        validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
+      },
+    ]
+  }
+
+  private getDialogConfig(address?: Address): DialogData {
+    const isEdit = !!address;
+    return {
+      title: isEdit ? 'Update Address' : 'Add New Address',
+      submitButtonText: isEdit ? 'Update Address' : 'Save Address',
+      fields: this.getAddressFields(address),
+    }
   }
 
 
@@ -108,13 +124,17 @@ export class CheckoutAddressComponent {
       })
   }
 
-  onAddNewAddress(): void {
+onAddNewAddress(address?: Address): void {
+    const dialogConfig = this.getDialogConfig(address);
     this.dialog.open(GenericDialogComponent, {
       width: '550px',
-      data: ADD_ADDRESS_DIALOG_CONFIG,
+      data: dialogConfig,
     }).afterClosed().pipe(take(1)).subscribe((result: AddressFormResult | undefined) => {
-      if (result) {
-        this.addAddress.emit(result); // Emit the new address data to the parent component
+      if(!result) return;
+      if (address && address.id) {
+        this.updateAddress.emit({ id: address.id, address: result });
+      } else{
+        this.addAddress.emit(result);
       }
     })
   }

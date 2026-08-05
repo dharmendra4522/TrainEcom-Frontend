@@ -35,6 +35,7 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
     this.setupQueryAndSearchSubscription();
   }
  
+  // Load brands and categories if they are not already loaded in the store
   private loadFilterMetadata(): void {
     this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
       if (!brands || brands.length === 0) {
@@ -48,7 +49,8 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
       }
     });
   }
- 
+  
+  // Set up subscriptions to synchronize the search input with the URL query parameters
   private setupQueryAndSearchSubscription(): void {
     this.searchControl.valueChanges
       .pipe(

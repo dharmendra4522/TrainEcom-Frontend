@@ -32,5 +32,7 @@ export interface ProductFilterPayload {
   searchQuery: string;
   categoryId: string;
   brandId: string;
+  minPrice?: number;
+  maxPrice?: number;
   sortBy: string;
 }

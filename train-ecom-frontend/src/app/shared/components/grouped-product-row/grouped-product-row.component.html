@@ -11,7 +11,7 @@
             <a mat-button color="primary" [routerLink]="['/products']" class="view-all-link" [queryParams]="
                 filterType === 'brand'
                   ? { brand: filterValue }
-                  : { category: filterValue }
+                  : (filterType === 'category' ? { category: filterValue } : { sortBy: 'Newest' })
               ">
                 View All <mat-icon class="fs-6 ms-1">arrow_forward</mat-icon>
             </a>

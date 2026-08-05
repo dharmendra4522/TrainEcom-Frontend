@@ -23,6 +23,8 @@ import {
 } from '../../../../core/store/cart/cart.selectors';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { AddressFormResult } from '../checkout-address/checkout-address.component';
+
+
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -227,6 +229,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Remove a checkout item after user confirmation and ensure at least one item remains in checkout
   removeCheckoutItem(item: CheckoutItem): void {
     this.confirmDialog
       .confirm(
@@ -249,6 +252,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Perform the actual removal of a checkout item, either from direct buy or from the cart
   private performCheckoutItemRemoval(item: CheckoutItem): void {
     if (this.isDirectBuy) {
       this.checkoutItems = this.checkoutItems.filter(
@@ -314,7 +318,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         error: (err) =>
           this.onOrderError(
             err?.error?.message ||
-              'Payment simulation or order placement failed',
+            'Payment simulation or order placement failed',
           ),
       });
   }
@@ -353,6 +357,31 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  // Update the quantity of a checkout item and recalculate totals
+  updateQuantity(item: CheckoutItem, newQuantity: number): void {
+    if (newQuantity < 1) {
+      this.notification.showWarning('Quantity must be at least 1');
+      return;
+    }
+    if (this.isDirectBuy) {
+      this.directQty = newQuantity;
+      item.quantity = newQuantity;
+      this.subtotal = this.checkoutItems.reduce(
+        (sum, i) => sum + i.unitPrice * i.quantity,
+        0
+      );
+      this.calculateTotals();
+    } else {
+      this.store.dispatch(
+        CartActions.updateCartItem({
+          itemId: item.itemId || item.productId,
+          quantity: newQuantity,
+        })
+      );
+    }
+  }
+
   // Success Handler
   private onOrderSuccess(response: CreateOrderResponse): void {
     this.isSubmitting = false;
@@ -366,6 +395,31 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       replaceUrl: true,
     });
   }
+
+  handleAddressUpdate(event: { id: string; address: AddressFormResult }): void {
+    const addressPayload: Address = {
+      ...event.address,
+      id: event.id,
+      phone: String(event.address.phone),
+      postalCode: String(event.address.postalCode),
+      country: 'India',
+      isDefault: false,
+    };
+    this.userService
+      .updateAddress(event.id, addressPayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notification.showSuccess('Address updated successfully', 'Close');
+          this.loadUserAddresses(event.id);
+        },
+        error: (err) => {
+          console.error('Error updating address:', err);
+          this.notification.showError('Failed to update address', 'Close');
+        },
+      });
+  }
+
 
   // Error Handler
   private onOrderError(errorMessage: string): void {

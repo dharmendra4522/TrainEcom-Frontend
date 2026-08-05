@@ -30,6 +30,10 @@ export class HomeComponent implements OnInit {
     map(categories => categories.slice(0, 3))
   )
 
+  newestProducts$: Observable<Product[]> = this.store.select(selectAllProducts).pipe(
+    map(products => [...products].sort((a, b) =>(Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 4))
+  )
+
   ngOnInit() {
     this.fetchProducts();
     

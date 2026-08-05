@@ -34,7 +34,20 @@
           <h6 class="fw-bold text-dark text-truncate m-0">
             {{ item.productName }}
           </h6>
-          <small class="text-secondary">Quantity: {{ item.quantity }}</small>
+          <div class="quantity-counter d-flex align-items-center border rounded-3 bg-white">
+            <button mat-icon-button type="button"
+                    class="quantity-btn quantity-btn-decrease"
+                    (click)="onUpdateQuantity(item, item.quantity - 1)"
+                    [disabled]="item.quantity <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="quantity-value">{{ item.quantity }}</span>
+            <button mat-icon-button type="button"
+                    class="quantity-btn quantity-btn-increase"
+                    (click)="onUpdateQuantity(item, item.quantity + 1)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
         </div>
 
         <!-- Price & Remove Button -->

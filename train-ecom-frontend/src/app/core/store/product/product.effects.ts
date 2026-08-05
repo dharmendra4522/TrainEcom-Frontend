@@ -30,8 +30,11 @@ export class ProductEffects {
                 const brandName = action.brandName || '';
                 const categoryName = action.categoryName || '';
                 const search = action.search || '';
-                
-                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}`;
+                const minPrice = action.minPrice;
+                const maxPrice = action.maxPrice;
+                const sortBy = action.sortBy || '';
+
+                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}`;
 
                 if (pagesCache[cacheKey]) {
                     return of(ProductActions.loadProductsSuccess({
@@ -48,7 +51,10 @@ export class ProductEffects {
                     pageSize, 
                     action.brandName, 
                     action.categoryName,
-                    action.search
+                    action.search,
+                    action.minPrice,
+                    action.maxPrice,
+                    action.sortBy
                 ).pipe(
                     map((response) => ProductActions.loadProductsSuccess({
                         products: response?.items || [],

@@ -44,6 +44,8 @@ export class ProductCardComponent implements OnInit {
     this.checkWishlistStatus();
   }
 
+
+  // Check if the product is in the wishlist and update the isFavorite$ observable
   private checkWishlistStatus(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
@@ -58,6 +60,7 @@ export class ProductCardComponent implements OnInit {
     );
   }
 
+  // Toggle the wishlist status of the product
   onToggleWishlist(event: Event): void {
     event.stopPropagation();
     if (!this.product?.id) return;
@@ -88,6 +91,7 @@ export class ProductCardComponent implements OnInit {
       });
   }
 
+  // Add the product to the cart
   addToCart(product: Product): void {
     const productDetails: CartProductDetails = {
       productName: product.name,
@@ -103,7 +107,7 @@ export class ProductCardComponent implements OnInit {
     );
   }
 
-  
+  // Handle the "Buy Now" action
   buyNow(): void {
     if (!this.product?.id) {
       this.notification.showError('Product information is not available');
@@ -114,13 +118,13 @@ export class ProductCardComponent implements OnInit {
       .select(selectIsLoggedIn)
       .pipe(take(1))
       .subscribe((isLoggedIn: boolean) => {
+
+        const checkoutUrl = this.router.createUrlTree(['/checkout'], {
+          queryParams: { productId: this.product.id.toString(), quantity: 1 },
+        }).toString();
+
         if (!isLoggedIn) {
           this.notification.showInfo('Please log in to proceed to checkout.');
-          const checkoutUrl = this.router
-            .createUrlTree(['/checkout'], {
-              queryParams: { productId: this.product.id.toString(), quantity: 1 },
-            })
-            .toString();
           this.router.navigate(['/login'], { queryParams: { returnUrl: checkoutUrl } });
           return;
         }

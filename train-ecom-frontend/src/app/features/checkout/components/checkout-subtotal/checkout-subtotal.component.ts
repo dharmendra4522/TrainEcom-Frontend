@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, output, Output } from '@angular/core';
 import { CheckoutItem } from '../../../../core/models/checkout.model';
 
 @Component({
@@ -18,6 +18,7 @@ export class CheckoutSubtotalComponent {
   // send remove and place order emitter to parent
   @Output() removeItem = new EventEmitter<CheckoutItem>();
   @Output() placeOrder = new EventEmitter<void>();
+  @Output() updateQty = new EventEmitter<{ item: CheckoutItem; quantity: number }>();
 
 
   onRemove(item: CheckoutItem): void {
@@ -26,6 +27,10 @@ export class CheckoutSubtotalComponent {
 
   onPlaceOrder(): void {
     this.placeOrder.emit();
+  }
+
+  onUpdateQuantity(item: CheckoutItem, newQuantity: number): void {
+    this.updateQty.emit({ item, quantity: newQuantity });
   }
 
 }

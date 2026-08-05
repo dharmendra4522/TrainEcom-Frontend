@@ -34,6 +34,11 @@
         <div *ngIf="selectedAddress as address"
             class="address-tile rounded-3 p-3 position-relative border border-primary bg-light-subtle">
             <div class="position-absolute top-0 end-0 p-3">
+                <button mat-stroked-button color="primary" class="bg-white btn-sm"
+                    (click)="onAddNewAddress(address)">
+                    Edit
+                    <mat-icon class="fs-6 align-middle ms-1">edit</mat-icon>
+                </button>
                 <span class="badge bg-primary text-white px-2 py-1 rounded-pill small">Selected</span>
             </div>
             <h6 class="fw-bold text-dark mb-2">{{ address.fullName }}</h6>

@@ -14,7 +14,7 @@ export class CatalogFilterComponent {
   @Input() selectedBrand: string = '';
   @Input() maxPriceSliderValue: number = 10000;
   @Input() activeRating: number | null = null;
-  @Input() activeSort: string = 'popularity';
+  @Input() activeSort: string = '';
 
   @Output() categoryChange = new EventEmitter<string>();
   @Output() brandChange = new EventEmitter<string>();

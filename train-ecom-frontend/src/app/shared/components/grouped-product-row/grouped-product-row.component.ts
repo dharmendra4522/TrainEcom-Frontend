@@ -17,7 +17,7 @@ export class GroupedProductRowComponent implements OnInit {
 
 
   @Input() title!: string;
-  @Input() filterType: 'brand' | 'category' = 'brand';
+  @Input() filterType: 'brand' | 'category' | 'newest' = 'brand';
   @Input() filterValue!: string;
 
   @ViewChild('gridContainer') gridContainer!: ElementRef<HTMLDivElement>;
@@ -37,6 +37,8 @@ export class GroupedProductRowComponent implements OnInit {
           return products.filter(product => (product.brandName || '').toLowerCase().trim() === val).slice(0, 4);
         } else if (this.filterType === 'category') {
           return products.filter(product => (product.categoryName || '').toLowerCase().trim() === val).slice(0, 4);
+        } else if (this.filterType === 'newest') {
+          return [...products].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 4);
         }
         return products;
       })

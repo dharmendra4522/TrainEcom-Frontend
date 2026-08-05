@@ -9,6 +9,9 @@ export const loadProducts = createAction(
     brandName?: string;
     categoryName?: string;
     search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: string;
   }>(),
 );
 
