@@ -37,20 +37,32 @@ export const productReducer = createReducer(
     ProductActions.loadProductsSuccess,
     (
       state,
-      { products, totalPages = 1, pageNumber = 1, totalRecords = 0, cacheKey },
-    ) => ({
-      ...state,
-      products: products,
-      totalPages: totalPages,
-      pageNumber: pageNumber,
-      totalRecords: totalRecords,
-      pagesCache: {
-        ...state.pagesCache,
-        [cacheKey]: products,
-      },
-      isLoading: false,
-      error: null,
-    }),
+      { products, totalPages = 1, pageNumber = 1, totalRecords = 0, cacheKey, isAppend } 
+    ) => {
+      let updatedProducts: Product[];
+
+      if (isAppend) {
+        const existingIds = new Set(state.products.map((p) => p.id.toString()));
+        const newUniqueProducts = products.filter((p) => !existingIds.has(p.id.toString()));
+        updatedProducts = [...state.products, ...newUniqueProducts];
+      } else {
+        updatedProducts = products;
+      }
+
+      return {
+        ...state,
+        products: updatedProducts,
+        totalPages: totalPages,
+        pageNumber: pageNumber,
+        totalRecords: totalRecords,
+        pagesCache: {
+          ...state.pagesCache,
+          [cacheKey]: products,
+        },
+        isLoading: false,
+        error: null,
+      };
+    },
   ),
 
   on(ProductActions.loadProductsFailure, (state, { error }) => ({

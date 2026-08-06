@@ -24,7 +24,7 @@
               {{ orderDetail.orderStatus }}
             </span>
             <div class="text-secondary small">
-              Ordered on: <span class="fw-semibold text-dark">{{ orderDetail.orderDate | date:'medium' }}</span>
+              Ordered on: <span class="fw-semibold text-dark">{{ orderDetail.orderDate | date:'medium':'+0530' }}</span>
             </div>
           </div>
 
@@ -91,7 +91,8 @@
               </div>
 
               <div class="flex-grow-1" style="min-width: 0;">
-                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6 truncate" [title]="item.productName">{{ item.productName }}
+                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6 truncate" [title]="item.productName">{{
+                  item.productName }}
                 </h6>
                 <div class="text-secondary small">Qty: {{ item.quantity }} &times; ₹{{ item.unitPrice | number:'1.2-2'
                   }}</div>
@@ -144,6 +145,10 @@
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Status:</span>
           <span class="fw-semibold text-success">{{ orderDetail.payment.paymentStatus }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-2 small" *ngIf="orderDetail.payment.paidAt">
+          <span class="text-secondary">Paid At:</span>
+          <span class="fw-semibold text-dark">{{ orderDetail.payment.paidAt | date:'medium':'+0530' }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center small gap-2 mt-2 pt-2 border-top"
           *ngIf="orderDetail.payment.transactionId">

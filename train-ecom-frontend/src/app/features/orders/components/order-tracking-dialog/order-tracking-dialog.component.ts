@@ -28,6 +28,12 @@ export class OrderTrackingDialogComponent implements OnInit {
       next: (response) => {
         if (response && response.trackingSteps) {
 
+          response.trackingSteps = response.trackingSteps.map(step => {
+            if (step.statusDate && !step.statusDate.endsWith('Z') && !step.statusDate.includes('+')) {
+              return { ...step, statusDate: step.statusDate + 'Z' };
+            }
+            return step;
+          })
 
           const isCancelled = response.trackingSteps.some(step => step.status.toLowerCase() === 'cancelled' && (step.completed || response.currentStatus.toLowerCase() === 'cancelled'));
           if (isCancelled) {

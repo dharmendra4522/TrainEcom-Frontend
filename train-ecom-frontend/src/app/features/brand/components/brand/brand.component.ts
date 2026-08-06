@@ -45,6 +45,7 @@ export class BrandComponent implements OnInit {
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
     { key: 'description', label: 'Description' },
+    { key: 'numberOfProducts', label: 'Total Products' },
   ];
 
   actions: TableAction[] = [

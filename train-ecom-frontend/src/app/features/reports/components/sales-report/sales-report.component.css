@@ -1,3 +1,26 @@
 .reports-container {
+  width: 100%;
+}
+
+.generator-card {
+  max-width: 620px;
+  width: 100%;
+}
+
+.pdf-btn {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+@media (max-width: 575.98px) {
+  .generator-card {
+    max-width: 100%;
+  }
+
+  .pdf-btn {
     width: 100%;
+  }
 }

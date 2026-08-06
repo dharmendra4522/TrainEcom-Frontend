@@ -21,4 +21,5 @@ export interface PaginatedBrandResponse {
   pageSize: number;
   totalRecords: number;
   totalPages: number;
+  numberOfProducts?: number;
 }

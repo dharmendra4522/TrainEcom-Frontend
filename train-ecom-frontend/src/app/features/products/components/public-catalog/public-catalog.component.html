@@ -1,7 +1,7 @@
-<div class="container mt-2 mt-sm-4 pb-5">
+<div class="container-fluid px-2 px-sm-3 px-md-4 mt-2 mt-sm-3 pb-5">
+  <!-- Page Title & Top Actions -->
   <div
-    class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 border-bottom pb-3 gap-3"
-  >
+    class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 border-bottom pb-3 gap-3">
     <div>
       <h2 class="fw-bold m-0 text-dark">Product Catalog</h2>
       <p class="text-muted small m-0">
@@ -10,79 +10,56 @@
     </div>
 
     <div class="d-flex gap-2">
-      <button
-        mat-flat-button
-        color="primary"
-        class="d-lg-none d-flex align-items-center gap-2"
-        (click)="toggleMobileFilters()"
-      >
+      <button mat-flat-button color="primary" class="d-lg-none d-flex align-items-center gap-2"
+        (click)="toggleMobileFilters()">
         <mat-icon>filter_alt</mat-icon>
         Filters
       </button>
 
-      <button
-        mat-stroked-button
-        color="primary"
-        (click)="goBack()"
-        class="d-flex align-items-center gap-2"
-      >
+      <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
         <mat-icon>arrow_back</mat-icon>
         Back
       </button>
     </div>
   </div>
 
-  <div class="row">
-    <div
-      class="col-lg-3 mb-4"
-      [class.d-none]="!showMobileFilters"
-      [class.d-lg-block]="true"
-    >
-      <app-catalog-filter
-        [categories]="(categories$ | async) || []"
-        [brands]="(brands$ | async) || []"
+  <div class="row g-3 g-md-4">
+    <!-- Left Filter Sidebar -->
+    <div class="col-lg-3 col-xl-2 mb-4" [class.d-none]="!showMobileFilters" [class.d-lg-block]="true">
+      <app-catalog-filter [categories]="(categories$ | async) || []" [brands]="(brands$ | async) || []"
         [selectedCategory]="(route.queryParams | async)?.['category'] || ''"
-        [selectedBrand]="(route.queryParams | async)?.['brand'] || ''"
-        [maxPriceSliderValue]="maxPriceSliderValue"
-        [activeRating]="activeRating"
-        [activeSort]="activeSort"
-        (categoryChange)="onCategoryChange($event)"
-        (brandChange)="onBrandChange($event)"
-        (priceSliderChange)="onPriceSliderChange($event)"
-        (ratingChange)="setRating($event)"
-        (sortChange)="setSortBy($event)"
-        (resetAll)="resetFilters()">
+        [selectedBrand]="(route.queryParams | async)?.['brand'] || ''" [maxPriceSliderValue]="maxPriceSliderValue"
+        [activeRating]="activeRating" [activeSort]="activeSort" (categoryChange)="onCategoryChange($event)"
+        (brandChange)="onBrandChange($event)" (priceSliderChange)="onPriceSliderChange($event)"
+        (ratingChange)="setRating($event)" (sortChange)="setSortBy($event)" (resetAll)="resetFilters()">
       </app-catalog-filter>
     </div>
 
-    <div class="col-lg-9">
-      <div
-        *ngIf="isLoading$ | async"
-        class="d-flex justify-content-center py-5"
-      >
+    <!-- Main Products Grid -->
+    <div class="col-lg-9 col-xl-10">
+      <!-- Initial Loading Spinner (Pehla Page Fetch) -->
+      <div *ngIf="(isLoading$ | async) && currentPage === 1" class="d-flex justify-content-center py-5">
         <mat-spinner diameter="45"></mat-spinner>
       </div>
 
-      <ng-container *ngIf="!(isLoading$ | async)">
-        <ng-container *ngIf="filteredProducts$ | async as productsList">
-          <div
-            *ngIf="productsList.length > 0; else noProducts"
-            class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-xl-3 g-2 g-sm-3 g-md-4 py-2 px-0 m-0"
-          >
-            <div
-              class="col d-flex align-items-stretch"
-              *ngFor="let product of productsList"
-            >
-              <app-product-card
-                [product]="product"
-                class="w-100"
-              ></app-product-card>
+      <ng-container *ngIf="filteredProducts$ | async as products">
+        <div *ngIf="products.length > 0; else noProducts">
+          <!-- Full-Width Responsive Product Cards Grid (4 to 5 cards per row on large screens) -->
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-4 row-cols-xxl-5 g-3 g-md-4">
+            <div class="col d-flex align-items-stretch" *ngFor="let product of products">
+              <app-product-card [product]="product" class="w-100"></app-product-card>
             </div>
           </div>
-        </ng-container>
 
+          <!-- Infinite Scroll Bottom Loading Spinner -->
+          <div *ngIf="(isLoading$ | async) && currentPage > 1" class="d-flex justify-content-center py-4">
+            <mat-spinner diameter="35"></mat-spinner>
+          </div>
+        </div>
+
+        <!-- No Products Found State -->
         <ng-template #noProducts>
-          <div class="text-center py-5 bg-light rounded-4 mt-4">
+          <div *ngIf="!(isLoading$ | async)" class="text-center py-5 bg-light rounded-4 mt-2">
             <mat-icon class="text-muted display-6 mb-2">inventory_2</mat-icon>
             <p class="text-muted fw-medium m-0">
               No products found for these filter settings.

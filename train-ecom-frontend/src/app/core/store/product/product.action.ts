@@ -12,6 +12,7 @@ export const loadProducts = createAction(
     minPrice?: number;
     maxPrice?: number;
     sortBy?: string;
+    isAppend?: boolean;
   }>(),
 );
 
@@ -23,6 +24,7 @@ export const loadProductsSuccess = createAction(
     pageNumber: number;
     totalRecords: number;
     cacheKey: string;
+    isAppend?: boolean;
   }>(),
 );
 

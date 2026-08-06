@@ -60,6 +60,12 @@ export class OrderDetailsComponent {
     const orderObservable = this.isAdmin ? this.orderService.getAdminOrderDetails(orderId) : this.orderService.getOrderDetails(orderId);
     orderObservable.subscribe({
       next: (response) => {
+        if(response && response.orderDate && !response.orderDate.includes('+')){
+          response.orderDate = response.orderDate + 'Z';
+        }
+        if(response && response.payment && response.payment.paidAt && !response.payment.paidAt.includes('+')){
+          response.payment.paidAt = response.payment.paidAt + 'Z';
+        }
         this.orderDetail = response;
       },
       error: (error) => {

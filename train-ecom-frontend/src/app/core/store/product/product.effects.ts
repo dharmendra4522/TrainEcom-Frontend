@@ -37,12 +37,14 @@ export class ProductEffects {
                 const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}`;
 
                 if (pagesCache[cacheKey]) {
+                    const computedCacheTotalPages = totalPages > 0 ? totalPages : Math.max(1, Math.ceil(totalRecords / pageSize));
                     return of(ProductActions.loadProductsSuccess({
                         products: pagesCache[cacheKey],
-                        totalPages,
+                        totalPages: computedCacheTotalPages,
                         pageNumber,
                         totalRecords,
-                        cacheKey
+                        cacheKey,
+                        isAppend: action.isAppend
                     }));
                 }
 
@@ -56,13 +58,21 @@ export class ProductEffects {
                     action.maxPrice,
                     action.sortBy
                 ).pipe(
-                    map((response) => ProductActions.loadProductsSuccess({
-                        products: response?.items || [],
-                        totalPages: response?.totalPages || 1,
-                        pageNumber: pageNumber,
-                        totalRecords: response?.totalRecords || 0,
-                        cacheKey
-                    })),
+                    map((response) => {
+                        const totalRecs = response?.totalRecords || 0;
+                        const computedPages = (response?.totalPages && response.totalPages > 0)
+                            ? response.totalPages
+                            : Math.max(1, Math.ceil(totalRecs / pageSize));
+
+                        return ProductActions.loadProductsSuccess({
+                            products: response?.items || [],
+                            totalPages: computedPages,
+                            pageNumber: pageNumber,
+                            totalRecords: totalRecs,
+                            cacheKey,
+                            isAppend: action.isAppend
+                        });
+                    }),
                     catchError((error) =>
                         of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
                     )

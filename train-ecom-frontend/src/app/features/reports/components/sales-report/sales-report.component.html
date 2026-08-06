@@ -1,55 +1,45 @@
-<div class="reports-container py-4 px-2 px-md-4">
+<div class="reports-container py-3 py-md-4 px-2 px-md-4">
   <!-- Page Header -->
   <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <div>
       <h4 class="fw-bold text-dark m-0">Sales Analytics & Reporting Hub</h4>
-      <p class="text-muted small m-0">Centralized dashboard to manage sales documents, financial reports, and product
-        performance metrics.</p>
+      <p class="text-muted small m-0">Centralized dashboard to manage sales documents, financial reports, and product performance metrics.</p>
     </div>
   </div>
 
-  <!-- Feature Card 1: Sales Report Generator -->
-  <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+  <!--Sales Report Generator -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white generator-card">
     <div class="mb-3">
       <h5 class="fw-bold text-dark mb-1">Sales Report Generator</h5>
       <p class="text-muted small m-0">Export detailed PDF sales reports for custom date ranges.</p>
     </div>
 
     <form [formGroup]="reportForm" (ngSubmit)="downloadReport()">
-      <div class="row g-3 align-items-center">
+      <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3">
 
         <!-- From Date Picker -->
-        <div class="col-12 col-md-5">
-          <mat-form-field appearance="outline" class="w-100 density-compact">
+        <div>
+          <mat-form-field appearance="outline" class="density-compact m-0" style="width: 155px;" subscriptSizing="dynamic">
             <mat-label>From Date*</mat-label>
-            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" placeholder="YYYY-MM-DD"
-              [max]="maxDate">
+            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" placeholder="YYYY-MM-DD" [max]="maxDate">
             <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
             <mat-datepicker #fromPicker></mat-datepicker>
-            <mat-error *ngIf="reportForm.get('fromDate')?.hasError('required')">
-              From Date is required
-            </mat-error>
           </mat-form-field>
         </div>
 
         <!-- To Date Picker -->
-        <div class="col-12 col-md-5">
-          <mat-form-field appearance="outline" class="w-100 density-compact">
+        <div>
+          <mat-form-field appearance="outline" class="density-compact m-0" style="width: 155px;" subscriptSizing="dynamic">
             <mat-label>To Date*</mat-label>
-            <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="YYYY-MM-DD"
-              [max]="maxDate">
+            <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="YYYY-MM-DD" [max]="maxDate">
             <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
             <mat-datepicker #toPicker></mat-datepicker>
-            <mat-error *ngIf="reportForm.get('toDate')?.hasError('required')">
-              To Date is required
-            </mat-error>
           </mat-form-field>
         </div>
 
-        <!-- Download Button -->
-        <div class="col-12 col-md-2 text-md-end">
-          <button mat-flat-button color="primary" type="submit" [disabled]="reportForm.invalid || isLoading"
-            class="w-100 py-2">
+        <!-- Download PDF Button (Vertically Centered with Inputs) -->
+        <div class="d-flex align-items-center">
+          <button mat-flat-button color="primary" type="submit" [disabled]="reportForm.invalid || isLoading" class="pdf-btn px-4 rounded-3">
             <mat-spinner *ngIf="isLoading" diameter="18" class="d-inline-block me-1 align-middle"></mat-spinner>
             <mat-icon *ngIf="!isLoading" class="align-middle me-1">picture_as_pdf</mat-icon>
             <span>{{ isLoading ? 'Exporting...' : 'PDF Report' }}</span>
@@ -57,11 +47,16 @@
         </div>
 
       </div>
+
+      <!-- Validation Error -->
+      <div *ngIf="(reportForm.get('fromDate')?.touched || reportForm.get('toDate')?.touched) && reportForm.invalid" class="text-danger small mt-2">
+        Both From Date and To Date are required.
+      </div>
     </form>
   </div>
 
-  <!-- Feature Card 2: Top Selling Products Performance -->
-  <div class="card border-0 shadow-sm rounded-3 p-4 mb-4 bg-white">
+  <!--Top Selling Products Performance -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white">
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
       <div>
@@ -99,7 +94,7 @@
         </mat-form-field>
 
         <!-- Filter Action Button -->
-        <button mat-flat-button color="primary" type="submit" [disabled]="topProductsFilterForm.invalid" class="px-3">
+        <button mat-flat-button color="primary" type="submit" [disabled]="topProductsFilterForm.invalid" class="px-3 rounded-3" style="height: 44px;">
           <mat-icon class="me-1">filter_list</mat-icon> Filter
         </button>
 

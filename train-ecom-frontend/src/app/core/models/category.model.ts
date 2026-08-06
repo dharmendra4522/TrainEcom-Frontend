@@ -20,4 +20,5 @@ export interface PaginatedCategoryResponse {
   pageSize: number;
   totalRecords: number;
   totalPages: number;
+  numberOfProducts?: number;
 }

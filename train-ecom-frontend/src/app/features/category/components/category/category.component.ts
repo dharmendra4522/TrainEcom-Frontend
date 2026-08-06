@@ -39,7 +39,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },
-    { key: 'description', label: 'Description' }
+    { key: 'description', label: 'Description' },
+    { key: 'numberOfProducts', label: 'Total Products' }
   ];
 
   actions: TableAction[] = [

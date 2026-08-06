@@ -11,6 +11,7 @@ import { PublicCatalogComponent } from './components/public-catalog/public-catal
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CatalogFilterComponent } from './components/catalog-filter/catalog-filter.component';
 
+
 @NgModule({
   declarations: [
     ProductsComponent,

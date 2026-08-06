@@ -45,7 +45,7 @@
                         {{ step.status }}
                     </h6>
                     <small *ngIf="step.statusDate" class="text-muted d-block">
-                        {{ step.statusDate | date:'medium' }}
+                        {{ step.statusDate | date:'medium':'+0530' }}
                     </small>
                     <small *ngIf="step.remarks" class="text-info d-block">
                         {{ step.remarks }}
