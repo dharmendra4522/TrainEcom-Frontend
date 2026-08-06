@@ -4,7 +4,7 @@ import { ProductService } from '../../services/product.service';
 import { NotificationService } from '../../services/notification.service';
 import { Router } from '@angular/router';
 import * as ProductActions from './product.action';
-import { map, catchError, filter, of, switchMap, exhaustMap, withLatestFrom } from 'rxjs';
+import { map, catchError, filter, of, switchMap, mergeMap, exhaustMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords, selectProductPagesCache } from './product.selectors';
 
@@ -24,7 +24,7 @@ export class ProductEffects {
                 this.store.select(selectProductTotalPages),
                 this.store.select(selectProductTotalRecords)
             ),
-            switchMap(([action, pagesCache, totalPages, totalRecords]) => {
+            mergeMap(([action, pagesCache, totalPages, totalRecords]) => {
                 const pageNumber = action.pageNumber || 1;
                 const pageSize = action.pageSize || 10;
                 const brandName = action.brandName || '';

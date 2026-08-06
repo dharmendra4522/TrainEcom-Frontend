@@ -1,35 +1,37 @@
-<div class="product-row-section mt-4 mt-md-5" *ngIf="(products$ | async)?.length as length">
+<ng-container *ngIf="(products$ | async) as prods">
+  <div class="product-row-section mt-4 mt-md-5" *ngIf="prods.length > 0">
     <div class="d-flex align-items-center mb-2">
-        <div class="red-badge"></div>
-        <span class="sub-title ms-3">{{ filterType === 'brand' ? 'Brands' : 'Categories' }}</span>
+      <div class="red-badge"></div>
+      <span class="sub-title ms-3">{{ filterType === 'brand' ? 'Brand' : (filterType === 'category' ? 'Category' : 'Featured') }}</span>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark m-0 main-title">{{ title }}</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="fw-bold text-dark m-0 main-title">{{ title }}</h2>
 
-        <div class="d-flex align-items-center gap-3">
-            <a mat-button color="primary" [routerLink]="['/products']" class="view-all-link" [queryParams]="
-                filterType === 'brand'
-                  ? { brand: filterValue }
-                  : (filterType === 'category' ? { category: filterValue } : { sortBy: 'Newest' })
-              ">
-                View All <mat-icon class="fs-6 ms-1">arrow_forward</mat-icon>
-            </a>
+      <div class="d-flex align-items-center gap-3">
+        <a mat-button color="primary" [routerLink]="['/products']" class="view-all-link" [queryParams]="
+            filterType === 'brand'
+              ? { brand: filterValue }
+              : (filterType === 'category' ? { category: filterValue } : { sortBy: 'Newest' })
+          ">
+          View All <mat-icon class="fs-6 ms-1">arrow_forward</mat-icon>
+        </a>
 
-            <div class="nav-arrows d-none d-md-flex">
-                <button mat-icon-button class="arrow-btn" (click)="scrollGrid(-300)" aria-label="Scroll left">
-                    <mat-icon>arrow_back</mat-icon>
-                </button>
-                <button mat-icon-button class="arrow-btn" (click)="scrollGrid(300)" aria-label="Scroll right">
-                    <mat-icon>arrow_forward</mat-icon>
-                </button>
-            </div>
+        <div class="nav-arrows d-none d-md-flex">
+          <button mat-icon-button class="arrow-btn" (click)="scrollGrid(-300)" aria-label="Scroll left">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <button mat-icon-button class="arrow-btn" (click)="scrollGrid(300)" aria-label="Scroll right">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         </div>
+      </div>
     </div>
 
     <div class="product-grid-container" #gridContainer>
-        <div class="product-grid">
-            <app-product-card *ngFor="let product of products$ | async" [product]="product"></app-product-card>
-        </div>
+      <div class="product-grid">
+        <app-product-card *ngFor="let product of prods" [product]="product"></app-product-card>
+      </div>
     </div>
-</div>
+  </div>
+</ng-container>

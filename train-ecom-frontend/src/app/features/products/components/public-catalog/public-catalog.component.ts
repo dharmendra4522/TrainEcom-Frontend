@@ -78,7 +78,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         this.totalPages = totalPages || 1;
       });
 
-   // set responsive columns from breakpoint observer
+    // set responsive columns from breakpoint observer
     this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
@@ -86,14 +86,20 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       });
 
     // Products array ko Rows me chunk (divide) karein
-   this.productRows$ = this.filteredProducts$.pipe(
+    this.productRows$ = this.filteredProducts$.pipe(
       map(products => this.chunkArray(products, this.itemsPerRow))
     );
 
     this.initStoreData();
-    this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false });
-  }
 
+    // Subscribe to URL query parameters change to reset pagination and load strictly filtered products
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false });
+      });
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -127,8 +133,6 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       });
     }
   }
-
-
 
   private initStoreData(): void {
     this.categories$.pipe(take(1)).subscribe(categories => {
@@ -175,8 +179,6 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       queryParams: { category: categoryName || null },
       queryParamsHandling: 'merge'
     });
-    this.currentPage = 1;
-    this.dispatchLoadWithCurrentParams({ categoryName: categoryName || null, isAppend: false, pageNumber: 1 });
   }
 
   onBrandChange(brandName: string) {
@@ -185,8 +187,6 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       queryParams: { brand: brandName || null },
       queryParamsHandling: 'merge'
     });
-    this.currentPage = 1;
-    this.dispatchLoadWithCurrentParams({ brandName: brandName || null, isAppend: false, pageNumber: 1 });
   }
 
   private dispatchLoadWithCurrentParams(overrides?: {
@@ -203,13 +203,29 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     }
 
     const queryParams = this.route.snapshot.queryParamMap;
-    const brandName = overrides?.brandName ?? queryParams.get('brand') ?? undefined;
-    const categoryName = overrides?.categoryName ?? queryParams.get('category') ?? undefined;
+
+    const brandName = overrides && 'brandName' in overrides
+      ? (overrides.brandName || undefined)
+      : (queryParams.get('brand') || undefined);
+
+    const categoryName = overrides && 'categoryName' in overrides
+      ? (overrides.categoryName || undefined)
+      : (queryParams.get('category') || undefined);
+
     const search = queryParams.get('search') || undefined;
-    const minPrice = overrides?.minPrice ?? this.minPriceFilter$.value ?? undefined;
-    const maxPrice = overrides?.maxPrice ?? this.maxPriceFilter$.value ?? undefined;
-    const sortBy = overrides?.sortBy ?? (this.sortBy$.value || undefined);
-    
+
+    const minPrice = overrides && 'minPrice' in overrides
+      ? (overrides.minPrice ?? undefined)
+      : (this.minPriceFilter$.value ?? undefined);
+
+    const maxPrice = overrides && 'maxPrice' in overrides
+      ? (overrides.maxPrice ?? undefined)
+      : (this.maxPriceFilter$.value ?? undefined);
+
+    const sortBy = overrides && 'sortBy' in overrides
+      ? (overrides.sortBy || undefined)
+      : (this.sortBy$.value || undefined);
+
     const pageNumber = overrides?.pageNumber || this.currentPage;
     const isAppend = overrides?.isAppend || false;
 

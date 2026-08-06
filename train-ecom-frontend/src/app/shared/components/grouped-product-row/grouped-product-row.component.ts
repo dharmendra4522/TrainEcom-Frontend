@@ -3,9 +3,7 @@ import { Store } from '@ngrx/store';
 import { selectAllProducts, selectProductsLoading } from '../../../core/store/product/product.selectors';
 import { Observable } from 'rxjs/internal/Observable';
 import { Product } from '../../../core/models/product.model';
-import * as ProductActions from '../../../core/store/product/product.action';
 import { map } from 'rxjs/operators';
-
 
 @Component({
   selector: 'app-grouped-product-row',
@@ -14,7 +12,6 @@ import { map } from 'rxjs/operators';
 })
 export class GroupedProductRowComponent implements OnInit {
   private store = inject(Store);
-
 
   @Input() title!: string;
   @Input() filterType: 'brand' | 'category' | 'newest' = 'brand';
@@ -33,16 +30,31 @@ export class GroupedProductRowComponent implements OnInit {
     this.products$ = this.store.select(selectAllProducts).pipe(
       map(products => {
         const val = (this.filterValue || '').toLowerCase().trim();
+
         if (this.filterType === 'brand') {
-          return products.filter(product => (product.brandName || '').toLowerCase().trim() === val).slice(0, 6);
+          return products.filter(product => {
+            const bName = (
+              product.brandName ||
+              (typeof product['brand'] === 'object' && product['brand'] ? (product['brand'] as any).name : product['brand']) ||
+              ''
+            ).toString().toLowerCase().trim();
+            return bName === val || bName.includes(val) || val.includes(bName);
+          }).slice(0, 6);
         } else if (this.filterType === 'category') {
-          return products.filter(product => (product.categoryName || '').toLowerCase().trim() === val).slice(0, 6);
+          return products.filter(product => {
+            const cName = (
+              product.categoryName ||
+              (typeof product['category'] === 'object' && product['category'] ? (product['category'] as any).name : product['category']) ||
+              ''
+            ).toString().toLowerCase().trim();
+            return cName === val || cName.includes(val) || val.includes(cName);
+          }).slice(0, 6);
         } else if (this.filterType === 'newest') {
           return [...products].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 10);
         }
-        return products;
+        return products.slice(0, 6);
       })
-    )
+    );
   }
 
   scrollGrid(amount: number): void {
@@ -50,5 +62,4 @@ export class GroupedProductRowComponent implements OnInit {
       this.gridContainer.nativeElement.scrollBy({ left: amount, behavior: 'smooth' });
     }
   }
-
 }

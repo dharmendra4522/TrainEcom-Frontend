@@ -159,6 +159,13 @@ export class UserManagementComponent {
     }
   }
 
+  resetFilters(): void {
+    this.searchQuery = '';
+    this.selectedStatus = 'All';
+    this.pageIndex = 0;
+    this.loadUsers();
+  }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

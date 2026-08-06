@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs/internal/operators/debounceTime';
 import { distinctUntilChanged, takeUntil } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-order-management',
@@ -29,9 +30,11 @@ export class OrderManagementComponent {
   searchQuery = '';
   selectedStatus = '';
   selectedPaymentStatus = '';
-  fromDate = '';
-  toDate = '';
+  fromDate: Date | string | null = '';
+  toDate: Date | string | null = '';
 
+  maxDate: Date = new Date();
+  
   // Dropdown Options
   orderStatusOptions = Object.values(OrderStatus);
   paymentStatusOptions = Object.values(PaymentStatus);
@@ -58,12 +61,23 @@ export class OrderManagementComponent {
   loadOrders(): void {
     this.isLoading = true;
 
+
+    const formatToYyyyMmDd = (date: Date | string | null): string | undefined => {
+      if (!date) return undefined;
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return undefined;
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     const filter: AdminOrderFilterParams = {
       search: this.searchQuery ? this.searchQuery.trim() : undefined,
       orderStatus: this.selectedStatus ? this.selectedStatus : undefined,
       paymentStatus: this.selectedPaymentStatus ? this.selectedPaymentStatus : undefined,
-      fromDate: this.fromDate ? this.fromDate : undefined,
-      toDate: this.toDate ? this.toDate : undefined,
+      fromDate: formatToYyyyMmDd(this.fromDate),
+      toDate: formatToYyyyMmDd(this.toDate),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -85,7 +99,6 @@ export class OrderManagementComponent {
       }
     });
   }
-
   getOrderStatusClass(status: string): string {
     switch (status?.toLowerCase()) {
       case 'confirmed':
@@ -145,6 +158,11 @@ export class OrderManagementComponent {
   onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    this.loadOrders();
+  }
+
+  applyDateFilter(): void {
+    this.pageIndex = 0;
     this.loadOrders();
   }
 
