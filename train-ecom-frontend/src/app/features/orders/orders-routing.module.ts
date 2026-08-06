@@ -12,10 +12,10 @@ const routes: Routes = [
   { path: 'manage', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
   { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
 
-  // Customer Details View (Path: /orders/details/:orderId)
+  // Customer Details View
   { path: 'details/:orderId', canActivate: [customerGuard], component: OrderDetailsComponent, data: { isAdmin: false } },
   
-  // Admin Details View (Path: /admin/orders/details/:orderId - 'admin/' hata dein)
+  // Admin Details View 
   { path: 'details-admin/:orderId', canActivate: [authGuard, adminGuard], component: OrderDetailsComponent, data: { isAdmin: true } }
 ];
 

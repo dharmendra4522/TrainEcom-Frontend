@@ -8,7 +8,6 @@
   </mat-card-header>
 
   <mat-card-content class="pt-2">
-    <!-- Items List: Checkout ya cart ke products ki list -->
     <div
       class="checkout-items-list overflow-auto mb-4 pe-1 custom-scrollbar"
       style="max-height: 260px"
@@ -17,7 +16,6 @@
         class="checkout-item d-flex align-items-center gap-3 py-3 border-bottom last-border-none"
         *ngFor="let item of items"
       >
-        <!-- Product Thumbnail -->
         <div
           class="item-img-wrapper rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center"
         >
@@ -30,21 +28,29 @@
         </div>
 
         <!-- Product Name & Quantity -->
-        <div class="flex-grow-1 min-w-0">
+        <div class="flex-grow-1" style="min-width: 0">
           <h6 class="fw-bold text-dark text-truncate m-0">
             {{ item.productName }}
           </h6>
-          <div class="quantity-counter d-flex align-items-center border rounded-3 bg-white">
-            <button mat-icon-button type="button"
-                    class="quantity-btn quantity-btn-decrease"
-                    (click)="onUpdateQuantity(item, item.quantity - 1)"
-                    [disabled]="item.quantity <= 1">
+          <div
+            class="quantity-counter d-flex align-items-center border rounded-3 bg-white"
+          >
+            <button
+              mat-icon-button
+              type="button"
+              class="quantity-btn quantity-btn-decrease"
+              (click)="onUpdateQuantity(item, item.quantity - 1)"
+              [disabled]="item.quantity <= 1"
+            >
               <mat-icon>remove</mat-icon>
             </button>
             <span class="quantity-value">{{ item.quantity }}</span>
-            <button mat-icon-button type="button"
-                    class="quantity-btn quantity-btn-increase"
-                    (click)="onUpdateQuantity(item, item.quantity + 1)">
+            <button
+              mat-icon-button
+              type="button"
+              class="quantity-btn quantity-btn-increase"
+              (click)="onUpdateQuantity(item, item.quantity + 1)"
+            >
               <mat-icon>add</mat-icon>
             </button>
           </div>

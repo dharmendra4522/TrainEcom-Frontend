@@ -17,18 +17,24 @@ export interface SelectionDialogData<T extends SelectionDialogItem> {
 @Component({
   selector: 'app-selection-dialog',
   templateUrl: './selection-dialog.component.html',
-  styleUrl: './selection-dialog.component.css'
+  styleUrl: './selection-dialog.component.css',
 })
-export class SelectionDialogComponent<T extends SelectionDialogItem = SelectionDialogItem> {
-  private dialogRef = inject(MatDialogRef, { optional: true }) as MatDialogRef<SelectionDialogComponent<T>>;
+export class SelectionDialogComponent<
+  T extends SelectionDialogItem = SelectionDialogItem,
+> {
+  private dialogRef = inject(MatDialogRef, { optional: true }) as MatDialogRef<
+    SelectionDialogComponent<T>
+  >;
 
   constructor(
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: SelectionDialogData<T> = {
+    @Optional()
+    @Inject(MAT_DIALOG_DATA)
+    public data: SelectionDialogData<T> = {
       title: '',
       items: [],
       displayKey: 'id',
     },
-  ) { }
+  ) {}
 
   getItemValue(item: T, key?: string): string {
     if (!key) return '';
@@ -47,7 +53,6 @@ export class SelectionDialogComponent<T extends SelectionDialogItem = SelectionD
     if (this.dialogRef) {
       this.dialogRef.close();
     }
-
   }
 
   onAdd(): void {
@@ -56,5 +61,17 @@ export class SelectionDialogComponent<T extends SelectionDialogItem = SelectionD
     }
   }
 
+  onEdit(item: T, event: Event): void {
+    event.stopPropagation(); // Prevent the click from propagating to the parent element
+    if (this.dialogRef) {
+      this.dialogRef.close({ action: 'edit', item });
+    }
+  }
 
+  onDelete(item: T, event: Event): void {
+    event.stopPropagation();
+    if (this.dialogRef) {
+      this.dialogRef.close({ action: 'delete', item });
+    }
+  }
 }

@@ -34,11 +34,11 @@ export class GroupedProductRowComponent implements OnInit {
       map(products => {
         const val = (this.filterValue || '').toLowerCase().trim();
         if (this.filterType === 'brand') {
-          return products.filter(product => (product.brandName || '').toLowerCase().trim() === val).slice(0, 4);
+          return products.filter(product => (product.brandName || '').toLowerCase().trim() === val).slice(0, 6);
         } else if (this.filterType === 'category') {
-          return products.filter(product => (product.categoryName || '').toLowerCase().trim() === val).slice(0, 4);
+          return products.filter(product => (product.categoryName || '').toLowerCase().trim() === val).slice(0, 6);
         } else if (this.filterType === 'newest') {
-          return [...products].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 4);
+          return [...products].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 10);
         }
         return products;
       })

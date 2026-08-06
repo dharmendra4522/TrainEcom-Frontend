@@ -24,7 +24,7 @@
     <div class="col-lg-7">
       <app-checkout-address [addresses]="addresses" [selectedAddressId]="selectedAddressid"
         (selectAddress)="selectAddress($event)" (addAddress)="handleAddressSubmission($event)"
-        (updateAddress)="handleAddressUpdate($event)">
+        (updateAddress)="handleAddressUpdate($event)" (removeAddress)="handleAddressDelete($event)">
       </app-checkout-address>
 
 

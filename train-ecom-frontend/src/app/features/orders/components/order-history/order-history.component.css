@@ -44,3 +44,14 @@
         font-size: 0.85rem;
     }
 }
+
+::ng-deep .mat-mdc-paginator-container {
+    flex-wrap: nowrap !important;
+    min-width: 320px;
+}
+::ng-deep .mat-mdc-paginator-page-size {
+    margin-right: 8px !important;
+}
+::ng-deep .mat-mdc-paginator-range-actions {
+    flex-shrink: 0;
+}

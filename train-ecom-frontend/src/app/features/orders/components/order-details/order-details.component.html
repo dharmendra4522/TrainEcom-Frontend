@@ -90,8 +90,8 @@
                   class="img-fluid object-fit-cover w-100 h-100">
               </div>
 
-              <div class="min-w-0 flex-grow-1">
-                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6" [title]="item.productName">{{ item.productName }}
+              <div class="flex-grow-1" style="min-width: 0;">
+                <h6 class="fw-bold text-dark text-truncate mb-1 fs-6 truncate" [title]="item.productName">{{ item.productName }}
                 </h6>
                 <div class="text-secondary small">Qty: {{ item.quantity }} &times; ₹{{ item.unitPrice | number:'1.2-2'
                   }}</div>

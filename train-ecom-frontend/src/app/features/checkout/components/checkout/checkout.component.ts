@@ -420,6 +420,40 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
+  handleAddressDelete(addressId: string): void {
+    const addressToDelete = this.addresses.find(a => a.id === addressId);
+    if (!addressToDelete) return;
+
+    this.confirmDialog
+      .confirm(
+        `Are you sure you want to delete the address for "${addressToDelete.fullName}"?`,
+        'Delete',
+        'Cancel'
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+
+        this.userService
+          .deleteAddress(addressId)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.notification.showSuccess('Address deleted successfully', 'Close');
+              // If the deleted address was currently selected, reset it
+              if (this.selectedAddressid === addressId) {
+                this.selectedAddressid = null;
+              }
+              this.loadUserAddresses(this.selectedAddressid || undefined);
+            },
+            error: (err) => {
+              console.error('Error deleting address:', err);
+              this.notification.showError('Failed to delete address', 'Close');
+            },
+          });
+      });
+  }
+
 
   // Error Handler
   private onOrderError(errorMessage: string): void {

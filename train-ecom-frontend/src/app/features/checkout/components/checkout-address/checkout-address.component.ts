@@ -1,38 +1,43 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Address } from '../../../../core/models/user.model';
-import { SelectionDialogComponent, SelectionDialogData } from '../../../../shared/components/selection-dialog/selection-dialog.component';
+import {
+  SelectionDialogComponent,
+  SelectionDialogData,
+} from '../../../../shared/components/selection-dialog/selection-dialog.component';
 import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { Validators } from '@angular/forms';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/internal/operators/take';
 
-
 export type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
-
 
 @Component({
   selector: 'app-checkout-address',
   templateUrl: './checkout-address.component.html',
-  styleUrl: './checkout-address.component.css'
+  styleUrl: './checkout-address.component.css',
 })
 export class CheckoutAddressComponent {
   private dialog = inject(MatDialog);
-
 
   // take addresses list  and selectedAddressId as input from parent component
   @Input() addresses: Address[] = [];
   @Input() selectedAddressId: string | null = null;
 
-
   //  Events to notify the parent component of an action
   @Output() selectAddress = new EventEmitter<string>();
   @Output() addAddress = new EventEmitter<AddressFormResult>();
-  @Output() updateAddress = new EventEmitter<{ id: string; address: AddressFormResult }>();
+  @Output() updateAddress = new EventEmitter<{
+    id: string;
+    address: AddressFormResult;
+  }>();
+  @Output() removeAddress = new EventEmitter<string>();
 
   //Returns the currently selected address object for display in the UI.
   get selectedAddress(): Address | undefined {
-    return this.addresses.find(address => address.id === this.selectedAddressId);
+    return this.addresses.find(
+      (address) => address.id === this.selectedAddressId,
+    );
   }
 
   private getAddressFields(address?: Address): FieldConfig[] {
@@ -87,7 +92,7 @@ export class CheckoutAddressComponent {
         maxLength: 6,
         validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
       },
-    ]
+    ];
   }
 
   private getDialogConfig(address?: Address): DialogData {
@@ -96,9 +101,8 @@ export class CheckoutAddressComponent {
       title: isEdit ? 'Update Address' : 'Add New Address',
       submitButtonText: isEdit ? 'Update Address' : 'Save Address',
       fields: this.getAddressFields(address),
-    }
+    };
   }
-
 
   onChangeAddress(): void {
     const dialogData: SelectionDialogData<Address> = {
@@ -106,37 +110,56 @@ export class CheckoutAddressComponent {
       items: this.addresses,
       selectedId: this.selectedAddressId || '',
       displayKey: 'fullName',
-      addButtonLabel: 'Add New Address'
-    }
+      addButtonLabel: 'Add New Address',
+    };
     this.dialog
-      .open<SelectionDialogComponent<Address>, SelectionDialogData<Address>, Address | 'add'>(
-        SelectionDialogComponent,
-        {
-          width: '750px',
-          data: dialogData,
-        }
-      ).afterClosed().pipe(take(1)).subscribe((result) => {
-        if (result === 'add') {
-          this.onAddNewAddress(); // Trigger the add address flow
-        } else if (result) {
-          this.selectAddress.emit(result.id);  // Emit the selected address ID to the parent component
-        }
+      .open<
+        SelectionDialogComponent<Address>,
+        SelectionDialogData<Address>,
+        Address | 'add' | { action: string; item: Address }
+      >(SelectionDialogComponent, {
+        width: '750px',
+        data: dialogData,
       })
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result: any) => {
+        if (!result) return;
+
+        setTimeout(() => {
+          if (result === 'add') {
+            this.onAddNewAddress();
+          } else if (result.action === 'edit') {
+            this.onAddNewAddress(result.item); // Edit dialog open
+          } else if (result.action === 'delete') {
+            this.deleteAddress(result.item.id); // Delete method call
+          } else if (result.id) {
+            this.selectAddress.emit(result.id);
+          }
+        }, 50);
+      });
   }
 
-onAddNewAddress(address?: Address): void {
+  deleteAddress(id: string): void {
+    this.removeAddress.emit(id);
+  }
+
+  onAddNewAddress(address?: Address): void {
     const dialogConfig = this.getDialogConfig(address);
-    this.dialog.open(GenericDialogComponent, {
-      width: '550px',
-      data: dialogConfig,
-    }).afterClosed().pipe(take(1)).subscribe((result: AddressFormResult | undefined) => {
-      if(!result) return;
-      if (address && address.id) {
-        this.updateAddress.emit({ id: address.id, address: result });
-      } else{
-        this.addAddress.emit(result);
-      }
-    })
+    this.dialog
+      .open(GenericDialogComponent, {
+        width: '550px',
+        data: dialogConfig,
+      })
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((result: AddressFormResult | undefined) => {
+        if (!result) return;
+        if (address && address.id) {
+          this.updateAddress.emit({ id: address.id, address: result });
+        } else {
+          this.addAddress.emit(result);
+        }
+      });
   }
-
 }
