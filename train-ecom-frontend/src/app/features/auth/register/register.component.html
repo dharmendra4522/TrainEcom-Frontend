@@ -85,7 +85,7 @@
           <mat-icon matPrefix class="me-2 text-secondary">lock</mat-icon>
           <input
             matInput
-            [type]="isShowingPassword ? 'text' : 'password'"
+            [type]=" isPasswordVisible ? 'text' : 'password'"
             formControlName="password"
           />
           <button
@@ -94,12 +94,12 @@
             matSuffix
             (click)="togglePasswordVisibility()"
             [attr.aria-label]="
-              isShowingPassword ? 'Hide password' : 'Show password'
+              isPasswordVisible ? 'Hide password' : 'Show password'
             "
-            [attr.aria-pressed]="isShowingPassword"
+            [attr.aria-pressed]="isPasswordVisible"
           >
             <mat-icon>{{
-              isShowingPassword ? "visibility" : "visibility_off"
+              isPasswordVisible ? "visibility" : "visibility_off"
             }}</mat-icon>
           </button>
  
@@ -121,21 +121,21 @@
           >
           <input
             matInput
-            [type]="isShowingPassword ? 'text' : 'password'"
+            [type]="isConfirmPasswordVisible ? 'text' : 'password'"
             formControlName="confirmPassword"
           />
           <button
             type="button"
             mat-icon-button
             matSuffix
-            (click)="togglePasswordVisibility()"
+            (click)="toggleConfirmPasswordVisibility()"
             [attr.aria-label]="
-              isShowingPassword ? 'Hide password' : 'Show password'
+              isConfirmPasswordVisible ? 'Hide password' : 'Show password'
             "
-            [attr.aria-pressed]="isShowingPassword"
+            [attr.aria-pressed]="isConfirmPasswordVisible"
           >
             <mat-icon>{{
-              isShowingPassword ? "visibility" : "visibility_off"
+              isConfirmPasswordVisible ? "visibility" : "visibility_off"
             }}</mat-icon>
           </button>
  

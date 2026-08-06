@@ -36,7 +36,7 @@
     </div>
 
     <!-- Main Products Grid -->
-    <div class="col-lg-9 col-xl-10">
+    <div class="col-lg-9 col-xl-10 products-column">
       <!-- Initial Loading Spinner (Pehla Page Fetch) -->
       <div *ngIf="(isLoading$ | async) && currentPage === 1" class="d-flex justify-content-center py-5">
         <mat-spinner diameter="45"></mat-spinner>
@@ -44,9 +44,9 @@
 
       <ng-container *ngIf="filteredProducts$ | async as products">
         <div *ngIf="products.length > 0; else noProducts">
-          <!-- Full-Width Responsive Product Cards Grid (4 to 5 cards per row on large screens) -->
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-4 row-cols-xxl-5 g-3 g-md-4">
-            <div class="col d-flex align-items-stretch" *ngFor="let product of products">
+          <!-- Cards follow the available product-area width, rather than only the viewport width. -->
+          <div class="product-grid">
+            <div class="product-grid-item" *ngFor="let product of products">
               <app-product-card [product]="product" class="w-100"></app-product-card>
             </div>
           </div>

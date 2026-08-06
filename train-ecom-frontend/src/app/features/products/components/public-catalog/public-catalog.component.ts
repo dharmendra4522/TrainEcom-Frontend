@@ -52,11 +52,13 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
   filteredProducts$!: Observable<Product[]>;
 
+  // filter and sort related BehaviorSubjects 
   minPriceFilter$ = new BehaviorSubject<number | null>(null);
   maxPriceFilter$ = new BehaviorSubject<number | null>(null);
   ratingFilter$ = new BehaviorSubject<number | null>(null);
   sortBy$ = new BehaviorSubject<string>('');
 
+  // Active filter states for UI
   activeMinPrice: number | null = null;
   activeMaxPrice: number | null = null;
   activeRating: number | null = null;

@@ -117,7 +117,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
               .filter(
                 (p: Product) => p.id.toString() !== this.product?.id.toString(),
               )
-              .slice(0, 4);
           }
         });
     }

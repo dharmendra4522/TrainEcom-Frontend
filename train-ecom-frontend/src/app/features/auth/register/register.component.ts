@@ -24,7 +24,8 @@ export class RegisterComponent {
   private routes = inject(Router);
   private store = inject(Store);
 
-  isShowingPassword = false;
+  isPasswordVisible: boolean = false;
+  isConfirmPasswordVisible: boolean = false;
 
   constructor() { }
 
@@ -62,7 +63,11 @@ export class RegisterComponent {
   }
 
   togglePasswordVisibility() {
-    this.isShowingPassword = !this.isShowingPassword;
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
   }
 
   allowOnlyNumbers(event: any): boolean {

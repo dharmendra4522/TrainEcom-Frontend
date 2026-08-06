@@ -15,10 +15,12 @@
   <div *ngIf="!isLoading && product" class="row g-4 mb-5">
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
+        <!-- main image -->
         <div class="main-image-wrapper rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3">
           <img [src]="selectedImageUrl" [alt]="product.name" appImgFallback class="main-image img-fluid" />
         </div>
 
+        <!-- Extra images -->
         <div class="d-flex gap-2 overflow-auto py-1 custom-scrollbar"
           *ngIf="product.images && product.images.length > 0">
           <div *ngFor="let img of product.images" (click)="selectImage(img.imageUrl)"
