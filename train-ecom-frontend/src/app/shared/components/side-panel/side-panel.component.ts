@@ -151,7 +151,8 @@ export class SidePanelComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           return;
         }
-        this.store.dispatch(CartActions.loadCart());
+        // CartEffects owns authenticated cart hydration. This panel only
+        // reflects the selector so it cannot start a competing request.
       });
   }
 

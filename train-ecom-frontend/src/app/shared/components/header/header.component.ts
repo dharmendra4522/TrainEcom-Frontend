@@ -18,7 +18,6 @@ import * as WishlistActions from '../../../core/store/wish-list/wishList.actions
 import { selectWishlistCount } from '../../../core/store/wish-list/wishList.selectors';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
-import * as CartActions from '../../../core/store/cart/cart.actions';
 
 @Component({
   selector: 'app-header',
@@ -60,10 +59,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
             return;
           }
           this.store.dispatch(WishlistActions.loadWishlist());
-          this.store.dispatch(CartActions.loadCart());
         } else{
-          // for guest users, 
-          this.store.dispatch(CartActions.loadCart());
+          // The cart feature owns hydration/reset for session changes.
+          // The badge remains selector-driven and updates from cart state.
         }
       });
   }

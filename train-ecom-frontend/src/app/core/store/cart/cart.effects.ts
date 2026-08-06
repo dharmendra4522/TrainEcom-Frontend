@@ -5,7 +5,7 @@ import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
-import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, EMPTY, withLatestFrom } from 'rxjs';
+import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, filter, tap, withLatestFrom } from 'rxjs';
 import { selectCartLoaded, selectCartItems, selectCartTotalQuantity, selectCartTotalAmount } from './cart.selectors';
 
 @Injectable()
@@ -14,6 +14,32 @@ export class CartEffects {
   private cartService = inject(CartService);
   private notification = inject(NotificationService);
   private store = inject(Store);
+
+  /**
+   * Keep cart hydration with the cart feature instead of relying on header or
+   * route components to notice an authentication change. CartService retains
+   * the existing guest-cart merge behavior and dispatches the appropriate cart
+   * action once authentication is already in the store.
+   */
+  loadCartAfterLogin$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loginSuccess),
+        filter(({ payload }) => payload.role?.toString().toLowerCase() !== 'admin'),
+        tap(() => this.cartService.loadCart())
+      ),
+    { dispatch: false }
+  );
+
+  /** Do not allow a guest-cart cache to leak into a later session. */
+  clearCartCacheAfterLogout$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.logout),
+        tap(() => localStorage.removeItem('cart'))
+      ),
+    { dispatch: false }
+  );
 
   loadCart$ = createEffect(() => {
     return this.actions$.pipe(

@@ -11,7 +11,6 @@ import { jwtDecode } from 'jwt-decode';
 import { Role } from '../../models/auth.model';
 import { BackendError, UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
-import { CartService } from '../../services/cart.service';
 import { UserService } from '../../services/user.service';
 
 @Injectable()
@@ -21,7 +20,6 @@ export class AuthEffects {
   private router = inject(Router);
   private notification = inject(NotificationService);
   private store = inject(Store); 
-  private cartService = inject(CartService);
   private userService = inject(UserService);
 
 
@@ -79,6 +77,8 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
         tap(({ payload, isRefresh }: { payload: UserSessionPayload; isRefresh?: boolean }) => {
+          // Session restoration only rehydrates state; it must not redirect or
+          // duplicate the profile request. Cart hydration is handled by CartEffects.
           if (isRefresh) {
             return;
           }
@@ -88,10 +88,6 @@ export class AuthEffects {
           const role = payload.role
             ? payload.role.toString().toLowerCase()
             : '';
-
-            if (role !== 'admin') {
-              this.cartService.loadCart();
-            }
 
           this.router.navigateByUrl(this.getPostLoginRoute(role));
         }),

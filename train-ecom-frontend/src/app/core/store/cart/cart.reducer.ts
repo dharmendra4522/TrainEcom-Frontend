@@ -1,6 +1,7 @@
 import { CartItem, CartResponse } from '../../models/cart.model';
 import { createAction, props, createReducer, on } from '@ngrx/store';
 import * as CartActions from './cart.actions';
+import * as AuthActions from '../auth/auth.actions';
 
 export interface CartState {
   items: CartItem[];
@@ -30,6 +31,12 @@ const calculateTotalAmount = (items: CartItem[]): number => {
 
 export const cartReducer = createReducer(
   initialCartState,
+  // A cart belongs to the current session.  Drop any guest/previous-user
+  // snapshot before the authenticated cart is requested, and immediately
+  // reset the badge and cart UI when the session ends.
+  on(AuthActions.loginSuccess, () => ({ ...initialCartState })),
+  on(AuthActions.logout, () => ({ ...initialCartState })),
+
   on(CartActions.loadCart, (state) => ({
     ...state,
     loading: true,
