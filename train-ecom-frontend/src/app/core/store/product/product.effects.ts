@@ -59,6 +59,7 @@ export class ProductEffects {
                     action.sortBy
                 ).pipe(
                     map((response) => {
+                        // calculate total pages based on totalRecords and pageSize
                         const totalRecs = response?.totalRecords || 0;
                         const computedPages = (response?.totalPages && response.totalPages > 0)
                             ? response.totalPages

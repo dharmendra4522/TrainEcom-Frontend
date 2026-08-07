@@ -20,6 +20,7 @@ export class GroupedProductRowComponent implements OnInit {
 
   products$!: Observable<Product[]>;
   
+  // BehaviorSubject to manage the loading state of the products
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$: Observable<boolean> = this.isLoadingSubject.asObservable();
 
@@ -27,6 +28,7 @@ export class GroupedProductRowComponent implements OnInit {
     this.initFilteredProducts();
   }
 
+  // Initialize the products based on the filter type and value
   private initFilteredProducts(): void {
     this.isLoadingSubject.next(true);
 
@@ -55,6 +57,7 @@ export class GroupedProductRowComponent implements OnInit {
     );
   }
 
+  // Scroll the grid container by a specified amount
   scrollGrid(amount: number): void {
     if (this.gridContainer) {
       this.gridContainer.nativeElement.scrollBy({ left: amount, behavior: 'smooth' });

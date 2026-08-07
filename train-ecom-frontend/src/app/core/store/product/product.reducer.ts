@@ -41,6 +41,8 @@ export const productReducer = createReducer(
     ) => {
       let updatedProducts: Product[];
 
+
+      // here we check if the action is an append action. If it is, we merge the new products with the existing ones, ensuring no duplicates based on product ID. If it's not an append action, we simply replace the existing products with the new ones.
       if (isAppend) {
         const existingIds = new Set(state.products.map((p) => p.id.toString()));
         const newUniqueProducts = products.filter((p) => !existingIds.has(p.id.toString()));

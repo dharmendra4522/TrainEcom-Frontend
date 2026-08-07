@@ -93,18 +93,22 @@ export class ProductCardComponent implements OnInit {
 
   // Add the product to the cart
   addToCart(product: Product): void {
-    const productDetails: CartProductDetails = {
-      productName: product.name,
-      unitPrice: product.price,
-      thumbnailUrl: product.thumbnailUrl,
-    };
-    this.store.dispatch(
-      CartActions.addToCart({
-        productId: product.id.toString(),
-        quantity: 1,
-        productDetails,
-      }),
-    );
+    if (this.addToCartEvent.observed || this.addToCartEvent.observers.length > 0) {
+      this.addToCartEvent.emit(product);
+    } else {
+      const productDetails: CartProductDetails = {
+        productName: product.name,
+        unitPrice: product.price,
+        thumbnailUrl: product.thumbnailUrl,
+      };
+      this.store.dispatch(
+        CartActions.addToCart({
+          productId: product.id.toString(),
+          quantity: 1,
+          productDetails,
+        }),
+      );
+    }
   }
 
   // Handle the "Buy Now" action

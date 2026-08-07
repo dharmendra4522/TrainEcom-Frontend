@@ -5,11 +5,12 @@ import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
-import { map, Observable, take } from 'rxjs';
+import { map, Observable, take, switchMap, forkJoin, of, catchError } from 'rxjs';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
+import { ProductService } from '../../../../core/services/product.service';
 
 @Component({
   selector: 'app-home',
@@ -18,15 +19,56 @@ import * as BrandActions from '../../../../core/store/brand/brand.action';
 })
 export class HomeComponent implements OnInit {
   private store = inject(Store);
+  private productService = inject(ProductService);
 
-  // Stream of brands (empty brands will be hidden automatically by template)
+  // Helper to validate and check product availability (>= 6 products threshold)
+  private checkAvailability(item: Brand | Category, filterType: 'brand' | 'category'): Observable<{ item: Brand | Category; isValid: boolean }> {
+    const num = item['numberOfProducts'] ?? item['productCount'];
+    if (num !== undefined && num !== null) {
+      return of({ item, isValid: Number(num) >= 6 });
+    }
+
+    const brandName = filterType === 'brand' ? item.name : undefined;
+    const categoryName = filterType === 'category' ? item.name : undefined;
+
+    return this.productService.getPaginatedProducts(1, 6, brandName, categoryName).pipe(
+      map(res => ({ item, isValid: (res.totalRecords ?? res.items?.length ?? 0) >= 6 })),
+      catchError(() => of({ item, isValid: false }))
+    );
+  }
+
+  // Stream of 2-3 valid brands with >= 6 products
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands).pipe(
-    map(brands => brands.slice(0, 6))
+    switchMap(brands => {
+      if (!brands || brands.length === 0) return of([]);
+
+      const checks$ = brands.map(b => this.checkAvailability(b, 'brand'));
+      return forkJoin(checks$).pipe(
+        map(results =>
+          results
+            .filter(r => r.isValid)
+            .map(r => r.item as Brand)
+            .slice(0, 3)
+        )
+      );
+    })
   );
 
-  // Stream of categories (showing max 3 category sections)
+  // Stream of 2-3 valid categories with >= 6 products
   categories$: Observable<Category[]> = this.store.select(selectAllCategories).pipe(
-    map(categories => categories.slice(0, 3))
+    switchMap(categories => {
+      if (!categories || categories.length === 0) return of([]);
+
+      const checks$ = categories.map(c => this.checkAvailability(c, 'category'));
+      return forkJoin(checks$).pipe(
+        map(results =>
+          results
+            .filter(r => r.isValid)
+            .map(r => r.item as Category)
+            .slice(0, 3)
+        )
+      );
+    })
   );
 
   ngOnInit() {

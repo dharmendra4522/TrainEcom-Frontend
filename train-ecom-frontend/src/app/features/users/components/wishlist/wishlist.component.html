@@ -7,7 +7,7 @@
  
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xxl-4 g-2 g-sm-3 g-md-4 mb-5">
     <div class="col" *ngFor="let item of (wishlist$ | async)">
-      <app-product-card [product]="item"></app-product-card>
+      <app-product-card [product]="item" (addToCartEvent)="addToCart($event)"></app-product-card>
     </div>
   </div>
  

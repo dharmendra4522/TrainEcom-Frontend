@@ -22,7 +22,7 @@ export class WishlistEffects {
                 this.store.select(selectWishlistLoaded),
                 this.store.select(selectWishlistItems)
             ),
-            switchMap(([_, loaded, items]) => {
+            exhaustMap(([_, loaded, items]) => {
                 if (loaded) {
                     return of(WishlistActions.loadWishlistSuccess({ items }));
                 }

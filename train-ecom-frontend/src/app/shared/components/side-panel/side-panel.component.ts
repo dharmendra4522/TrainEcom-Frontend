@@ -102,16 +102,15 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([isLoggedIn, role]: [boolean, string | null]) => {
-        if (isLoggedIn) {
-          if (role && role === 'Admin') {
-            this.items = [];
-            this.cdr.detectChanges();
-            return;
-          }
-          this.store.dispatch(WishlistActions.loadWishlist());
-        } else {
+        if (isLoggedIn && role === 'Admin') {
           this.items = [];
           this.cdr.detectChanges();
+          return;
+        }
+        if (!isLoggedIn) {
+          this.items = [];
+          this.cdr.detectChanges();
+          return;
         }
       });
   }
