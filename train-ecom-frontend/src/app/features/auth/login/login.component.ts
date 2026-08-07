@@ -7,6 +7,7 @@ import { map } from 'rxjs/internal/operators/map';
 import { BackendError } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { extractBackendMessage } from '../../../core/utils/error.utils';
 
 export const passwordMatchValidator = (
   control: AbstractControl,
@@ -50,23 +51,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   error$ = this.store.select(selectAuthError).pipe(
     map(err => {
       if (!err) return null; 
-
-      let errorMessage = 'An unexpected error occurred';
-
-      if (typeof err === 'string') {
-        errorMessage = err;
-      } else if (typeof err === 'object') {
-        const errorObj = err as BackendError; 
-        errorMessage = errorObj?.error?.message || errorObj?.message || errorMessage;
-      }
-
-      if (errorMessage.includes('0 Unknown Error')) return 'Unable to connect to the server...';
-      if (errorMessage.toLowerCase().includes('unauthorized')) return 'Incorrect Email or Password...';
-      
-      return errorMessage; 
+      return extractBackendMessage(err, 'An unexpected error occurred');
     })
   );
-
   ngOnInit() {
     this.validateForm();
   }

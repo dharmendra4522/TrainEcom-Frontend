@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store'; // 🔹 Store import kiya
 import { AuthService } from '../../services/auth.service';
 import * as AuthActions from './auth.actions';
-import * as UserActions from '../user/user.actions'; // 🔹 User Actions import kiya
+import * as UserActions from '../user/user.actions'; // User Actions import kiya
 import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -12,6 +12,8 @@ import { Role } from '../../models/auth.model';
 import { BackendError, UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
+
+import { extractBackendMessage } from '../../utils/error.utils';
 
 @Injectable()
 export class AuthEffects {
@@ -23,30 +25,8 @@ export class AuthEffects {
   private userService = inject(UserService);
 
 
-  private getErrorMessage(err: BackendError, isLogin: boolean = true): string {
-    const rawMessage =
-      (typeof err === 'string' ? err : err?.error?.message || err?.message) ||
-      'An error occurred';
-
-    if (rawMessage.includes('0 Unknown Error')) {
-      return 'Unable to connect to the server. Please try again later.';
-    }
-
-    const lowerMsg = rawMessage.toLowerCase();
-
-    if (lowerMsg.includes('unauthorized') || lowerMsg.includes('invalid')) {
-      return 'Incorrect Email or Password. Please check your details.';
-    }
-    if (lowerMsg.includes('not found')) {
-      return 'Account does not exist. Please register first.';
-    }
-    if (lowerMsg.includes('exists') || lowerMsg.includes('duplicate')) {
-      return 'An account with this email already exists.';
-    }
-
-    return rawMessage.length > 50
-      ? 'Something went wrong. Please try again.'
-      : rawMessage;
+  private getErrorMessage(err: any, isLogin: boolean = true): string {
+    return extractBackendMessage(err, 'An error occurred');
   }
 
   login$ = createEffect(() =>

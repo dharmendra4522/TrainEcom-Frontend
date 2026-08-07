@@ -9,6 +9,8 @@ import { NotificationService } from "../../services/notification.service";
 
 
 
+import { extractBackendMessage } from "../../utils/error.utils";
+
 @Injectable()
 
 export class UserEffects {
@@ -27,7 +29,7 @@ export class UserEffects {
                         UserActions.loadProfileSuccess({ profile })),
                     ),
                     catchError((error) => {
-                        const errorMsg = error?.error?.message || error?.message || 'Failed to load profile';
+                        const errorMsg = extractBackendMessage(error, 'Failed to load profile');
                         this.notification.showError(errorMsg);
                         return of(UserActions.loadProfileFailure({ error: errorMsg }));
                     })

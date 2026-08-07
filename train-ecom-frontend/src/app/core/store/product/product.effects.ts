@@ -8,6 +8,8 @@ import { map, catchError, filter, of, switchMap, mergeMap, exhaustMap, withLates
 import { Store } from '@ngrx/store';
 import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords, selectProductPagesCache } from './product.selectors';
 
+import { extractBackendMessage } from '../../utils/error.utils';
+
 @Injectable()
 export class ProductEffects {
     private action$ = inject(Actions);
@@ -75,7 +77,7 @@ export class ProductEffects {
                         });
                     }),
                     catchError((error) =>
-                        of(ProductActions.loadProductsFailure({ error: error?.message || 'Failed to fetch products' }))
+                        of(ProductActions.loadProductsFailure({ error: extractBackendMessage(error, 'Failed to fetch products') }))
                     )
                 );
             })
@@ -94,8 +96,9 @@ export class ProductEffects {
                     }),
                     catchError((error) => {
                         console.error('Error creating product:', error);
-                        this.notification.showError('Error creating product', 'Close');
-                        return of(ProductActions.createProductFailure({ error: error?.message || 'Error creating product' }));
+                        const msg = extractBackendMessage(error, 'Error creating product');
+                        this.notification.showError(msg, 'Close');
+                        return of(ProductActions.createProductFailure({ error: msg }));
                     })
                 )
             )
@@ -114,8 +117,9 @@ export class ProductEffects {
                     }),
                     catchError((error) => {
                         console.error('Error updating product:', error);
-                        this.notification.showError('Error updating product', 'Close');
-                        return of(ProductActions.updateProductFailure({ error: error?.message || 'Error updating product' }));
+                        const msg = extractBackendMessage(error, 'Error updating product');
+                        this.notification.showError(msg, 'Close');
+                        return of(ProductActions.updateProductFailure({ error: msg }));
                     })
                 )
             )
@@ -133,8 +137,9 @@ export class ProductEffects {
                     }),
                     catchError((error) => {
                         console.error('Error deleting product:', error);
-                        this.notification.showError('Error deleting product', 'Close');
-                        return of(ProductActions.deleteProductFailure({ error: error?.message || 'Error deleting product' }));
+                        const msg = extractBackendMessage(error, 'Error deleting product');
+                        this.notification.showError(msg, 'Close');
+                        return of(ProductActions.deleteProductFailure({ error: msg }));
                     })
                 )
             )

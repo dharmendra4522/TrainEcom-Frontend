@@ -42,6 +42,11 @@ export class AdminOrderStatusDialogComponent {
     const currentIndex = statusHierarchy.indexOf(this.data.currentStatus);
     const selectedIndex = statusHierarchy.indexOf(status);
 
+    // If the current status is Delivered, only allow Cancelled if it's a valid transition
+    if (this.data.currentStatus === OrderStatus.Delivered && status === OrderStatus.Cancelled) {
+      return true;
+    }
+
     return selectedIndex <= currentIndex; // Disable if the selected status is earlier or same as current
   }
 

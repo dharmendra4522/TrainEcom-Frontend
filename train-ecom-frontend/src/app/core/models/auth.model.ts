@@ -34,6 +34,8 @@ export interface registerResponse{
 export interface BackendError {
   error?: { message?: string };
   message?: string;
+  StatusCode?: number;
+  Message?: string;
 }
 
 export interface ForgotPasswordRequest {
