@@ -9,16 +9,16 @@ import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
 
 const routes: Routes = [
-  // Used when the module is lazy loaded at /admin/users.
-  { path: '', canActivate: [authGuard, adminGuard], component: UserManagementComponent },
-
-  // Customer account routes, lazy loaded at /account/...
-  { path: 'profile', canActivate: [authGuard, customerGuard], component: ProfileComponent },
+  // Profile route accessible by both Customer (/account/profile) and Admin (/admin/profile)
+  { path: 'profile', canActivate: [authGuard], component: ProfileComponent },
   { path: 'address', canActivate: [customerGuard], component: AddressComponent },
   { path: 'wishlist', canActivate: [customerGuard], component: WishlistComponent },
 
-  // Keep the existing admin URL working as an alias.
+  // Admin User Management routes (/admin/users/manage)
   { path: 'manage', canActivate: [authGuard, adminGuard], component: UserManagementComponent },
+
+  // Default empty route when lazy loaded at /admin/profile
+  { path: '', canActivate: [authGuard], component: ProfileComponent },
 ];
 
 @NgModule({

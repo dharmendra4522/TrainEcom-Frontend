@@ -134,6 +134,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     return url;
   }
 
+  applyDateFilter(): void {
+    this.pageIndex = 0;
+    this.loadOrderHistory();
+  }
+
   onDateChange(type: 'from' | 'to', event: any): void {
     const rawDate = event.value;
     if (rawDate) {
@@ -147,7 +152,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       } else {
         this.toDate = formattedDate;
       }
-      this.onFilterChange(); // Direct existing method call kiya, extra function hata diya
+    } else {
+      if (type === 'from') {
+        this.fromDate = '';
+      } else {
+        this.toDate = '';
+      }
     }
   }
 

@@ -125,9 +125,20 @@ const routes: Routes = [
               ),
           },
           {
-            path: 'users',
+            path: 'profile',
             loadChildren: () =>
               import('./features/users/users.module').then((m) => m.UsersModule),
+          },
+          {
+            path: 'users',
+            children: [
+              { path: '', redirectTo: 'manage', pathMatch: 'full' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/users/users.module').then((m) => m.UsersModule),
+              }
+            ]
           },
           {
             path: 'orders',

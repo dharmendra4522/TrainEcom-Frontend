@@ -111,6 +111,10 @@
   font-size: 0.825rem;
 }
  
+::ng-deep .custom-profile-menu {
+  min-width: 220px !important;
+}
+
 @media (max-width: 768px) {
   .main-header {
     padding: 0 16px !important;

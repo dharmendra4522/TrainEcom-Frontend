@@ -9,10 +9,10 @@
 
   <!-- Filters Card -->
   <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
-    <div class="row g-3 align-items-center">
+    <div class="row g-2 g-md-3 align-items-center">
       <!-- Search Input -->
-      <div class="col-12 col-md-6 col-xl-3">
-        <mat-form-field appearance="outline" class="w-100 density-compact">
+      <div class="col-12 col-sm-6 col-md-2 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact" subscriptSizing="dynamic">
           <mat-label>Search Order / Customer</mat-label>
           <input matInput [value]="searchQuery" (input)="onSearchInput($event)" placeholder="Enter name or ID..." />
           <mat-icon matSuffix>search</mat-icon>
@@ -20,8 +20,8 @@
       </div>
 
       <!-- Order Status Filter -->
-      <div class="col-12 col-sm-6 col-md-3 col-xl-2">
-        <mat-form-field appearance="outline" class="w-100 density-compact">
+      <div class="col-12 col-sm-6 col-md-2 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact" subscriptSizing="dynamic">
           <mat-label>Order Status</mat-label>
           <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
             <mat-option value="">All Status</mat-option>
@@ -33,8 +33,8 @@
       </div>
 
       <!-- Payment Status Filter -->
-      <div class="col-12 col-sm-6 col-md-3 col-xl-2">
-        <mat-form-field appearance="outline" class="w-100 density-compact">
+      <div class="col-12 col-sm-6 col-md-2 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact" subscriptSizing="dynamic">
           <mat-label>Payment Status</mat-label>
           <mat-select [(ngModel)]="selectedPaymentStatus" (selectionChange)="onFilterChange()">
             <mat-option value="">All Payments</mat-option>
@@ -46,32 +46,32 @@
       </div>
 
       <!-- From Date -->
-      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-        <mat-form-field appearance="outline" class="w-100 density-compact">
+      <div class="col-6 col-sm-4 col-md-2 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact" subscriptSizing="dynamic">
           <mat-label>From Date</mat-label>
           <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" placeholder="DD-MM-YYYY"
-            [max]="maxDate" />
+            [max]="maxDate" readonly />
           <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
           <mat-datepicker #fromPicker></mat-datepicker>
         </mat-form-field>
       </div>
 
       <!-- To Date -->
-      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
-        <mat-form-field appearance="outline" class="w-100 density-compact">
+      <div class="col-6 col-sm-4 col-md-2 col-xl-2">
+        <mat-form-field appearance="outline" class="w-100 density-compact" subscriptSizing="dynamic">
           <mat-label>To Date</mat-label>
-          <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" placeholder="DD-MM-YYYY" [max]="maxDate" />
+          <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
           <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
           <mat-datepicker #toPicker></mat-datepicker>
         </mat-form-field>
       </div>
 
       <!-- Apply & Reset Buttons Group -->
-      <div class="col-12 col-sm-8 col-md-6 col-xl-2 d-flex gap-2">
-        <button mat-flat-button color="primary" class="flex-grow-1" (click)="applyDateFilter()" title="Apply Filter">
+      <div class="col-12 col-sm-4 col-md-2 col-xl-2 d-flex gap-2">
+        <button mat-flat-button color="primary" class="flex-grow-1 h-100 py-2" (click)="applyDateFilter()" title="Apply Filter">
           Apply
         </button>
-        <button mat-stroked-button color="warn" class="flex-grow-1" (click)="resetFilters()" title="Reset Filters">
+        <button mat-stroked-button color="warn" class="flex-grow-1 h-100 py-2" (click)="resetFilters()" title="Reset Filters">
           Reset
         </button>
       </div>
