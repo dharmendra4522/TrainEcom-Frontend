@@ -95,9 +95,16 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     // Subscribe to URL query parameters change to reset pagination and load strictly filtered products
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
+      .subscribe((params) => {
+        // Sync sortBy from URL if present
+        const urlSortBy = params['sortBy'];
+        if (urlSortBy && urlSortBy !== this.sortBy$.value) {
+          this.sortBy$.next(urlSortBy);
+          this.activeSort = urlSortBy;
+        }
+
         this.currentPage = 1;
-        this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false });
+        this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false, sortBy: urlSortBy });
       });
   }
 

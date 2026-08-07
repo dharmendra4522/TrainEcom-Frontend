@@ -6,10 +6,22 @@
     loading: loading$ | async,
   } as cart"
 >
-  <nav class="mb-4 text-muted fs-7">
-    <span>Home</span> <span class="mx-2">/</span>
-    <span class="text-dark fw-medium">Cart</span>
-  </nav>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <nav class="text-muted fs-7 mb-0">
+      <span>Home</span> <span class="mx-2">/</span>
+      <span class="text-dark fw-medium">Cart</span>
+    </nav>
+    <button
+      *ngIf="!cart.loading && (cart.items || []).length > 0"
+      type="button"
+      mat-stroked-button
+      color="warn"
+      class="rounded-pill px-4 py-1 border border-danger text-danger fw-medium"
+      (click)="clearCart()"
+    >
+      Clear Cart
+    </button>
+  </div>
 
   <div *ngIf="cart.loading" class="text-center py-5">
     <mat-spinner class="mx-auto" diameter="40"></mat-spinner>
@@ -72,6 +84,7 @@
               class="d-inline-flex align-items-center border rounded-3 px-2 py-1 bg-light gap-2"
             >
               <button
+                type="button"
                 mat-icon-button
                 class="d-flex align-items-center justify-content-center p-0 border-0 bg-transparent"
                 style="width: 24px; height: 24px; min-width: 24px"
@@ -94,6 +107,7 @@
 
               <!-- Increase / Add Button -->
               <button
+                type="button"
                 mat-icon-button
                 class="d-flex align-items-center justify-content-center p-0 border-0 bg-transparent"
                 style="width: 24px; height: 24px; min-width: 24px"
@@ -119,18 +133,12 @@
         class="d-flex justify-content-between align-items-center my-4 flex-wrap gap-3"
       >
         <button
+          type="button"
           mat-stroked-button
           class="rounded-pill px-4 py-2 border text-dark fw-medium"
           (click)="continueShopping()"
         >
           Return To Shop
-        </button>
-        <button
-          mat-stroked-button
-          class="rounded-pill px-4 py-2 border text-dark fw-medium"
-          (click)="refreshCart()"
-        >
-          Update Cart
         </button>
       </div>
 

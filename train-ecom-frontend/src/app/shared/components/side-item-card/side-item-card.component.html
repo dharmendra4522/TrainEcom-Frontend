@@ -10,9 +10,9 @@
     <span class="text-primary fw-bold fs-7">₹{{ item.price | number:'1.2-2' }}</span>
 
     <div class="qty-controller d-flex align-items-center gap-2 mt-2" *ngIf="mode === 'cart'">
-      <button class="qty-btn" (click)="$event.stopPropagation(); onDecrement()">-</button>
+      <button type="button" class="qty-btn" (click)="$event.stopPropagation(); onDecrement()">-</button>
       <span class="qty-text fw-semibold fs-7">{{ item.quantity || 1 }}</span>
-      <button class="qty-btn" (click)="$event.stopPropagation(); onIncrement()">+</button>
+      <button type="button" class="qty-btn" (click)="$event.stopPropagation(); onIncrement()">+</button>
     </div>
   </div>
 

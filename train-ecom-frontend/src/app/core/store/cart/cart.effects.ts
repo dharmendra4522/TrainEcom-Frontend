@@ -5,8 +5,24 @@ import { CartService } from '../../services/cart.service';
 import { NotificationService } from '../../services/notification.service';
 import * as CartActions from './cart.actions';
 import * as AuthActions from '../auth/auth.actions';
-import { map, catchError, of, exhaustMap, mergeMap, concatMap, switchMap, filter, tap, withLatestFrom } from 'rxjs';
-import { selectCartLoaded, selectCartItems, selectCartTotalQuantity, selectCartTotalAmount } from './cart.selectors';
+import {
+  map,
+  catchError,
+  of,
+  exhaustMap,
+  mergeMap,
+  concatMap,
+  switchMap,
+  filter,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
+import {
+  selectCartLoaded,
+  selectCartItems,
+  selectCartTotalQuantity,
+  selectCartTotalAmount,
+} from './cart.selectors';
 
 @Injectable()
 export class CartEffects {
@@ -15,20 +31,16 @@ export class CartEffects {
   private notification = inject(NotificationService);
   private store = inject(Store);
 
-  /**
-   * Keep cart hydration with the cart feature instead of relying on header or
-   * route components to notice an authentication change. CartService retains
-   * the existing guest-cart merge behavior and dispatches the appropriate cart
-   * action once authentication is already in the store.
-   */
   loadCartAfterLogin$ = createEffect(
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        filter(({ payload }) => payload.role?.toString().toLowerCase() !== 'admin'),
-        tap(() => this.cartService.loadCart())
+        filter(
+          ({ payload }) => payload.role?.toString().toLowerCase() !== 'admin',
+        ),
+        tap(() => this.cartService.loadCart()),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   /** Do not allow a guest-cart cache to leak into a later session. */
@@ -36,9 +48,9 @@ export class CartEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.logout),
-        tap(() => localStorage.removeItem('cart'))
+        tap(() => localStorage.removeItem('cart')),
       ),
-    { dispatch: false }
+    { dispatch: false },
   );
 
   loadCart$ = createEffect(() => {
@@ -48,14 +60,14 @@ export class CartEffects {
         this.store.select(selectCartLoaded),
         this.store.select(selectCartItems),
         this.store.select(selectCartTotalQuantity),
-        this.store.select(selectCartTotalAmount)
+        this.store.select(selectCartTotalAmount),
       ),
       switchMap(([action, loaded, items, totalQuantity, totalAmount]) => {
         if (loaded && !action?.force) {
           return of(
             CartActions.loadCartSuccess({
               cart: { items, totalQuantity, totalAmount },
-            })
+            }),
           );
         }
         return this.cartService.getCartItems().pipe(
@@ -64,12 +76,11 @@ export class CartEffects {
           }),
           catchError((error) => {
             const errMsg =
-              error?.error?.message || error?.message || 'Failed to load cart';
-            this.notification.showError(errMsg);
+              error?.error?.message || error?.error?.Message || error?.message || 'Failed to load cart';
             return of(CartActions.loadCartFailure({ error: errMsg }));
-          })
+          }),
         );
-      })
+      }),
     );
   });
 
@@ -85,25 +96,25 @@ export class CartEffects {
                 map((cartResponse) => {
                   this.notification.showSuccess(
                     'Item added to cart successfully',
-                    'Close'
+                    'Close',
                   );
                   return CartActions.addToCartSuccess({ cart: cartResponse });
                 }),
                 catchError(() => {
                   return of(CartActions.addToCartSuccess({ cart: response }));
-                })
+                }),
               );
             }),
             catchError((error) => {
               const errMsg =
                 error?.error?.message ||
+                error?.error?.Message ||
                 error?.message ||
                 'Failed to add item to cart';
-              this.notification.showError(errMsg);
               return of(CartActions.addToCartFailure({ error: errMsg }));
-            })
+            }),
           );
-      })
+      }),
     );
   });
 
@@ -119,25 +130,29 @@ export class CartEffects {
                 map((cartResponse) => {
                   this.notification.showSuccess(
                     'Cart item updated successfully',
-                    'Close'
+                    'Close',
                   );
-                  return CartActions.updateCartItemSuccess({ cart: cartResponse });
+                  return CartActions.updateCartItemSuccess({
+                    cart: cartResponse,
+                  });
                 }),
                 catchError(() => {
-                  return of(CartActions.updateCartItemSuccess({ cart: response }));
-                })
+                  return of(
+                    CartActions.updateCartItemSuccess({ cart: response }),
+                  );
+                }),
               );
             }),
             catchError((error) => {
               const errMsg =
                 error?.error?.message ||
+                error?.error?.Message ||
                 error?.message ||
                 'Failed to update cart item';
-              this.notification.showError(errMsg);
               return of(CartActions.updateCartItemFailure({ error: errMsg }));
-            })
+            }),
           );
-      })
+      }),
     );
   });
 
@@ -151,25 +166,29 @@ export class CartEffects {
               map((cartResponse) => {
                 this.notification.showSuccess(
                   'Cart item deleted successfully',
-                  'Close'
+                  'Close',
                 );
-                return CartActions.deleteCartItemSuccess({ cart: cartResponse });
+                return CartActions.deleteCartItemSuccess({
+                  cart: cartResponse,
+                });
               }),
               catchError(() => {
-                return of(CartActions.deleteCartItemSuccess({ cart: response }));
-              })
+                return of(
+                  CartActions.deleteCartItemSuccess({ cart: response }),
+                );
+              }),
             );
           }),
           catchError((error) => {
             const errMsg =
               error?.error?.message ||
+              error?.error?.Message ||
               error?.message ||
               'Failed to delete cart item';
-            this.notification.showError(errMsg);
             return of(CartActions.deleteCartItemFailure({ error: errMsg }));
-          })
+          }),
         );
-      })
+      }),
     );
   });
 
@@ -181,22 +200,24 @@ export class CartEffects {
           switchMap((response) => {
             return this.cartService.getCartItems().pipe(
               map((cartResponse) => {
-                this.notification.showSuccess('Cart cleared successfully', 'Close');
+                this.notification.showSuccess(
+                  'Cart cleared successfully',
+                  'Close',
+                );
                 return CartActions.clearCartSuccess({ cart: cartResponse });
               }),
               catchError(() => {
                 return of(CartActions.clearCartSuccess({ cart: response }));
-              })
+              }),
             );
           }),
           catchError((error) => {
             const errMsg =
-              error?.error?.message || error?.message || 'Failed to clear cart';
-            this.notification.showError(errMsg);
+              error?.error?.message || error?.error?.Message || error?.message || 'Failed to clear cart';
             return of(CartActions.clearCartFailure({ error: errMsg }));
-          })
+          }),
         );
-      })
+      }),
     );
   });
 
@@ -205,25 +226,36 @@ export class CartEffects {
       ofType(CartActions.mergeCart),
       exhaustMap((action) => {
         return this.cartService.mergeCart(action.cartItems).pipe(
-          switchMap((response) => {
+          switchMap((response: any) => {
+            if (response && response.warnings && response.warnings.length > 0) {
+              response.warnings.forEach((warning: any) => {
+                this.notification.showWarning(
+                  warning.message || `Stock issue with ${warning.productName}`,
+                  'Close',
+                );
+              });
+            } else {
+              this.notification.showSuccess(
+                'Cart merged successfully',
+                'Close',
+              );
+            }
             return this.cartService.getCartItems().pipe(
               map((cartResponse) => {
-                this.notification.showSuccess('Cart merged successfully', 'Close');
                 return CartActions.mergeCartSuccess({ cart: cartResponse });
               }),
               catchError(() => {
                 return of(CartActions.mergeCartSuccess({ cart: response }));
-              })
+              }),
             );
           }),
           catchError((error) => {
             const errMsg =
-              error?.error?.message || error?.message || 'Failed to merge cart';
-            this.notification.showError(errMsg);
+              error?.error?.message || error?.error?.Message || error?.message || 'Failed to merge cart';
             return of(CartActions.mergeCartFailure({ error: errMsg }));
-          })
+          }),
         );
-      })
+      }),
     );
   });
 }

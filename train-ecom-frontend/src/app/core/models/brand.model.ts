@@ -2,6 +2,7 @@ export interface Brand extends Record<string, unknown> {
   id: string;
   name: string;
   description: string;
+  productCount?: number;
 }
 
 export interface CreateBrandRequest {

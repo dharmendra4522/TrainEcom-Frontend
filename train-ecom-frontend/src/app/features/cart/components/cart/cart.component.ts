@@ -46,10 +46,6 @@ export class CartComponent implements OnInit {
     this.store.dispatch(CartActions.loadCart());
   }
 
-  refreshCart(): void {
-    this.store.dispatch(CartActions.loadCart({ force: true }));
-  }
-
   updateQuantity(productId: string | number, action: 'add' | 'subtract'): void {
     this.cartItems$.pipe(take(1)).subscribe((items) => {
       const item = items.find(
@@ -73,15 +69,18 @@ export class CartComponent implements OnInit {
   }
 
   private confirmAndDeleteItem(productId: string | number): void {
-    this.confirmDialog.confirm(
-      'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
-      'Delete',
-      'Cancel',
-    ).pipe(take(1)).subscribe((confirmed) => {
-      if (confirmed) {
-        this.removeItem(productId, false);
-      }
-    });
+    this.confirmDialog
+      .confirm(
+        'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
+        'Delete',
+        'Cancel',
+      )
+      .pipe(take(1))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.removeItem(productId, false);
+        }
+      });
   }
 
   private verifyStockAndExecuteUpdate(item: CartItem, newQty: number): void {
@@ -130,20 +129,38 @@ export class CartComponent implements OnInit {
       if (!item) return;
 
       if (forceConfirm) {
-        this.confirmDialog.confirm(
-          `Are you sure you want to remove "${item.productName || 'this item'}" from your cart?`,
-          'Remove',
-          'Cancel',
-        ).pipe(take(1)).subscribe((confirmed) => {
-          if (confirmed) {
-            this.dispatchRemoveItem(item);
-          }
-        });
+        this.confirmDialog
+          .confirm(
+            `Are you sure you want to remove "${item.productName || 'this item'}" from your cart?`,
+            'Remove',
+            'Cancel',
+          )
+          .pipe(take(1))
+          .subscribe((confirmed) => {
+            if (confirmed) {
+              this.dispatchRemoveItem(item);
+            }
+          });
         return;
       }
 
       this.dispatchRemoveItem(item);
     });
+  }
+
+  clearCart(): void {
+    this.confirmDialog
+      .confirm(
+        'Are you sure you want to clear your entire cart? This action cannot be undone.',
+        'Clear Cart',
+        'Cancel',
+      )
+      .pipe(take(1))
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.store.dispatch(CartActions.clearCart());
+        }
+      });
   }
 
   private dispatchRemoveItem(item: CartItem): void {
@@ -171,5 +188,4 @@ export class CartComponent implements OnInit {
       this.router.navigate(['/checkout']);
     });
   }
-
 }

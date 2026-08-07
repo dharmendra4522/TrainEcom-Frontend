@@ -13,14 +13,11 @@ import { DashboardData } from '../../../../core/models/dashboard.model';
 type DashboardOrderRow = {
   [key: string]: unknown;
   orderId: string;
+  customerName: string;
   orderDate: string;
   totalAmount: number;
   orderStatus: OrderStatus;
   orderStatusClass: string;
-  paymentMethod: PaymentMethod;
-  paymentStatus: PaymentStatus;
-  paymentStatusClass: string;
-  totalItems: number;
 };
 
 @Component({
@@ -42,9 +39,9 @@ export class DashboardComponent implements OnInit {
 
   tableColumns: TableColumn[] = [
     { key: 'orderId', label: 'Order ID', truncate: true },
+    { key: 'customerName', label: 'Customer Name' },
     { key: 'orderDate', label: 'Date', type: 'date' },  
     { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
-    { key: 'paymentStatus', label: 'Payment Status', type: 'badge', badgeClassKey: 'paymentStatusClass' },
     { key: 'orderStatus', label: 'Order Status', type: 'badge', badgeClassKey: 'orderStatusClass' },
   ];
   dataSource = this.recentOrders;
@@ -90,14 +87,11 @@ export class DashboardComponent implements OnInit {
   private mapOrderToTableRow(order: any): DashboardOrderRow {
     return {
       orderId: order.orderId,
+      customerName: order.customerName,
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
       orderStatus: order.orderStatus as OrderStatus,
       orderStatusClass: this.getOrdertatusClass(order.orderStatus),
-      paymentMethod: PaymentMethod.Card,
-      paymentStatus: PaymentStatus.Success,
-      paymentStatusClass: this.getPaymentStatusClass(PaymentStatus.Success),
-      totalItems: 1
     };
   }
 

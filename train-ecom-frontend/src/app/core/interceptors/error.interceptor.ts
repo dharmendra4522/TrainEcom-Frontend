@@ -22,28 +22,26 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Client-side error
         errorMessage = `Error: ${error.error.message}`;
       } else {
-        // Server-side error
+        const backendMsg = error.error?.message || error.error?.title;
         switch (error.status) {
           case 400:
-            errorMessage = error.error?.message || 'Bad Request (400)';
+            errorMessage = backendMsg || 'Bad Request (400)';
             break;
           case 401:
-            errorMessage = 'Session expired. Please login again.';
+            errorMessage = backendMsg || 'Session expired. Please login again.';
             router.navigate(['/login']);
             break;
           case 403:
-            errorMessage =
-              'You do not have permission to access this resource.';
+            errorMessage = backendMsg || 'You do not have permission to access this resource.';
             break;
           case 404:
-            errorMessage = 'Requested resource not found (404).';
+            errorMessage = backendMsg || 'Requested resource not found (404).';
             break;
           case 500:
-            errorMessage = 'Internal Server Error. Please try again later.';
+            errorMessage = backendMsg || 'Internal Server Error. Please try again later.';
             break;
           default:
-            errorMessage =
-              error.error?.message || `Server Error: ${error.status}`;
+            errorMessage = backendMsg || `Server Error: ${error.status}`;
             break;
         }
       }

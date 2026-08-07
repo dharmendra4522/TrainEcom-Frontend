@@ -19,8 +19,6 @@ import * as BrandActions from '../../../../core/store/brand/brand.action';
 export class HomeComponent implements OnInit {
   private store = inject(Store);
 
-  isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
-
   // Stream of brands (empty brands will be hidden automatically by template)
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands).pipe(
     map(brands => brands.slice(0, 6))
@@ -31,13 +29,7 @@ export class HomeComponent implements OnInit {
     map(categories => categories.slice(0, 3))
   );
 
-  newestProducts$: Observable<Product[]> = this.store.select(selectAllProducts).pipe(
-    map(products => [...products].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0)).slice(0, 6))
-  );
-
   ngOnInit() {
-    // Initial fetch of catalog products so store is populated
-    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 50 }));
 
     this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
       if (!brands || brands.length === 0) {
