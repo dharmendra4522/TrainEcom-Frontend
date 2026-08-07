@@ -13,12 +13,13 @@
       <!-- Filters Card -->
       <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
         <div class="row g-3 align-items-center">
-          
+
           <!-- Search Input -->
           <div class="col-12 col-md-5 col-xl-4">
             <mat-form-field appearance="outline" class="w-100 density-compact">
               <mat-label>Search by Order ID or Name</mat-label>
-              <input matInput [value]="searchQuery" (input)="onSearchInput($event)" placeholder="Enter Order ID or Product name..." />
+              <input matInput [value]="searchQuery" (input)="onSearchInput($event)"
+                placeholder="Enter Order ID or Product name..." />
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
           </div>
@@ -36,11 +37,12 @@
             </mat-form-field>
           </div>
 
-          <!-- From Date -->
           <div class="col-6 col-sm-3 col-md-2 col-xl-2">
             <mat-form-field appearance="outline" class="w-100 density-compact">
               <mat-label>From Date</mat-label>
-              <input matInput type="date" [(ngModel)]="fromDate" (change)="onFilterChange()" />
+              <input matInput [matDatepicker]="fromPicker" [max]="todayDate" [(ngModel)]="fromDate" (dateChange)="onDateChange('from', $event)" placeholder="Choose date" readonly />
+              <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+              <mat-datepicker #fromPicker></mat-datepicker>
             </mat-form-field>
           </div>
 
@@ -48,7 +50,9 @@
           <div class="col-6 col-sm-3 col-md-2 col-xl-2">
             <mat-form-field appearance="outline" class="w-100 density-compact">
               <mat-label>To Date</mat-label>
-              <input matInput type="date" [(ngModel)]="toDate" (change)="onFilterChange()" />
+              <input matInput [matDatepicker]="toPicker" [max]="todayDate" [(ngModel)]="toDate" (dateChange)="onDateChange('to', $event)" placeholder="Choose date" readonly />
+              <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+              <mat-datepicker #toPicker></mat-datepicker>
             </mat-form-field>
           </div>
 
@@ -86,8 +90,7 @@
               <!-- Thumbnail Image -->
               <div class="flex-shrink-0">
                 <div class="ratio ratio-1x1 bg-light rounded-2 rounded-sm-3 overflow-hidden border order-thumb">
-                  <img [src]="getImageUrl(order.thumbnailUrl) || 'assets/placeholder.jpg'"
-                    appImgFallback
+                  <img [src]="getImageUrl(order.thumbnailUrl) || 'assets/placeholder.jpg'" appImgFallback
                     [alt]="order.orderName || 'Order Item'" class="object-fit-cover w-100 h-100">
                 </div>
               </div>
@@ -97,14 +100,17 @@
 
                 <!-- Top row inside info: Title & Total Amount -->
                 <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
-                  <h6 class="fw-bold text-dark mb-0 text-truncate order-title me-1" [title]="order.orderName">{{ order.orderName }}</h6>
-                  <div class="fw-bold text-dark fs-6 fs-sm-5 text-nowrap flex-shrink-0">₹{{ order.totalAmount | number:'1.2-2' }}</div>
+                  <h6 class="fw-bold text-dark mb-0 text-truncate order-title me-1" [title]="order.orderName">{{
+                    order.orderName }}</h6>
+                  <div class="fw-bold text-dark fs-6 fs-sm-5 text-nowrap flex-shrink-0">₹{{ order.totalAmount |
+                    number:'1.2-2' }}</div>
                 </div>
 
                 <!-- Bottom row inside info: Status Badge, Items Count, & Date -->
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mt-1">
                   <div class="d-flex align-items-center gap-1 gap-sm-2 flex-wrap">
-                    <span class="badge px-2 py-1 rounded-pill small fw-semibold" [ngClass]="getOrdertatusClass(order.orderStatus)">
+                    <span class="badge px-2 py-1 rounded-pill small fw-semibold"
+                      [ngClass]="getOrdertatusClass(order.orderStatus)">
                       {{ order.orderStatus }}
                     </span>
                     <span class="text-muted small fs-7">Items: {{ order.totalItems }}</span>
@@ -123,13 +129,8 @@
 
         <!-- Mat Paginator for Customer Orders -->
         <div class="bg-white rounded-3 shadow-sm border mt-3 overflow-x-auto">
-          <mat-paginator
-            [length]="totalRecords"
-            [pageSize]="pageSize"
-            [pageIndex]="pageIndex"
-            [pageSizeOptions]="[6, 12, 24]"
-            (page)="onPageChange($event)"
-            showFirstLastButtons>
+          <mat-paginator [length]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex"
+            [pageSizeOptions]="[6, 12, 24]" (page)="onPageChange($event)" showFirstLastButtons>
           </mat-paginator>
         </div>
       </div>

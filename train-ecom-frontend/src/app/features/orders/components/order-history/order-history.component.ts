@@ -31,6 +31,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   fromDate = '';
   toDate = '';
 
+  todayDate = new Date().toISOString().split('T')[0];
+
   orderStatusOptions = Object.values(OrderStatus);
 
   private searchSubject = new Subject<string>();
@@ -130,6 +132,23 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       return 'assets/images/placeholder.png';
     }
     return url;
+  }
+
+  onDateChange(type: 'from' | 'to', event: any): void {
+    const rawDate = event.value;
+    if (rawDate) {
+      const year = rawDate.getFullYear();
+      const month = String(rawDate.getMonth() + 1).padStart(2, '0');
+      const day = String(rawDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+
+      if (type === 'from') {
+        this.fromDate = formattedDate;
+      } else {
+        this.toDate = formattedDate;
+      }
+      this.onFilterChange(); // Direct existing method call kiya, extra function hata diya
+    }
   }
 
   navigateToOrderDetails(orderId: string): void {
