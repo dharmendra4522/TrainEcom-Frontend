@@ -9,11 +9,9 @@ export class TopPromoBarComponent {
   isVisible: boolean = true;
 
   constructor() {
-    this.closePromo();
+   
   }
   closePromo(): void {
-    setTimeout(() => {
-      this.isVisible = false;
-    }, 1000);
+   this.isVisible = false;
   }
 }

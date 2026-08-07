@@ -157,6 +157,15 @@
   }
 }
 
+@media (min-width: 992px) {
+  .sticky-sidebar-col {
+    position: sticky !important;
+    top: 85px !important;
+    align-self: flex-start !important;
+    z-index: 100;
+  }
+}
+
 @media (max-width: 991.98px) {
   .filter-sidebar {
     position: static !important;

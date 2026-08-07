@@ -23,9 +23,9 @@
     </div>
   </div>
 
-  <div class="row g-3 g-md-4">
+  <div class="row g-3 g-md-4 align-items-start">
     <!-- Left Filter Sidebar -->
-    <div class="col-lg-3 col-xl-2 mb-4" [class.d-none]="!showMobileFilters" [class.d-lg-block]="true">
+    <div class="col-lg-3 col-xl-2 mb-4 sticky-sidebar-col" [class.d-none]="!showMobileFilters" [class.d-lg-block]="true">
       <app-catalog-filter [categories]="(categories$ | async) || []" [brands]="(brands$ | async) || []"
         [selectedCategory]="(route.queryParams | async)?.['category'] || ''"
         [selectedBrand]="(route.queryParams | async)?.['brand'] || ''" [maxPriceSliderValue]="maxPriceSliderValue"
