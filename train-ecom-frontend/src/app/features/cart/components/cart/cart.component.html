@@ -6,29 +6,26 @@
     loading: loading$ | async,
   } as cart"
 >
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <nav class="text-muted fs-7 mb-0">
-      <span>Home</span> <span class="mx-2">/</span>
-      <span class="text-dark fw-medium">Cart</span>
-    </nav>
-    <button
-      *ngIf="!cart.loading && (cart.items || []).length > 0"
-      type="button"
-      mat-stroked-button
-      color="warn"
-      class="rounded-pill px-4 py-1 border border-danger text-danger fw-medium"
-      (click)="clearCart()"
-    >
-      Clear Cart
-    </button>
-  </div>
+  <div class="sticky-top-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <nav class="text-muted fs-7 mb-0">
+        <span>Home</span> <span class="mx-2">/</span>
+        <span class="text-dark fw-medium">Cart</span>
+      </nav>
+      <button
+        *ngIf="!cart.loading && (cart.items || []).length > 0"
+        type="button"
+        mat-stroked-button
+        color="warn"
+        class="rounded-pill px-4 py-1 border border-danger text-danger fw-medium"
+        (click)="clearCart()"
+      >
+        Clear Cart
+      </button>
+    </div>
 
-  <div *ngIf="cart.loading" class="text-center py-5">
-    <mat-spinner class="mx-auto" diameter="40"></mat-spinner>
-  </div>
-
-  <div *ngIf="!cart.loading">
     <div
+      *ngIf="!cart.loading && (cart.items || []).length > 0"
       class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white d-none d-md-block"
     >
       <div class="row align-items-center fw-bold text-dark fs-7">
@@ -38,6 +35,13 @@
         <div class="col-md-2 text-end">Subtotal</div>
       </div>
     </div>
+  </div>
+
+  <div *ngIf="cart.loading" class="text-center py-5">
+    <mat-spinner class="mx-auto" diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!cart.loading">
 
     <div *ngIf="(cart.items || []).length > 0; else emptyCart">
       <div

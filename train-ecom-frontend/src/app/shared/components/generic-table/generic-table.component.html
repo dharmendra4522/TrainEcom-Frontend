@@ -1,8 +1,8 @@
 <div class="generic-table-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-  <div class="table-responsive position-relative">
+  <mat-progress-bar *ngIf="isLoading" mode="indeterminate" class="position-absolute top-0 start-0 w-100"
+    style="height: 3px; z-index: 100;"></mat-progress-bar>
 
-    <mat-progress-bar *ngIf="isLoading" mode="indeterminate" class="position-absolute top-0 start-0 w-100"
-      style="height: 3px; z-index: 100;"></mat-progress-bar>
+  <div class="table-scroll-container position-relative" style="max-height: calc(100vh - 300px); overflow-y: auto;">
 
     <table mat-table [dataSource]="data" class="custom-mat-table w-100">
 
@@ -73,7 +73,7 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light-subtle border-bottom"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="bg-light-subtle border-bottom"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="onRowClick(row, $event)"
         class="table-row-hover transition-all cursor-pointer"></tr>
     </table>
@@ -86,10 +86,10 @@
       <h6 class="fw-bold text-dark mb-1">No Data Available</h6>
       <p class="text-secondary small mb-0">{{ emptyMessage }}</p>
     </div>
-
-    <mat-paginator *ngIf="!isLoading && showPaginator" [length]="totalRecords" [pageSize]="pageSize"
-      [pageIndex]="pageIndex" [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons
-      class="border-top">
-    </mat-paginator>
   </div>
+
+  <mat-paginator *ngIf="!isLoading && showPaginator" [length]="totalRecords" [pageSize]="pageSize"
+    [pageIndex]="pageIndex" [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons
+    class="border-top">
+  </mat-paginator>
 </div>

@@ -61,3 +61,13 @@ body {
 .warning-snackbar .mdc-snackbar__actions button {
   color: #ffffff !important;
 }
+
+/* Global sticky header class for scrolling tables/lists */
+.sticky-top-section {
+  position: sticky;
+  top: 0;
+  margin-top: -20px;
+  padding-top: 20px;
+  background-color: #f8fafc;
+  z-index: 10;
+}

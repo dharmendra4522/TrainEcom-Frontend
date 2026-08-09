@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .filter-sidebar {
   border-color: #f1f5f9 !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -160,7 +165,7 @@
 @media (min-width: 992px) {
   .sticky-sidebar-col {
     position: sticky !important;
-    top: 85px !important;
+    top: 20px !important;
     align-self: flex-start !important;
     z-index: 100;
   }

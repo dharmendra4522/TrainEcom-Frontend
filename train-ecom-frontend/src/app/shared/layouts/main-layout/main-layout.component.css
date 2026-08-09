@@ -1,46 +1,44 @@
 .layout-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-container {
-  flex: 1 0 auto;
-  min-height: 100vh;
+  flex: 1 1 auto;
   display: flex !important;
   flex-direction: column !important;
+  overflow: hidden !important;
 }
 
 .main-container.account-container {
-  min-height: calc(100vh - 70px);
+  flex: 1 1 auto;
 }
 
 ::ng-deep .mat-drawer-container {
   background-color: #f9f9f9;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex !important;
-  min-height: 100%;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
 ::ng-deep .mat-drawer {
   height: 100% !important;
-  min-height: 100% !important;
+  overflow-y: auto !important;
 }
 
 ::ng-deep .mat-drawer-inner-container {
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  min-height: 100% !important;
 }
 
 ::ng-deep .mat-drawer-content {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
-  min-height: 100% !important;
-  overflow: visible !important;
+  overflow-y: auto !important;
 }
 
 .main-content {
@@ -52,7 +50,8 @@
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
+  min-height: 100%;
 }
 
 .flex-grow-area {

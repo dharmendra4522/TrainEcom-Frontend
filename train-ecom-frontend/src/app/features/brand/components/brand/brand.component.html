@@ -1,20 +1,22 @@
 <div class="container-fluid mt-2 px-0">
-  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
-    <div>
-      <h2 class="fs-4 fw-bold text-dark m-0">Brand Management</h2>
-      <p class="text-muted small m-0">Create, edit, and organize brands used across products.</p>
+  <div class="sticky-top-section">
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+      <div>
+        <h2 class="fs-4 fw-bold text-dark m-0">Brand Management</h2>
+        <p class="text-muted small m-0">Create, edit, and organize brands used across products.</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="openBrandDialog()">
+        <mat-icon>add</mat-icon> Add New Brand
+      </button>
     </div>
-    <button mat-raised-button color="primary" (click)="openBrandDialog()">
-      <mat-icon>add</mat-icon> Add New Brand
-    </button>
-  </div>
 
-  <div class="mb-4">
-    <mat-form-field appearance="outline" class="w-50 mb-0 pb-0">
-      <mat-label>Search brands</mat-label>
-      <mat-icon matPrefix class="text-secondary">search</mat-icon>
-      <input matInput [formControl]="searchControl" placeholder="Search by brand name or description...">
-    </mat-form-field>
+    <div class="mb-4">
+      <mat-form-field appearance="outline" class="w-50 mb-0 pb-0">
+        <mat-label>Search brands</mat-label>
+        <mat-icon matPrefix class="text-secondary">search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="Search by brand name or description...">
+      </mat-form-field>
+    </div>
   </div>
 
   <app-generic-table 

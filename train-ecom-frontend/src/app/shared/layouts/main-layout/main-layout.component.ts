@@ -81,7 +81,14 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         this.checkAccountRoute(event.urlAfterRedirects);
         this.checkDetailsRoute(event.urlAfterRedirects);
         this.checkCheckoutRoute(event.urlAfterRedirects);
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        
+        setTimeout(() => {
+          const scrollContainers = document.querySelectorAll('mat-sidenav-content, .mat-mdc-sidenav-content, .mat-drawer-content');
+          scrollContainers.forEach(container => {
+            container.scrollTo({ top: 0, behavior: 'instant' });
+          });
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }, 0);
       });
 
     this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {

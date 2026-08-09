@@ -106,11 +106,15 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         this.currentPage = 1;
         this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false, sortBy: urlSortBy });
       });
+
+    // Attach capturing scroll listener to window to catch scroll events from any child container
+    window.addEventListener('scroll', this.onContainerScroll, true);
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    window.removeEventListener('scroll', this.onContainerScroll, true);
   }
 
   // Helper method to chunk an array into smaller arrays of a specified size
@@ -122,11 +126,16 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     return res;
   }
 
-  // Listen to window scroll event for automatic 10-by-10 infinite scroll loading
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const scrollPosition = window.innerHeight + window.scrollY;
-    const threshold = document.documentElement.scrollHeight - 350;
+  onContainerScroll = (event: Event): void => {
+    const target = event.target as HTMLElement;
+    // We only care about the main scrolling container (mat-sidenav-content)
+    if (!target || !target.tagName) return;
+    if (target.tagName !== 'MAT-SIDENAV-CONTENT' && !target.classList?.contains('mat-drawer-content') && !target.classList?.contains('main-content')) {
+      return;
+    }
+
+    const scrollPosition = target.scrollTop + target.clientHeight;
+    const threshold = target.scrollHeight - 350;
 
     if (scrollPosition >= threshold) {
       this.isLoading$.pipe(take(1)).subscribe((isLoading) => {

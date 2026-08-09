@@ -1,50 +1,52 @@
 <div class="user-management-container py-4 px-2 px-md-4">
 
-  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <div>
-      <h4 class="fw-bold text-dark m-0">User Management</h4>
-      <p class="text-muted small m-0">View and manage all registered users</p>
+  <div class="sticky-top-section">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <div>
+        <h4 class="fw-bold text-dark m-0">User Management</h4>
+        <p class="text-muted small m-0">View and manage all registered users</p>
+      </div>
     </div>
+
+    <!-- filter section -->
+    <mat-card class="filter-card mb-4 shadow-sm border-0 rounded-4 p-3 bg-white">
+      <div class="row g-3 align-items-center">
+
+        <!-- Search Input (Width reduced to col-md-7) -->
+        <div class="col-12 col-md-7">
+          <mat-form-field appearance="outline" class="w-100 mb-0">
+            <mat-label>Search by Name or Email</mat-label>
+            <input matInput 
+                   [value]="searchQuery" 
+                   (input)="onSearchInput($event)" 
+                   placeholder="Type to search users...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Filter by Status (Width adjusted to col-md-3) -->
+        <div class="col-12 col-sm-6 col-md-3">
+          <mat-form-field appearance="outline" class="w-100 mb-0">
+            <mat-label>Filter by Status</mat-label>
+            <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChange($event.value)">
+              <mat-option value="">All Status</mat-option>
+              <mat-option *ngFor="let status of statusOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Reset Button (Added in col-md-2) -->
+        <div class="col-12 col-sm-6 col-md-2">
+          <button mat-stroked-button color="warn" class="w-100 py-3" (click)="resetFilters()" title="Reset Filters">
+            Reset
+          </button>
+        </div>
+
+      </div>
+    </mat-card>
   </div>
-
-  <!-- filter section -->
-  <mat-card class="filter-card mb-4 shadow-sm border-0 rounded-4 p-3 bg-white">
-    <div class="row g-3 align-items-center">
-
-      <!-- Search Input (Width reduced to col-md-7) -->
-      <div class="col-12 col-md-7">
-        <mat-form-field appearance="outline" class="w-100 mb-0">
-          <mat-label>Search by Name or Email</mat-label>
-          <input matInput 
-                 [value]="searchQuery" 
-                 (input)="onSearchInput($event)" 
-                 placeholder="Type to search users...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Filter by Status (Width adjusted to col-md-3) -->
-      <div class="col-12 col-sm-6 col-md-3">
-        <mat-form-field appearance="outline" class="w-100 mb-0">
-          <mat-label>Filter by Status</mat-label>
-          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChange($event.value)">
-            <mat-option value="">All Status</mat-option>
-            <mat-option *ngFor="let status of statusOptions" [value]="status">
-              {{ status }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- Reset Button (Added in col-md-2) -->
-      <div class="col-12 col-sm-6 col-md-2">
-        <button mat-stroked-button color="warn" class="w-100 py-3" (click)="resetFilters()" title="Reset Filters">
-          Reset
-        </button>
-      </div>
-
-    </div>
-  </mat-card>
 
   <!-- Users Table -->
   <app-generic-table 

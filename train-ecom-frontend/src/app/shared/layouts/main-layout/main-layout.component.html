@@ -48,9 +48,8 @@
         >
           <router-outlet></router-outlet>
         </div>
+        <app-footer *ngIf="(userRole$ | async) !== 'Admin' && !isAccountRoute"></app-footer>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
-
-  <app-footer *ngIf="(userRole$ | async) !== 'Admin'"></app-footer>
 </div>
