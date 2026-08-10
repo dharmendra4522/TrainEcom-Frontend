@@ -8,10 +8,10 @@
 
   <div
     class="image-container bg-light p-2 rounded-top d-flex align-items-center justify-content-center position-relative overflow-hidden">
-    <img [src]="product.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback [alt]="product.name"
-      loading="lazy" class="product-img" />
+    <img [src]="product.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback [alt]="product.name" loading="lazy"
+      class="product-img" />
     <button class="hover-add-to-cart-btn d-flex align-items-center justify-content-center gap-1"
-      (click)="addToCart(product); $event.stopPropagation()">
+      *ngIf="product.stockQuantity && product.stockQuantity>0" (click)="addToCart(product); $event.stopPropagation()">
       <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_shopping_cart</mat-icon>
       <span>Add to Cart</span>
     </button>
@@ -24,8 +24,12 @@
     </mat-card-subtitle>
   </mat-card-header>
 
+
   <mat-card-content>
     <p>{{ product.description | slice: 0 : 50 }}...</p>
+    <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
+      Only {{ product.stockQuantity }} left!
+    </span>
     <h5 style="color: #3f51b5; margin-top: 8px">
       {{ product.price | currency: "INR" }}
     </h5>

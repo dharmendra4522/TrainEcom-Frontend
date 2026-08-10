@@ -5,11 +5,7 @@
   <form [formGroup]="form" class="d-flex flex-column gap-3 pt-3">
     <mat-form-field appearance="outline" class="w-100 mb-1">
       <mat-label>{{ data.type }} Name</mat-label>
-      <input
-        matInput
-        formControlName="name"
-        placeholder="Enter {{ data.type | lowercase }} name"
-      />
+      <input matInput formControlName="name" placeholder="Enter {{ data.type | lowercase }} name" />
       <mat-error *ngIf="form.get('name')?.hasError('required')">
         {{ data.type }} name is required
       </mat-error>
@@ -17,15 +13,7 @@
 
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Description</mat-label>
-      <textarea
-        matInput
-        formControlName="description"
-        rows="4"
-        placeholder="Enter description"
-      ></textarea>
-      <mat-error *ngIf="form.get('description')?.hasError('required')">
-        Description is required
-      </mat-error>
+      <textarea matInput formControlName="description" rows="4" placeholder="Enter description"></textarea>
     </mat-form-field>
   </form>
 </mat-dialog-content>
@@ -34,7 +22,7 @@
   <button mat-stroked-button (click)="onCancel()" class="me-2">
     Cancel
   </button>
-  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="form.invalid">
+  <button mat-flat-button color="primary" (click)="onSubmit()">
     {{ data.isEdit ? "Update" : "Save" }}
   </button>
 </mat-dialog-actions>

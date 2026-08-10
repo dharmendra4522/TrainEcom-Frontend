@@ -19,7 +19,7 @@
       <div class="d-flex align-items-center flex-wrap gap-3">
 
         <!-- From Date Picker -->
-       <!-- From Date Picker -->
+        <!-- From Date Picker -->
         <mat-form-field appearance="outline" class="mb-0" style="width: 150px;" subscriptSizing="dynamic">
           <mat-label>From Date</mat-label>
           <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" placeholder="YYYY-MM-DD"
@@ -31,8 +31,8 @@
         <!-- To Date Picker -->
         <mat-form-field appearance="outline" class="mb-0" style="width: 150px;" subscriptSizing="dynamic">
           <mat-label>To Date</mat-label>
-          <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="YYYY-MM-DD"
-            [max]="maxDate" readonly>
+          <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="YYYY-MM-DD" [max]="maxDate"
+            readonly>
           <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
           <mat-datepicker #toPicker></mat-datepicker>
         </mat-form-field>
@@ -57,9 +57,8 @@
       </div>
 
       <!-- Validation Error -->
-      <div *ngIf="(reportForm.get('fromDate')?.touched || reportForm.get('toDate')?.touched) && reportForm.invalid"
-        class="text-danger small mt-2">
-        Both From Date and To Date are required.
+      <div *ngIf="reportForm.invalid" class="text-muted small mt-2">
+        * Please select both From and To dates to export the PDF report.
       </div>
     </form>
   </div>
@@ -116,7 +115,8 @@
     </div>
 
     <app-generic-table [isLoading]="isTableLoading" [data]="topProducts" [columns]="tableColumns" [showIndex]="true"
-      [showPaginator]="false" emptyMessage="No top selling products found for the selected range." (rowClick)="onTopProductRowClick($event)">
+      [showPaginator]="false" emptyMessage="No top selling products found for the selected range."
+      (rowClick)="onTopProductRowClick($event)">
     </app-generic-table>
   </div>
 </div>

@@ -17,15 +17,15 @@ export interface BrandCategoryDialogData {
 export class BrandCategoryDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   public dialogRef = inject(MatDialogRef<BrandCategoryDialogComponent>);
-  
+
   form!: FormGroup;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: BrandCategoryDialogData) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: BrandCategoryDialogData) { }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       name: [this.data.initialData?.name || '', [Validators.required, Validators.maxLength(100)]],
-      description: [this.data.initialData?.description || '', [Validators.required, Validators.maxLength(500)]]
+      description: [this.data.initialData?.description || '', [Validators.maxLength(500)]]
     });
   }
 

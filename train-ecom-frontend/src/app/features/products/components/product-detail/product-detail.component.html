@@ -62,24 +62,28 @@
 
           <div>
             <span *ngIf="product.stockQuantity && product.stockQuantity > 0"
-              class="badge bg-success-subtle text-success fw-bold px-2.5 py-1.5 rounded-pill">
-              <mat-icon class="fs-6 align-middle me-1">check_circle</mat-icon>
-              In Stock ({{ product.stockQuantity }}
-              available)
+              class="badge bg-success-subtle text-success fw-bold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center">
+              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">check_circle</mat-icon>
+              In Stock ({{ product.stockQuantity }} available)
             </span>
             <span *ngIf="!product.stockQuantity || product.stockQuantity <= 0"
-              class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill">
-              <mat-icon class="fs-6 align-middle me-1">cancel</mat-icon> Out of
-              Stock
+              class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center">
+              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">cancel</mat-icon> Out of Stock
             </span>
           </div>
         </div>
 
-        <div class="price-section mb-4 p-3 rounded-3 bg-light border-0">
+        <div class="price-section mb-2 p-3 rounded-3 bg-light border-0">
           <div class="d-flex align-items-baseline gap-3">
             <span class="display-6 fw-bold text-primary">₹{{ product.price | number: "1.2-2" }}</span>
           </div>
           <small class="text-muted d-block mt-1">Inclusive of all taxes & free shipping</small>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap" *ngIf="!isAdmin">
+          <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
+            Only {{ product.stockQuantity }} left! Hurry up before it's gone.
+          </span>
         </div>
 
         <div class="description-section mb-4">
@@ -196,7 +200,7 @@
     *ngIf="!isAdmin && relatedProducts && relatedProducts.length > 0">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <h3 class="fw-bold text-dark m-0">Related Products</h3>
+        <h3 class="fw-bold text-dark m-0">Similar Products</h3>
         <p class="text-muted small m-0">Explore items customer also viewed</p>
       </div>
       <a [routerLink]="['/products']" [queryParams]="{ category: product?.categoryName }"
