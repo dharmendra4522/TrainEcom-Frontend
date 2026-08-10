@@ -11,28 +11,27 @@
     </div>
 
     <div class="mb-4">
-      <mat-form-field appearance="outline" class="w-50 mb-0 pb-0">
-        <mat-label>Search categories</mat-label>
-        <mat-icon matPrefix class="text-secondary">search</mat-icon>
-        <input matInput [formControl]="searchControl" placeholder="Search by category name or description...">
-      </mat-form-field>
+      <div class="d-flex align-items-center gap-3">
+        <mat-form-field appearance="outline" class="w-50 mb-0 pb-0" subscriptSizing="dynamic">
+          <mat-label>Search categories</mat-label>
+          <mat-icon matPrefix class="text-secondary">search</mat-icon>
+          <input matInput [formControl]="searchControl" placeholder="Search by category name or description...">
+        </mat-form-field>
+
+        <button mat-stroked-button color="warn" *ngIf="searchControl.value"
+          class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3" style="height: 48px;"
+          (click)="resetSearch()" title="Reset Search">
+          <mat-icon>clear</mat-icon> Reset
+        </button>
+      </div>
     </div>
   </div>
 
-  <app-generic-table 
-    [data]="(paginatedCategories$ | async) || []" 
-    [isLoading]="(isLoading$ | async) || false"
-    [columns]="columns" 
-    [actions]="actions" 
-    [showInlineActions]="true"
-    [showPaginator]="true"
-    [totalRecords]="(totalRecords$ | async) || 0"
-    [pageSize]="(pageSize$ | async) || 10"
-    [pageIndex]="(pageIndex$ | async) || 0"
-    [pageSizeOptions]="[5, 10, 20, 50]"
-    (pageChange)="handlePageChange($event)"
-    emptyMessage="No categories found."
-    (actionClick)="handleTableAction($event)">
+  <app-generic-table [data]="(paginatedCategories$ | async) || []" [isLoading]="(isLoading$ | async) || false"
+    [columns]="columns" [actions]="actions" [showInlineActions]="true" [showPaginator]="true"
+    [totalRecords]="(totalRecords$ | async) || 0" [pageSize]="(pageSize$ | async) || 10"
+    [pageIndex]="(pageIndex$ | async) || 0" [pageSizeOptions]="[5, 10, 20, 50]" (pageChange)="handlePageChange($event)"
+    emptyMessage="No categories found." (actionClick)="handleTableAction($event)">
   </app-generic-table>
 
 </div>

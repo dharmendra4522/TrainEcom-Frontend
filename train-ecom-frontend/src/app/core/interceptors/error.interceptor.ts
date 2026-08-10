@@ -5,10 +5,16 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { SKIP_ERROR_HANDLING } from './error.context';
 import { extractBackendMessage } from '../utils/error.utils';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../store/auth/auth.actions';
+
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
   const router = inject(Router);
+  const store = inject(Store);
+
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
 
@@ -17,12 +23,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      const errorMessage = extractBackendMessage(error);
 
-      if (error.status === 401) {
+      if (error.status === 401 || error.status === 403) {
+        const errorMessage = extractBackendMessage(error);
+        localStorage.removeItem('accessToken');
+        store.dispatch(AuthActions.logout());
+        notificationService.showError(errorMessage);
         router.navigate(['/login']);
       }
 
+      const errorMessage = extractBackendMessage(error);
       notificationService.showError(errorMessage);
       return throwError(() => error);
     }),

@@ -42,6 +42,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   quantity: number = 1;
   isLoading: boolean = true;
   isAdmin: boolean = false; // for routes check
+  isReadOnly: boolean = false; // for routes check
 
   isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
@@ -54,6 +55,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.isAdmin = !!data['isAdmin'];
+    });
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      this.isReadOnly = params['mode'] === 'view-only';
     });
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params['id'];
@@ -315,11 +319,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-goBack(): void {
-    if (this.isAdmin) {
-      this.router.navigate(['/admin/products/manage']);
-    } else {
-      this.location.back();
-    }
+  goBack(): void {
+    this.location.back();
   }
 }

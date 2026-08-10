@@ -69,5 +69,19 @@ body {
   margin-top: -20px;
   padding-top: 20px;
   background-color: #f8fafc;
-  z-index: 10;
+  z-index: 1000;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

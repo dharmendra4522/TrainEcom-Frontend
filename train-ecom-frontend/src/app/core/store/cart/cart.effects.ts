@@ -48,7 +48,7 @@ export class CartEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.logout),
-        tap(() => localStorage.removeItem('cart')),
+        tap(() => sessionStorage.removeItem('cart')),
       ),
     { dispatch: false },
   );

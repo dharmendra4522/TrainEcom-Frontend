@@ -1,5 +1,10 @@
-.page-container{
-    padding: 20px;
+
+.sticky-top-section {
+    position: sticky;
+    top: 0;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .page-header{

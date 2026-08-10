@@ -143,4 +143,9 @@ export class CategoryComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  resetSearch(): void {
+    this.searchControl.setValue('');
+  }
+
 }

@@ -27,10 +27,10 @@ export class CartService {
     return isLoggedIn;
   }
 
-  // extract items from local storage for guest users
+  // extract items from session storage for guest users
   private getLocalCartItems(): CartItem[] {
     try {
-      const cart = localStorage.getItem('cart');
+      const cart = sessionStorage.getItem('cart');
       return cart ? JSON.parse(cart) : [];
     } catch {
       return [];
@@ -38,7 +38,7 @@ export class CartService {
   }
 
   private saveLocalCartItems(items: CartItem[]): void {
-    localStorage.setItem('cart', JSON.stringify(items));
+    sessionStorage.setItem('cart', JSON.stringify(items));
   }
 
   private buildLocalCartResponse(items: CartItem[]): CartResponse {
@@ -64,7 +64,7 @@ export class CartService {
       return;
     }
 
-    const localCartStr = localStorage.getItem('cart');
+    const localCartStr = sessionStorage.getItem('cart');
     if (!localCartStr) {
       this.store.dispatch(CartActions.loadCart());
       return;
@@ -73,7 +73,7 @@ export class CartService {
     try {
       const localItems: CartItem[] = JSON.parse(localCartStr);
       if (Array.isArray(localItems) && localItems.length > 0) {
-        localStorage.removeItem('cart');
+        sessionStorage.removeItem('cart');
 
         const mergePayload = localItems.map((i: CartItem) => ({
           productId: i.productId,

@@ -1,14 +1,15 @@
-.reports-container {
-  width: 100%;
-}
-
 .generator-card {
-  max-width: 620px;
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  max-width: 650px;
   width: 100%;
 }
 
-.pdf-btn {
-  height: 44px;
+.pdf-btn,
+.filter-btn,
+.clear-btn {
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +21,8 @@
     max-width: 100%;
   }
 
-  .pdf-btn {
+  .pdf-btn,
+  .filter-btn {
     width: 100%;
   }
 }

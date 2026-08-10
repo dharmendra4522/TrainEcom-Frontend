@@ -40,7 +40,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadOrderHistory();
-    this.setupSearchFilter();
   }
 
   ngOnDestroy(): void {
@@ -51,7 +50,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.searchSub = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
-    ).subscribe(() => {
+    ).subscribe((searchTerm) => {
+      this.searchQuery = searchTerm;
       this.pageIndex = 0;
       this.loadOrderHistory();
     });
@@ -61,7 +61,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     const filter: OrderHistoryFilterParams = {
-      search: this.searchQuery ? this.searchQuery.trim() : undefined,
       orderStatus: this.selectedStatus ? (this.selectedStatus as OrderStatus) : undefined,
       fromDate: this.fromDate ? this.fromDate : undefined,
       toDate: this.toDate ? this.toDate : undefined,
@@ -85,7 +84,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.searchQuery = value;
     this.searchSubject.next(value);
   }
 
@@ -101,7 +99,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.searchQuery = '';
     this.selectedStatus = '';
     this.fromDate = '';
     this.toDate = '';

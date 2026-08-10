@@ -151,6 +151,10 @@ export class BrandComponent implements OnInit {
     });
   }
 
+  resetSearch(): void {
+    this.searchControl.setValue('');
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

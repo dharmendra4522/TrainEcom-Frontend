@@ -193,13 +193,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       if (newId && typeof newId === 'string') {
         if (type === 'Brand') {
           this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
-            this.brands = brands; // Updated list sync ho jayegi
+            this.brands = brands; // sync updated list
             this.productForm.get('brand')?.setValue(newId);
             this.brandControl.setValue(newId);
           });
         } else {
           this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
-            this.categories = categories; // Updated list sync ho jayegi
+            this.categories = categories; // sync updated list
             this.productForm.get('category')?.setValue(newId);
             this.categoryControl.setValue(newId);
           });

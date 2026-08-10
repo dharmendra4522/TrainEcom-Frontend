@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { ReportService } from '../../../../core/services/report.service';
 import { topProducts } from '../../../../core/models/report.model';
 import { TableColumn } from '../../../../core/models/table.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sales-report',
@@ -12,6 +13,7 @@ import { TableColumn } from '../../../../core/models/table.model';
 export class SalesReportComponent {
   private fb = inject(FormBuilder);
   private reportService = inject(ReportService);
+  private router = inject(Router);
 
   reportForm = this.fb.group({
     fromDate: ['', Validators.required],
@@ -102,9 +104,33 @@ export class SalesReportComponent {
         console.error('Error fetching top selling products:', err);
       }
     })
+  }
 
+  onTopProductRowClick(event: Record<string, unknown>): void {
+    const rowData = (event['row'] || event) as Record<string, unknown>;
+    const productId = (rowData['id'] || rowData['productId'] || rowData['_id']) as string;
 
+    if (productId) {
+      this.router.navigate([`/admin/products/view/${productId}`], {
+        queryParams: { mode: 'view-only' } // Yeh flag batayega ki yeh read-only view hai
+      });
+    }
   }
 
 
+  resetReportForm(): void {
+    this.reportForm.reset({
+      fromDate: null,
+      toDate: null
+    });
+  }
+
+  resetTopProductsFilter(): void {
+    this.topProductsFilterForm.reset({
+      fromDate: '',
+      toDate: '',
+      limit: 10
+    });
+    this.fetchTopSellingProducts();
+  }
 }
