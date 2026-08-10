@@ -192,9 +192,17 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     }).afterClosed().subscribe((newId) => {
       if (newId && typeof newId === 'string') {
         if (type === 'Brand') {
-          this.productForm.get('brandId')?.setValue(newId);
+          this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+            this.brands = brands; // Updated list sync ho jayegi
+            this.productForm.get('brand')?.setValue(newId);
+            this.brandControl.setValue(newId);
+          });
         } else {
-          this.productForm.get('categoryId')?.setValue(newId);
+          this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+            this.categories = categories; // Updated list sync ho jayegi
+            this.productForm.get('category')?.setValue(newId);
+            this.categoryControl.setValue(newId);
+          });
         }
       }
     });
@@ -328,8 +336,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         price: formValue.price,
         stockQuantity:
           formValue.stockQuantity !== null &&
-          formValue.stockQuantity !== undefined &&
-          formValue.stockQuantity !== ''
+            formValue.stockQuantity !== undefined &&
+            formValue.stockQuantity !== ''
             ? Number(formValue.stockQuantity)
             : 0,
         brandId: formValue.brand,
@@ -398,7 +406,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  onBack(): void{
+  onBack(): void {
     this.location.back();
   }
 
