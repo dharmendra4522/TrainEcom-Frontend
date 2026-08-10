@@ -12,7 +12,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { RoleDirective } from './directives/role.directive';
 import { GenericDialogComponent } from './components/generic-dialog/generic-dialog.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ProductFilterComponent } from './components/product-filter/product-filter.component';
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
@@ -22,7 +22,9 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { SelectionDialogComponent } from './components/selection-dialog/selection-dialog.component';
 import { ImgFallbackDirective } from './directives/img-fallback.directive';
 import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-
+import { BrandCategoryDialogComponent } from './components/brand-category-dialog/brand-category-dialog.component';
+import { SearchableDropdownComponent } from './components/searchable-dropdown/searchable-dropdown.component';
+import { ManageEntityDialogComponent } from './components/manage-entity-dialog/manage-entity-dialog.component';
 
 @NgModule({
   declarations: [
@@ -45,13 +47,16 @@ import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.componen
     SelectionDialogComponent,
     ImgFallbackDirective,
     BreadcrumbComponent,
+    BrandCategoryDialogComponent,
+    SearchableDropdownComponent,
+    ManageEntityDialogComponent
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
+    FormsModule,
     ReactiveFormsModule
-
   ],
   exports: [
     HeaderComponent,
@@ -69,8 +74,10 @@ import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.componen
     SidePanelComponent,
     ProductFilterComponent,
     ImgFallbackDirective,
-    BreadcrumbComponent
-
+    BreadcrumbComponent,
+    BrandCategoryDialogComponent,
+    SearchableDropdownComponent,
+    ManageEntityDialogComponent
   ]
 })
 export class SharedModule { }

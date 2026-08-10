@@ -1,0 +1,27 @@
+mat-dialog-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+table {
+    box-shadow: none;
+    border-bottom: 1px solid #e0e0e0;
+    margin-top: 0 !important;
+}
+
+th.mat-header-cell {
+    font-size: 14px;
+    background-color: #f8f9fa !important;
+    z-index: 100 !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+tr.mat-header-row {
+    background-color: #f8f9fa !important;
+}
+
+td.mat-cell, th.mat-header-cell {
+    padding: 0 16px;
+}

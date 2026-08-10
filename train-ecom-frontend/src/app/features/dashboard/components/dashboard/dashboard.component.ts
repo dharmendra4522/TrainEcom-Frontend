@@ -91,11 +91,11 @@ export class DashboardComponent implements OnInit {
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
       orderStatus: order.orderStatus as OrderStatus,
-      orderStatusClass: this.getOrdertatusClass(order.orderStatus),
+      orderStatusClass: this.getOrderStatusClass(order.orderStatus),
     };
   }
 
-  getOrdertatusClass(orderStatus: string): string {
+  getOrderStatusClass(orderStatus: string): string {
     switch (orderStatus?.toLowerCase()) {
       case 'confirmed':
         return 'bg-primary-subtle text-primary border border-primary-subtle';
@@ -107,9 +107,14 @@ export class DashboardComponent implements OnInit {
         return 'bg-success-subtle text-success border border-success-subtle';
       case 'cancelled':
         return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
       default:
         return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+    }
+  }
+
+  onOrderClick(order: Record<string, unknown>): void {
+    if (order && order['orderId']) {
+      this.router.navigate(['/admin/orders/details-admin', order['orderId']]);
     }
   }
 

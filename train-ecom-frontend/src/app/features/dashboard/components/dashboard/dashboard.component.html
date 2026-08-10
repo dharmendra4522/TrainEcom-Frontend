@@ -50,5 +50,6 @@
     [columns]="tableColumns"
     [isLoading]="isLoadingStats"
     emptyMessage="No recent orders found."
+    (rowClick)="onOrderClick($event)"
   ></app-generic-table>
 </div>

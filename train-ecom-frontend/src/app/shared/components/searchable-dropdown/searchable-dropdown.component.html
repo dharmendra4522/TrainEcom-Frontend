@@ -1,0 +1,29 @@
+<mat-form-field appearance="outline" class="w-100">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select [(ngModel)]="value" (blur)="onTouched()" [placeholder]="placeholder" panelClass="searchable-dropdown-panel">
+    
+    <!-- Sticky Search Header -->
+    <div class="dropdown-search-header" (keydown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [formControl]="searchControl" placeholder="Search {{ type }}" class="search-input" />
+    </div>
+
+    <!-- Options List -->
+    <mat-option *ngIf="items.length === 0" disabled>
+      No results found
+    </mat-option>
+    
+    <mat-option *ngFor="let item of items" [value]="item[valueKey]">
+      {{ item[displayKey] }}
+    </mat-option>
+
+    <!-- Sticky Manage Footer -->
+    <div class="dropdown-manage-footer" (click)="onManageClick($event)">
+      <span class="text-primary fw-bold text-decoration-none">Manage</span>
+    </div>
+    
+  </mat-select>
+  <mat-error *ngIf="control?.invalid && control?.touched">
+    {{ errorMsg }}
+  </mat-error>
+</mat-form-field>

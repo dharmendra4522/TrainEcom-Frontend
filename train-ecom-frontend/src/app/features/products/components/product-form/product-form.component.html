@@ -49,47 +49,34 @@
 
             <div class="row">
                 <div class="col-md-6">
-                    <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Brand</mat-label>
-                        <input type="text" matInput [formControl]="brandControl" [matAutocomplete]="brandAuto"
-                            (click)="triggerBrandFilter()" (focus)="triggerBrandFilter()">
-
-                        <mat-autocomplete #brandAuto="matAutocomplete" [displayWith]="displayBrandName"
-                            (optionSelected)="onBrandSelected($event)">
-
-                            <mat-option *ngFor="let brand of filteredBrands | async" [value]="brand.id">
-                                {{ brand.name }}
-                            </mat-option>
-
-                            <mat-option (click)="openAddDialog('brand')" class="text-primary font-weight-bold">
-                                + Create New Brand
-                            </mat-option>
-                        </mat-autocomplete>
-                        <mat-error *ngIf="brandControl.invalid && brandControl.touched">
-                            Please select a valid Brand.
-                        </mat-error>
-                    </mat-form-field>
+                    <app-searchable-dropdown
+                        formControlName="brand"
+                        [control]="brandControl"
+                        label="Brand"
+                        placeholder="Search Brand"
+                        [items]="brands"
+                        displayKey="name"
+                        valueKey="id"
+                        type="Brand"
+                        errorMsg="Please select a valid Brand."
+                        (search)="onBrandSearch($event)"
+                        (manageClicked)="openManageDialog('Brand')">
+                    </app-searchable-dropdown>
                 </div>
                 <div class="col-md-6">
-                    <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Category</mat-label>
-                        <input type="text" matInput [formControl]="categoryControl" [matAutocomplete]="categoryAuto"
-                            (click)="triggerCategoryFilter()" (focus)="triggerCategoryFilter()">
-
-                        <mat-autocomplete #categoryAuto="matAutocomplete" [displayWith]="displayCategoryName"
-                            (optionSelected)="onCategorySelected($event)">
-                            <mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
-                                {{ category.name }}
-                            </mat-option>
-
-                            <mat-option (click)="openAddDialog('category')" class="text-primary font-weight-bold">
-                                + Create New Category
-                            </mat-option>
-                        </mat-autocomplete>
-                        <mat-error *ngIf="categoryControl.invalid && categoryControl.touched">
-                            Please select a valid Category.
-                        </mat-error>
-                    </mat-form-field>
+                    <app-searchable-dropdown
+                        formControlName="category"
+                        [control]="categoryControl"
+                        label="Category"
+                        placeholder="Search Category"
+                        [items]="categories"
+                        displayKey="name"
+                        valueKey="id"
+                        type="Category"
+                        errorMsg="Please select a valid Category."
+                        (search)="onCategorySearch($event)"
+                        (manageClicked)="openManageDialog('Category')">
+                    </app-searchable-dropdown>
                 </div>
             </div>
 

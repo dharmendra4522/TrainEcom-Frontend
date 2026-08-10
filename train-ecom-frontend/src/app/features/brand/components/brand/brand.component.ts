@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { Brand } from '../../../../core/models/brand.model';
-import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import {
   TableColumn,
   TableAction,
@@ -15,8 +15,8 @@ import {
   selectBrandTotalRecords,
   selectPaginatedBrands,
 } from '../../../../core/store/brand/brand.selectors';
-import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
-import { startWith, map, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { startWith, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
@@ -106,12 +106,13 @@ export class BrandComponent implements OnInit {
 
   openBrandDialog(brand?: Brand): void {
     const isEdit = !!brand;
-    const dialogRef = this.matDialog.open(GenericDialogComponent, {
+    const dialogRef = this.matDialog.open(BrandCategoryDialogComponent, {
       width: '500px',
       data: {
         title: isEdit ? 'Edit Brand' : 'Add Brand',
-        fields: this.getBrandFormFields(brand),
-        submitButtonText: isEdit ? 'Update' : 'Add',
+        type: 'Brand',
+        isEdit: isEdit,
+        initialData: brand ? { name: brand.name, description: brand.description } : null
       },
     });
 
@@ -126,24 +127,7 @@ export class BrandComponent implements OnInit {
     });
   }
 
-  private getBrandFormFields(brand?: Brand) {
-    return [
-      {
-        key: 'name',
-        label: 'Brand Name',
-        type: 'text',
-        value: brand?.name || '',
-        required: true,
-      },
-      {
-        key: 'description',
-        label: 'Description',
-        type: 'text',
-        value: brand?.description || '',
-        required: true,
-      },
-    ];
-  }
+
 
   createBrand(payload: { name: string; description: string }): void {
     this.store.dispatch(BrandActions.createBrand({ brand: payload as Brand }));

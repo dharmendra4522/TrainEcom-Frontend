@@ -15,7 +15,8 @@ import { selectProductById, selectProductsLoading } from '../../../../core/store
 import { Observable, combineLatest, Subject } from 'rxjs';
 import { startWith, map, filter, take, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
+import { ManageEntityDialogComponent } from '../../../../shared/components/manage-entity-dialog/manage-entity-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
@@ -44,8 +45,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   brandControl = new FormControl('');
   categoryControl = new FormControl('');
-  filteredBrands!: Observable<Brand[]>;
-  filteredCategories!: Observable<Category[]>;
+
 
   isEditMode: boolean = false;
   productId: string | null = null;
@@ -65,9 +65,25 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initFormAndData();
-    this.initAutocomplete();
-    this.initListeners();
     this.checkRouteForEditMode();
+
+    this.actions$.pipe(
+      ofType(BrandActions.loadPaginatedBrandsSuccess),
+      takeUntil(this.destroy$)
+    ).subscribe(({ brands, pageNumber }) => {
+      if (pageNumber === 1) {
+        this.brands = brands;
+      }
+    });
+
+    this.actions$.pipe(
+      ofType(CategoryActions.loadPaginatedCategoriesSuccess),
+      takeUntil(this.destroy$)
+    ).subscribe(({ categories, pageNumber }) => {
+      if (pageNumber === 1) {
+        this.categories = categories;
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -166,161 +182,34 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     this.existingImages.splice(index, 1);
   }
 
-  private initAutocomplete(): void {
-    this.filteredBrands = this.brandControl.valueChanges.pipe(
-      startWith(this.brandControl.value || ''),
-      map((val) => this.resolveFilter(val, this.brands)),
-    );
 
-    this.filteredCategories = this.categoryControl.valueChanges.pipe(
-      startWith(this.categoryControl.value || ''),
-      map((val) => this.resolveFilter(val, this.categories)),
-    );
-  }
 
-  triggerBrandFilter(): void {
-    this.brandControl.setValue(this.brandControl.value);
-  }
-
-  triggerCategoryFilter(): void {
-    this.categoryControl.setValue(this.categoryControl.value);
-  }
-
-  private initListeners(): void {
-    this.brandControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((val) => {
-        if (!val) {
-          this.productForm.patchValue({ brand: '' });
-          return;
+  openManageDialog(type: 'Brand' | 'Category'): void {
+    this.matDialog.open(ManageEntityDialogComponent, {
+      width: '600px',
+      data: { type },
+      disableClose: true
+    }).afterClosed().subscribe((newId) => {
+      if (newId && typeof newId === 'string') {
+        if (type === 'Brand') {
+          this.productForm.get('brandId')?.setValue(newId);
+        } else {
+          this.productForm.get('categoryId')?.setValue(newId);
         }
-
-        if (
-          this.brands.length === 0 ||
-          (typeof val === 'string' &&
-            val.toLowerCase() === this.originalBrandId.toLowerCase())
-        ) {
-          this.productForm.patchValue({ brand: val });
-          return;
-        }
-
-        if (typeof val === 'string') {
-          const foundById = this.brands.find(
-            (b) => b.id.toLowerCase() === val.toLowerCase(),
-          );
-          if (foundById) {
-            this.productForm.patchValue({ brand: foundById.id });
-          } else {
-            const foundByName = this.brands.find(
-              (b) => b.name.toLowerCase() === val.toLowerCase(),
-            );
-            if (foundByName) {
-              this.productForm.patchValue({ brand: foundByName.id });
-            } else {
-              this.productForm.patchValue({ brand: '' });
-            }
-          }
-        }
-      });
-
-    this.categoryControl.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((val) => {
-        if (!val) {
-          this.productForm.patchValue({ category: '' });
-          return;
-        }
-
-        if (
-          this.categories.length === 0 ||
-          (typeof val === 'string' &&
-            val.toLowerCase() === this.originalCategoryId.toLowerCase())
-        ) {
-          this.productForm.patchValue({ category: val });
-          return;
-        }
-
-        if (typeof val === 'string') {
-          const foundById = this.categories.find(
-            (c) => c.id.toLowerCase() === val.toLowerCase(),
-          );
-          if (foundById) {
-            this.productForm.patchValue({ category: foundById.id });
-          } else {
-            const foundByName = this.categories.find(
-              (c) => c.name.toLowerCase() === val.toLowerCase(),
-            );
-            if (foundByName) {
-              this.productForm.patchValue({ category: foundByName.id });
-            } else {
-              this.productForm.patchValue({ category: '' });
-            }
-          }
-        }
-      });
+      }
+    });
   }
-
-  private resolveFilter<T extends { id: string; name: string }>(
-    value: string | T | null,
-    items: T[],
-  ): T[] {
-    if (!value) return items;
-    const strVal = typeof value === 'string' ? value : value.name;
-    if (!strVal) return items;
-
-    const isExistingId = items.some(
-      (item) => item.id.toLowerCase() === strVal.toLowerCase(),
-    );
-    if (isExistingId) {
-      return items;
-    }
-
-    const query = strVal.toLowerCase().trim();
-    return items.filter((item) => item.name.toLowerCase().includes(query));
-  }
-
-  onBrandSelected(event: { option: { value: string } }): void {
-    this.productForm.patchValue({ brand: event.option.value });
-  }
-
-  onCategorySelected(event: { option: { value: string } }): void {
-    this.productForm.patchValue({ category: event.option.value });
-  }
-
-  displayBrandName = (brandId: string): string => {
-    if (!brandId) return '';
-    const brand = this.brands.find(
-      (b) => b.id.toLowerCase() === brandId.toLowerCase(),
-    );
-    if (brand) return brand.name;
-    if (brandId.toLowerCase() === this.originalBrandId.toLowerCase())
-      return this.originalBrandName;
-    return brandId;
-  };
-
-  displayCategoryName = (categoryId: string): string => {
-    if (!categoryId) return '';
-    const category = this.categories.find(
-      (c) => c.id.toLowerCase() === categoryId.toLowerCase(),
-    );
-    if (category) return category.name;
-    if (categoryId.toLowerCase() === this.originalCategoryId.toLowerCase())
-      return this.originalCategoryName;
-    return categoryId;
-  };
 
   openAddDialog(type: 'brand' | 'category'): void {
     const title = `Add new ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     this.matDialog
-      .open(GenericDialogComponent, {
+      .open(BrandCategoryDialogComponent, {
         width: '400px',
+        disableClose: true,
         data: {
           title,
-          fields: [
-            { key: 'name', label: `${type} Name`, type: 'text' },
-            { key: 'description', label: 'Description', type: 'text' },
-          ],
-          submitButtonText: 'Save',
+          type: type.charAt(0).toUpperCase() + type.slice(1),
+          isEdit: false
         },
       })
       .afterClosed()
@@ -511,6 +400,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   onBack(): void{
     this.location.back();
+  }
+
+  onBrandSearch(term: string): void {
+    this.store.dispatch(BrandActions.loadPaginatedBrands({ pageNumber: 1, pageSize: 10, search: term }));
+  }
+
+  onCategorySearch(term: string): void {
+    this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10, search: term }));
   }
 
 }

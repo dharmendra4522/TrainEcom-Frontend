@@ -1,0 +1,40 @@
+<h2 mat-dialog-title class="fw-bold m-0 border-bottom pb-3 mb-2">
+  {{ data.title }}
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="d-flex flex-column gap-3 pt-3">
+    <mat-form-field appearance="outline" class="w-100 mb-1">
+      <mat-label>{{ data.type }} Name</mat-label>
+      <input
+        matInput
+        formControlName="name"
+        placeholder="Enter {{ data.type | lowercase }} name"
+      />
+      <mat-error *ngIf="form.get('name')?.hasError('required')">
+        {{ data.type }} name is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="4"
+        placeholder="Enter description"
+      ></textarea>
+      <mat-error *ngIf="form.get('description')?.hasError('required')">
+        Description is required
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="border-top pt-3 pb-2 mb-0">
+  <button mat-stroked-button (click)="onCancel()" class="me-2">
+    Cancel
+  </button>
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="form.invalid">
+    {{ data.isEdit ? "Update" : "Save" }}
+  </button>
+</mat-dialog-actions>

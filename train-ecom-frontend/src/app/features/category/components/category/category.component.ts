@@ -5,7 +5,7 @@ import {
   CreateCategoryRequest,
 } from '../../../../core/models/category.model';
 import { MatDialog } from '@angular/material/dialog';
-import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
+import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import { TableColumn, TableAction, TableActionEvent } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
@@ -120,12 +120,13 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   openCategoryDialog(category?: Category) {
     const isEdit = !!category;
-    const dialogRef = this.dialog.open(GenericDialogComponent, {
+    const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
       width: '500px',
       data: {
         title: isEdit ? 'Edit Category' : 'Create Category',
-        fields: this.getCategoryFormFields(category),
-        submitButtonText: isEdit ? 'Update' : 'Add'
+        type: 'Category',
+        isEdit: isEdit,
+        initialData: category ? { name: category.name, description: category.description } : null
       },
     });
 
@@ -141,24 +142,5 @@ export class CategoryComponent implements OnInit, OnDestroy {
           }
         }
       });
-  }
-
-  private getCategoryFormFields(category?: Category) {
-    return [
-      {
-        key: 'name',
-        label: 'Category Name',
-        type: 'text',
-        value: category?.name || '',
-        required: true,
-      },
-      {
-        key: 'description',
-        label: 'Description',
-        type: 'text',
-        value: category?.description || '',
-        required: true,
-      },
-    ];
   }
 }
