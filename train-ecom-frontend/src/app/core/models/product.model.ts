@@ -16,6 +16,8 @@ export interface Product extends Record<string, unknown> {
   stockQuantity?: number;
   thumbnailUrl?: string;
   rating?: number;
+  averageRating?: number;
+  reviewCount?: number;
   images: ProductImage[];
 }
 

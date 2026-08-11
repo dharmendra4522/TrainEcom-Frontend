@@ -319,6 +319,21 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  getStarArray(rating: number): string[] {
+    const stars: string[] = [];
+    for (let i = 1; i <= 5; i++) {
+      if (rating >= i) {
+        stars.push('star');
+      } else if (rating >= i - 0.5) {
+        stars.push('star_half');
+      } else {
+        stars.push('star_border');
+      }
+    }
+    return stars;
+  }
+
+
   goBack(): void {
     this.location.back();
   }

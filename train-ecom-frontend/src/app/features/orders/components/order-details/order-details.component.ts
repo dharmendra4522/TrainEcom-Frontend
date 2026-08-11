@@ -9,6 +9,8 @@ import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order
 import { BreadcrumbItem } from '../../../../core/models/table.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
+import { ReviewRatingDialogComponent } from '../../../../shared/components/review-rating-dialog/review-rating-dialog.component';
+import { ReviewService } from '../../../../core/services/review.service';
 
 @Component({
   selector: 'app-order-details',
@@ -21,6 +23,8 @@ export class OrderDetailsComponent {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private reviewService = inject(ReviewService);
+
 
   orderDetail: OrderDetailsResponse | null = null;
   isCancelling: boolean = false;
@@ -60,10 +64,10 @@ export class OrderDetailsComponent {
     const orderObservable = this.isAdmin ? this.orderService.getAdminOrderDetails(orderId) : this.orderService.getOrderDetails(orderId);
     orderObservable.subscribe({
       next: (response) => {
-        if(response && response.orderDate && !response.orderDate.includes('+')){
+        if (response && response.orderDate && !response.orderDate.includes('+')) {
           response.orderDate = response.orderDate + 'Z';
         }
-        if(response && response.payment && response.payment.paidAt && !response.payment.paidAt.includes('+')){
+        if (response && response.payment && response.payment.paidAt && !response.payment.paidAt.includes('+')) {
           response.payment.paidAt = response.payment.paidAt + 'Z';
         }
         this.orderDetail = response;
@@ -148,7 +152,7 @@ export class OrderDetailsComponent {
     const dialogRef = this.dialog.open(AdminOrderStatusDialogComponent, {
       width: 'min(92vw, 460px)',
       maxWidth: '95vw',
-      height: '500px', 
+      height: '500px',
       data: { orderId: this.orderDetail.orderId, currentStatus: this.orderDetail.orderStatus }
     });
 
@@ -158,5 +162,36 @@ export class OrderDetailsComponent {
       }
     })
   }
+
+  openReviewDialog(productId: string, productName: string, existingRating?: number, existingReview?: string, isEdit: boolean = false): void {
+    const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
+      width: '420px',
+      data: { 
+        productId, 
+        productName, 
+        existingRating, 
+        existingReview, 
+        isEdit 
+      }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const requestPayload = {
+          rating: result.rating,
+          review: result.review
+        };
+        
+        this.reviewService.addReview(productId, requestPayload).subscribe({
+          next: (response) => {
+            this.notification.showSuccess(response.Message || 'Thank you, Your review saved successfully');
+          }, error: (error) => {
+            const errorMessage = error?.error?.message || 'Failed to submit review. Please try again.';
+            this.notification.showError(errorMessage);
+          }
+        })
+      }
+    })
+  }
+
 
 }

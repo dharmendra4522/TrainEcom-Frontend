@@ -99,10 +99,23 @@
               </div>
             </div>
 
-            <div class="text-end flex-shrink-0 ps-2">
-              <span class="text-muted small d-none d-sm-inline me-1">Total:</span>
-              <span class="fw-bold text-dark fs-6 text-nowrap">₹{{ item.totalPrice | number:'1.2-2' }}</span>
+
+            <!-- add review dialog button -->
+            <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-3 w-100 w-sm-auto">
+
+              <button *ngIf="!isAdmin && orderDetail.orderStatus === 'Delivered'" mat-stroked-button color="primary"
+                class="d-flex align-items-center gap-1 rounded-3 py-1 px-2" style="font-size: 13px;"
+                (click)="openReviewDialog(item.productId, item.productName)">
+                <mat-icon style="font-size: 16px; width: 16px; height: 16px;">star_rate</mat-icon>
+                <span>Rate Product</span>
+              </button>
+
+              <div class="text-end flex-shrink-0 ps-2">
+                <span class="text-muted small d-none d-sm-inline me-1">Total:</span>
+                <span class="fw-bold text-dark fs-6 text-nowrap">₹{{ item.totalPrice | number:'1.2-2' }}</span>
+              </div>
             </div>
+
           </div>
         </div>
       </mat-card>

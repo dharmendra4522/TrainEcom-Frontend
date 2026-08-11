@@ -10,6 +10,7 @@ import { ProductDetailComponent } from './components/product-detail/product-deta
 import { PublicCatalogComponent } from './components/public-catalog/public-catalog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CatalogFilterComponent } from './components/catalog-filter/catalog-filter.component';
+import { ProductReviewsComponent } from './components/product-reviews/product-reviews.component';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { CatalogFilterComponent } from './components/catalog-filter/catalog-filt
     ProductDetailComponent,
     PublicCatalogComponent,
     CatalogFilterComponent,
+    ProductReviewsComponent,
   ],
   imports: [
     CommonModule,

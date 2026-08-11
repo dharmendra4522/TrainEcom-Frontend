@@ -1,0 +1,62 @@
+<mat-card class="shadow-sm border-0 rounded-4 p-4 bg-white mt-4">
+    <h4 class="fw-bold text-dark mb-4">Customer Reviews & Ratings</h4>
+
+    <!-- Overall Average Summary Box -->
+    <div class="d-flex align-items-center gap-4 mb-4 p-3 bg-light rounded-3" *ngIf="totalReviews > 0">
+        <div class="display-4 fw-bold text-dark mb-0">{{ averageRating | number:'1.1-1' }}</div>
+        <div>
+            <div class="d-flex text-warning mb-1">
+                <mat-icon *ngFor="let star of getStarArray(averageRating)">{{ star }}</mat-icon>
+            </div>
+            <div class="text-muted small">Based on {{ totalReviews }} verified reviews</div>
+        </div>
+    </div>
+
+    <mat-divider class="mb-4" *ngIf="totalReviews > 0"></mat-divider>
+
+    <!-- Review List Loop -->
+    <div class="d-flex flex-column gap-3" *ngIf="reviews.length > 0; else noReviews">
+        <div *ngFor="let review of reviews" class="border-bottom pb-3 mb-2">
+
+            <!-- User Profile & Date Header -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+
+                <!-- Icon aur Username ka modern flex container -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                        style="width: 32px; height: 32px;">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">person</mat-icon>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-0">{{ review.userName }}</h6>
+                </div>
+
+                <span class="text-muted small">{{ review.createdAt | date:'mediumDate' }}</span>
+            </div>
+
+            <!-- Star Icons for individual review -->
+            <div class="d-flex text-warning mb-2" style="font-size: 16px;">
+                <mat-icon *ngFor="let star of getStarArray(review.rating)"
+                    style="font-size: 16px; width: 16px; height: 16px;">
+                    {{ star }}
+                </mat-icon>
+            </div>
+
+            <p class="text-secondary small mb-0">{{ review.review }}</p>
+        </div>
+    </div>
+
+    <!-- Load More Reviews Button -->
+    <div class="text-center mt-4" *ngIf="hasMoreReviews">
+        <button mat-stroked-button color="primary" class="px-4 py-2 rounded-pill fw-bold" (click)="loadMoreReviews()">
+            View More Reviews
+        </button>
+    </div>
+
+    <!-- Fallback if no reviews exist -->
+    <ng-template #noReviews>
+        <div class="text-center text-muted py-4">
+            <mat-icon class="fs-1 text-secondary opacity-50 mb-2">rate_review</mat-icon>
+            <p class="mb-0">No reviews yet for this product. Be the first to review!</p>
+        </div>
+    </ng-template>
+</mat-card>

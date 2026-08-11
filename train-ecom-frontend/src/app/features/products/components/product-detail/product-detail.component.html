@@ -47,15 +47,12 @@
 
         <h1 class="product-title fw-bold text-dark mb-2">{{ product.name }}</h1>
 
-        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 mb-3"
+          *ngIf="product.averageRating !== undefined">
           <div class="d-flex align-items-center text-warning gap-1">
-            <mat-icon class="fs-5">star</mat-icon>
-            <mat-icon class="fs-5">star</mat-icon>
-            <mat-icon class="fs-5">star</mat-icon>
-            <mat-icon class="fs-5">star</mat-icon>
-            <mat-icon class="fs-5">star_half</mat-icon>
-            <span class="text-dark fw-bold ms-1">4.5</span>
-            <span class="text-muted fs-7">(128 reviews)</span>
+            <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating)">{{ star }}</mat-icon>
+            <span class="text-dark fw-bold ms-1">{{ product.averageRating | number:'1.1-1' }}</span>
+            <span class="text-muted fs-7">({{ product.reviewCount || 0 }} reviews)</span>
           </div>
 
           <span class="vr d-none d-sm-inline"></span>
@@ -68,7 +65,8 @@
             </span>
             <span *ngIf="!product.stockQuantity || product.stockQuantity <= 0"
               class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center">
-              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">cancel</mat-icon> Out of Stock
+              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">cancel</mat-icon> Out of
+              Stock
             </span>
           </div>
         </div>
@@ -97,15 +95,15 @@
 
         <ng-container *ngIf="!isAdmin">
           <div class="actions-section mb-4">
-            <h6 class="fw-bold text-dark mb-2">Quantity</h6>
             <div class="d-flex align-items-center gap-3 flex-wrap">
-              <div class="quantity-counter d-flex align-items-center border rounded-3 bg-white px-1">
+
+              <!-- Quantity Counter: Sirf tabhi dikhega jab product in-stock hoga -->
+              <div class="quantity-counter d-flex align-items-center border rounded-3 bg-white px-1"
+                *ngIf="product.stockQuantity && product.stockQuantity > 0">
                 <button mat-icon-button type="button" (click)="decrementQuantity()" [disabled]="quantity <= 1">
                   <mat-icon>remove</mat-icon>
                 </button>
-                <span class="quantity-value px-2 fw-bold fs-6">{{
-                  quantity
-                  }}</span>
+                <span class="quantity-value px-2 fw-bold fs-6">{{ quantity }}</span>
                 <button mat-icon-button type="button" (click)="incrementQuantity()" [disabled]="
                     product.stockQuantity
                       ? quantity >= product.stockQuantity
@@ -115,6 +113,7 @@
                 </button>
               </div>
 
+              <!-- Wishlist Button: Hamesha dikhega (In-stock ho ya Out-of-stock) -->
               <button mat-icon-button class="wishlist-detail-btn" [class.is-favorite]="isFavorite$ | async"
                 (click)="addToWishlist()" matTooltip="Add to Wishlist">
                 <mat-icon>{{
@@ -123,8 +122,9 @@
               </button>
             </div>
           </div>
+
           <div class="d-flex gap-3 mb-4 flex-wrap">
-            <ng-container *ngIf="product.stockQuantity; else detailOutOfStock">
+            <ng-container *ngIf="product.stockQuantity && product.stockQuantity > 0; else detailOutOfStock">
               <button mat-raised-button color="primary"
                 class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
                 (click)="addToCart()">
@@ -147,7 +147,6 @@
             </ng-template>
           </div>
         </ng-container>
-
         <ng-container *ngIf="isAdmin && !isReadOnly">
           <div class="d-flex gap-3 mb-4 flex-wrap">
             <button mat-raised-button color="primary"
@@ -214,5 +213,11 @@
         <app-product-card [product]="item"></app-product-card>
       </div>
     </div>
+
+
+  </div>
+  <!-- Product review Section -->
+  <div class="mt-5 pt-4 border-top mb-3" *ngIf="product && product.reviewCount && product.reviewCount > 0">
+    <app-product-reviews [productId]="product.id"></app-product-reviews>
   </div>
 </div>

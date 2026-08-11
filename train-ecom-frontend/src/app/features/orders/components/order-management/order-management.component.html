@@ -15,7 +15,8 @@
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Search Order / Customer</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput [value]="searchQuery" (input)="onSearchInput($event)" placeholder="Search name or ID..." />
+          <input matInput [(ngModel)]="searchQuery" (input)="onSearchInput($event)"
+            placeholder="Search name or ID..." />
         </mat-form-field>
       </div>
 
@@ -49,8 +50,8 @@
       <div class="col-6 col-sm-4 col-md-2">
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>From Date</mat-label>
-          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" (dateChange)="onFilterChange()" placeholder="DD-MM-YYYY"
-            [max]="maxDate" readonly />
+          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" (dateChange)="onFilterChange()"
+            placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
           <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
           <mat-datepicker #fromPicker></mat-datepicker>
         </mat-form-field>
@@ -60,15 +61,19 @@
       <div class="col-6 col-sm-4 col-md-2">
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>To Date</mat-label>
-          <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" (dateChange)="onFilterChange()" placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
+          <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" (dateChange)="onFilterChange()"
+            placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
           <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
           <mat-datepicker #toPicker></mat-datepicker>
         </mat-form-field>
       </div>
 
       <!-- Reset Button -->
-      <div class="col-12 col-sm-4 col-md-1 d-flex align-items-center" *ngIf="searchQuery || selectedStatus || selectedPaymentStatus || fromDate || toDate">
-        <button mat-stroked-button color="warn" class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3" style="height: 48px;" (click)="resetFilters()" title="Reset Filters">
+      <div class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
+        *ngIf="searchQuery || selectedStatus || selectedPaymentStatus || fromDate || toDate">
+        <button mat-stroked-button color="warn"
+          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3" style="height: 48px;"
+          (click)="resetFilters()" title="Reset Filters">
           <mat-icon>clear</mat-icon> Reset
         </button>
       </div>

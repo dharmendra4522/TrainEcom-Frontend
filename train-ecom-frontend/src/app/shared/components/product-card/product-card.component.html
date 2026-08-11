@@ -26,6 +26,14 @@
 
 
   <mat-card-content>
+
+    <div class="d-flex align-items-center gap-1 my-1 text-warning"
+      *ngIf="product.reviewCount && product.reviewCount > 0">
+      <mat-icon style="font-size: 16px; width: 16px; height: 16px;">star</mat-icon>
+      <span class="fw-bold text-dark small">{{ product.averageRating | number:'1.1-1' }}</span>
+      <span class="text-muted small">({{ product.reviewCount }})</span>
+    </div>
+
     <p>{{ product.description | slice: 0 : 50 }}...</p>
     <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
       Only {{ product.stockQuantity }} left!

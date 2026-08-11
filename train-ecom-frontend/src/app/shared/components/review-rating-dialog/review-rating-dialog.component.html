@@ -1,0 +1,31 @@
+<h2 mat-dialog-title class="fw-bold text-dark mb-0 fs-5 fs-md-4 text-break">
+  {{ isEditMode ? 'Update Review' : 'Rate & Review' }} <span class="text-primary">{{ data.productName }}</span>
+</h2>
+<mat-dialog-content class="d-flex flex-column gap-3 py-3 w-100" style="max-width: 450px; box-sizing: border-box;">
+
+    <!-- Interactive Star Rating Section -->
+    <div class="d-flex flex-column align-items-center my-2">
+        <p class="text-muted small mb-2">Tap a star to rate</p>
+        <div class="d-flex gap-1 gap-sm-2" style="cursor: pointer;">
+            <mat-icon *ngFor="let star of stars" (click)="setRating(star)" class="text-warning"
+                style="font-size: 32px; width: 32px; height: 32px;">
+                {{ star <= rating ? 'star' : 'star_border' }} </mat-icon>
+        </div>
+    </div>
+
+    <!-- Review Comment Textarea -->
+    <mat-form-field appearance="outline" class="w-100 mt-2">
+        <mat-label>Write your review (Optional)</mat-label>
+        <textarea matInput [(ngModel)]="review" rows="4" placeholder="What did you like or dislike about this product?">
+    </textarea>
+    </mat-form-field>
+
+</mat-dialog-content>
+
+<!-- Dialog Action Buttons -->
+<mat-dialog-actions class="p-3 pt-0 d-flex justify-content-end flex-wrap gap-2">
+    <button mat-button (click)="onCancel()" class="text-secondary">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="rating === 0" (click)="onSubmit()">
+        Submit Review
+    </button>
+</mat-dialog-actions>
