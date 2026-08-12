@@ -26,7 +26,9 @@ export class WishListService {
           ...item,
           id: item.productId,
           name: item.productName,
-          image: item.thumbnailUrl
+          image: item.thumbnailUrl,
+          averageRating: item.averageRating ?? 0,
+          reviewCount: item.reviewCount ?? 0,
         }));
       })
     );

@@ -53,14 +53,14 @@ export class WishlistComponent implements OnInit, OnDestroy {
   }
 
   private loadRecommendations(): void {
-    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 4 }));
+    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 5 }));
     this.store
       .select(selectAllProducts)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (products: Product[]) => {
           if (products) {
-            this.justForYouItems = (products || []).slice(0, 4);
+            this.justForYouItems = (products || []).slice(0, 5);
             this.cdr.detectChanges();
           }
         },
@@ -72,7 +72,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
   }
 
   private mapWishlistToProducts(items: WishListItem[]): Product[] {
-    return (items || []).map((item) => ({
+    return (items || []).map((item: WishListItem) => ({
       id: item.productId || item.id || '',
       name: item.productName || item.name || '',
       description: item.description || '',
@@ -81,6 +81,8 @@ export class WishlistComponent implements OnInit, OnDestroy {
       categoryName: item.categoryName || '',
       stockQuantity: item.stockQuantity,
       thumbnailUrl: item.thumbnailUrl || item.image || '',
+      averageRating: item.averageRating ?? 0,
+      reviewCount: item.reviewCount ?? 0,
       images: [
         {
           id: 'img-' + (item.productId || item.id),

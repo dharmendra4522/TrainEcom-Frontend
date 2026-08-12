@@ -7,6 +7,7 @@ import {
   CreateOrderResponse,
   PaymentSimulationRequest,
   PaymentSimulationResponse,
+  ValidateCheckoutResponse,
 } from '../models/checkout.model';
 import { Observable } from 'rxjs';
 
@@ -28,5 +29,9 @@ export class CheckoutService {
 
   placeDirectOrder(payload: BuyNowRequest): Observable<CreateOrderResponse> {
     return this.http.post<CreateOrderResponse>(`${this.baseAPI}/buy-now`, payload);
+  }
+
+  validateCheckout(): Observable<ValidateCheckoutResponse> {
+    return this.http.post<ValidateCheckoutResponse>(`${environment.apiBaseUrl}/validate-checkout`, {});
   }
 }

@@ -16,6 +16,8 @@ import {
   selectCartLoaded,
 } from '../../../../core/store/cart/cart.selectors';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { CheckoutService } from '../../../../core/services/checkout.service';
+import { ValidateCheckoutItem, ValidateCheckoutResponse } from '../../../../core/models/checkout.model';
 
 @Component({
   selector: 'app-cart',
@@ -28,6 +30,7 @@ export class CartComponent implements OnInit {
   private store = inject(Store);
   private actions$ = inject(Actions);
   private confirmDialog = inject(ConfirmDialogServiceService);
+  private checkoutService = inject(CheckoutService);
 
   cartItems$: Observable<CartItem[]> = this.store.select(selectCartItems);
   subtotal$: Observable<number> = this.store.select(selectCartTotalAmount);
@@ -184,8 +187,34 @@ export class CartComponent implements OnInit {
         );
         return;
       }
-      this.notification.showSuccess('Proceeding to checkout!', 'Close');
-      this.router.navigate(['/checkout']);
+      this.checkoutService.validateCheckout().subscribe({
+        next: (response: ValidateCheckoutResponse) => {
+          if (response && response.isValid === false) {
+            const invalidItem: ValidateCheckoutItem | undefined = response.items?.find(
+              (item: ValidateCheckoutItem) =>
+                !item.isAvailable || (item.message !== null && item.message !== undefined && item.message.trim() !== ''),
+            );
+
+            const errorMessage: string =
+              invalidItem?.message ||
+              (invalidItem
+                ? `${invalidItem.productName} is currently unavailable or exceeds available stock (${invalidItem.availableStock}).`
+                : 'Inventory validation failed for items in your cart.');
+
+            this.notification.showError(errorMessage, 'Close');
+            return;
+          }
+
+          this.router.navigate(['/checkout']);
+        },
+        error: (err: unknown) => {
+          const errorObj = err as { error?: { message?: string } };
+          const errMsg =
+            errorObj?.error?.message ||
+            'Inventory validation failed. Please try again.';
+          this.notification.showError(errMsg, 'Close');
+        },
+      });
     });
   }
 }

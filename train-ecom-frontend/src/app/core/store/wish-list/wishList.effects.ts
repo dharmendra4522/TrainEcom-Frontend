@@ -6,6 +6,7 @@ import { WishListService } from "../../services/wish-list.service";
 import * as WishlistActions from './wishList.actions';
 import { map, catchError, of, exhaustMap, mergeMap, withLatestFrom, switchMap } from 'rxjs';
 import { selectWishlistLoaded, selectWishlistItems } from "./wishList.selectors";
+import { WishListItem } from "../../models/wishList.model";
 
 @Injectable()
 export class WishlistEffects {
@@ -27,8 +28,15 @@ export class WishlistEffects {
                     return of(WishlistActions.loadWishlistSuccess({ items }));
                 }
                 return this.wishlistService.getWishList().pipe(
-                    map((wishlistItems) => {
-                        return WishlistActions.loadWishlistSuccess({ items: wishlistItems });
+                    map((wishlistItems: WishListItem[]) => {
+                        const formattedItems: WishListItem[] = wishlistItems.map((item: WishListItem) => ({
+                            ...item,
+                            id: item.productId,
+                            name: item.productName,
+                            averageRating: item.averageRating,
+                            reviewCount: item.reviewCount
+                        }));
+                        return WishlistActions.loadWishlistSuccess({ items: formattedItems });
                     }),
                     catchError((error) => {
                         const errorMsg = error?.error?.message || error?.message || 'Failed to load wishlist';
@@ -82,7 +90,16 @@ export class WishlistEffects {
         return this.actions$.pipe(
             ofType(WishlistActions.addToWishlistSuccess),
             mergeMap(() => this.wishlistService.getWishList().pipe(
-                map((wishlistItems) => WishlistActions.loadWishlistSuccess({ items: wishlistItems })),
+                map((wishlistItems: WishListItem[]) => {
+                    const formattedItems = wishlistItems.map((item) => ({
+                        ...item,
+                        id: item.productId,
+                        name: item.productName,
+                        averageRating: item.averageRating,
+                        reviewCount: item.reviewCount
+                    }));
+                    return WishlistActions.loadWishlistSuccess({ items: formattedItems });
+                }),
                 catchError(() => of(WishlistActions.loadWishlistFailure({ error: 'Failed to refresh wishlist' })))
             ))
         );

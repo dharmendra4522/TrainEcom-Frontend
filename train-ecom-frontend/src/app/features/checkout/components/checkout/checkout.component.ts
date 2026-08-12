@@ -7,6 +7,8 @@ import {
   CreateOrderResponse,
   PaymentMethod,
   CheckoutItem,
+  ValidateCheckoutItem,
+  ValidateCheckoutResponse,
 } from '../../../../core/models/checkout.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
@@ -59,6 +61,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   PaymentMethod = PaymentMethod;
 
   ngOnInit(): void {
+    this.validateCartInventory();
     this.loadUserAddresses();
     this.parseRouteParamsAndSetContext();
     this.validateRouteParams();
@@ -451,6 +454,40 @@ export class CheckoutComponent implements OnInit, OnDestroy {
               this.notification.showError('Failed to delete address', 'Close');
             },
           });
+      });
+  }
+
+  // validate the checkout before placing the order
+  validateCartInventory(): void {
+    this.checkoutService
+      .validateCheckout()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: ValidateCheckoutResponse) => {
+          if (response && response.isValid === false) {
+            const invalidItem: ValidateCheckoutItem | undefined = response.items?.find(
+              (item: ValidateCheckoutItem) =>
+                !item.isAvailable || (item.message !== null && item.message !== undefined && item.message.trim() !== ''),
+            );
+
+            const errorMessage: string =
+              invalidItem?.message ||
+              (invalidItem
+                ? `${invalidItem.productName} is currently unavailable or exceeds available stock (${invalidItem.availableStock}).`
+                : 'Some items in your cart are out of stock or quantity exceeds availability.');
+
+            this.notification.showError(errorMessage);
+            this.router.navigate(['/cart'], { replaceUrl: true });
+          }
+        },
+        error: (err: unknown) => {
+          const errorObj = err as { error?: { message?: string } };
+          const errMsg =
+            errorObj?.error?.message ||
+            'Inventory validation failed. Please check your cart.';
+          this.notification.showError(errMsg);
+          this.router.navigate(['/cart'], { replaceUrl: true });
+        },
       });
   }
 

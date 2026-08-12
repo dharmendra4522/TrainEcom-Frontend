@@ -62,3 +62,17 @@ export interface CheckoutItem {
   quantity: number;
   thumbnailUrl?: string;
 }
+
+export interface ValidateCheckoutItem {
+  productId: string;
+  productName: string;
+  cartQuantity: number;
+  availableStock: number;
+  isAvailable: boolean;
+  message?: string | null;
+}
+
+export interface ValidateCheckoutResponse {
+  isValid: boolean;
+  items: ValidateCheckoutItem[];
+}

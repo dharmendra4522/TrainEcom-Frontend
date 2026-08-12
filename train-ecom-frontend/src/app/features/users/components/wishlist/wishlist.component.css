@@ -47,3 +47,35 @@
     height: 24px !important;
   }
 }
+
+/* Container query setup */
+.wishlist-grid-container {
+  container-type: inline-size;
+  width: 100%;
+}
+
+/* Auto-fit grid to prevent over-stretching when items are fewer than 5 */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.product-grid-item,
+.product-grid-item app-product-card {
+  min-width: 0;
+  height: 100%;
+}
+
+/* Responsive maximum column restrictions based on container width */
+@container (min-width: 1020px) {
+  .product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 768px) {
+  .product-grid {
+    gap: 1.5rem;
+  }
+}

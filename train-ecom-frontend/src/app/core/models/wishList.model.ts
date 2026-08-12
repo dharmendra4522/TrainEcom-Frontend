@@ -12,6 +12,8 @@ export interface WishListItem {
     id: string;
     name: string;
     image?: string;
+    averageRating?: number;
+    reviewCount?: number;
 }
 
 export interface WishlistApiResponse {
