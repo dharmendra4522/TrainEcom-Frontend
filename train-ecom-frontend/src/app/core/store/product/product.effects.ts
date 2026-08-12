@@ -35,8 +35,9 @@ export class ProductEffects {
                 const minPrice = action.minPrice;
                 const maxPrice = action.maxPrice;
                 const sortBy = action.sortBy || '';
+                const minRating = action.minRating;
 
-                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}`;
+                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
 
                 if (pagesCache[cacheKey]) {
                     const computedCacheTotalPages = totalPages > 0 ? totalPages : Math.max(1, Math.ceil(totalRecords / pageSize));
@@ -51,14 +52,15 @@ export class ProductEffects {
                 }
 
                 return this.productService.getPaginatedProducts(
-                    pageNumber, 
-                    pageSize, 
-                    action.brandName, 
+                    pageNumber,
+                    pageSize,
+                    action.brandName,
                     action.categoryName,
                     action.search,
                     action.minPrice,
                     action.maxPrice,
-                    action.sortBy
+                    action.sortBy,
+                    action.minRating
                 ).pipe(
                     map((response) => {
                         // calculate total pages based on totalRecords and pageSize
@@ -126,7 +128,7 @@ export class ProductEffects {
         )
     );
 
-       deleteProduct$ = createEffect(() =>
+    deleteProduct$ = createEffect(() =>
         this.action$.pipe(
             ofType(ProductActions.deleteProduct),
             exhaustMap(({ productId }) =>

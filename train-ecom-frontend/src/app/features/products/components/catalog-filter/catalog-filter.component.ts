@@ -22,4 +22,5 @@ export class CatalogFilterComponent {
   @Output() ratingChange = new EventEmitter<number | null>();
   @Output() sortChange = new EventEmitter<string>();
   @Output() resetAll = new EventEmitter<void>();
+
 }

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { map, take, takeUntil } from 'rxjs/operators';
 import { Product } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
@@ -46,7 +46,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   itemsPerRow: number = 3; // default to 3 items per row for larger screens
 
-  // For virtual scrolling
+  // For virtual scrolling use, we will use a BehaviorSubject to manage the filtered products listf
   @ViewChild(CdkVirtualScrollViewport) virtualScroll!: CdkVirtualScrollViewport;
 
 
@@ -101,6 +101,12 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         if (urlSortBy && urlSortBy !== this.sortBy$.value) {
           this.sortBy$.next(urlSortBy);
           this.activeSort = urlSortBy;
+        }
+
+        const urlMinRating = params['minRating'] ? Number(params['minRating']) : null;
+        if (urlMinRating !== this.ratingFilter$.value) {
+          this.ratingFilter$.next(urlMinRating);
+          this.activeRating = urlMinRating;
         }
 
         this.currentPage = 1;
@@ -165,29 +171,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   }
 
   private setupFilteredProducts(): void {
-    this.filteredProducts$ = combineLatest([
-      this.products$,
-      this.ratingFilter$
-    ]).pipe(
-      map(([products, rating]) => this.filterProductsList(products, rating))
-    );
+    this.filteredProducts$ = this.products$;
   }
 
-  private filterProductsList(products: Product[], rating: number | null): Product[] {
-    if (!products) {
-      return [];
-    }
-
-    if (rating === null) {
-      return products;
-    }
-
-    return products.filter(product => {
-      const numId = Number(product.id) || 0;
-      const prodRating = product.rating || (4.0 + (numId % 10) / 10.0);
-      return prodRating >= rating;
-    });
-  }
 
   onCategoryChange(categoryName: string) {
     this.router.navigate([], {
@@ -213,6 +199,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     minPrice?: number | null;
     maxPrice?: number | null;
     sortBy?: string | null;
+    minRating?: number | null;
   }) {
     if (overrides && overrides.isAppend === false) {
       this.currentPage = 1;
@@ -242,6 +229,10 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       ? (overrides.sortBy || undefined)
       : (this.sortBy$.value || undefined);
 
+    const minRating = overrides && 'minRating' in overrides
+      ? (overrides.minRating ?? undefined)
+      : (this.ratingFilter$.value ?? (queryParams.get('minRating') ? Number(queryParams.get('minRating')) : undefined));
+
     const pageNumber = overrides?.pageNumber || this.currentPage;
     const isAppend = overrides?.isAppend || false;
 
@@ -254,7 +245,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       search,
       minPrice,
       maxPrice,
-      sortBy
+      sortBy,
+      minRating
     }));
   }
 
@@ -279,6 +271,14 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   setRating(rating: number | null) {
     this.ratingFilter$.next(rating);
     this.activeRating = rating;
+    this.currentPage = 1;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { minRating: rating || null },
+      queryParamsHandling: 'merge'
+    });
+
   }
 
   setSortBy(sort: string) {
@@ -301,7 +301,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.currentPage = 1;
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { brand: null, category: null },
+      queryParams: { brand: null, category: null, minRating: null, sortBy: null, search: null },
       queryParamsHandling: 'merge'
     });
     this.dispatchLoadWithCurrentParams({
@@ -310,16 +310,17 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       minPrice: null,
       maxPrice: null,
       sortBy: null,
+      minRating: null,
       isAppend: false,
       pageNumber: 1
     });
   }
 
-toggleMobileFilters() {
-  this.showMobileFilters = !this.showMobileFilters;
-}
+  toggleMobileFilters() {
+    this.showMobileFilters = !this.showMobileFilters;
+  }
 
-goBack() {
-  this.location.back();
-}
+  goBack() {
+    this.location.back();
+  }
 }

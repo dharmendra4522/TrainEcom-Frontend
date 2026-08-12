@@ -33,7 +33,7 @@ export class ReviewService {
   }
 
   deleteReview(reviewId: string): Observable<void> {
-   return this.http.delete<void>(`${this.baseAPI}/reviews/${reviewId}`);
+    return this.http.delete<void>(`${this.baseAPI}/delete/reviews/${reviewId}`);
   }
 
 }

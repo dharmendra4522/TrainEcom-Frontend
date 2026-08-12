@@ -12,6 +12,7 @@ export const loadProducts = createAction(
     minPrice?: number;
     maxPrice?: number;
     sortBy?: string;
+    minRating?: number;
     isAppend?: boolean;
   }>(),
 );

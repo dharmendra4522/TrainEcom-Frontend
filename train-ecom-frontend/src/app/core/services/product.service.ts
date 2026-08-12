@@ -84,7 +84,8 @@ export class ProductService {
     search?: string,
     minPrice?: number,
     maxPrice?: number,
-    sortBy?: string
+    sortBy?: string,
+    minRating?: number
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -107,6 +108,9 @@ export class ProductService {
     }
     if (sortBy) {
       params = params.set('SortBy', sortBy);
+    }
+    if (minRating !== undefined && minRating !== null) {
+      params = params.set('MinRating', minRating.toString());
     }
 
     return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params });
