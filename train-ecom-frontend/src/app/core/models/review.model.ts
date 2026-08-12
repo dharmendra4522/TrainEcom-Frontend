@@ -28,3 +28,15 @@ export interface CreateReviewResponse {
     status: boolean;
     Message: string;
 }
+
+export interface UpdateReviewRequest {
+    rating: number;
+    review?: string;
+}
+
+export interface UpdateReviewResponse {
+    status: boolean;
+    Message: string;
+}
+
+export type OrderItemReviewSummary = Pick<Review, 'reviewId' | 'review' | 'rating' >;

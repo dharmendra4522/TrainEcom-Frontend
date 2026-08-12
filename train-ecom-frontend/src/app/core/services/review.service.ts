@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { CreateReviewRequest, CreateReviewResponse, ProductReviewsResponse } from '../models/review.model';
+import { CreateReviewRequest, CreateReviewResponse, ProductReviewsResponse, Review, UpdateReviewRequest, UpdateReviewResponse } from '../models/review.model';
 import { Observable } from 'rxjs/internal/Observable';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
@@ -24,8 +24,16 @@ export class ReviewService {
     return this.http.get<ProductReviewsResponse>(`${environment.apiBaseUrl}/products/${productId}/reviews`, { params });
   }
 
-  // updateReview(productId: string | number, updateReviewRequest: CreateReviewRequest): Observable<CreateReviewResponse> {
-  //   return this.http.post<CreateReviewResponse>(`${this.baseAPI}/${productId}/update/reviews`, updateReviewRequest);
-  // }
+  getReviewById(reviewId: string): Observable<Review> {
+    return this.http.get<Review>(`${this.baseAPI}/getById/reviews/${reviewId}`);
+  }
+
+  updateReview(reviewId: string, updateReviewRequest: UpdateReviewRequest): Observable<UpdateReviewResponse> {
+    return this.http.put<UpdateReviewResponse>(`${this.baseAPI}/update/reviews/${reviewId}`, updateReviewRequest);
+  }
+
+  deleteReview(reviewId: string): Observable<void> {
+   return this.http.delete<void>(`${this.baseAPI}/reviews/${reviewId}`);
+  }
 
 }

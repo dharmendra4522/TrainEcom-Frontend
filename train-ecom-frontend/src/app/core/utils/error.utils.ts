@@ -1,12 +1,3 @@
-/**
- * Utility function to extract exact backend error messages.
- * Handles all backend response casings and formats:
- * - { "Message": "You are blocked by TrainEcom Service..." } (Capital 'M')
- * - { "message": "Invalid password" } (Lowercase 'm')
- * - { "detail": "..." } or { "title": "..." } (ProblemDetails format)
- * - { "errors": { "Field": ["Error msg"] } } (ASP.NET ModelState / FluentValidation)
- * - Plain string responses
- */
 export function extractBackendMessage(error: any, fallbackMessage: string = 'An unexpected error occurred'): string {
   if (!error) return fallbackMessage;
 

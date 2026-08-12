@@ -18,8 +18,8 @@
     <div class="d-flex flex-column gap-3" *ngIf="reviews.length > 0; else noReviews">
         <div *ngFor="let review of reviews" class="border-bottom pb-3 mb-2">
 
-            <!-- User Profile & Date Header -->
-            <div class="d-flex justify-content-between align-items-center mb-1">
+            <!-- User Profile & Date / Admin Delete Header -->
+            <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
 
                 <!-- Icon aur Username ka modern flex container -->
                 <div class="d-flex align-items-center gap-2">
@@ -30,7 +30,17 @@
                     <h6 class="fw-bold text-dark mb-0">{{ review.userName }}</h6>
                 </div>
 
-                <span class="text-muted small">{{ review.createdAt | date:'mediumDate' }}</span>
+                <!-- Date & Admin Delete Button Row -->
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted small">{{ review.createdAt | date:'mediumDate' }}</span>
+
+                    <!-- Admin Delete Icon Button (Only visible when logged in as admin) -->
+                    <button *ngIf="isAdmin" type="button" 
+                        class="btn btn-link text-danger p-0 d-inline-flex align-items-center text-decoration-none border-0 bg-transparent"
+                        (click)="onDeleteReview(review.reviewId)" title="Delete Review">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;" class="text-danger align-middle">delete</mat-icon>
+                    </button>
+                </div>
             </div>
 
             <!-- Star Icons for individual review -->

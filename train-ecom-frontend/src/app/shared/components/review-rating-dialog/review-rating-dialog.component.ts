@@ -15,6 +15,7 @@ export class ReviewRatingDialogComponent {
     existingRating?: number;
     existingReview?: string;
     isEdit?: boolean;
+    reviewId?: string;
   };
 
   rating: number = 0;
@@ -39,7 +40,8 @@ export class ReviewRatingDialogComponent {
       this.dialogRef.close({
         productId: this.data.productId,
         rating: this.rating,
-        review: this.review
+        review: this.review,
+        reviewId: this.data.reviewId
       });
     }
   }

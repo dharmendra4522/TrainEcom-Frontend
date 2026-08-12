@@ -1,4 +1,5 @@
 import { PaymentMethod, OrderStatus, PaymentStatus } from './checkout.model';
+import { OrderItemReviewSummary } from './review.model';
 
 export { PaymentMethod, OrderStatus, PaymentStatus };
 
@@ -75,6 +76,7 @@ export interface OrderItemDetail {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  reviewSummary?: OrderItemReviewSummary;
 }
 
 export interface DeliveryAddress {

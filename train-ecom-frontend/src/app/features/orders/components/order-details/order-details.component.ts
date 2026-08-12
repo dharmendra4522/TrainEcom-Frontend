@@ -11,6 +11,7 @@ import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tra
 import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
 import { ReviewRatingDialogComponent } from '../../../../shared/components/review-rating-dialog/review-rating-dialog.component';
 import { ReviewService } from '../../../../core/services/review.service';
+import { Review } from '../../../../core/models/review.model';
 
 @Component({
   selector: 'app-order-details',
@@ -163,35 +164,110 @@ export class OrderDetailsComponent {
     })
   }
 
-  openReviewDialog(productId: string, productName: string, existingRating?: number, existingReview?: string, isEdit: boolean = false): void {
-    const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
-      width: '420px',
-      data: { 
-        productId, 
-        productName, 
-        existingRating, 
-        existingReview, 
-        isEdit 
-      }
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        const requestPayload = {
-          rating: result.rating,
-          review: result.review
-        };
-        
-        this.reviewService.addReview(productId, requestPayload).subscribe({
-          next: (response) => {
-            this.notification.showSuccess(response.Message || 'Thank you, Your review saved successfully');
-          }, error: (error) => {
-            const errorMessage = error?.error?.message || 'Failed to submit review. Please try again.';
-            this.notification.showError(errorMessage);
-          }
-        })
-      }
-    })
+  // Open dialog
+
+  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string; rating: number; review: string }): void {
+    if (reviewSummary?.reviewId) {
+      this.reviewService.getReviewById(reviewSummary.reviewId).subscribe({
+        next: (reviewData: Review) => {
+          this.showDialog(productId, productName, reviewData.rating, reviewData.review, true, reviewSummary.reviewId);
+        }, error: (error) => {
+          const errorMessage = error?.error?.message || 'Failed to fetch review details. Please try again.';
+          this.notification.showError(errorMessage);
+        }
+      })
+    } else {
+      // Add new review
+      this.showDialog(productId, productName);
+    }
   }
 
 
+  private showDialog(productId: string | number,
+    productName: string,
+    existingRating?: number,
+    existingReview?: string,
+    isEdit: boolean = false,
+    reviewId?: string): void {
+    const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
+      width: '420px',
+      data: { productId, productName, existingRating, existingReview, isEdit, reviewId }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.handleReviewSubmission(productId, result, isEdit, reviewId);
+      }
+    });
+  }
+
+  private handleReviewSubmission(
+    productId: string | number,
+    result: { rating: number; review: string },
+    isEdit: boolean,
+    reviewId?: string
+  ): void {
+    const pauload = { rating: result.rating, review: result.review };
+
+    if (isEdit && reviewId) {
+      this.reviewService.updateReview(reviewId, pauload).subscribe({
+        next: (response) => {
+          this.notification.showSuccess(response.Message || 'Review updated successfully');
+          this.reloadDetails();
+        },
+        error: (error) => {
+          const errMsg = error?.error?.message || 'Failed to update review.';
+          this.notification.showError(errMsg);
+        }
+      })
+    } else {
+      // Add new review Api call
+      this.reviewService.addReview(productId, pauload).subscribe({
+        next: (response) => {
+          this.notification.showSuccess(response.Message || 'Thank you, Your review saved successfully');
+          this.reloadDetails();
+        },
+        error: (error) => {
+          const errMsg = error?.error?.message || 'Failed to submit review.';
+          this.notification.showError(errMsg);
+        }
+      })
+    }
+  }
+
+  private reloadDetails(): void {
+    if (this.orderDetail?.orderId) {
+      this.loadOrderDetails(this.orderDetail.orderId);
+    }
+  }
+
+
+ // 👈 reviewId ko optional ya string | number | undefined kar diya
+  onDeleteReview(reviewId?: string | number): void {
+    if (!reviewId) return; // Agar undefined ho toh yahin rok do
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: 'Are you sure you want to delete your review for this product?',
+        yesLabel: 'Delete',
+        noLabel: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        // String mein convert kar rahe hain kyunki API ko string reviewId chahiye
+        this.reviewService.deleteReview(reviewId.toString()).subscribe({
+          next: () => {
+            this.notification.showSuccess('Review deleted successfully.');
+            this.reloadDetails();
+          },
+          error: (error) => {
+            const errMsg = error?.error?.message || 'Failed to delete review.';
+            this.notification.showError(errMsg);
+          }
+        });
+      }
+    });
+  }
 }

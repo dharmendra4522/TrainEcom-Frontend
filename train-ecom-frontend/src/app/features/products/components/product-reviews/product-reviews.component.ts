@@ -1,7 +1,11 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, inject, Input, SimpleChanges } from '@angular/core';
 import { Review } from '../../../../core/models/review.model';
 import { ReviewService } from '../../../../core/services/review.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { Subject } from 'rxjs/internal/Subject';
 
 @Component({
   selector: 'app-product-reviews',
@@ -11,10 +15,16 @@ import { NotificationService } from '../../../../core/services/notification.serv
 export class ProductReviewsComponent {
 
   private reviewService = inject(ReviewService);
+  private notificationService = inject(NotificationService);
+  private confirmDialog = inject(ConfirmDialogServiceService);
+  private route = inject(ActivatedRoute);
 
   // Input property to receive the productId from the parent component
   @Input() productId!: string | number;
 
+  destroy$ = new Subject<void>();
+
+  isAdmin: boolean = false;
   reviews: Review[] = [];
   averageRating: number = 0;
   totalReviews: number = 0;
@@ -31,6 +41,12 @@ export class ProductReviewsComponent {
       this.reviews = []; // Purana data reset karein
       this.loadProductReviews();
     }
+  }
+
+  ngOnInit(): void {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      this.isAdmin = !!data['isAdmin'];
+    });
   }
 
   loadProductReviews(): void {
@@ -67,6 +83,25 @@ export class ProductReviewsComponent {
       }
     }
     return stars;
+  }
+
+  onDeleteReview(reviewId: string): void {
+    const dialogRef = this.confirmDialog.confirm('Are you sure you want to delete this review?', 'Yes', 'No');
+    dialogRef.subscribe((confirmed) => {
+      if(confirmed) {
+        this.reviewService.deleteReview(reviewId).subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Review deleted successfully.');
+            this.reviews = this.reviews.filter(review => review.reviewId !== reviewId);
+            this.totalReviews--;
+            this.totalRecords--;
+          }, error: (err) => {
+            console.error('Error deleting review:', err);
+            this.notificationService.showError('Failed to delete review.');
+          }
+        })
+      }
+    })
   }
 
   loadMoreReviews(): void {
