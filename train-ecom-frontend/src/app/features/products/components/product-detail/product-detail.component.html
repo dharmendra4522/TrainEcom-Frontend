@@ -168,25 +168,11 @@
 
         <ng-container *ngIf="!isAdmin">
           <div class="row g-2 border-top pt-3 text-secondary text-center">
-            <div class="col-4">
-              <div class="p-2">
-                <mat-icon class="text-primary mb-1">local_shipping</mat-icon>
-                <div class="small fw-semibold text-dark">Free Delivery</div>
-                <div class="extra-small text-muted">Orders over $50</div>
-              </div>
-            </div>
-            <div class="col-4 border-start border-end">
-              <div class="p-2">
-                <mat-icon class="text-primary mb-1">published_with_changes</mat-icon>
-                <div class="small fw-semibold text-dark">30 Days Return</div>
-                <div class="extra-small text-muted">Hassle free policy</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="p-2">
-                <mat-icon class="text-primary mb-1">verified_user</mat-icon>
-                <div class="small fw-semibold text-dark">Secure Payment</div>
-                <div class="extra-small text-muted">100% Protected</div>
+            <div class="col-4" *ngFor="let feature of productFeatures">
+              <div class="p-2" [class.border-start]="feature.hasBorder" [class.border-end]="feature.hasBorder">
+                <mat-icon class="text-primary mb-1">{{ feature.icon }}</mat-icon>
+                <div class="small fw-semibold text-dark">{{ feature.title }}</div>
+                <div class="extra-small text-muted">{{ feature.subtitle }}</div>
               </div>
             </div>
           </div>

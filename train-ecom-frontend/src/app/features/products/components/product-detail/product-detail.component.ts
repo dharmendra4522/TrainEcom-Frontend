@@ -332,6 +332,27 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     }
     return stars;
   }
+  // Features metadata array for looping
+  productFeatures = [
+    {
+      icon: 'local_shipping',
+      title: 'Free Delivery',
+      subtitle: 'Orders over $50',
+      hasBorder: false
+    },
+    {
+      icon: 'published_with_changes',
+      title: '30 Days Return',
+      subtitle: 'Hassle free policy',
+      hasBorder: true
+    },
+    {
+      icon: 'verified_user',
+      title: 'Secure Payment',
+      subtitle: '100% Protected',
+      hasBorder: false
+    }
+  ];
 
 
   goBack(): void {

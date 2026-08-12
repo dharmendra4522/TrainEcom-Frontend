@@ -17,8 +17,6 @@ import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 
 // for virtual scrolling
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
-import { ViewChild } from '@angular/core';
 
 
 @Component({
@@ -46,8 +44,6 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   itemsPerRow: number = 3; // default to 3 items per row for larger screens
 
-  // For virtual scrolling use, we will use a BehaviorSubject to manage the filtered products listf
-  @ViewChild(CdkVirtualScrollViewport) virtualScroll!: CdkVirtualScrollViewport;
 
 
   filteredProducts$!: Observable<Product[]>;
@@ -67,36 +63,52 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   showMobileFilters: boolean = false;
   maxPriceSliderValue: number = 10000;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupFilteredProducts();
+    this.subscribeToTotalPages();
+    this.setupBreakpointObserver();
+    this.setupProductRowsStream();
+    this.initStoreData();
+    this.setupQueryParamsSubscription();
+    this.setupScrollListener();
+  }
 
-    // Subscribe to totalPages from store
+  /** Initialize filtered products stream */
+  private setupFilteredProducts(): void {
+    this.filteredProducts$ = this.products$;
+  }
+
+  /** Subscribe to total pages store updates */
+  private subscribeToTotalPages(): void {
     this.store
       .select(selectProductTotalPages)
       .pipe(takeUntil(this.destroy$))
       .subscribe((totalPages) => {
         this.totalPages = totalPages || 1;
       });
+  }
 
-    // set responsive columns from breakpoint observer
+  /** Setup breakpoint observer for responsive items per row */
+  private setupBreakpointObserver(): void {
     this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(takeUntil(this.destroy$))
       .subscribe(result => {
         this.itemsPerRow = result.matches ? 2 : 3;
       });
+  }
 
-    // Products array ko Rows me chunk (divide) karein
+  /** Create chunked product rows stream */
+  private setupProductRowsStream(): void {
     this.productRows$ = this.filteredProducts$.pipe(
       map(products => this.chunkArray(products, this.itemsPerRow))
     );
+  }
 
-    this.initStoreData();
-
-    // Subscribe to URL query parameters change to reset pagination and load strictly filtered products
+  /** Handle query params changes from URL */
+  private setupQueryParamsSubscription(): void {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        // Sync sortBy from URL if present
         const urlSortBy = params['sortBy'];
         if (urlSortBy && urlSortBy !== this.sortBy$.value) {
           this.sortBy$.next(urlSortBy);
@@ -112,18 +124,14 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         this.currentPage = 1;
         this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false, sortBy: urlSortBy });
       });
+  }
 
-    // Attach capturing scroll listener to window to catch scroll events from any child container
+  /** Attach window scroll listener for infinite scrolling */
+  private setupScrollListener(): void {
     window.addEventListener('scroll', this.onContainerScroll, true);
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-    window.removeEventListener('scroll', this.onContainerScroll, true);
-  }
-
-  // Helper method to chunk an array into smaller arrays of a specified size
+  /** Helper method to chunk an array into smaller arrays of a specified size */
   private chunkArray(arr: Product[], chunkSize: number): Product[][] {
     const res = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
@@ -132,9 +140,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     return res;
   }
 
+  /** Handle container scroll events for infinite loading */
   onContainerScroll = (event: Event): void => {
     const target = event.target as HTMLElement;
-    // We only care about the main scrolling container (mat-sidenav-content)
     if (!target || !target.tagName) return;
     if (target.tagName !== 'MAT-SIDENAV-CONTENT' && !target.classList?.contains('mat-drawer-content') && !target.classList?.contains('main-content')) {
       return;
@@ -156,6 +164,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Load initial categories and brands metadata into store */
   private initStoreData(): void {
     this.categories$.pipe(take(1)).subscribe(categories => {
       if (!categories || categories.length === 0) {
@@ -170,12 +179,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setupFilteredProducts(): void {
-    this.filteredProducts$ = this.products$;
-  }
-
-
-  onCategoryChange(categoryName: string) {
+  /** Handle category filter change */
+  onCategoryChange(categoryName: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { category: categoryName || null },
@@ -183,7 +188,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     });
   }
 
-  onBrandChange(brandName: string) {
+  /** Handle brand filter change */
+  onBrandChange(brandName: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { brand: brandName || null },
@@ -191,6 +197,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Dispatch load products action with current filters and parameters */
   private dispatchLoadWithCurrentParams(overrides?: {
     pageNumber?: number;
     isAppend?: boolean;
@@ -200,7 +207,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     maxPrice?: number | null;
     sortBy?: string | null;
     minRating?: number | null;
-  }) {
+  }): void {
     if (overrides && overrides.isAppend === false) {
       this.currentPage = 1;
     }
@@ -250,7 +257,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     }));
   }
 
-  setPriceRange(min: number | null, max: number | null) {
+  /** Set price range filter values */
+  setPriceRange(min: number | null, max: number | null): void {
     this.minPriceFilter$.next(min);
     this.maxPriceFilter$.next(max);
     this.activeMinPrice = min;
@@ -259,7 +267,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.dispatchLoadWithCurrentParams({ minPrice: min, maxPrice: max, isAppend: false, pageNumber: 1 });
   }
 
-  onPriceSliderChange(value: number) {
+  /** Handle price slider input change */
+  onPriceSliderChange(value: number): void {
     this.maxPriceSliderValue = value;
     if (value >= 10000) {
       this.setPriceRange(150, null);
@@ -268,7 +277,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
-  setRating(rating: number | null) {
+  /** Set minimum rating filter */
+  setRating(rating: number | null): void {
     this.ratingFilter$.next(rating);
     this.activeRating = rating;
     this.currentPage = 1;
@@ -278,17 +288,18 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       queryParams: { minRating: rating || null },
       queryParamsHandling: 'merge'
     });
-
   }
 
-  setSortBy(sort: string) {
+  /** Set sorting parameter */
+  setSortBy(sort: string): void {
     this.sortBy$.next(sort);
     this.activeSort = sort;
     this.currentPage = 1;
     this.dispatchLoadWithCurrentParams({ sortBy: sort || null, isAppend: false, pageNumber: 1 });
   }
 
-  resetFilters() {
+  /** Reset all filters and clear query parameters */
+  resetFilters(): void {
     this.minPriceFilter$.next(null);
     this.maxPriceFilter$.next(null);
     this.ratingFilter$.next(null);
@@ -299,28 +310,27 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.activeSort = '';
     this.maxPriceSliderValue = 10000;
     this.currentPage = 1;
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { brand: null, category: null, minRating: null, sortBy: null, search: null },
       queryParamsHandling: 'merge'
     });
-    this.dispatchLoadWithCurrentParams({
-      brandName: null,
-      categoryName: null,
-      minPrice: null,
-      maxPrice: null,
-      sortBy: null,
-      minRating: null,
-      isAppend: false,
-      pageNumber: 1
-    });
   }
 
-  toggleMobileFilters() {
+  /** Toggle mobile filter visibility */
+  toggleMobileFilters(): void {
     this.showMobileFilters = !this.showMobileFilters;
   }
 
-  goBack() {
+  /** Navigate back to the previous location */
+  goBack(): void {
     this.location.back();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    window.removeEventListener('scroll', this.onContainerScroll, true);
   }
 }

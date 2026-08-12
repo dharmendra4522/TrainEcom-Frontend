@@ -39,7 +39,7 @@ export class ProductEffects {
 
                 const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
 
-                if (pagesCache[cacheKey]) {
+                if (action.isAppend && pagesCache[cacheKey]) {
                     const computedCacheTotalPages = totalPages > 0 ? totalPages : Math.max(1, Math.ceil(totalRecords / pageSize));
                     return of(ProductActions.loadProductsSuccess({
                         products: pagesCache[cacheKey],

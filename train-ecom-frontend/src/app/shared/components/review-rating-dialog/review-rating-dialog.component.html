@@ -1,5 +1,5 @@
 <h2 mat-dialog-title class="fw-bold text-dark mb-0 fs-5 fs-md-4 text-break">
-  {{ isEditMode ? 'Update Review' : 'Rate & Review' }} <span class="text-primary">{{ data.productName }}</span>
+    {{ isEditMode ? 'Update Review' : 'Rate & Review' }} <span class="text-primary">{{ data.productName }}</span>
 </h2>
 <mat-dialog-content class="d-flex flex-column gap-3 py-3 w-100" style="max-width: 450px; box-sizing: border-box;">
 
@@ -10,6 +10,11 @@
             <mat-icon *ngFor="let star of stars" (click)="setRating(star)" class="text-warning"
                 style="font-size: 32px; width: 32px; height: 32px;">
                 {{ star <= rating ? 'star' : 'star_border' }} </mat-icon>
+        </div>
+        <div class="mt-2" style="min-height: 24px;">
+            <span *ngIf="rating > 0" class="fw-bold fs-6 {{getRatingTextAndColor().colorClass}}">
+                {{ getRatingTextAndColor().text }}
+            </span>
         </div>
     </div>
 
