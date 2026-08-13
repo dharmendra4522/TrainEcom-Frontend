@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, Data, Params } from '@angular/router';
 import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Store } from '@ngrx/store';
@@ -9,7 +9,7 @@ import { WishListItem } from '../../../../core/models/wishList.model';
 import { Location } from '@angular/common';
 import * as WishlistActions from '../../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems } from '../../../../core/store/wish-list/wishList.selectors';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of, Subject, combineLatest } from 'rxjs';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import * as CartActions from '../../../../core/store/cart/cart.actions';
 import { CartProductDetails } from '../../../../core/models/cart.model';
@@ -41,33 +41,25 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   selectedImageUrl: string = '';
   quantity: number = 1;
   isLoading: boolean = true;
-  isAdmin: boolean = false; // for routes check
-  isReadOnly: boolean = false; // for routes check
+  isAdmin: boolean = false;
+  isReadOnly: boolean = false;
 
   isFavorite$!: Observable<boolean>;
   relatedProducts: Product[] = [];
-
   productBreadcrumbs: { label: string; url?: string }[] = [];
 
   private destroy$ = new Subject<void>();
   private productDestroy$ = new Subject<void>();
 
+  // Product Features for Display
+  productFeatures = [
+    { icon: 'local_shipping', title: 'Free Delivery', subtitle: 'Orders over $50', hasBorder: false },
+    { icon: 'published_with_changes', title: '30 Days Return', subtitle: 'Hassle free policy', hasBorder: true },
+    { icon: 'verified_user', title: 'Secure Payment', subtitle: '100% Protected', hasBorder: false }
+  ];
+
   ngOnInit(): void {
-    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.isAdmin = !!data['isAdmin'];
-    });
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.isReadOnly = params['mode'] === 'view-only';
-    });
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const id = params['id'];
-      if (id) {
-        this.loadProduct(id);
-        if (!this.isAdmin) {
-          this.checkWishlistStatus(id);
-        }
-      }
-    });
+    this.initializeRouteListeners();
   }
 
   ngOnDestroy(): void {
@@ -77,77 +69,116 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.productDestroy$.complete();
   }
 
-  loadProduct(id: string): void {
-    this.productDestroy$.next();
+  // --- Route Handling Method ---
+  private initializeRouteListeners(): void {
+    combineLatest([
+      this.route.data,
+      this.route.queryParams,
+      this.route.params
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([data, queryParams, params]: [Data, Params, Params]) => {
+        this.isAdmin = !!data['isAdmin'];
+        this.isReadOnly = queryParams['mode'] === 'view-only';
 
-    this.store.dispatch(ProductActions.loadProductById({ id }));
-    if (!this.isAdmin) {
-      this.store.dispatch(
-        ProductActions.loadRelatedProducts({ productId: id }),
-      );
-    }
-
-    this.store
-      .select(selectProductById(id))
-      .pipe(takeUntil(this.productDestroy$))
-      .subscribe((product) => {
-        if (product) {
-          this.product = product;
-          this.setInitialImage(product);
-
-          if (this.isAdmin) {
-            this.productBreadcrumbs = [
-              { label: 'Home', url: '/' },
-              { label: 'Admin Products', url: '/admin/products/manage' },
-              { label: product.name },
-            ];
-          } else {
-            this.productBreadcrumbs = [
-              { label: 'Home', url: '/' },
-              { label: 'Products', url: '/products' },
-              { label: product.name },
-            ];
+        const id = params['id'] as string;
+        if (id) {
+          this.loadProduct(id);
+          if (!this.isAdmin) {
+            this.checkWishlistStatus(id);
           }
         }
       });
+  }
+
+  // method to load product details and related products
+  loadProduct(id: string): void {
+    this.productDestroy$.next();
+    this.dispatchProductActions(id);
+    this.setupProductSubscriptions(id);
+    this.setupStatusSubscriptions();
+  }
+
+  // Store dispatch and subscription setup methods
+  private dispatchProductActions(id: string): void {
+    this.store.dispatch(ProductActions.loadProductById({ id }));
+    if (!this.isAdmin) {
+      this.store.dispatch(ProductActions.loadRelatedProducts({ productId: id }));
+    }
+  }
+
+  // Subscription setup methods for product and related products
+  private setupProductSubscriptions(id: string): void {
+    this.store
+      .select(selectProductById(id))
+      .pipe(takeUntil(this.productDestroy$))
+      .subscribe((product: Product | undefined) => this.handleProductLoaded(product));
 
     if (!this.isAdmin) {
       this.store
         .select(selectRelatedProducts)
         .pipe(takeUntil(this.productDestroy$))
-        .subscribe((products) => {
-          if (products && this.product) {
-            this.relatedProducts = products
-              .filter(
-                (p: Product) => p.id.toString() !== this.product?.id.toString(),
-              )
-          }
-        });
+        .subscribe((products: Product[] | undefined) => this.handleRelatedProductsLoaded(products));
     }
+  }
 
+
+  // Subscription setup for loading and error states
+  private setupStatusSubscriptions(): void {
     this.store
       .select(selectProductsLoading)
       .pipe(takeUntil(this.productDestroy$))
-      .subscribe((loading) => {
-        this.isLoading = loading;
-      });
+      .subscribe((loading: boolean) => this.isLoading = loading);
 
     this.store
       .select(selectProductError)
       .pipe(takeUntil(this.productDestroy$))
-      .subscribe((error) => {
-        if (error) {
-          this.notification.showError(error);
-        }
+      .subscribe((error: string | null) => {
+        if (error) this.notification.showError(error);
       });
   }
 
+
+  // Handlers for product and related products loading
+  private handleProductLoaded(product: Product | undefined): void {
+    if (!product) return;
+    this.product = product;
+    this.setInitialImage(product);
+    this.updateBreadcrumbs(product);
+  }
+
+
+  // Handler for related products loading
+  private handleRelatedProductsLoaded(products: Product[] | undefined): void {
+    if (products && this.product) {
+      this.relatedProducts = products.filter(
+        (p: Product) => p.id.toString() !== this.product?.id.toString()
+      );
+    }
+  }
+
+  // --- Breadcrumbs Update Method ---
+  private updateBreadcrumbs(product: Product): void {
+    if (this.isAdmin) {
+      this.productBreadcrumbs = [
+        { label: 'Dashboard', url: '/' },
+        { label: 'Products List', url: '/admin/products/manage' },
+        { label: product.name },
+      ];
+    } else {
+      this.productBreadcrumbs = [
+        { label: 'Home', url: '/' },
+        { label: 'Products', url: '/products' },
+        { label: product.name },
+      ];
+    }
+  }
+
+  // --- Image & Quantity Helpers ---
   private setInitialImage(product: Product): void {
     if (product.images && product.images.length > 0) {
       const primary = product.images.find((img) => img.isPrimary);
-      this.selectedImageUrl = primary
-        ? primary.imageUrl
-        : product.images[0].imageUrl;
+      this.selectedImageUrl = primary ? primary.imageUrl : product.images[0].imageUrl;
     } else if (product.thumbnailUrl) {
       this.selectedImageUrl = product.thumbnailUrl;
     }
@@ -158,11 +189,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   incrementQuantity(): void {
-    if (this.product && this.product.stockQuantity) {
-      if (this.quantity < this.product.stockQuantity) {
-        this.quantity++;
-      }
-    } else {
+    if (!this.product?.stockQuantity || this.quantity < this.product.stockQuantity) {
       this.quantity++;
     }
   }
@@ -173,15 +200,24 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  checkWishlistStatus(productId: string): void {
+  // --- Auth & Cart / Wishlist Actions ---
+  private executeWithAuth(action: () => void, unauthenticatedHandler: () => void): void {
     this.store
       .select(selectIsLoggedIn)
       .pipe(take(1))
       .subscribe((isLoggedIn: boolean) => {
-        if (!isLoggedIn) {
-          this.isFavorite$ = of(false);
-          return;
+        if (isLoggedIn) {
+          action();
+        } else {
+          unauthenticatedHandler();
         }
+      });
+  }
+
+  // Wishlist Status Check
+  checkWishlistStatus(productId: string): void {
+    this.executeWithAuth(
+      () => {
         this.isFavorite$ = this.store.select(selectWishlistItems).pipe(
           map((items: WishListItem[]) => {
             if (!items) return false;
@@ -191,134 +227,100 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
             );
           }),
         );
-      });
+      },
+      () => {
+        this.isFavorite$ = of(false);
+      }
+    );
   }
 
+  // Cart and Wishlist Actions
   addToCart(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
-
     const productDetails: CartProductDetails = {
       productName: this.product.name,
       unitPrice: this.product.price,
       thumbnailUrl: this.selectedImageUrl || this.product.thumbnailUrl,
     };
     this.store.dispatch(
-      CartActions.addToCart({
-        productId,
-        quantity: this.quantity,
-        productDetails,
-      }),
+      CartActions.addToCart({ productId, quantity: this.quantity, productDetails }),
     );
   }
 
+  // Wishlist Actions
   addToWishlist(): void {
     if (!this.product?.id) return;
     const productId = this.product.id.toString();
 
-    this.store
-      .select(selectIsLoggedIn)
-      .pipe(take(1))
-      .subscribe((isLoggedIn: boolean) => {
-        if (!isLoggedIn) {
-          this.notification.showError(
-            'Please login to add products to your wishlist.',
-          );
-          this.router.navigate(['/login'], {
-            queryParams: { returnUrl: this.router.url },
-          });
-          return;
-        }
-
-        this.isFavorite$.pipe(take(1)).subscribe((isFav) => {
+    this.executeWithAuth(
+      () => {
+        this.isFavorite$.pipe(take(1)).subscribe((isFav: boolean) => {
           if (isFav) {
-            this.store.dispatch(
-              WishlistActions.removeFromWishlist({ productId }),
-            );
+            this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
           } else {
             this.store.dispatch(WishlistActions.addToWishlist({ productId }));
           }
         });
-      });
+      },
+      () => {
+        this.notification.showError('Please login to add products to your wishlist.');
+        this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      }
+    );
   }
 
+
+  // handle "Buy Now" action
   buyNow(): void {
     if (!this.product?.id) {
       this.notification.showError('Product information is not available');
       return;
     }
 
-    this.store
-      .select(selectIsLoggedIn)
-      .pipe(take(1))
-      .subscribe((isLoggedIn: boolean) => {
-        if (!isLoggedIn) {
-          this.notification.showInfo('Please log in to proceed to checkout.');
-          const checkoutUrl = this.router
-            .createUrlTree(['/checkout'], {
-              queryParams: {
-                productId: this.product!.id.toString(),
-                quantity: this.quantity,
-              },
-            })
-            .toString();
-          this.router.navigate(['/login'], {
-            queryParams: { returnUrl: checkoutUrl },
-          });
-          return;
-        }
+    const productId = this.product.id.toString();
+    const checkoutUrl = this.router
+      .createUrlTree(['/checkout'], { queryParams: { productId, quantity: this.quantity } })
+      .toString();
 
-        const productId = this.product!.id.toString();
-        this.router.navigate(['/checkout'], {
-          queryParams: {
-            productId: productId,
-            quantity: this.quantity,
-          },
-        });
-      });
-  }
-
-  private loadRelatedProducts(): void {
-    if (!this.product?.id) return;
-    this.store.dispatch(
-      ProductActions.loadRelatedProducts({
-        productId: this.product.id.toString(),
-      }),
+    this.executeWithAuth(
+      () => {
+        this.router.navigate(['/checkout'], { queryParams: { productId, quantity: this.quantity } });
+      },
+      () => {
+        this.notification.showInfo('Please log in to proceed to checkout.');
+        this.router.navigate(['/login'], { queryParams: { returnUrl: checkoutUrl } });
+      }
     );
   }
 
-  // Admin specific methods
+  // --- Admin Specific Actions ---
   onEditProduct(): void {
     if (this.product) {
       this.router.navigate(['/admin/products/edit', this.product.id]);
     }
   }
 
+
+  // Admin Specific Actions  for product delete 
   onDeleteProduct(): void {
     if (!this.product) return;
     this.confirmDialog
-      .confirm(
-        'Are you sure you want to delete this product?',
-        'Delete',
-        'Cancel',
-      )
-      .subscribe((confirmed) => {
+      .confirm('Are you sure you want to delete this product?', 'Delete', 'Cancel')
+      .subscribe((confirmed: boolean) => {
         if (!confirmed || !this.product) return;
         const id = this.product.id.toString();
         this.store.dispatch(ProductActions.deleteProduct({ productId: id }));
 
         this.action$
-          .pipe(
-            ofType(ProductActions.deleteProductSuccess),
-            takeUntil(this.destroy$),
-            take(1),
-          )
+          .pipe(ofType(ProductActions.deleteProductSuccess), takeUntil(this.destroy$), take(1))
           .subscribe(() => {
             this.router.navigate(['/admin/products/manage']);
           });
       });
   }
 
+  // --- Presentation Helpers ---
   getStarArray(rating: number): string[] {
     const stars: string[] = [];
     for (let i = 1; i <= 5; i++) {
@@ -332,28 +334,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     }
     return stars;
   }
-  // Features metadata array for looping
-  productFeatures = [
-    {
-      icon: 'local_shipping',
-      title: 'Free Delivery',
-      subtitle: 'Orders over $50',
-      hasBorder: false
-    },
-    {
-      icon: 'published_with_changes',
-      title: '30 Days Return',
-      subtitle: 'Hassle free policy',
-      hasBorder: true
-    },
-    {
-      icon: 'verified_user',
-      title: 'Secure Payment',
-      subtitle: '100% Protected',
-      hasBorder: false
-    }
-  ];
-
 
   goBack(): void {
     this.location.back();

@@ -135,11 +135,12 @@ export class OrderDetailsComponent {
     })
   }
 
+  // Open order tracking dialog
   openTrackingDialog(): void {
     const orderId = this.orderDetail?.orderId;
     if (orderId) {
       this.dialog.open(OrderTrackingDialogComponent, {
-        width: '600px',
+        width: '500px',
         data: { orderId }
       });
     }
@@ -148,6 +149,7 @@ export class OrderDetailsComponent {
     }
   }
 
+  // Open dialog for admin to update order status
   openUpdateStatusDialog(): void {
     if (!this.orderDetail?.orderId) return;
     const dialogRef = this.dialog.open(AdminOrderStatusDialogComponent, {
@@ -164,8 +166,7 @@ export class OrderDetailsComponent {
     })
   }
 
-  // Open dialog
-
+  // Open dialog for user to add/edit review or admin to view review details
   openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string; rating: number; review: string }): void {
     if (reviewSummary?.reviewId) {
       this.reviewService.getReviewById(reviewSummary.reviewId).subscribe({
@@ -182,7 +183,7 @@ export class OrderDetailsComponent {
     }
   }
 
-
+ // show dialog for adding/editing review
   private showDialog(productId: string | number,
     productName: string,
     existingRating?: number,
@@ -200,6 +201,7 @@ export class OrderDetailsComponent {
     });
   }
 
+  // Handles the submission of a review, either adding a new one or updating an existing one.
   private handleReviewSubmission(
     productId: string | number,
     result: { rating: number; review: string },
@@ -234,6 +236,7 @@ export class OrderDetailsComponent {
     }
   }
 
+  // Reloads the order details to reflect any changes, such as after adding or deleting a review.
   private reloadDetails(): void {
     if (this.orderDetail?.orderId) {
       this.loadOrderDetails(this.orderDetail.orderId);
@@ -241,9 +244,9 @@ export class OrderDetailsComponent {
   }
 
 
- // 👈 reviewId ko optional ya string | number | undefined kar diya
+// Method to handle review deletion with confirmation dialog by admin only
   onDeleteReview(reviewId?: string | number): void {
-    if (!reviewId) return; // Agar undefined ho toh yahin rok do
+    if (!reviewId) return; 
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -254,6 +257,7 @@ export class OrderDetailsComponent {
       }
     });
 
+    // After the confirmation dialog is closed, check if the user confirmed the deletion
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         // String mein convert kar rahe hain kyunki API ko string reviewId chahiye

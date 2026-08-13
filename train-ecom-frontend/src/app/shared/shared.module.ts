@@ -26,6 +26,7 @@ import { BrandCategoryDialogComponent } from './components/brand-category-dialog
 import { SearchableDropdownComponent } from './components/searchable-dropdown/searchable-dropdown.component';
 import { ManageEntityDialogComponent } from './components/manage-entity-dialog/manage-entity-dialog.component';
 import { ReviewRatingDialogComponent } from './components/review-rating-dialog/review-rating-dialog.component';
+import { NotificationDrawerComponent } from './components/notification-drawer/notification-drawer.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { ReviewRatingDialogComponent } from './components/review-rating-dialog/r
     BrandCategoryDialogComponent,
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
-    ReviewRatingDialogComponent
+    ReviewRatingDialogComponent,
+    NotificationDrawerComponent
   ],
   imports: [
     CommonModule,

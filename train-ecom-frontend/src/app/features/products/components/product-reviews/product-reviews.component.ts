@@ -44,6 +44,11 @@ export class ProductReviewsComponent {
   }
 
   ngOnInit(): void {
+    this.setupRouteDataListener();
+  }
+
+  // Setup a listener to check if the user is an admin based on route data
+  setupRouteDataListener(): void {
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.isAdmin = !!data['isAdmin'];
     });
@@ -85,10 +90,11 @@ export class ProductReviewsComponent {
     return stars;
   }
 
+  // Method to handle review deletion with confirmation dialog by admin only
   onDeleteReview(reviewId: string): void {
     const dialogRef = this.confirmDialog.confirm('Are you sure you want to delete this review?', 'Yes', 'No');
     dialogRef.subscribe((confirmed) => {
-      if(confirmed) {
+      if (confirmed) {
         this.reviewService.deleteReview(reviewId).subscribe({
           next: () => {
             this.notificationService.showSuccess('Review deleted successfully.');
