@@ -1,60 +1,91 @@
-<div class="notification-drawer-backdrop" *ngIf="isOpen" (click)="onClose()"></div>
+<div
+  class="notification-drawer-backdrop"
+  *ngIf="isOpen"
+  (click)="onClose()"
+></div>
 
 <div class="notification-drawer shadow-lg" [class.open]="isOpen">
-    <!-- Header -->
-    <div class="drawer-header d-flex align-items-center justify-content-between p-3 border-bottom bg-white">
-        <div class="d-flex align-items-center gap-2">
+  <!-- Header -->
+  <div
+    class="drawer-header d-flex align-items-center justify-content-between p-3 border-bottom bg-white"
+  >
+    <div class="d-flex align-items-center gap-2">
+      <div
+        class="header-icon-badge rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle text-primary"
+      >
+        <mat-icon>notifications</mat-icon>
+      </div>
+      <h5 class="fw-bold text-dark m-0">Notifications</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button
+        mat-button
+        color="primary"
+        class="fs-7 fw-semibold"
+        *ngIf="Notifications.length > 0"
+        (click)="onClearAll()"
+      >
+        Clear All
+      </button>
+      <button
+        mat-icon-button
+        (click)="onClose()"
+        class="close-btn text-secondary"
+        aria-label="Close"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  <!-- Body -->
+  <div class="drawer-body p-3 overflow-y-auto flex-grow-1">
+    <ng-container *ngIf="Notifications.length > 0">
+      <div class="d-flex flex-column gap-2">
+        <div
+          *ngFor="let item of Notifications"
+          class="notification-card p-3 rounded-3 border bg-white position-relative"
+          [class.unread]="!item.isRead"
+          (click)="onItemClick(item.id)"
+        >
+          <div class="d-flex align-items-start gap-3">
+            <!-- Icon -->
             <div
-                class="header-icon-badge rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
-                <mat-icon>notifications</mat-icon>
+              class="notification-icon-wrapper rounded-circle d-flex align-items-center justify-content-center bg-light text-primary flex-shrink-0"
+            >
+              <mat-icon>notifications_active</mat-icon>
             </div>
-            <h5 class="fw-bold text-dark m-0">Notifications</h5>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <button mat-button color="primary" class="fs-7 fw-semibold" *ngIf="Notifications.length > 0"
-                (click)="onClearAll()">
-                Clear All
-            </button>
-            <button mat-icon-button (click)="onClose()" class="close-btn text-secondary" aria-label="Close">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-    </div>
-    <!-- Body -->
-    <div class="drawer-body p-3 overflow-y-auto flex-grow-1">
-        <ng-container *ngIf="Notifications.length > 0; ">
-            <div class="d-flex flex-column gap-2">
-                <div *ngFor="let item of Notifications"
-                    class="notification-card p-3 rounded-3 border bg-white position-relative"
-                    [class.unread]="!item.isRead" (click)="onItemClick(item.id)">
 
-                    <div class="d-flex align-items-start gap-3">
-                        <!-- Icon -->
-                        <div
-                            class="notification-icon-wrapper rounded-circle d-flex align-items-center justify-content-center bg-light text-primary flex-shrink-0">
-                            <mat-icon>notifications_active</mat-icon>
-                        </div>
-
-                        <!-- Content Area -->
-                        <div class="flex-grow-1 pe-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-semibold text-dark fs-7">{{ item.title }}</span>
-                                <span class="text-muted fs-8">{{ item.timestamp }}</span>
-                            </div>
-                            <p class="text-secondary mb-0 fs-7 text-wrap">{{ item.message }}</p>
-                        </div>
-                    </div>
-
-                    <!-- X Cut Button (Delete / Dismiss) -->
-                    <button mat-icon-button class="delete-btn position-absolute top-0 end-0 mt-2 me-2 text-muted"
-                        (click)="$event.stopPropagation(); deleteNotification(item.id)" matTooltip="Remove">
-                        <mat-icon class="fs-6">close</mat-icon>
-                    </button>
-
-                    <!-- Unread Indicator Dot -->
-                    <span *ngIf="!item.isRead" class="unread-dot bg-primary rounded-circle position-absolute"></span>
-                </div>
+            <!-- Content Area -->
+            <div class="flex-grow-1 pe-4">
+              <div
+                class="d-flex justify-content-between align-items-center mb-1"
+              >
+                <span class="fw-semibold text-dark fs-7">{{ item.title }}</span>
+                <span class="text-muted fs-8">{{ item.timestamp }}</span>
+              </div>
+              <p class="text-secondary mb-0 fs-7 text-wrap">
+                {{ item.message }}
+              </p>
             </div>
-        </ng-container>
-    </div>
+          </div>
+
+          <!-- X Cut Button (Delete / Dismiss) -->
+          <button
+            mat-icon-button
+            class="delete-btn position-absolute top-0 end-0 mt-2 me-2 text-muted"
+            (click)="$event.stopPropagation(); deleteNotification(item.id)"
+            matTooltip="Remove"
+          >
+            <mat-icon class="fs-6">close</mat-icon>
+          </button>
+
+          <!-- Unread Indicator Dot -->
+          <span
+            *ngIf="!item.isRead"
+            class="unread-dot bg-primary rounded-circle position-absolute"
+          ></span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
 </div>

@@ -38,6 +38,11 @@ export interface SidePanelItem {
   image?: string;
   quantity?: number;
   totalproducts?: number;
+  // For notifications
+  title?: string;
+  message?: string;
+  timestamp?: string;
+  isRead?: boolean;
 }
 @Component({
   selector: 'app-side-panel',
@@ -75,7 +80,40 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     } else if (this.type === 'Cart') {
       this.subscribeToCartStream();
       this.watchAuthStatusForCart();
+    } else if (this.type === 'Notification') {
+      this.loadDummyNotifications();
     }
+  }
+
+  private loadDummyNotifications(): void {
+    const dummyNotifications = [
+      {
+        id: '1',
+        title: 'Order Delivered',
+        message: 'Your order #ORD-1234 has been successfully delivered. We hope you enjoy your purchase!',
+        timestamp: '10 mins ago',
+        isRead: false
+      },
+      {
+        id: '2',
+        title: 'New Promotion',
+        message: 'Get 20% off on all electronics this weekend. Use code TECH20 at checkout.',
+        timestamp: '2 hours ago',
+        isRead: true
+      },
+      {
+        id: '3',
+        title: 'Account Security',
+        message: 'A new login was detected from a different browser. If this was you, you can ignore this message.',
+        timestamp: 'Yesterday',
+        isRead: false
+      }
+    ];
+
+    // Map dummy data to match SidePanelItem structure or extend it if needed. 
+    // We can just cast it for now as the HTML will use it directly based on type.
+    this.items = dummyNotifications as any;
+    this.cdr.detectChanges();
   }
 
   private subscribeToWishlistStream(): void {
@@ -404,5 +442,17 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       'All items moved to cart successfully',
       'Close',
     );
+  }
+
+  removeNotification(id: string): void {
+    if (this.type !== 'Notification') return;
+    this.items = this.items.filter(item => item.id !== id);
+    this.cdr.detectChanges();
+  }
+
+  clearAllNotifications(): void {
+    if (this.type !== 'Notification') return;
+    this.items = [];
+    this.cdr.detectChanges();
   }
 }
