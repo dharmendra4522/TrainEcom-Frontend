@@ -46,6 +46,14 @@ const routes: Routes = [
             ],
           },
           {
+            path: 'notifications-history',
+            canActivate: [customerGuard],
+            loadChildren: () =>
+              import('./features/notification/notification.module').then(
+                (m) => m.NotificationModule
+              ),
+          },
+          {
             path: '',
             loadChildren: () =>
               import('./features/users/users.module').then((m) => m.UsersModule),
@@ -152,6 +160,14 @@ const routes: Routes = [
                 (m) => m.ReportsModule
               ),
           },
+          {
+            path: 'notifications-history',
+            canActivate: [adminGuard],
+            loadChildren: () =>
+              import('./features/notification/notification.module').then(
+                (m) => m.NotificationModule
+              ),
+          }
         ],
       },
       {

@@ -1,0 +1,82 @@
+.fs-7 {
+  font-size: 0.8rem !important;
+}
+
+/* Filter Chips Styling */
+.filter-chip {
+  border: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+  color: #495057;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-chip:hover {
+  background-color: #e9ecef;
+}
+
+.filter-chip.active {
+  background-color: #0d6efd;
+  color: #ffffff;
+  border-color: #0d6efd;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.25);
+}
+
+.chip-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Notification Card Styling */
+.notification-card {
+  background-color: #ffffff;
+  border-left: 4px solid transparent !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notification-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Unread Card Highlight */
+.unread-card {
+  background-color: #f4f8ff !important;
+  border-left: 4px solid #0d6efd !important;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Icon Avatar Colors */
+.icon-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+}
+
+/* Empty State Circle */
+.empty-icon-circle {
+  width: 80px;
+  height: 80px;
+}
+
+.btn-sm-custom {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

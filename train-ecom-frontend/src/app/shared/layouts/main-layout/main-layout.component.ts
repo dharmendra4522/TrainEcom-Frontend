@@ -44,7 +44,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Manage Users', icon: 'people', route: '/admin/users' },
     { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
     { label: 'Platform Analytics', icon: 'bar_chart', route: '/admin/reports' },
-
+    { label: 'Notifications', icon: 'notifications', route: '/admin/notifications-history' },
   ];
 
   consumerMenuItems: MenuItem[] = [
@@ -53,6 +53,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
     { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
     { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
+    { label: 'My Notifications', icon: 'notifications', route: '/account/notifications-history' },
   ];
 
   isMobile$: Observable<boolean> = this.breakpointObserver

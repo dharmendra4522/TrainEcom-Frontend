@@ -26,6 +26,7 @@ import { selectCartItems } from '../../../core/store/cart/cart.selectors';
 import * as ProductActions from '../../../core/store/product/product.action';
 import { Subject, combineLatest } from 'rxjs';
 import { ConfirmDialogServiceService } from '../../../core/services/confirm-dialog.service';
+import { NotificationStreamService } from '../../../core/services/notification-stream.service';
 
 export interface SidePanelItem {
   id: string;
@@ -56,6 +57,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private actions$ = inject(Actions);
   private confirmDialog = inject(ConfirmDialogServiceService);
+  private notificationStream = inject(NotificationStreamService);
 
   private destroy$ = new Subject<void>();
 
@@ -81,39 +83,30 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       this.subscribeToCartStream();
       this.watchAuthStatusForCart();
     } else if (this.type === 'Notification') {
-      this.loadDummyNotifications();
+      this.loadNotifications();
     }
   }
 
-  private loadDummyNotifications(): void {
-    const dummyNotifications = [
-      {
-        id: '1',
-        title: 'Order Delivered',
-        message: 'Your order #ORD-1234 has been successfully delivered. We hope you enjoy your purchase!',
-        timestamp: '10 mins ago',
-        isRead: false
-      },
-      {
-        id: '2',
-        title: 'New Promotion',
-        message: 'Get 20% off on all electronics this weekend. Use code TECH20 at checkout.',
-        timestamp: '2 hours ago',
-        isRead: true
-      },
-      {
-        id: '3',
-        title: 'Account Security',
-        message: 'A new login was detected from a different browser. If this was you, you can ignore this message.',
-        timestamp: 'Yesterday',
-        isRead: false
-      }
-    ];
-
-    // Map dummy data to match SidePanelItem structure or extend it if needed. 
-    // We can just cast it for now as the HTML will use it directly based on type.
-    this.items = dummyNotifications as any;
-    this.cdr.detectChanges();
+  private loadNotifications(): void {
+    this.notificationStream.getAllNotifications(1, 20)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.items = (response.items || [])
+            .filter(n => !n.isHidden)
+            .map(n => ({
+              id: n.id,
+              title: n.title,
+              name: n.title, // <-- Yeh line add kar dein
+              message: n.message,
+              timestamp: n.createdAt,
+              isRead: n.isRead,
+              price: 0
+            }));
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Failed to load side-panel notifications', err)
+      });
   }
 
   private subscribeToWishlistStream(): void {
@@ -188,8 +181,6 @@ export class SidePanelComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           return;
         }
-        // CartEffects owns authenticated cart hydration. This panel only
-        // reflects the selector so it cannot start a competing request.
       });
   }
 
