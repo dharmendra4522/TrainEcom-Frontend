@@ -96,7 +96,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         return;
       }
-      
+
       this.notificationStream.getAllNotifications(1, 20)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -106,7 +106,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
               .map(n => ({
                 id: n.id,
                 title: n.title,
-                name: n.title, // <-- Yeh line add kar dein
+                name: n.title,
                 message: n.message,
                 timestamp: n.createdAt,
                 isRead: n.isRead,
@@ -139,12 +139,12 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         this.close();
         const type = item.referenceType as string;
         const id = item.referenceId;
-        
+
         const customerRoutes: Record<string, string> = {
           'Order': '/account/orders/details',
           'Product': '/products',
         };
-        
+
         const adminRoutes: Record<string, string> = {
           'Order': '/admin/orders/details-admin',
           'Product': '/products',
