@@ -44,6 +44,8 @@ export interface SidePanelItem {
   message?: string;
   timestamp?: string;
   isRead?: boolean;
+  referenceId?: string;
+  referenceType?: string;
 }
 @Component({
   selector: 'app-side-panel',
@@ -88,25 +90,77 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   }
 
   private loadNotifications(): void {
-    this.notificationStream.getAllNotifications(1, 20)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.items = (response.items || [])
-            .filter(n => !n.isHidden)
-            .map(n => ({
-              id: n.id,
-              title: n.title,
-              name: n.title, // <-- Yeh line add kar dein
-              message: n.message,
-              timestamp: n.createdAt,
-              isRead: n.isRead,
-              price: 0
-            }));
+    this.store.select(selectIsLoggedIn).pipe(take(1)).subscribe(isLoggedIn => {
+      if (!isLoggedIn) {
+        this.items = [];
+        this.cdr.detectChanges();
+        return;
+      }
+      
+      this.notificationStream.getAllNotifications(1, 20)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.items = (response.items || [])
+              .filter(n => !n.isHidden)
+              .map(n => ({
+                id: n.id,
+                title: n.title,
+                name: n.title, // <-- Yeh line add kar dein
+                message: n.message,
+                timestamp: n.createdAt,
+                isRead: n.isRead,
+                referenceId: n.referenceId || undefined,
+                referenceType: n.referenceType || undefined,
+                price: 0
+              }));
+            this.cdr.detectChanges();
+          },
+          error: (err) => console.error('Failed to load side-panel notifications', err)
+        });
+    });
+  }
+
+  handleNotificationClick(item: SidePanelItem): void {
+    if (this.type !== 'Notification') return;
+
+    if (!item.isRead) {
+      this.notificationStream.markAsRead(item.id).subscribe({
+        next: () => {
+          item.isRead = true;
           this.cdr.detectChanges();
         },
-        error: (err) => console.error('Failed to load side-panel notifications', err)
+        error: (err) => console.error('Failed to mark notification as read', err)
       });
+    }
+
+    if (item.referenceType && item.referenceId) {
+      this.store.select(selectUserRole).pipe(take(1)).subscribe(role => {
+        this.close();
+        const type = item.referenceType as string;
+        const id = item.referenceId;
+        
+        const customerRoutes: Record<string, string> = {
+          'Order': '/account/orders/details',
+          'Product': '/products',
+        };
+        
+        const adminRoutes: Record<string, string> = {
+          'Order': '/admin/orders/details-admin',
+          'Product': '/products',
+          'User': '/admin/users'
+        };
+
+        const routeMap = role === 'Admin' ? adminRoutes : customerRoutes;
+        const basePath = routeMap[type];
+
+        if (basePath) {
+          this.router.navigate([basePath, id]);
+        } else {
+          console.warn(`No route mapping found for referenceType: ${type}`);
+        }
+      });
+    }
   }
 
   private subscribeToWishlistStream(): void {

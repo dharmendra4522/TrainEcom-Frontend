@@ -53,7 +53,9 @@
     <div 
       *ngFor="let notification of filteredNotifications()"
       class="card border-0 shadow-sm rounded-3 mb-2 p-3 notification-card transition-all"
-      [class.unread-card]="!notification.isRead">
+      [class.unread-card]="!notification.isRead"
+      (click)="handleNotificationClick(notification)"
+      style="cursor: pointer;">
       <div class="d-flex align-items-start gap-3">
         <!-- Icon Badge -->
         <div class="icon-avatar rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center bg-primary-subtle text-primary">

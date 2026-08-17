@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
 import { NotificationItem, NotificationType } from '../../../../core/models/notification.model';
 import { NotificationStreamService } from '../../../../core/services/notification-stream.service';
@@ -13,6 +15,8 @@ import { NotificationStreamService } from '../../../../core/services/notificatio
 export class NotificationHistoryComponent {
   private store = inject(Store);
   private notificationStream = inject(NotificationStreamService);
+
+  private router = inject(Router);
 
   userRole$: Observable<string | null> = this.store.select(selectUserRole);
   activeTab: 'all' | 'unread' | 'order' | 'system' | 'broadcast' = 'all';
@@ -77,6 +81,54 @@ export class NotificationHistoryComponent {
     this.activeTab = tab;
   }
 
+  handleNotificationClick(notification: NotificationItem): void {
+    // 1. Mark as read if it's currently unread
+    if (!notification.isRead) {
+      this.notificationStream.markAsRead(notification.id).subscribe({
+        next: () => {
+          notification.isRead = true;
+          notification.readAt = new Date().toISOString();
+          if (this.unreadCount > 0) {
+            this.unreadCount--;
+          }
+        },
+        error: (err) => console.error('Failed to mark notification as read', err)
+      });
+    }
+
+    // 2. Dynamic Redirect logic based on referenceType
+    if (notification.referenceType && notification.referenceId) {
+      this.userRole$.pipe(take(1)).subscribe(role => {
+        const type = notification.referenceType as string; // e.g., 'Order', 'Product'
+        const id = notification.referenceId;
+        
+        // Define route mappings dynamically
+        const customerRoutes: Record<string, string> = {
+          'Order': '/account/orders/details',
+          'Product': '/products',
+          // Add more types here as backend grows:
+          // 'Brand': '/brands',
+          // 'Category': '/categories'
+        };
+        
+        const adminRoutes: Record<string, string> = {
+          'Order': '/admin/orders/details-admin',
+          'Product': '/products',
+          'User': '/admin/users'
+        };
+
+        const routeMap = role === 'Admin' ? adminRoutes : customerRoutes;
+        const basePath = routeMap[type];
+
+        if (basePath) {
+          this.router.navigate([basePath, id]);
+        } else {
+          console.warn(`No route mapping found for referenceType: ${type}`);
+        }
+      });
+    }
+  }
+
   markAsRead(notification: NotificationItem, event: MouseEvent): void {
     event.stopPropagation();
     this.notificationStream.markAsRead(notification.id).subscribe({
@@ -88,7 +140,7 @@ export class NotificationHistoryComponent {
         }
       },
       error: (err) => console.error('Failed to mark notification as read', err)
-    })
+    });
   }
 
   markAllAsRead(): void {
