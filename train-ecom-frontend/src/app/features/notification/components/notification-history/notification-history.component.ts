@@ -106,14 +106,11 @@ export class NotificationHistoryComponent {
         const customerRoutes: Record<string, string> = {
           'Order': '/account/orders/details',
           'Product': '/products',
-          // Add more types here as backend grows:
-          // 'Brand': '/brands',
-          // 'Category': '/categories'
         };
         
         const adminRoutes: Record<string, string> = {
           'Order': '/admin/orders/details-admin',
-          'Product': '/products',
+          'Product': '/admin/products/view',
           'User': '/admin/users'
         };
 

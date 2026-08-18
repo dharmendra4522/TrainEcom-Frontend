@@ -12,6 +12,7 @@ import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/ad
 import { ReviewRatingDialogComponent } from '../../../../shared/components/review-rating-dialog/review-rating-dialog.component';
 import { ReviewService } from '../../../../core/services/review.service';
 import { Review } from '../../../../core/models/review.model';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-order-details',
@@ -25,6 +26,7 @@ export class OrderDetailsComponent {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private reviewService = inject(ReviewService);
+  private location = inject(Location);
 
 
   orderDetail: OrderDetailsResponse | null = null;
@@ -99,12 +101,9 @@ export class OrderDetailsComponent {
 
 
   goBack(): void {
-    if (this.isAdmin) {
-      this.router.navigate(['/admin/orders']);
-    } else {
-      this.router.navigate(['/account/orders/history']);
-    }
+    this.location.back();
   }
+
   onCancelOrder(orderId: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -183,7 +182,7 @@ export class OrderDetailsComponent {
     }
   }
 
- // show dialog for adding/editing review
+  // show dialog for adding/editing review
   private showDialog(productId: string | number,
     productName: string,
     existingRating?: number,
@@ -244,9 +243,9 @@ export class OrderDetailsComponent {
   }
 
 
-// Method to handle review deletion with confirmation dialog by admin only
+  // Method to handle review deletion with confirmation dialog by admin only
   onDeleteReview(reviewId?: string | number): void {
-    if (!reviewId) return; 
+    if (!reviewId) return;
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',

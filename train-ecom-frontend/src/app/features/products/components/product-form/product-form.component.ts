@@ -180,11 +180,16 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       description: product.description || '',
     });
 
+    // check if brandId exists before setting the value to avoid null or undefined issues
     if (brandId) {
       this.brandControl.setValue(brandId);
+      this.productForm.get('brand')?.setValue(brandId);
     }
+
+    // check if categoryId exists before setting the value to avoid null or undefined issues
     if (categoryId) {
       this.categoryControl.setValue(categoryId);
+      this.productForm.get('category')?.setValue(categoryId);
     }
 
     if (product.images) {
