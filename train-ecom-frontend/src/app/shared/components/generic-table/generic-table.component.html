@@ -21,10 +21,12 @@
     class="table-scroll-container position-relative"
     style="max-height: calc(100vh - 300px); overflow-y: auto"
   >
-    <table mat-table [dataSource]="data" class="custom-mat-table w-100">
+    <table mat-table [dataSource]="data" class="custom-mat-table w-100" matSort (matSortChange)="onSortData($event)">
       <ng-container matColumnDef="sno" *ngIf="showIndex">
         <th
           mat-header-cell
+          mat-sort-header
+          sortActionDescription
           *matHeaderCellDef
           class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7"
         >
@@ -42,6 +44,7 @@
       <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
         <th
           mat-header-cell
+          mat-sort-header
           *matHeaderCellDef
           class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7"
         >
@@ -49,7 +52,7 @@
         </th>
         <td id="table-data" mat-cell *matCellDef="let row" class="px-4 py-3 text-dark">
           <div
-            *ngIf="!col.type || col.type === 'text'"
+            *ngIf="!col.type || col.type === 'text' || col.type === 'string' || col.type === 'number'"
             class="fw-medium"
             [class.text-truncate-clamp]="
               col.truncate ||

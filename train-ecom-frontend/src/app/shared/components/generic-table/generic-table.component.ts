@@ -1,10 +1,19 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  SimpleChanges,
+  OnChanges,
+} from '@angular/core';
 import {
   TableColumn,
   TableAction,
   TableActionEvent,
 } from '../../../core/models/table.model';
 import { PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-generic-table',
@@ -30,6 +39,70 @@ export class GenericTableComponent {
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
+
+  @Output() sortChnage = new EventEmitter<Sort>();
+
+  @ViewChild(MatSort) sort!: MatSort;
+
+  originalData: Record<string, unknown>[] = []; 
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['data'] && this.data) {
+      this.originalData = [...this.data];
+    }
+  }
+
+  onSortData(sort: Sort): void {
+    if (!sort.active || sort.direction === '') {
+      this.data = [...this.originalData];
+      return;
+    }
+
+    let isAsc = sort.direction === 'asc';
+
+    let activeColumn = this.columns.find(col => col.key === sort.active)
+    console.log(activeColumn);
+
+    let columnType = activeColumn?. type || 'text';
+    console.log(columnType);
+
+    let copyData = [...this.originalData];
+
+    this.data = copyData.sort((a,b) => {
+      let valueA = a[sort.active];
+      let valueB = b[sort.active];      
+      if(columnType === 'number'){
+        valueA = Number(valueA);
+        valueB = Number(valueB);
+      } else if(columnType === 'string'){
+        valueA = String(valueA);
+        valueB = String(valueB);
+      }
+      return this.compareData(valueA as string | number, valueB as string | number, isAsc);
+    })
+
+  }
+
+
+  private compareData(
+    a: number | string | boolean,
+    b: number | string | boolean,
+    isAsc: boolean,
+  ): number {
+    if(isAsc === true){
+      if(a<b){
+        return -1;
+      } else{
+        return 1;
+      }
+    } else{
+      if(a>b){
+        return 1;
+      } else{
+        return -1;
+      }
+    }
+  }
 
   // get displayed columns for the table safely
   get displayedColumns(): string[] {
@@ -66,7 +139,10 @@ export class GenericTableComponent {
     this.rowClick.emit(row);
   }
 
-  getActionColor(act: TableAction, row: any): 'primary' | 'accent' | 'warn' | undefined | null {
+  getActionColor(
+    act: TableAction,
+    row: any,
+  ): 'primary' | 'accent' | 'warn' | undefined | null {
     const color = typeof act.color === 'function' ? act.color(row) : act.color;
     return color as 'primary' | 'accent' | 'warn' | undefined | null;
   }

@@ -45,12 +45,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
   totalRecords: number = 0;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'price', label: 'Price' },
-    { key: 'stockQuantity', label: 'Stock' },
-    { key: 'categoryName', label: 'Category' },
-    { key: 'brandName', label: 'Brand' },
+    { key: 'name', label: 'Name', type: 'string' },
+    { key: 'description', label: 'Description', type: 'string' },
+    { key: 'price', label: 'Price', type: 'number' },
+    { key: 'stockQuantity', label: 'Stock', type: 'number' },
+    { key: 'categoryName', label: 'Category', type: 'string' },
+    { key: 'brandName', label: 'Brand', type: 'string' },
     { key: 'thumbnailUrl', label: 'Thumbnail', type: 'image' }
   ];
 
