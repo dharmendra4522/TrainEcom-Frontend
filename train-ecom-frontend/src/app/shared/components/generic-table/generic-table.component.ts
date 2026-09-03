@@ -61,11 +61,8 @@ export class GenericTableComponent {
     let isAsc = sort.direction === 'asc';
 
     let activeColumn = this.columns.find(col => col.key === sort.active)
-    console.log(activeColumn);
 
     let columnType = activeColumn?. type || 'text';
-    console.log(columnType);
-
     let copyData = [...this.originalData];
 
     this.data = copyData.sort((a,b) => {
