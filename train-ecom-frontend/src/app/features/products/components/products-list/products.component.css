@@ -1,60 +1,30 @@
-
-.sticky-top-section {
-    position: sticky;
-    top: 0;
-    padding-top: 10px;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+.main-container {
+  padding: 15px;
+}
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
-.page-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 100%;
 }
 
-.page-header h2{
-    margin: 0;
-    color: #333;
+.fields {
+  width: 100%;
 }
 
-.table-container{
-    background: white;
-    border-radius: 8px;
-    overflow-x: auto;
-}
-
-.prodct-table{
-    width: 100%;
-}
-
-.price-text{
-    font-weight: bold;
-    color: #2e7d32;
-}
-
-.category-badge{
-    background-color: #e3f2fd;
-    color: #1565c0;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-/* for thum image */
-.product-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
-  display: block;
-  margin: 4px 0;
-}
-
-.no-image-text {
-  font-size: 12px;
-  color: #757575;
-  font-style: italic;
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: start;
+  }
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
 }
