@@ -1,6 +1,6 @@
 <div class="main-container">
   <div class="form-body">
-    <h2 class="title">Add Product</h2>
+    <h2 class="title">{{ isEdit ? "Update Product" : "Add Product" }}</h2>
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <div class="form-container">
         <div class="item1">
@@ -35,9 +35,9 @@
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Brand</mat-label>
             <mat-select formControlName="brand">
-              <mat-option value="1">Brand</mat-option>
-              <mat-option value="3">Brand</mat-option>
-              <mat-option value="4">Brand</mat-option>
+              <mat-option *ngFor="let brand of brandData" [value]="brand.id">{{
+                brand.name
+              }}</mat-option>
             </mat-select>
             <mat-error *ngIf="productForm.get('brand')?.hasError('required')"
               >Please Select Brand Of Product</mat-error
@@ -48,7 +48,11 @@
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Category</mat-label>
             <mat-select formControlName="category">
-              <mat-option value="1">Brand</mat-option>
+              <mat-option
+                *ngFor="let category of categoryData"
+                [value]="category.id"
+                >{{ category.name }}</mat-option
+              >
               <mat-option value="3">Brand</mat-option>
             </mat-select>
             <mat-error *ngIf="productForm.get('category')?.hasError('required')"
@@ -67,16 +71,64 @@
           </mat-form-field>
         </div>
         <div class="item3">
+          <div *ngIf="existingImages.length > 0" class="image-preview">
+            <p class="preview-label">
+              Current Images:
+            </p>
+            <div class="preview-image-container">
+              <div *ngFor="let img of existingImages; let i = index" class="thumb-box">
+                <img
+                  *ngIf="img.imageUrl"
+                  [src]="imageUrl"
+                  alt="product-image"
+                  class="load-img"
+                />
+                <button
+                  type="button"
+                  mat-mini-fab
+                  color="warn"
+                  class="remove-btn"
+                  (click)="removeExistingImage(img.id, i)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Select Image</mat-label>
-            <input formControlName="image" matInput />
-            <mat-error *ngIf="productForm.get('image')?.hasError('required')"
+            <input
+              matInput
+              [value]="fileName"
+              readonly
+              placeholder="Choose an image..."
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="fileInput.click()"
+            >
+              <mat-icon>file_copy</mat-icon>
+            </button>
+
+            <mat-error
+              *ngIf="productForm.get('image')?.hasError('required') && !isEdit"
               >Please Add at least one image of product</mat-error
             >
           </mat-form-field>
+
+          <input
+            type="file"
+            #fileInput
+            style="display: none"
+            accept="image/*"
+            multiple
+            (change)="onFileSelected($event)"
+          />
         </div>
       </div>
-      <div>
+      <div class="submitBtn">
         <button
           matSuffix
           mat-raised-button
@@ -84,7 +136,7 @@
           color="primary"
           [disabled]="productForm.invalid"
         >
-          Submit
+          {{ isEdit ? "Update" : "Submit" }}
         </button>
       </div>
     </form>

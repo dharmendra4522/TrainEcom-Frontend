@@ -28,3 +28,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+.table-image{
+  width: 70px;
+  height: 70px;
+  padding: 5px;
+}
