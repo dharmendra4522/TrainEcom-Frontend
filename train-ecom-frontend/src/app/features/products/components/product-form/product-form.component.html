@@ -72,14 +72,15 @@
         </div>
         <div class="item3">
           <div *ngIf="existingImages.length > 0" class="image-preview">
-            <p class="preview-label">
-              Current Images:
-            </p>
+            <p class="preview-label">Current Images:</p>
             <div class="preview-image-container">
-              <div *ngFor="let img of existingImages; let i = index" class="thumb-box">
+              <div
+                *ngFor="let img of existingImages; let i = index"
+                class="thumb-box"
+              >
                 <img
                   *ngIf="img.imageUrl"
-                  [src]="imageUrl"
+                  [src]="img.imageUrl"
                   alt="product-image"
                   class="load-img"
                 />
@@ -89,6 +90,26 @@
                   color="warn"
                   class="remove-btn"
                   (click)="removeExistingImage(img.id, i)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="newImagePreview.length > 0" class="image-preview">
+            <p class="preview-label">New Selected Images:</p>
+            <div class="preview-image-container">
+              <div
+                *ngFor="let img of newImagePreview; let i = index"
+                class="thumb-box"
+              >
+                <img [src]="img" alt="product-image" class="load-img" />
+                <button
+                  type="button"
+                  mat-mini-fab
+                  color="warn"
+                  class="remove-btn"
+                  (click)="removeNewImg(i)"
                 >
                   <mat-icon>close</mat-icon>
                 </button>
@@ -136,7 +157,7 @@
           color="primary"
           [disabled]="productForm.invalid"
         >
-          {{ isEdit ? "Update" : "Submit" }}
+          {{ isEdit ? "Update Product" : "Submit Product" }}
         </button>
       </div>
     </form>

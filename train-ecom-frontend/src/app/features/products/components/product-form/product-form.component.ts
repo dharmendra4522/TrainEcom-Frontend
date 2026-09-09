@@ -7,6 +7,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 import { Category } from '../../../../core/models/category.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../../../../core/models/product.model';
+import { NotificationService } from '../../../../core/services/notification.service';
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
@@ -19,6 +20,7 @@ export class ProductFormComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private route = inject(Router);
+  private notificationService = inject(NotificationService);
 
   productForm!: FormGroup;
   fileName: string = '';
@@ -30,6 +32,7 @@ export class ProductFormComponent implements OnInit {
   imageUrl: string | null = null;
   existingImages: { id: string; imageUrl: string; isPrimary: boolean }[] = [];
   deletedImageId: string[] = [];
+  newImagePreview: string[] = [];
 
   ngOnInit(): void {
     this.validateForm();
@@ -54,7 +57,6 @@ export class ProductFormComponent implements OnInit {
     this.brandService.getAllBrands().subscribe({
       next: (response) => {
         this.brandData = response;
-        console.log(this.brandData);
       },
       error(err) {
         console.log('Brands are not load from server', err);
@@ -66,7 +68,6 @@ export class ProductFormComponent implements OnInit {
     this.categoryService.getAllCategories().subscribe({
       next: (response) => {
         this.categoryData = response;
-        console.log(this.categoryData);
       },
       error(err) {
         console.log('Category are not load from server', err);
@@ -78,7 +79,6 @@ export class ProductFormComponent implements OnInit {
     this.productId = this.activatedRoute.snapshot.paramMap.get('id');
     if (this.productId) {
       this.isEdit = true;
-      console.log('id fetch success', this.productId);
       this.loadProductData(this.productId);
     } else {
       this.isEdit = false;
@@ -88,7 +88,6 @@ export class ProductFormComponent implements OnInit {
   loadProductData(id: string): void {
     this.productService.getProductById(id).subscribe({
       next: (response) => {
-        console.log(response);
         this.productForm.patchValue({
           productName: response.name,
           price: response.price,
@@ -99,12 +98,10 @@ export class ProductFormComponent implements OnInit {
         });
         if (response.images && response.images.length > 0) {
           const primaryImg = response.images[0];
-          console.log(primaryImg);
           this.fileName = primaryImg.imageUrl;
           this.imageUrl = primaryImg.imageUrl;
           this.fileName = '';
           this.existingImages = response.images;
-          console.log('existing image', this.existingImages);
         }
       },
       error(err) {
@@ -115,10 +112,10 @@ export class ProductFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.productForm.invalid) {
+      this.notificationService.showWarning('Please fill all required filed');
       return;
     }
     const formData = this.productForm.value;
-    console.log(formData);
     const productPayload = {
       name: formData.productName,
       description: formData.description,
@@ -129,10 +126,17 @@ export class ProductFormComponent implements OnInit {
     };
     if (this.productId && this.isEdit) {
       this.productService
-        .updateProduct(this.productId, productPayload, this.selectedFile, this.deletedImageId)
+        .updateProduct(
+          this.productId,
+          productPayload,
+          this.selectedFile,
+          this.deletedImageId,
+        )
         .subscribe({
           next: (res) => {
-            console.log('Product successfully updated', res);
+            this.notificationService.showSuccess(
+              'Product successfully updated',
+            );
             this.route.navigate(['/admin/products']);
           },
           error(err) {
@@ -144,11 +148,14 @@ export class ProductFormComponent implements OnInit {
         .createProduct(productPayload, this.selectedFile)
         .subscribe({
           next: (res) => {
-            console.log('Product add successfully', res);
+            this.notificationService.showSuccess('Product add successfully');
             this.route.navigate(['/admin/products']);
           },
-          error(err) {
-            console.log('Somthing went wrong in add product', err);
+          error: (err) => {
+            this.notificationService.showError(
+              'Somthing went wrong in add product',
+            );
+            console.log('Error:', err);
           },
         });
     }
@@ -159,14 +166,39 @@ export class ProductFormComponent implements OnInit {
     this.existingImages.splice(idx, 1);
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files;
+  onFileSelected(event: Event): void {
+    const inputEle = event.target as HTMLInputElement;
+    const file = inputEle.files;
     if (file && file.length > 0) {
-      this.selectedFile = Array.from(file);
+      const newFileArray = Array.from(file);
+
+      this.selectedFile = [...this.selectedFile, ...newFileArray];
+      this.fileName = `${this.selectedFile.length} files selected`;
+      Array.from(file).forEach((file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          if (e.target?.result) {
+            this.newImagePreview.push(e.target?.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
       this.productForm.patchValue({
         image: file[0],
       });
       this.productForm.get('image')?.markAsTouched();
+      inputEle.value = '';
+    }
+  }
+
+  removeNewImg(idx: number): void {
+    this.newImagePreview.splice(idx, 1);
+    this.selectedFile.splice(idx, 1);
+    if (this.newImagePreview.length === 0 && this.existingImages.length === 0) {
+      this.fileName = '';
+      this.productForm.patchValue({ image: '' });
+    } else {
+      this.fileName = `${this.newImagePreview.length} new files selected`;
     }
   }
 }

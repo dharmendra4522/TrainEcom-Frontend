@@ -10,7 +10,7 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
   gap: 10px;
   width: 100%;
 }
@@ -26,12 +26,36 @@
   }
   .grid-container {
     grid-template-columns: 1fr;
+    gap: 0px;
   }
 }
 
-
-.table-image{
+.table-image {
   width: 70px;
   height: 70px;
   padding: 5px;
+}
+
+.row-click {
+  cursor: pointer;
+}
+
+.row-click:hover {
+  background-color: rgb(236, 236, 236);
+}
+
+.clear-btn {
+  height: 56px;
+  width: 100%;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  width: 100%;
+  min-width: 800px;
 }
