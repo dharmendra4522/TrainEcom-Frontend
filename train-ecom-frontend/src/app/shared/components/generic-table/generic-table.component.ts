@@ -44,7 +44,7 @@ export class GenericTableComponent {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  originalData: Record<string, unknown>[] = []; 
+  originalData: Record<string, unknown>[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
@@ -58,44 +58,46 @@ export class GenericTableComponent {
       return;
     }
 
-    let isAsc = sort.direction === 'asc';
+    const isAsc = sort.direction === 'asc';
 
-    let activeColumn = this.columns.find(col => col.key === sort.active)
+    const activeColumn = this.columns.find((col) => col.key === sort.active);
 
-    let columnType = activeColumn?. type || 'text';
-    let copyData = [...this.originalData];
+    const columnType = activeColumn?.type || 'text';
+    const copyData = [...this.originalData];
 
-    this.data = copyData.sort((a,b) => {
+    this.data = copyData.sort((a, b) => {
       let valueA = a[sort.active];
-      let valueB = b[sort.active];      
-      if(columnType === 'number'){
+      let valueB = b[sort.active];
+      if (columnType === 'number') {
         valueA = Number(valueA);
         valueB = Number(valueB);
-      } else if(columnType === 'string'){
+      } else if (columnType === 'string') {
         valueA = String(valueA);
         valueB = String(valueB);
       }
-      return this.compareData(valueA as string | number, valueB as string | number, isAsc);
-    })
-
+      return this.compareData(
+        valueA as string | number,
+        valueB as string | number,
+        isAsc,
+      );
+    });
   }
-
 
   private compareData(
     a: number | string | boolean,
     b: number | string | boolean,
     isAsc: boolean,
   ): number {
-    if(isAsc === true){
-      if(a<b){
+    if (isAsc === true) {
+      if (a < b) {
         return -1;
-      } else{
+      } else {
         return 1;
       }
-    } else{
-      if(a>b){
+    } else {
+      if (a > b) {
         return 1;
-      } else{
+      } else {
         return -1;
       }
     }
@@ -138,17 +140,17 @@ export class GenericTableComponent {
 
   getActionColor(
     act: TableAction,
-    row: any,
+    row: Record<string, unknown>,
   ): 'primary' | 'accent' | 'warn' | undefined | null {
     const color = typeof act.color === 'function' ? act.color(row) : act.color;
     return color as 'primary' | 'accent' | 'warn' | undefined | null;
   }
 
-  getActionIcon(act: TableAction, row: any): string {
+  getActionIcon(act: TableAction, row: Record<string, unknown>): string {
     return typeof act.icon === 'function' ? act.icon(row) : act.icon;
   }
 
-  getActionLabel(act: TableAction, row: any): string {
+  getActionLabel(act: TableAction, row: Record<string, unknown>): string {
     if (act.label) {
       return typeof act.label === 'function' ? act.label(row) : act.label;
     }

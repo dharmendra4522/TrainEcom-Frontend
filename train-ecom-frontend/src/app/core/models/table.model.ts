@@ -7,12 +7,12 @@ export interface TableColumn {
   badgeClassKey?: string;
 }
 
-export interface TableAction {
+export interface TableAction<T = unknown> {
   actionKey: string;
-  icon: string | ((row: AdminUser) => string);
-  color: 'primary' | 'warn' | 'accent' | ((row: AdminUser) => any);
+  icon: string | ((row: T) => string);
+  color: 'primary' | 'warn' | 'accent' | ((row: T) => string);
   tooltip?: string;
-  label?: string | ((row: AdminUser) => string);
+  label?: string | ((row: T) => string);
 }
 export interface TableActionEvent<T = unknown> {
   action: string;
