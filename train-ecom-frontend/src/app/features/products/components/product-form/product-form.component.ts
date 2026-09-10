@@ -8,6 +8,8 @@ import { Category } from '../../../../core/models/category.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import imageCompression from 'browser-image-compression';
+
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
@@ -33,6 +35,8 @@ export class ProductFormComponent implements OnInit {
   existingImages: { id: string; imageUrl: string; isPrimary: boolean }[] = [];
   deletedImageId: string[] = [];
   newImagePreview: string[] = [];
+  isLoading: boolean = false;
+  isOptimizing: boolean = false;
 
   ngOnInit(): void {
     this.validateForm();
@@ -115,6 +119,7 @@ export class ProductFormComponent implements OnInit {
       this.notificationService.showWarning('Please fill all required field');
       return;
     }
+    this.isLoading = true;
     const formData = this.productForm.value;
     const productPayload = {
       name: formData.productName,
@@ -124,6 +129,7 @@ export class ProductFormComponent implements OnInit {
       brandId: formData.brand,
       categoryId: formData.category,
     };
+
     if (this.productId && this.isEdit) {
       this.productService
         .updateProduct(
@@ -137,10 +143,14 @@ export class ProductFormComponent implements OnInit {
             this.notificationService.showSuccess(
               'Product successfully updated',
             );
+
+            this.isLoading = false;
             this.route.navigate(['/admin/products']);
           },
-          error(err) {
-            console.log('Error updating Prodct', err);
+          error: (err) => {
+            this.isLoading = false;
+            this.notificationService.showError('Error updating Prodct');
+            console.log('Error:', err);
           },
         });
     } else {
@@ -148,10 +158,12 @@ export class ProductFormComponent implements OnInit {
         .createProduct(productPayload, this.selectedFile)
         .subscribe({
           next: (res) => {
+            this.isLoading = false;
             this.notificationService.showSuccess('Product add successfully');
             this.route.navigate(['/admin/products']);
           },
           error: (err) => {
+            this.isLoading = false;
             this.notificationService.showError(
               'Somthing went wrong in add product',
             );
@@ -166,47 +178,72 @@ export class ProductFormComponent implements OnInit {
     this.existingImages.splice(idx, 1);
   }
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(event: Event): Promise<void> {
     const inputEle = event.target as HTMLInputElement;
-    const file = inputEle.files;
-    if (file && file.length > 0) {
-      const newFileArray = Array.from(file);
+    const files = inputEle.files;
+
+    if (files && files.length > 0) {
+      const newFileArray = Array.from(files);
       const allowTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-      const maxFileSixe = 5 * 1024 * 1024;
+      const maxFileSize = 4.5 * 1024 * 1024;
 
       for (const singleFile of newFileArray) {
         if (!allowTypes.includes(singleFile.type)) {
           this.notificationService.showError(
-            'Only JPEG, JPG,PNG and WEBP formate is supperted',
-          );
-          inputEle.value = '';
-          return;
-        }
-        if (singleFile.size > maxFileSixe) {
-          this.notificationService.showError(
-            'Please Upload maximum 5MB file size',
+            'Only JPEG, JPG, PNG and WEBP format is supported',
           );
           inputEle.value = '';
           return;
         }
       }
 
-      this.selectedFile = [...this.selectedFile, ...newFileArray];
-      this.fileName = `${this.selectedFile.length} files selected`;
-      Array.from(file).forEach((file: File) => {
-        const reader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-          if (e.target?.result) {
-            this.newImagePreview.push(e.target?.result as string);
+      this.isOptimizing = true;
+      this.fileName = 'Optimizing image...';
+
+      const options = {
+        maxSizeMB: 4.5,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+
+      this.notificationService.showSuccess('Optimizing image, please wait...');
+
+      try {
+        const compressedFiles: File[] = [];
+
+        for (const file of newFileArray) {
+          if (file.size > maxFileSize) {
+            const compressedFile = await imageCompression(file, options);
+            compressedFiles.push(compressedFile);
+          } else {
+            compressedFiles.push(file);
           }
-        };
-        reader.readAsDataURL(file);
-      });
-      this.productForm.patchValue({
-        image: file[0],
-      });
-      this.productForm.get('image')?.markAsTouched();
-      inputEle.value = '';
+        }
+
+        this.selectedFile = [...this.selectedFile, ...compressedFiles];
+        this.fileName = `${this.selectedFile.length} files selected`;
+
+        for (const file of compressedFiles) {
+          const reader = new FileReader();
+          reader.onload = (e: ProgressEvent<FileReader>) => {
+            if (e.target?.result) {
+              this.newImagePreview.push(e.target?.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        this.productForm.patchValue({
+          image: compressedFiles[0],
+        });
+        this.productForm.get('image')?.markAsTouched();
+      } catch (error) {
+        this.notificationService.showError('Failed to optimize image');
+        console.log('Error:', error);
+      } finally {
+        this.isOptimizing = false;
+        inputEle.value = '';
+      }
     }
   }
 

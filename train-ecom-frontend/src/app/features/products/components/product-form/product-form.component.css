@@ -11,8 +11,10 @@
 }
 
 .title {
-  font-weight: 500px;
+  font-weight: 500;
   margin-bottom: 20px;
+  color: #333;
+  margin-bottom: 30px;
 }
 
 .form-container {
@@ -51,16 +53,12 @@
 
 .image-preview {
   margin-bottom: 12px;
-  /* display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px; */
 }
 
 .preview-label {
   font-size: 12px;
   columns: green;
-  font-weight: 500px;
+  font-weight: 500;
   margin-bottom: 6px;
 }
 
@@ -93,6 +91,18 @@
   right: -8px;
   transform: scale(0.55);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.submitBtn button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.btn-spin {
+  display: inline-flex !important;
+  margin: 0 !important;
 }
 
 @media (max-width: 768px) {

@@ -120,13 +120,15 @@
             <mat-label>Select Image</mat-label>
             <input
               matInput
-              [value]="fileName"
+              [value]="
+                isOptimizing ? 'Optimizing image please wait...' : fileName
+              "
               readonly
               placeholder="Choose an image..."
             />
             <button
               mat-icon-button
-              matSuffix
+              matPrefix
               type="button"
               (click)="fileInput.click()"
             >
@@ -155,9 +157,28 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="productForm.invalid"
+          [disabled]="
+            productForm.invalid ||
+            isLoading ||
+            isOptimizing ||
+            (isEdit &&
+              !productForm.dirty &&
+              selectedFile.length === 0 &&
+              deletedImageId.length === 0)
+          "
         >
-          {{ isEdit ? "Update Product" : "Submit Product" }}
+          <mat-spinner
+            *ngIf="isLoading"
+            diameter="20"
+            class="btn-spin"
+          ></mat-spinner>
+          {{
+            isLoading
+              ? "Processing..."
+              : isEdit
+                ? "Update Product"
+                : "Submit Product"
+          }}
         </button>
       </div>
     </form>
