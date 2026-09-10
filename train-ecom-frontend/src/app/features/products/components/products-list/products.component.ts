@@ -14,13 +14,6 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { MatSort, Sort } from '@angular/material/sort';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
@@ -78,10 +71,9 @@ export class ProductsComponent {
 
   private loadProduct(page: number, size: number): void {
     this.isLoading = true;
-    const apiPageNumber = page + 1;
     this.productService
       .getPaginatedProducts(
-        apiPageNumber,
+        page + 1,
         size,
         this.selectedBrand,
         this.selectedCategory,
@@ -91,16 +83,13 @@ export class ProductsComponent {
         next: (response) => {
           const productData: Product[] = response.items || [];
           this.totalElement = response.totalRecords || 0;
-          this.dataSource.data = productData.map((product) => ({
-            ...product,
-            description: this.transform(product.description),
-          }));
+          this.dataSource.data = productData;
           this.isLoading = false;
         },
         error: (err) => {
           this.isLoading = false;
           this.notificationService.showError(
-            'Somting is Wrong to load product from server',
+            'Something is wrong to load product from server',
           );
           console.log('Error:', err);
         },
@@ -130,10 +119,7 @@ export class ProductsComponent {
         next: (response) => {
           const productData: Product[] = response.items || [];
           this.totalElement = response.totalRecords || 0;
-          this.dataSource.data = productData.map((product) => ({
-            ...product,
-            description: this.transform(product.description),
-          }));
+          this.dataSource.data = productData;
           this.isLoading = false;
         },
         error: (err) => {
@@ -143,7 +129,7 @@ export class ProductsComponent {
       });
   }
 
-  onPageChange(event: PageEvent) {
+  onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.loadProduct(this.pageIndex, this.pageSize);
@@ -183,11 +169,6 @@ export class ProductsComponent {
     });
   }
 
-  private transform(description: string): string {
-    if (!description) return '';
-    return description.substring(0, 10) + '...';
-  }
-
   onEdit(id: string): void {
     this.router.navigate(['/admin/products/edit', id]);
   }
@@ -208,7 +189,7 @@ export class ProductsComponent {
                 'Product deleted successfully!',
               );
               this.dataSource.data = this.dataSource.data.filter(
-                (product) => product.id != id,
+                (product) => product.id !== id,
               );
               this.loadProduct(this.pageIndex, this.pageSize);
             },
@@ -219,6 +200,13 @@ export class ProductsComponent {
           });
         }
       });
+  }
+
+  getShortDescription(desc: string): string {
+    if (!desc) {
+      return '';
+    }
+    return desc.length > 10 ? desc.slice(0, 15) + '....' : desc;
   }
 
   onProductDetail(id: string): void {

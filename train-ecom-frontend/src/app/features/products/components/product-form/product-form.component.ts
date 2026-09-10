@@ -112,7 +112,7 @@ export class ProductFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.productForm.invalid) {
-      this.notificationService.showWarning('Please fill all required filed');
+      this.notificationService.showWarning('Please fill all required field');
       return;
     }
     const formData = this.productForm.value;
@@ -171,6 +171,25 @@ export class ProductFormComponent implements OnInit {
     const file = inputEle.files;
     if (file && file.length > 0) {
       const newFileArray = Array.from(file);
+      const allowTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      const maxFileSixe = 5 * 1024 * 1024;
+
+      for (const singleFile of newFileArray) {
+        if (!allowTypes.includes(singleFile.type)) {
+          this.notificationService.showError(
+            'Only JPEG, JPG,PNG and WEBP formate is supperted',
+          );
+          inputEle.value = '';
+          return;
+        }
+        if (singleFile.size > maxFileSixe) {
+          this.notificationService.showError(
+            'Please Upload maximum 5MB file size',
+          );
+          inputEle.value = '';
+          return;
+        }
+      }
 
       this.selectedFile = [...this.selectedFile, ...newFileArray];
       this.fileName = `${this.selectedFile.length} files selected`;
