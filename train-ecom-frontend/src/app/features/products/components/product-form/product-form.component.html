@@ -3,7 +3,7 @@
     <h2 class="title">{{ isEdit ? "Update Product" : "Add New Product" }}</h2>
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <div class="form-container">
-        <div class="item1">
+        <div class="product-info-section">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Product Name</mat-label>
             <input formControlName="productName" matInput type="text" />
@@ -31,7 +31,7 @@
             >
           </mat-form-field>
         </div>
-        <div class="item2">
+        <div class="brand-field">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Brand</mat-label>
             <mat-select formControlName="brand">
@@ -44,7 +44,7 @@
             >
           </mat-form-field>
         </div>
-        <div class="item4">
+        <div class="category-field">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Category</mat-label>
             <mat-select formControlName="category">
@@ -53,14 +53,13 @@
                 [value]="category.id"
                 >{{ category.name }}</mat-option
               >
-              <mat-option value="3">Brand</mat-option>
             </mat-select>
             <mat-error *ngIf="productForm.get('category')?.hasError('required')"
               >Please Select Category Of Product</mat-error
             >
           </mat-form-field>
         </div>
-        <div class="item3">
+        <div class="desc-section">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Description</mat-label>
             <textarea formControlName="description" matInput></textarea>
@@ -70,7 +69,7 @@
             >
           </mat-form-field>
         </div>
-        <div class="item3">
+        <div class="desc-section">
           <div *ngIf="existingImages.length > 0" class="image-preview">
             <p class="preview-label">Current Images:</p>
             <div class="preview-image-container">
@@ -144,7 +143,7 @@
           <input
             type="file"
             #fileInput
-            style="display: none"
+            class="img-input"
             accept="image/*"
             multiple
             (change)="onFileSelected($event)"
@@ -157,15 +156,7 @@
           mat-raised-button
           type="submit"
           color="primary"
-          [disabled]="
-            productForm.invalid ||
-            isLoading ||
-            isOptimizing ||
-            (isEdit &&
-              !productForm.dirty &&
-              selectedFile.length === 0 &&
-              deletedImageId.length === 0)
-          "
+          [disabled]="isbuttonDisabled"
         >
           <mat-spinner
             *ngIf="isLoading"

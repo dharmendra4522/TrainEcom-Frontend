@@ -201,7 +201,7 @@ export class ProductFormComponent implements OnInit {
       this.fileName = 'Optimizing image...';
 
       const options = {
-        maxSizeMB: 4.5,
+        maxSizeMB: 5,
         maxWidthOrHeight: 1920,
         useWebWorker: true,
       };
@@ -256,5 +256,17 @@ export class ProductFormComponent implements OnInit {
     } else {
       this.fileName = `${this.newImagePreview.length} new files selected`;
     }
+  }
+
+  get isbuttonDisabled(): boolean {
+    const isfieldInvalid =
+      this.productForm.invalid || this.isLoading || this.isOptimizing;
+    const isEditUnchanged =
+      this.isEdit &&
+      !this.productForm.dirty &&
+      this.selectedFile.length === 0 &&
+      this.deletedImageId.length === 0;
+
+    return isfieldInvalid || isEditUnchanged;
   }
 }

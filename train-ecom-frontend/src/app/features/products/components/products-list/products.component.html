@@ -11,14 +11,14 @@
   </div>
   <!-- search section -->
   <div class="grid-container">
-    <div class="item1">
+    <div class="search-filter">
       <mat-form-field appearance="outline" class="fields">
         <mat-label>Search Product</mat-label>
         <mat-icon matPrefix>search</mat-icon>
         <input matInput type="text" [formControl]="searchControl" />
       </mat-form-field>
     </div>
-    <div class="item2">
+    <div>
       <mat-form-field appearance="outline" class="fields">
         <mat-label>Select Brand</mat-label>
         <mat-select
@@ -32,7 +32,7 @@
       </mat-form-field>
     </div>
 
-    <div class="item3">
+    <div>
       <mat-form-field appearance="outline" class="fields">
         <mat-label>Select Category</mat-label>
         <mat-select
@@ -47,10 +47,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div
-      class="item4"
-      *ngIf="searchControl.value || selectedBrand || selectedCategory"
-    >
+    <div *ngIf="searchControl.value || selectedBrand || selectedCategory">
       <button
         mat-stroked-button
         type="submit"

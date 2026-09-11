@@ -25,7 +25,7 @@ export class ProductsComponent {
   private brandService = inject(BrandService);
   private categoryService = inject(CategoryService);
   private notificationService = inject(NotificationService);
-  private confirnDialog = inject(ConfirmDialogServiceService);
+  private confirmDialog = inject(ConfirmDialogServiceService);
 
   dataSource = new MatTableDataSource<Product>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -54,7 +54,7 @@ export class ProductsComponent {
   selectedBrand: string = '';
   selectedCategory: string = '';
   searchControl = new FormControl('');
-  searchTearm: string = '';
+  searchTerm: string = '';
 
   isLoading: boolean = false;
 
@@ -77,7 +77,7 @@ export class ProductsComponent {
         size,
         this.selectedBrand,
         this.selectedCategory,
-        this.searchTearm,
+        this.searchTerm,
       )
       .subscribe({
         next: (response) => {
@@ -102,7 +102,7 @@ export class ProductsComponent {
         debounceTime(500),
         distinctUntilChanged(),
         switchMap((search) => {
-          this.searchTearm = search || '';
+          this.searchTerm = search || '';
           this.pageIndex = 0;
           this.isLoading = true;
 
@@ -111,7 +111,7 @@ export class ProductsComponent {
             this.pageSize,
             this.selectedBrand,
             this.selectedCategory,
-            this.searchTearm,
+            this.searchTerm,
           );
         }),
       )
@@ -175,7 +175,7 @@ export class ProductsComponent {
 
   onDelete(id: string): void {
     if (!id) return;
-    this.confirnDialog
+    this.confirmDialog
       .confirm(
         'Are you sure you want to delete this product?',
         'Yes, Delete',

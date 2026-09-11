@@ -23,7 +23,7 @@
   gap: 13px;
 }
 
-.item1 {
+.product-info-section {
   grid-column: 1/3;
 }
 
@@ -35,10 +35,10 @@
   grid-column: 4/5;
 }
 
-.item2 {
+.brand-field {
   grid-column: 1/3;
 }
-.item3 {
+.desc-section {
   grid-column: 1/5;
 }
 
@@ -57,7 +57,7 @@
 
 .preview-label {
   font-size: 12px;
-  columns: green;
+  color: green;
   font-weight: 500;
   margin-bottom: 6px;
 }
@@ -105,17 +105,21 @@
   margin: 0 !important;
 }
 
+.img-input {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .form-container {
     grid-template-columns: 1fr;
   }
 
-  .item1,
+  .product-info-section,
   .price,
   .qty,
-  .item2,
-  .item3,
-  .item4 {
+  .brand-field,
+  .desc-section,
+  .category-field {
     grid-column: 1 / 2;
   }
 }
