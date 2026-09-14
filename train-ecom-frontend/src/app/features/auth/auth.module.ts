@@ -10,10 +10,14 @@ import { AuthRoutingModule } from './auth-routing.module';
 
 import { EffectsModule } from '@ngrx/effects';
 import { AuthEffects } from '../../core/store/auth/auth.effects';
+import { VendorRegisterComponent } from './vendor-register/vendor-register.component';
+import { VendorBusinessDetailsComponent } from './vendor-business-details/vendor-business-details.component';
 @NgModule({
   declarations: [
     LoginComponent,
     RegisterComponent,
+    VendorRegisterComponent,
+    VendorBusinessDetailsComponent,
   ],
   imports: [
     CommonModule,
