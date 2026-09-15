@@ -185,7 +185,7 @@ export class ProductFormComponent implements OnInit {
     if (files && files.length > 0) {
       const newFileArray = Array.from(files);
       const allowTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-      const maxFileSize = 4.5 * 1024 * 1024;
+      const maxFileSize = 5 * 1024 * 1024;
 
       for (const singleFile of newFileArray) {
         if (!allowTypes.includes(singleFile.type)) {

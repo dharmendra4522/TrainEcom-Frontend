@@ -191,9 +191,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // --- Image & Quantity Helpers ---
   private setInitialImage(product: Product): void {
     if (product.images && product.images.length > 0) {
-      const primary = product.images.find((img) => img.isPrimary);
-      this.selectedImageUrl = primary
-        ? primary.imageUrl
+      const primaryImage = product.images.find((img) => img.isPrimary);
+      this.selectedImageUrl = primaryImage
+        ? primaryImage.imageUrl
         : product.images[0].imageUrl;
     } else if (product.thumbnailUrl) {
       this.selectedImageUrl = product.thumbnailUrl;

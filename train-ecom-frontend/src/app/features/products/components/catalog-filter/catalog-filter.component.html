@@ -10,7 +10,7 @@
       mat-button
       color="warn"
       class="fs-8 px-2 py-1 min-width-unset"
-      (click)="resetAll.emit()"
+      (click)="onReset()"
     >
       Reset All
     </button>
@@ -21,7 +21,7 @@
     <select
       class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
       [value]="selectedCategory"
-      (change)="categoryChange.emit($any($event.target).value)"
+      (change)="onCategoryChange($event)"
     >
       <option value="">All Categories</option>
       <option *ngFor="let cat of categories" [value]="cat.name">
@@ -35,7 +35,7 @@
     <select
       class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
       [value]="selectedBrand"
-      (change)="brandChange.emit($any($event.target).value)"
+      (change)="onBrandChange($event)"
     >
       <option value="">All Brands</option>
       <option *ngFor="let brand of brands" [value]="brand.name">
@@ -60,7 +60,7 @@
         max="10000"
         step="50"
         [value]="maxPriceSliderValue"
-        (input)="priceSliderChange.emit(+$any($event.target).value)"
+        (input)="onPriceSliderChange($event)"
         class="custom-slider w-100"
       />
     </div>
@@ -72,9 +72,7 @@
       class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
       [value]="activeRating === null ? '' : activeRating"
       (change)="
-        ratingChange.emit(
-          $any($event.target).value ? +$any($event.target).value : null
-        )
+        onRatingChange($event)
       "
     >
       <option value="">All Ratings</option>
