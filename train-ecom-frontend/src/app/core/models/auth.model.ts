@@ -1,34 +1,45 @@
-export enum Role{
-    Admin = 'Admin',
-    Customer = 'Customer',
+import { ApprovalStatus } from "./user.model";
+
+export enum Role {
+  Admin = 'Admin',
+  Customer = 'Customer',
+  Vendor = 'Vendor',
+  OfficeAdmin = 'OfficeAdmin',
+  Accounting = 'Accounting',
 }
 
-export interface loginRequest{
-    email: string;
-    password: string;
+export interface loginRequest {
+  email: string;
+  password: string;
 }
 
 export interface loginResponse {
-    accessToken: string; 
-    accessTokenExpiresAt: string;
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  role?: Role;
+  isBussinessDetailsCompleted?: boolean | null;
+  approvalStatus?: ApprovalStatus;
 }
 
-export interface UserSessionPayload{
-    token: string;
-    role: Role | null;
+export interface UserSessionPayload {
+  token: string;
+  role: Role | null;
+  isBussinessDetailsCompleted?: boolean | null;
+  approvalStatus?: ApprovalStatus;
+  expiresAt?: number | null;
 }
 
-export interface registerRequest{
-    name: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    phoneNumber: string;
+export interface registerRequest {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phoneNumber: string;
 }
 
-export interface registerResponse{
-    success: boolean;
-    message: string;
+export interface registerResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface BackendError {
@@ -39,18 +50,17 @@ export interface BackendError {
 }
 
 export interface ForgotPasswordRequest {
-    email: string;
+  email: string;
 }
 
 export interface ResetPasswordRequest {
-    email: string;
-    otp: string;
-    newPassword: string;
-    confirmPassword: string;
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
-
-export interface ApiBasicResponse{
-    success: boolean | number;
-    message: string;
+export interface ApiBasicResponse {
+  success: boolean | number;
+  message: string;
 }

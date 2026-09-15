@@ -1,3 +1,15 @@
+.bg-image-container {
+  background-image: url("/assets/auth-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 .container {
   display: flex;
   justify-content: center;
@@ -9,4 +21,6 @@
   max-width: 650px;
   width: 100%;
   margin: 0 auto;
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
 }

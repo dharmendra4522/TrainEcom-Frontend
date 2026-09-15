@@ -4,7 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { publicGuard } from '../../core/guards/public.guard';
 import { VendorRegisterComponent } from './vendor-register/vendor-register.component';
-import { VendorBusinessDetailsComponent } from './vendor-business-details/vendor-business-details.component';
+import { VendorStatusComponent } from './vendor-status/vendor-status.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
@@ -14,10 +14,7 @@ const routes: Routes = [
     component: VendorRegisterComponent,
     canActivate: [publicGuard],
   },
-  {
-    path: 'vendor-business-details',
-    component: VendorBusinessDetailsComponent,
-  },
+  { path: 'vendor-status', component: VendorStatusComponent },
 ];
 
 @NgModule({

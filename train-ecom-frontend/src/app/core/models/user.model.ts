@@ -1,11 +1,14 @@
+import { Role } from './auth.model';
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   phoneNumber: string;
   defaultAddress: Address | null;
-  isApproved: ApprovalStatus;
-  isBusinessDetailsCompleted: boolean;
+  role: Role;
+  isApproved?: ApprovalStatus | null;
+  isBussinessDetailsCompleted?: boolean | null;
   vendorBusinessDetails?: VendorBusinessDetail | null;
 }
 
@@ -95,4 +98,21 @@ export enum ApprovalStatus {
   Pending = 'Pending',
   Approved = 'Approved',
   Rejected = 'Rejected',
+}
+
+export interface VendorBusinessDetails {
+  businessName: string;
+  gstNumber: string;
+  panNumber: string;
+  businessAddress: BusinessAddress;
+}
+
+export interface BusinessAddress {
+  id?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: number;
 }
