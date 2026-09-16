@@ -48,14 +48,14 @@
         <h1 class="product-title fw-bold text-dark mb-2">{{ product.name }}</h1>
 
         <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 mb-3"
-          *ngIf="product.averageRating !== undefined">
-          <div class="d-flex align-items-center text-warning gap-1">
-            <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating)">{{ star }}</mat-icon>
+          >
+          <div class="d-flex align-items-center text-warning gap-1" *ngIf="product.averageRating !== undefined && product.averageRating > 0">
+            <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating || 0)">{{ star }}</mat-icon>
             <span class="text-dark fw-bold ms-1">{{ product.averageRating | number:'1.1-1' }}</span>
             <span class="text-muted fs-7">({{ product.reviewCount || 0 }} reviews)</span>
+            <span class="vr d-none d-sm-inline"></span>
           </div>
 
-          <span class="vr d-none d-sm-inline"></span>
 
           <div>
             <span *ngIf="product.stockQuantity && product.stockQuantity > 0"

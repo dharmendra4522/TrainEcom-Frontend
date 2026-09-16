@@ -5,7 +5,7 @@ import { Category } from '../../../../core/models/category.model';
 @Component({
   selector: 'app-catalog-filter',
   templateUrl: './catalog-filter.component.html',
-  styleUrls: ['./catalog-filter.component.css']
+  styleUrls: ['./catalog-filter.component.css'],
 })
 export class CatalogFilterComponent {
   @Input() categories: Category[] = [];
@@ -22,5 +22,33 @@ export class CatalogFilterComponent {
   @Output() ratingChange = new EventEmitter<number | null>();
   @Output() sortChange = new EventEmitter<string>();
   @Output() resetAll = new EventEmitter<void>();
+
+  onReset(): void {
+    this.resetAll.emit();
+  }
+
+  onCategoryChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.categoryChange.emit(value);
+  }
+  onBrandChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.brandChange.emit(value);
+  }
+  onPriceSliderChange(event: Event): void {
+    const value = +(event.target as HTMLInputElement).value;
+    this.priceSliderChange.emit(value);
+  }
+
+  onRatingChange(event: Event): void {
+    const rawValue = (event.target as HTMLSelectElement).value;
+    const value = rawValue ? +rawValue : null;
+    this.ratingChange.emit(value);
+  }
+  
+  onSortChange(event: Event): void{
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortChange.emit(value);
+  }
 
 }
