@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
-import { topProducts } from '../models/report.model';
+import { TopProducts } from '../models/report.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class ReportService {
     });
   }
 
-    getTopSellingProducts(fromdate?: string, todate?: string, limit: number = 10): Observable<topProducts[]> {
+    getTopSellingProducts(fromdate?: string, todate?: string, limit: number = 10): Observable<TopProducts[]> {
      let params = new HttpParams().set('limit', limit.toString());
       if(fromdate) {
         params = params.set('fromDate', fromdate);
@@ -31,7 +31,7 @@ export class ReportService {
       if(todate) {
         params = params.set('toDate', todate);
       }
-      return this.http.get<topProducts[]>(`${this.apiUrl}/admin/top-products`, { params });
+      return this.http.get<TopProducts[]>(`${this.apiUrl}/admin/top-products`, { params });
     }
 
 }

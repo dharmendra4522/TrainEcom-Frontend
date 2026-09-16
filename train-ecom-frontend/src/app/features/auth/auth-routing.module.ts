@@ -14,7 +14,7 @@ const routes: Routes = [
     component: VendorRegisterComponent,
     canActivate: [publicGuard],
   },
-  { path: 'vendor-status', component: VendorStatusComponent },
+  { path: 'vendor-status', component: VendorStatusComponent, canActivate: [publicGuard], },
 ];
 
 @NgModule({

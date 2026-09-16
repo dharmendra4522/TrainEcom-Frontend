@@ -1,4 +1,4 @@
-import { ApprovalStatus } from "./user.model";
+import { ApprovalStatus } from './user.model';
 
 export enum Role {
   Admin = 'Admin',
@@ -8,12 +8,12 @@ export enum Role {
   Accounting = 'Accounting',
 }
 
-export interface loginRequest {
+export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface loginResponse {
+export interface LoginResponse {
   accessToken: string;
   accessTokenExpiresAt: string;
   role?: Role;
@@ -29,7 +29,7 @@ export interface UserSessionPayload {
   expiresAt?: number | null;
 }
 
-export interface registerRequest {
+export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
@@ -37,7 +37,7 @@ export interface registerRequest {
   phoneNumber: string;
 }
 
-export interface registerResponse {
+export interface RegisterResponse {
   success: boolean;
   message: string;
 }
@@ -63,4 +63,15 @@ export interface ResetPasswordRequest {
 export interface ApiBasicResponse {
   success: boolean | number;
   message: string;
+}
+
+export interface VendorRegisterResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+    submittedDate: string;
+    registrationId: string;
+    status: string;
+  };
 }

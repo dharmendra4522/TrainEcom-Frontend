@@ -3,7 +3,7 @@ export interface SalesReportRequest {
     toDate: string;
 }
 
-export interface topProducts {
+export interface TopProducts {
     productId: string;
     productName: string;
     thumbnailUrl: string;

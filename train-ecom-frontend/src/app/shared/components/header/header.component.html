@@ -16,7 +16,7 @@
       mat-icon-button
       *ngIf="showMenuButton"
       class="text-dark me-2 sidebar-toggle-btn"
-      (click)="toggleSidebar.emit()"
+      (click)="onToggleSidebar()"
       matTooltip="Toggle Menu"
     >
       <mat-icon>menu</mat-icon>
@@ -70,7 +70,7 @@
       <ng-container *ngIf="auth.role !== 'Admin'">
         <button
           mat-icon-button
-          (click)="openWishlist.emit()"
+          (click)="onOpenWishlistClick()"
           aria-label="Wishlist"
           class="text-dark icon-circle-btn"
           matTooltip="Wishlist"
@@ -87,7 +87,7 @@
 
         <button
           mat-icon-button
-          (click)="openCart.emit()"
+          (click)="onOpenCartClick()"
           aria-label="View Cart"
           class="text-dark icon-circle-btn"
           matTooltip="Cart"
@@ -178,7 +178,7 @@
           mat-icon-button
           matTooltip="Notifications"
           class="text-dark icon-circle-btn"
-          (click)="openNotification.emit()"
+          (click)="onOpenNotificationClick()"
           aria-label="Notifications"
         >
           <mat-icon>notifications_none</mat-icon>

@@ -52,14 +52,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private initAuthSubscription(): void {
-    combineLatest([this.isLoggedIn$, this.userRole$]).pipe(takeUntil(this.destroy$))
+    combineLatest([this.isLoggedIn$, this.userRole$])
+      .pipe(takeUntil(this.destroy$))
       .subscribe(([isLoggedIn, role]) => {
         if (isLoggedIn) {
-          if(role && role === 'Admin'){
+          if (role && role === 'Admin') {
             return;
           }
           this.store.dispatch(WishlistActions.loadWishlist());
-        } else{
+        } else {
           // The cart feature owns hydration/reset for session changes.
           // The badge remains selector-driven and updates from cart state.
         }
@@ -68,5 +69,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onLogout(): void {
     this.store.dispatch(AuthActions.logout());
+  }
+
+  onToggleSidebar(): void {
+    this.toggleSidebar.emit();
+  }
+  onOpenWishlistClick(): void {
+    this.openWishlist.emit();
+  }
+  onOpenCartClick(): void {
+    this.openCart.emit();
+  }
+
+  onOpenNotificationClick(): void {
+    this.openNotification.emit();
   }
 }
