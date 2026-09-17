@@ -42,11 +42,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
     { label: 'Categories', icon: 'category', route: '/admin/categories' },
     { label: 'Manage Users', icon: 'people', route: '/admin/users' },
+    { label: 'Manage Vendors', icon: 'store', route: '/admin/users/vendors' },
     { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
     { label: 'Platform Analytics', icon: 'bar_chart', route: '/admin/reports' },
     { label: 'Notifications', icon: 'notifications', route: '/admin/notifications-history' },
   ];
-
+ 
   consumerMenuItems: MenuItem[] = [
     { label: 'My Profile', icon: 'person', route: '/account/profile' },
     { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
@@ -55,6 +56,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
     { label: 'My Notifications', icon: 'notifications', route: '/account/notifications-history' },
   ];
+
 
   isMobile$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)

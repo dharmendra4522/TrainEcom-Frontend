@@ -1,9 +1,11 @@
 import { AdminUser } from '../models/user.model';
+import { Role } from './auth.model';
 export interface TableColumn {
   key: string;
   label: string;
   type?: 'text' | 'image' | 'badge' | 'currency' | 'date' | number | string;
   truncate?: boolean;
+  role?: Role;
   badgeClassKey?: string;
 }
 

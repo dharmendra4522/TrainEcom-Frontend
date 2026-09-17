@@ -7,6 +7,7 @@ import { UserManagementComponent } from './components/user-management/user-manag
 import { customerGuard } from '../../core/guards/customer.guard';
 import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
+import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
 
 const routes: Routes = [
   // Profile route accessible by both Customer (/account/profile) and Admin (/admin/profile)
@@ -16,6 +17,7 @@ const routes: Routes = [
 
   // Admin User Management routes (/admin/users/manage)
   { path: 'manage', canActivate: [authGuard, adminGuard], component: UserManagementComponent },
+  { path: 'vendors', canActivate: [authGuard, adminGuard], component: VendorManagementComponent },
 
   // Default empty route when lazy loaded at /admin/profile
   { path: '', canActivate: [authGuard], component: ProfileComponent },

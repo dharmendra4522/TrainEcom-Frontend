@@ -27,6 +27,7 @@ import { SearchableDropdownComponent } from './components/searchable-dropdown/se
 import { ManageEntityDialogComponent } from './components/manage-entity-dialog/manage-entity-dialog.component';
 import { ReviewRatingDialogComponent } from './components/review-rating-dialog/review-rating-dialog.component';
 import { NotificationCardComponent } from './components/notification-card/notification-card.component';
+import { StatusCardComponent } from './components/status-card/status-card.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { NotificationCardComponent } from './components/notification-card/notifi
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
     ReviewRatingDialogComponent,
-    NotificationCardComponent
+    NotificationCardComponent,
+    StatusCardComponent
   ],
   imports: [
     CommonModule,

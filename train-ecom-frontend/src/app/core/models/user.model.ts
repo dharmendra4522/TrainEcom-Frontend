@@ -86,6 +86,7 @@ export interface AdminUserListResponse {
 export interface AdminUserFilterParams {
   search?: string;
   status?: string;
+  role?: string;
   pageNumber?: number;
   pageSize?: number;
 }
