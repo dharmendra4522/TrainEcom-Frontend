@@ -179,7 +179,7 @@ const routes: Routes = [
   {
     path: '',
     component: AuthLayoutComponent,
-    canActivate: [publicGuard],
+    // canActivate: [publicGuard],
     loadChildren: () =>
       import('./features/auth/auth.module').then((m) => m.AuthModule),
   },

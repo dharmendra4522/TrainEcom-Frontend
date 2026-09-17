@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   userEmail: string = '';
   resendTimer: number = 0;
   expiryTimer: number = 300;
-  timerInterval: any;
+  timerInterval: ReturnType<typeof setInterval> | null = null;
   isShowingNewPassword = false;
   isShowingConfirmPassword = false;
 
@@ -187,13 +187,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   startTimers() {
     this.resendTimer = 60;
     this.expiryTimer = 300; // 5 minutes
-    clearInterval(this.timerInterval);
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
     this.timerInterval = setInterval(() => {
       if (this.resendTimer > 0) this.resendTimer--;
       if (this.expiryTimer > 0) this.expiryTimer--;
       
       if (this.resendTimer <= 0 && this.expiryTimer <= 0) {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+        }
       }
     }, 1000);
   }

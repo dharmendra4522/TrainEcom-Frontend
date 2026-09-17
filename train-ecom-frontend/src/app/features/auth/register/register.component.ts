@@ -70,9 +70,12 @@ export class RegisterComponent {
     this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
   }
 
-  allowOnlyNumbers(event: any): boolean {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+  allowOnlyNumbers(event: KeyboardEvent): boolean {
+    const isControlKey = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(event.key);
+    if (isControlKey) {
+      return true;
+    }
+    if (!/^\d$/.test(event.key)) {
       event.preventDefault();
       return false;
     }

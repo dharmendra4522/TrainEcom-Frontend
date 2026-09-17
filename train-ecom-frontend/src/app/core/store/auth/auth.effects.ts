@@ -25,7 +25,7 @@ export class AuthEffects {
   private userService = inject(UserService);
 
 
-  private getErrorMessage(err: any, isLogin: boolean = true): string {
+  private getErrorMessage(err: unknown, isLogin: boolean = true): string {
     return extractBackendMessage(err, 'An error occurred');
   }
 
@@ -136,7 +136,12 @@ export class AuthEffects {
   }
 
   private getPostLoginRoute(role: string): string {
-    const fallbackRoute = role === 'admin' ? '/admin/dashboard' : '/';
+    let fallbackRoute = '/';
+    if(role === 'admin'){
+      fallbackRoute = '/admin/dashboard';
+    } else if(role === 'vendor'){
+      fallbackRoute = '/vendor-status';
+    }
     const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
 
     if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
@@ -145,6 +150,10 @@ export class AuthEffects {
 
     if (role === 'admin') {
       return returnUrl.startsWith('/admin') ? returnUrl : fallbackRoute;
+    }
+
+    if (role === 'vendor') {
+      return returnUrl.startsWith('/vendor-status') ? returnUrl : fallbackRoute;
     }
 
     return returnUrl.startsWith('/admin') ? fallbackRoute : returnUrl;

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { publicGuard } from '../../core/guards/public.guard';
+import { authGuard } from '../../core/guards/auth.guard';
 import { VendorRegisterComponent } from './vendor-register/vendor-register.component';
 import { VendorStatusComponent } from './vendor-status/vendor-status.component';
 
@@ -14,7 +15,7 @@ const routes: Routes = [
     component: VendorRegisterComponent,
     canActivate: [publicGuard],
   },
-  { path: 'vendor-status', component: VendorStatusComponent, canActivate: [publicGuard], },
+  { path: 'vendor-status', component: VendorStatusComponent, canActivate: [authGuard] },
 ];
 
 @NgModule({

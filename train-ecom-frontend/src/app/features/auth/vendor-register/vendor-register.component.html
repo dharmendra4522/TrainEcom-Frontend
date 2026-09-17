@@ -28,7 +28,7 @@
             class="nav-link"
             type="button"
             [class.active]="currentStep === 2"
-            [disabled]="!isStep1Valid && currentStep < 2"
+            [disabled]="!canAccessStep2 && currentStep < 2"
             (click)="goToStep(2)"
           >
             Business
@@ -39,7 +39,7 @@
             class="nav-link"
             type="button"
             [class.active]="currentStep === 3"
-            [disabled]="(!isStep1Valid || !isStep2Valid) && currentStep < 3"
+            [disabled]="!canAccessStep3 && currentStep < 3"
             (click)="goToStep(3)"
           >
             Address
@@ -50,10 +50,7 @@
             class="nav-link"
             type="button"
             [class.active]="currentStep === 4"
-            [disabled]="
-              (!isStep1Valid || !isStep2Valid || !isStep3Valid) &&
-              currentStep < 4
-            "
+           [disabled]="!canAccessStep4 && currentStep < 4"
             (click)="goToStep(4)"
           >
             Account & Tax
@@ -64,13 +61,7 @@
             class="nav-link"
             type="button"
             [class.active]="currentStep === 5"
-            [disabled]="
-              (!isStep1Valid ||
-                !isStep2Valid ||
-                !isStep3Valid ||
-                !isStep4Valid) &&
-              currentStep < 5
-            "
+            [disabled]="!canAccessStep5 && currentStep < 5"
             (click)="goToStep(5)"
           >
             Documents
@@ -341,7 +332,7 @@
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Select Business Category</mat-label>
             <mat-icon matPrefix class="me-2 text-secondary">category</mat-icon>
-            <mat-select formControlName="businessCategory">
+            <mat-select formControlName="businessCategory" multiple>
               <mat-option
                 *ngFor="let category of categories$ | async"
                 [value]="category.id"
@@ -618,7 +609,8 @@
                 >
                 <input
                   matInput
-                  type="number"
+                  type="text"
+                  inputmode="numeric" pattern="[0-9]*" maxlength="18"
                   formControlName="bankAccountNumber"
                   placeholder="Ex. 123456789012"
                 />

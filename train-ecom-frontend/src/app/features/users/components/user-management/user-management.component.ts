@@ -103,7 +103,7 @@ export class UserManagementComponent {
       }
     })
   }
-  onSearchInput(event: any): void {
+  onSearchInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     this.searchQuery = inputElement.value;
     this.searchSubject.next(this.searchQuery);

@@ -17,6 +17,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs';
+import { CartResponse, CartWarning } from '../../models/cart.model';
 import {
   selectCartLoaded,
   selectCartItems,
@@ -35,9 +36,10 @@ export class CartEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        filter(
-          ({ payload }) => payload.role?.toString().toLowerCase() !== 'admin',
-        ),
+        filter(({ payload }) => {
+          const role = payload.role?.toString().toLowerCase();
+          return role !== 'admin' && role !== 'vendor';
+        }),
         tap(() => this.cartService.loadCart()),
       ),
     { dispatch: false },
@@ -226,9 +228,9 @@ export class CartEffects {
       ofType(CartActions.mergeCart),
       exhaustMap((action) => {
         return this.cartService.mergeCart(action.cartItems).pipe(
-          switchMap((response: any) => {
+          switchMap((response: CartResponse) => {
             if (response && response.warnings && response.warnings.length > 0) {
-              response.warnings.forEach((warning: any) => {
+              response.warnings.forEach((warning: CartWarning) => {
                 this.notification.showWarning(
                   warning.message || `Stock issue with ${warning.productName}`,
                   'Close',
@@ -259,3 +261,4 @@ export class CartEffects {
     );
   });
 }
+

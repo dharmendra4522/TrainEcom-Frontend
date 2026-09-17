@@ -141,7 +141,7 @@ export class VendorRegisterComponent implements OnInit {
           '',
           [Validators.required, Validators.minLength(10)],
         ],
-        businessCategory: ['', Validators.required],
+        businessCategory: [[], Validators.required],
         gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
         businessDocument: ['', [fileValidator(['application/pdf'], 5)]],
         businessLogo: [
@@ -179,7 +179,7 @@ export class VendorRegisterComponent implements OnInit {
         state: ['', Validators.required],
         postalCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
 
-        bankAccountNumber: ['', [Validators.pattern(/^\d{9,16}$/)]],
+        bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
         acountHolderName: [''],
         ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
       },
@@ -235,30 +235,65 @@ export class VendorRegisterComponent implements OnInit {
       this.notificationService.showError('Form is invalid');
       return;
     }
-
     const formValue = this.registerForm.value;
     const fullName = `${formValue.firstName.trim()} ${formValue.lastName.trim()}`;
-
     const formData = new FormData();
+    // basic details
+    formData.append('BasicDetails.Name', fullName);
+    formData.append('BasicDetails.Email', formValue.email);
+    formData.append('BasicDetails.Password', formValue.password);
+    formData.append('BasicDetails.ConfirmPassword', formValue.confirmPassword);
+    formData.append('BasicDetails.PhoneNumber', formValue.phoneNumber);
 
-    Object.keys(this.registerForm.controls).forEach((key) => {
-      if (key !== 'firstName' && key !== 'lastName') {
-        const value = formValue[key];
-        if (value !== null && value !== undefined && value !== '') {
-          formData.append(key, value);
-        }
-      }
+    // Business & Address Info
+    formData.append('BussinessName', formValue.businessName);
+    formData.append('BussinessDescription', formValue.businessDescription);
+    formData.append('StoreName', formValue.displayName);
+    formData.append('GSTIN', formValue.gstin);
+    formData.append('PAN', formValue.panNumber);
+    formData.append('AddressLine1', formValue.addressLine1);
+    if (formValue.addressLine2) {
+      formData.append('AddressLine2', formValue.addressLine2);
+    }
+    formData.append('City', formValue.city);
+    formData.append('State', formValue.state);
+    formData.append('Country', formValue.country);
+    formData.append('PostalCode', formValue.postalCode);
+    if (formValue.bankAccountNumber)
+      formData.append(
+        'BankAccountNumber',
+        formValue.bankAccountNumber.toString(),
+      );
+    if (formValue.ifscCode) formData.append('IFSCCode', formValue.ifscCode);
+    if (formValue.acountHolderName)
+      formData.append('AccountHolderName', formValue.acountHolderName);
+
+    const categories: string[] = Array.isArray(formValue.businessCategory)
+      ? formValue.businessCategory
+      : [formValue.businessCategory];
+    categories.forEach((catId: string) => {
+      formData.append('CategoryIds', catId);
     });
 
-    formData.append('name', fullName);
+    if (formValue.gstDocument instanceof File) {
+      formData.append('DocumentTypes', 'GST');
+      formData.append('Documents', formValue.gstDocument);
+    }
+    if (formValue.businessDocument instanceof File) {
+      formData.append('DocumentTypes', 'BusinessRegistration');
+      formData.append('Documents', formValue.businessDocument);
+    }
+    if (formValue.businessLogo instanceof File) {
+      formData.append('BusinessLogo', formValue.businessLogo);
+    }
 
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
         this.notificationService.showSuccess(res.message);
-        this.route.navigate(['/vendor-status']);
         this.registerForm.reset();
+        this.route.navigate(['/login']);
       },
-      error: (err) => {
+      error: (err: { error?: { message?: string } }) => {
         this.notificationService.showError(
           err?.error?.message || 'Registration failed',
         );
@@ -378,5 +413,26 @@ export class VendorRegisterComponent implements OnInit {
   // tab click button
   goToStep(step: number): void {
     this.currentStep = step;
+  }
+
+  get canAccessStep2(): boolean {
+    return this.isStep1Valid;
+  }
+
+  get canAccessStep3(): boolean {
+    return this.isStep1Valid && this.isStep2Valid;
+  }
+
+  get canAccessStep4(): boolean {
+    return this.isStep1Valid && this.isStep2Valid && this.isStep3Valid;
+  }
+
+  get canAccessStep5(): boolean {
+    return (
+      this.isStep1Valid &&
+      this.isStep2Valid &&
+      this.isStep3Valid &&
+      this.isStep4Valid
+    );
   }
 }
