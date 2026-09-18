@@ -84,7 +84,8 @@ import { StatusCardComponent } from './components/status-card/status-card.compon
     BrandCategoryDialogComponent,
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
-    NotificationCardComponent
+    NotificationCardComponent,
+    StatusCardComponent
   ]
 })
 export class SharedModule { }

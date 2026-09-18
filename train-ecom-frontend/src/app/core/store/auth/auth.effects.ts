@@ -8,12 +8,13 @@ import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { Role } from '../../models/auth.model';
+import { LoginResponse, Role } from '../../models/auth.model';
 import { BackendError, UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 
 import { extractBackendMessage } from '../../utils/error.utils';
+import { ApprovalStatus } from '../../models/user.model';
 
 @Injectable()
 export class AuthEffects {
@@ -21,9 +22,8 @@ export class AuthEffects {
   private authService = inject(AuthService);
   private router = inject(Router);
   private notification = inject(NotificationService);
-  private store = inject(Store); 
+  private store = inject(Store);
   private userService = inject(UserService);
-
 
   private getErrorMessage(err: unknown, isLogin: boolean = true): string {
     return extractBackendMessage(err, 'An error occurred');
@@ -34,13 +34,44 @@ export class AuthEffects {
       ofType(AuthActions.loginReq),
       exhaustMap((action) =>
         this.authService.login(action.request).pipe(
-          map((res) => {
+          map((res: LoginResponse) => {
             const roleString = this.decodeRole(res.accessToken);
+
             const role = roleString as Role | null;
+            const vendorStatus =
+              role === Role.Vendor
+                ? (res.status as ApprovalStatus) || null
+                : null;
+
+            const TIMER_DURATION = 5 * 60 * 1000;
+            const calculatedExpireTime = (
+              new Date().getTime() + TIMER_DURATION
+            ).toString();
 
             localStorage.setItem('accessToken', res.accessToken);
+
+            if (vendorStatus) {
+              localStorage.setItem('vendorStatus', vendorStatus);
+            } else {
+              localStorage.removeItem('vendorStatus');
+            }
+            if (res.registrationId)
+              localStorage.setItem('registrationId', res.registrationId);
+            if (res.submittedDate)
+              localStorage.setItem('submittedDate', res.submittedDate);
+            if (res.status)
+              localStorage.setItem('vendorStatusDetail', res.status);
+
+            localStorage.setItem('vendor_session_expiry', calculatedExpireTime);
             return AuthActions.loginSuccess({
-              payload: { token: res.accessToken, role },
+              payload: {
+                token: res.accessToken,
+                role,
+                approvalStatus: vendorStatus ?? undefined,
+                submittedDate: res.submittedDate,
+                registrationId: res.registrationId,
+                status: res.status,
+              },
             });
           }),
           catchError((err) => {
@@ -56,21 +87,29 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(({ payload, isRefresh }: { payload: UserSessionPayload; isRefresh?: boolean }) => {
-          // Session restoration only rehydrates state; it must not redirect or
-          // duplicate the profile request. Cart hydration is handled by CartEffects.
-          if (isRefresh) {
-            return;
-          }
+        tap(
+          ({
+            payload,
+            isRefresh,
+          }: {
+            payload: UserSessionPayload;
+            isRefresh?: boolean;
+          }) => {
+            // Session restoration only rehydrates state; it must not redirect or
+            // duplicate the profile request. Cart hydration is handled by CartEffects.
+            if (isRefresh) {
+              return;
+            }
 
-          this.store.dispatch(UserActions.loadProfileReq());
+            this.store.dispatch(UserActions.loadProfileReq());
 
-          const role = payload.role
-            ? payload.role.toString().toLowerCase()
-            : '';
+            const role = payload.role
+              ? payload.role.toString().toLowerCase()
+              : '';
 
-          this.router.navigateByUrl(this.getPostLoginRoute(role));
-        }),
+            this.router.navigateByUrl(this.getPostLoginRoute(role));
+          },
+        ),
       ),
     { dispatch: false },
   );
@@ -92,6 +131,11 @@ export class AuthEffects {
         ofType(AuthActions.logout),
         tap(() => {
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('vendorStatus');
+          localStorage.removeItem('vendor_session_expiry');
+          localStorage.removeItem('registrationId');
+          localStorage.removeItem('submittedDate');
+          localStorage.removeItem('vendorStatusDetail');
           this.userService.clearCache();
           this.router.navigate(['/login']);
         }),
@@ -137,23 +181,29 @@ export class AuthEffects {
 
   private getPostLoginRoute(role: string): string {
     let fallbackRoute = '/';
-    if(role === 'admin'){
+    if (role === 'admin') {
       fallbackRoute = '/admin/dashboard';
-    } else if(role === 'vendor'){
-      fallbackRoute = '/vendor-status';
     }
-    const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+    else if (role === 'vendor') {
+      fallbackRoute = '/vendor/dashboard';
+    }
+    const returnUrl = this.router.parseUrl(this.router.url).queryParams[
+      'returnUrl'
+    ];
 
-    if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+    if (
+      typeof returnUrl !== 'string' ||
+      !returnUrl.startsWith('/') ||
+      returnUrl.startsWith('//')
+    ) {
       return fallbackRoute;
     }
 
     if (role === 'admin') {
       return returnUrl.startsWith('/admin') ? returnUrl : fallbackRoute;
     }
-
     if (role === 'vendor') {
-      return returnUrl.startsWith('/vendor-status') ? returnUrl : fallbackRoute;
+      return returnUrl.startsWith('/vendor') ? returnUrl : fallbackRoute;
     }
 
     return returnUrl.startsWith('/admin') ? fallbackRoute : returnUrl;

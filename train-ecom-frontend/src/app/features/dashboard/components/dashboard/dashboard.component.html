@@ -17,7 +17,7 @@
 
 <ng-template #statsLoader>
   <div class="stats-grid">
-    <mat-card *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="stat-card">
+    <mat-card *ngFor="let i of stats" class="stat-card">
       <mat-card-content>
         <div class="stat-info w-75">
           <div class="placeholder-glow mb-2">
@@ -36,7 +36,7 @@
 </ng-template>
 
 <!-- Recent Orders -->
-<div class="orders-table-container mat-elevation-z2">
+<div class="orders-table-container mat-elevation-z2" *ngIf="isVendorStatus || stats.length>2; else pendingMessage">
   <div class="table-header d-flex justify-content-between align-items-center">
     <h3>Recent Orders</h3>
     <button mat-raised-button color="primary" (click)="navigateToOrders()">
@@ -53,3 +53,12 @@
     (rowClick)="onOrderClick($event)"
   ></app-generic-table>
 </div>
+
+
+<ng-template #pendingMessage>
+<div class="">
+  <app-status-card>
+    
+  </app-status-card>
+</div>
+</ng-template>

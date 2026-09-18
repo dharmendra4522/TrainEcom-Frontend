@@ -15,17 +15,22 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
-  accessTokenExpiresAt: string;
+  accessTokenExpiresAt?: string;
   role?: Role;
-  isBussinessDetailsCompleted?: boolean | null;
-  approvalStatus?: ApprovalStatus;
+  submittedDate?: string;
+  registrationId?: string;
+  status?: ApprovalStatus | string;
+  approvalStatus?: ApprovalStatus | null;
+  expireTime?: string;
 }
 
 export interface UserSessionPayload {
   token: string;
   role: Role | null;
-  isBussinessDetailsCompleted?: boolean | null;
-  approvalStatus?: ApprovalStatus;
+  submittedDate?: string | null;
+  registrationId?: string | null;
+  approvalStatus?: ApprovalStatus | string | null;
+  status?: string | null;
   expiresAt?: number | null;
 }
 

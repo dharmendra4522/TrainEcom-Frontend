@@ -35,7 +35,7 @@
 
     <div
       class="nav-links d-none d-lg-flex align-items-center gap-1 me-4"
-      *ngIf="auth.role !== 'Admin'"
+      *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'"
     >
       <a
         mat-button
@@ -67,7 +67,7 @@
     <span class="spacer d-none d-lg-block"></span>
 
     <div class="action-icons d-flex align-items-center gap-1 gap-md-2">
-      <ng-container *ngIf="auth.role !== 'Admin'">
+      <ng-container *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'">
         <button
           mat-icon-button
           (click)="onOpenWishlistClick()"
@@ -173,7 +173,7 @@
         </mat-menu>
       </ng-container>
 
-      <ng-container *ngIf="auth.loggedIn">
+      <ng-container *ngIf="auth.loggedIn && auth.role !== 'Vendor'">
         <button
           mat-icon-button
           matTooltip="Notifications"
@@ -220,7 +220,7 @@
             </div>
           </div>
 
-          <ng-container *ngIf="auth.role !== 'Admin'">
+          <ng-container *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'">
             <a mat-menu-item routerLink="/" class="d-lg-none py-2">
               <mat-icon class="text-dark me-2">home</mat-icon>
               <span class="fw-medium">Home</span>

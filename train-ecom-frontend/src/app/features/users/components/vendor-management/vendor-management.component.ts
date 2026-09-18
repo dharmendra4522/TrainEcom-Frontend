@@ -61,12 +61,12 @@ export class VendorManagementComponent {
   ];
   
   actions: TableAction[] = [
-    {
-      actionKey: 'edit',
-      icon: 'edit',
-      color: 'primary',
-      tooltip: 'Edit Vendor',
-    },
+    // {
+    //   actionKey: 'edit',
+    //   icon: 'edit',
+    //   color: 'primary',
+    //   tooltip: 'Edit Vendor',
+    // },
     {
       actionKey: 'delete',
       icon: 'delete',

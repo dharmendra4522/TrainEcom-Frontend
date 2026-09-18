@@ -21,6 +21,9 @@ export const customerGuard: CanActivateFn = (route, state) => {
       if(isLoggedIn && role === 'Admin') {
         return router.createUrlTree(['/admin/dashboard']);
       }
+      if(isLoggedIn && role === 'Vendor'){
+        return router.createUrlTree(['/vendor/dashboard']);
+      }
 
       return router.createUrlTree(['/login'], {
         queryParams: { returnUrl: state.url },

@@ -6,6 +6,9 @@ import { Store } from '@ngrx/store';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Router } from '@angular/router';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
+import { selectUserRole } from '../../../core/store/auth/auth.selectors';
+import { getRoleMenuItems } from '../../../core/config/role-permission.config';
+import { Role } from '../../../core/models/auth.model';
 
 
 @Component({
@@ -15,12 +18,17 @@ import * as AuthActions from '../../../core/store/auth/auth.actions';
 })
 export class SidebarComponent {
   private store = inject(Store);
-  private notification = inject(NotificationService);
-  private router = inject(Router);
 
   @Input() menuItems: MenuItem[] = [];
   @Input() title: string = 'Menu';
   @Input() sidebarType: string = 'admin';
+
+  ngOnInit(): void{
+    this.store.select(selectUserRole).subscribe((role) => {
+      const vendorStatus = localStorage.getItem('vendorStatus') || 'Pending';
+      this.menuItems = getRoleMenuItems(role as Role, vendorStatus);
+    })
+  }
 
    onLogout(): void {
       this.store.dispatch(AuthActions.logout());

@@ -11,13 +11,11 @@ import { AuthRoutingModule } from './auth-routing.module';
 import { EffectsModule } from '@ngrx/effects';
 import { AuthEffects } from '../../core/store/auth/auth.effects';
 import { VendorRegisterComponent } from './vendor-register/vendor-register.component';
-import { VendorStatusComponent } from './vendor-status/vendor-status.component';
 @NgModule({
   declarations: [
     LoginComponent,
     RegisterComponent,
     VendorRegisterComponent,
-    VendorStatusComponent,
   ],
   imports: [
     CommonModule,

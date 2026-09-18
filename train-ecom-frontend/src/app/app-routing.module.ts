@@ -8,6 +8,8 @@ import { adminGuard } from './core/guards/admin.guard';
 import { customerGuard } from './core/guards/customer.guard';
 import { publicGuard } from './core/guards/public.guard';
 import { guestOrCustomerGuard } from './core/guards/guest-or-customer.guard';
+import { vendorApprovedGuard } from './core/guards/vendor-approved-guard';
+import { vendorGuard } from './core/guards/vendor.guard';
 
 const routes: Routes = [
   {
@@ -21,7 +23,7 @@ const routes: Routes = [
         loadChildren: () =>
           import('./features/home/home.module').then((m) => m.HomeModule),
       },
-
+      // customer routes
       {
         path: 'account',
         canActivate: [authGuard],
@@ -41,7 +43,9 @@ const routes: Routes = [
               {
                 path: '',
                 loadChildren: () =>
-                  import('./features/orders/orders.module').then((m) => m.OrdersModule),
+                  import('./features/orders/orders.module').then(
+                    (m) => m.OrdersModule,
+                  ),
               },
             ],
           },
@@ -50,13 +54,54 @@ const routes: Routes = [
             canActivate: [customerGuard],
             loadChildren: () =>
               import('./features/notification/notification.module').then(
-                (m) => m.NotificationModule
+                (m) => m.NotificationModule,
               ),
           },
           {
             path: '',
             loadChildren: () =>
-              import('./features/users/users.module').then((m) => m.UsersModule),
+              import('./features/users/users.module').then(
+                (m) => m.UsersModule,
+              ),
+          },
+        ],
+      },
+
+      // vendor guard
+      {
+        path: 'vendor',
+        canActivate: [authGuard, vendorGuard],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+          {
+            path: 'dashboard',
+            loadChildren: () =>
+              import('./features/dashboard/dashboard.module').then(
+                (m) => m.DashboardModule,
+              ),
+          },
+          {
+            path: 'products',
+            canActivate: [vendorApprovedGuard, vendorGuard],
+            loadChildren: () =>
+              import('./features/products/products.module').then(
+                (m) => m.ProductsModule,
+              ),
+          },
+          {
+            path: 'orders',
+            canActivate: [vendorApprovedGuard, vendorGuard],
+            loadChildren: () =>
+              import('./features/orders/orders.module').then(
+                (m) => m.OrdersModule,
+              ),
+          },
+          {
+            path: 'profile',
+            loadChildren: () =>
+              import('./features/users/users.module').then(
+                (m) => m.UsersModule,
+              ),
           },
         ],
       },
@@ -80,7 +125,9 @@ const routes: Routes = [
         path: 'checkout',
         canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
-          import('./features/checkout/checkout.module').then((m) => m.CheckoutModule),
+          import('./features/checkout/checkout.module').then(
+            (m) => m.CheckoutModule,
+          ),
       },
       {
         path: 'orders',
@@ -89,11 +136,14 @@ const routes: Routes = [
           {
             path: '',
             loadChildren: () =>
-              import('./features/orders/orders.module').then((m) => m.OrdersModule),
-          }
-        ]
+              import('./features/orders/orders.module').then(
+                (m) => m.OrdersModule,
+              ),
+          },
+        ],
       },
 
+      // admin routes
       {
         path: 'admin',
         canActivate: [authGuard, adminGuard],
@@ -115,8 +165,8 @@ const routes: Routes = [
                   import('./features/products/products.module').then(
                     (m) => m.ProductsModule,
                   ),
-              }
-            ]
+              },
+            ],
           },
           {
             path: 'brands',
@@ -135,7 +185,9 @@ const routes: Routes = [
           {
             path: 'profile',
             loadChildren: () =>
-              import('./features/users/users.module').then((m) => m.UsersModule),
+              import('./features/users/users.module').then(
+                (m) => m.UsersModule,
+              ),
           },
           {
             path: 'users',
@@ -144,20 +196,24 @@ const routes: Routes = [
               {
                 path: '',
                 loadChildren: () =>
-                  import('./features/users/users.module').then((m) => m.UsersModule),
-              }
-            ]
+                  import('./features/users/users.module').then(
+                    (m) => m.UsersModule,
+                  ),
+              },
+            ],
           },
           {
             path: 'orders',
             loadChildren: () =>
-              import('./features/orders/orders.module').then((m) => m.OrdersModule),
+              import('./features/orders/orders.module').then(
+                (m) => m.OrdersModule,
+              ),
           },
           {
             path: 'reports',
             loadChildren: () =>
               import('./features/reports/reports.module').then(
-                (m) => m.ReportsModule
+                (m) => m.ReportsModule,
               ),
           },
           {
@@ -165,32 +221,34 @@ const routes: Routes = [
             canActivate: [adminGuard],
             loadChildren: () =>
               import('./features/notification/notification.module').then(
-                (m) => m.NotificationModule
+                (m) => m.NotificationModule,
               ),
-          }
+          },
         ],
       },
       {
         path: '404',
-        component: NotFoundComponent
-      }
+        component: NotFoundComponent,
+      },
     ],
   },
   {
     path: '',
     component: AuthLayoutComponent,
-    // canActivate: [publicGuard],
+    canActivate: [publicGuard],
     loadChildren: () =>
       import('./features/auth/auth.module').then((m) => m.AuthModule),
   },
   {
     path: '**',
-    component: NotFoundComponent
-  }
+    component: NotFoundComponent,
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' })],
+  imports: [
+    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' }),
+  ],
   exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

@@ -68,6 +68,17 @@ export const fileValidator = (
   };
 };
 
+
+export function noSpaceAllow(): ValidatorFn {
+  return (control:AbstractControl): ValidationErrors |null => {
+    const value = control.value;
+    if(!value){
+      return null;
+    }
+    const isWhiteSpace = value.trim().length === 0;
+    return isWhiteSpace ? {onlySpace: true} : null;
+  }
+}
 @Component({
   selector: 'app-vendor-register',
   templateUrl: './vendor-register.component.html',
@@ -85,6 +96,7 @@ export class VendorRegisterComponent implements OnInit {
 
   isPasswordView: boolean = false;
   isConfirmPassView: boolean = false;
+  isLoading: boolean = false;
 
   countries: ICountry[] = [];
   states: IState[] = [];
@@ -127,9 +139,9 @@ export class VendorRegisterComponent implements OnInit {
           '',
           [
             Validators.required,
-            Validators.minLength(6),
+            Validators.minLength(8),
             Validators.pattern(
-              /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{6,}$/,
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
             ),
           ],
         ],
@@ -139,7 +151,7 @@ export class VendorRegisterComponent implements OnInit {
         displayName: ['', [Validators.required, Validators.minLength(3)]],
         businessDescription: [
           '',
-          [Validators.required, Validators.minLength(10)],
+          [Validators.required, Validators.minLength(10), noSpaceAllow()],
         ],
         businessCategory: [[], Validators.required],
         gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
@@ -159,25 +171,20 @@ export class VendorRegisterComponent implements OnInit {
           [
             Validators.required,
             Validators.pattern(
-              /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+              /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/,
             ),
           ],
         ],
         panNumber: [
           '',
-          [
-            Validators.required,
-            Validators.pattern(
-              /^[A-Z]{3}[ABCFGHLJPT]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}$/,
-            ),
-          ],
+          [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/)],
         ],
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
         country: ['', Validators.required],
         state: ['', Validators.required],
-        postalCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+        postalCode: ['', [Validators.required, Validators.pattern(/^\d[1,9]{5}$/)]],
 
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
         acountHolderName: [''],
@@ -235,6 +242,8 @@ export class VendorRegisterComponent implements OnInit {
       this.notificationService.showError('Form is invalid');
       return;
     }
+
+    this.isLoading = true;
     const formValue = this.registerForm.value;
     const fullName = `${formValue.firstName.trim()} ${formValue.lastName.trim()}`;
     const formData = new FormData();
@@ -289,11 +298,13 @@ export class VendorRegisterComponent implements OnInit {
 
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
+        this.isLoading = false;
         this.notificationService.showSuccess(res.message);
         this.registerForm.reset();
         this.route.navigate(['/login']);
       },
       error: (err: { error?: { message?: string } }) => {
+        this.isLoading = false;
         this.notificationService.showError(
           err?.error?.message || 'Registration failed',
         );

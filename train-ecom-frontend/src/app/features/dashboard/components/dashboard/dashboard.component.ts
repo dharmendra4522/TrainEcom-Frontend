@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   OrderListItem,
   OrderStatus,
@@ -9,6 +9,8 @@ import { DashboardService } from '../../../../core/services/dashboard.service';
 import { Router } from '@angular/router';
 import { TableColumn } from '../../../../core/models/table.model';
 import { DashboardData } from '../../../../core/models/dashboard.model';
+import { Store } from '@ngrx/store';
+import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
 
 type DashboardOrderRow = {
   [key: string]: unknown;
@@ -26,12 +28,25 @@ type DashboardOrderRow = {
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
+
+  isVendorStatus: boolean = false;
+
   stats = [
-    { title: 'Total Revenue', value: '₹...', icon: 'attach_money', color: '#4caf50' },
+    {
+      title: 'Total Revenue',
+      value: '₹...',
+      icon: 'attach_money',
+      color: '#4caf50',
+    },
     { title: 'Orders', value: '...', icon: 'shopping_cart', color: '#2196f3' },
     { title: 'Customers', value: '...', icon: 'people', color: '#ff9800' },
     { title: 'Products', value: '...', icon: 'inventory_2', color: '#f44336' },
-    { title: 'Brands', value: '...', icon: 'branding_watermark', color: '#9c27b0' },
+    {
+      title: 'Brands',
+      value: '...',
+      icon: 'branding_watermark',
+      color: '#9c27b0',
+    },
     { title: 'Categories', value: '...', icon: 'category', color: '#3f51b5' },
   ];
 
@@ -40,16 +55,45 @@ export class DashboardComponent implements OnInit {
   tableColumns: TableColumn[] = [
     { key: 'orderId', label: 'Order ID', truncate: true },
     { key: 'customerName', label: 'Customer Name' },
-    { key: 'orderDate', label: 'Date', type: 'date' },  
+    { key: 'orderDate', label: 'Date', type: 'date' },
     { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
-    { key: 'orderStatus', label: 'Order Status', type: 'badge', badgeClassKey: 'orderStatusClass' },
+    {
+      key: 'orderStatus',
+      label: 'Order Status',
+      type: 'badge',
+      badgeClassKey: 'orderStatusClass',
+    },
   ];
   dataSource = this.recentOrders;
   isLoadingStats = true;
 
-  constructor(private dashboardService: DashboardService, private router: Router) { }
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
+    const vendorStatus = localStorage.getItem('vendorStatus');
+    if (vendorStatus === 'Pending') {
+      this.isVendorStatus = false;
+      this.isLoadingStats = false;
+      this.stats = [
+        {
+          title: 'My Orders',
+          value: '...',
+          icon: 'shopping_cart',
+          color: '#2196f3',
+        },
+        {
+          title: 'My Products',
+          value: '...',
+          icon: 'inventory_2',
+          color: '#f44336',
+        },
+      ];
+      return;
+    }
+    this.isVendorStatus = true;
     this.fetchDashboardData();
   }
 
@@ -64,23 +108,53 @@ export class DashboardComponent implements OnInit {
       error: (err: Error) => {
         console.error('Failed to fetch dashboard data', err);
         this.isLoadingStats = false;
-      }
+      },
     });
   }
 
   private updateStatsCards(data: DashboardData): void {
     this.stats = [
-      { title: 'Total Revenue', value: `₹${data.totalRevenue}`, icon: 'attach_money', color: '#4caf50' },
-      { title: 'Orders', value: data.totalOrders.toString(), icon: 'shopping_cart', color: '#2196f3' },
-      { title: 'Customers', value: data.totalUsers.toString(), icon: 'people', color: '#ff9800' },
-      { title: 'Products', value: data.totalProducts.toString(), icon: 'inventory_2', color: '#f44336' },
-      { title: 'Brands', value: data.totalBrands.toString(), icon: 'branding_watermark', color: '#9c27b0' },
-      { title: 'Categories', value: data.totalCategories.toString(), icon: 'category', color: '#3f51b5' },
+      {
+        title: 'Total Revenue',
+        value: `₹${data.totalRevenue}`,
+        icon: 'attach_money',
+        color: '#4caf50',
+      },
+      {
+        title: 'Orders',
+        value: data.totalOrders.toString(),
+        icon: 'shopping_cart',
+        color: '#2196f3',
+      },
+      {
+        title: 'Customers',
+        value: data.totalUsers.toString(),
+        icon: 'people',
+        color: '#ff9800',
+      },
+      {
+        title: 'Products',
+        value: data.totalProducts.toString(),
+        icon: 'inventory_2',
+        color: '#f44336',
+      },
+      {
+        title: 'Brands',
+        value: data.totalBrands.toString(),
+        icon: 'branding_watermark',
+        color: '#9c27b0',
+      },
+      {
+        title: 'Categories',
+        value: data.totalCategories.toString(),
+        icon: 'category',
+        color: '#3f51b5',
+      },
     ];
   }
 
   private updateRecentOrders(orders: any[]): void {
-    this.recentOrders = orders.map(order => this.mapOrderToTableRow(order));
+    this.recentOrders = orders.map((order) => this.mapOrderToTableRow(order));
     this.dataSource = [...this.recentOrders];
   }
 
@@ -134,9 +208,4 @@ export class DashboardComponent implements OnInit {
   navigateToOrders(): void {
     this.router.navigate(['/admin/orders']);
   }
-
-
-  
-
-
 }

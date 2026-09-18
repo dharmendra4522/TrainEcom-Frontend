@@ -56,7 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([isLoggedIn, role]) => {
         if (isLoggedIn) {
-          if (role && role === 'Admin') {
+          if (role && role === 'Admin' || role === 'Vendor') {
             return;
           }
           this.store.dispatch(WishlistActions.loadWishlist());

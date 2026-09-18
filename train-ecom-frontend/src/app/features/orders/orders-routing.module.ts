@@ -6,10 +6,11 @@ import { customerGuard } from '../../core/guards/customer.guard';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { OrderManagementComponent } from './components/order-management/order-management.component';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
+import { vendorGuard } from '../../core/guards/vendor.guard';
 
 const routes: Routes = [
   { path: '', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
-  { path: 'manage', canActivate: [authGuard, adminGuard], component: OrderManagementComponent },
+  { path: 'manage', canActivate: [authGuard, adminGuard, vendorGuard], component: OrderManagementComponent },
   { path: 'history', canActivate: [customerGuard], component: OrderHistoryComponent },
 
   // Customer Details View

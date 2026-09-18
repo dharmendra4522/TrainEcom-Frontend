@@ -1,13 +1,14 @@
-<div class="container mt-5 d-flex flex-column gap-5">
+<div class="container d-flex flex-column gap-3">
   <div class="timer-section">
     <div class="d-flex flex-column align-items-center gap-4">
-      <div class="d-flex gap-3">
-        <span>Login Time</span>
+      <div class="d-flex gap-2 align-items-center">
+        <span>Session Time Remain:</span>
+        <strong>{{ formattedTime }}</strong>
         <mat-icon>watch_later</mat-icon>
       </div>
-      <h3>
+      <h3 class="text-center">
         Your Application is Under Review! <br />Thank you for registering with
-        <a routerLink="/" class="text-decoration-none">TrainEcom</a>
+        <span class="text-primary">TrainEcom</span>
       </h3>
     </div>
   </div>
@@ -15,14 +16,28 @@
     <div
       class="card-section border rounded d-flex flex-column align-items-start px-4 py-2"
     >
-      <h3>Application Reg: #1234332ref</h3>
-      <p>Submitted Date: 19 Sep 2026</p>
-      <p>Current Status: Pending</p>
+      <ng-container
+        *ngIf="(registrationId$ | async) || localRegistrationId as regId"
+      >
+        <h3>Application Reg: #{{ shortReg(regId) }}</h3>
+      </ng-container>
+
+      <p>
+        Submitted Date:
+        {{
+          (submittedDate$ | async) || localSubmittedDate
+            | date: "medium" : "Asia/Kolkata"
+        }}
+      </p>
+
+      <p>Current Status: {{ (status$ | async) || localStatus }}</p>
     </div>
     <div class="help-section">
       <p>
         Any Help?
-        <a routerLink="/" class="text-decoration-none">traniecomgmail.com</a>
+        <a href="mailto:traniecom@gmail.com" class="text-decoration-none"
+          >traniecom&#64;gmail.com</a
+        >
       </p>
     </div>
   </div>

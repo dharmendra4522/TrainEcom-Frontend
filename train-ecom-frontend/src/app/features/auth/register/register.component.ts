@@ -4,11 +4,33 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 
-export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+export const passwordMatchValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
   const password = control.get('password')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
+  const confirmPasswordControl = control.get('confirmPassword');
+  const confirmPassword = confirmPasswordControl?.value;
 
-  return password === confirmPassword ? null : { passwordMismatch: true };
+  if (!confirmPasswordControl) {
+    return null;
+  }
+
+  if (password !== confirmPassword && confirmPassword) {
+    confirmPasswordControl.setErrors({
+      ...confirmPasswordControl.errors,
+      passwordMismatch: true,
+    });
+    return { passwordMismatch: true };
+  } else {
+    if (confirmPasswordControl.hasError('passwordMismatch')) {
+      const errors = { ...confirmPasswordControl.errors };
+      delete errors['passwordMismatch'];
+      confirmPasswordControl.setErrors(
+        Object.keys(errors).length > 0 ? errors : null,
+      );
+    }
+    return null;
+  }
 };
 
 
@@ -30,10 +52,10 @@ export class RegisterComponent {
   constructor() { }
 
   ngOnInit() {
-    this.validateForm();
+    this.initializeForm();
   }
 
-  private validateForm() {
+  private initializeForm() {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
@@ -41,7 +63,7 @@ export class RegisterComponent {
       password: ['', [
         Validators.required, 
         Validators.minLength(6),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/)
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,)
       ]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: passwordMatchValidator }

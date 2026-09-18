@@ -4,7 +4,7 @@
   <app-side-panel #notificationPanel type="Notification"></app-side-panel>
 
   <app-header
-    [showMenuButton]="shouldShowSidebar(userRole$ | async) ? true : false"
+    [showMenuButton]="shouldShowSidebar(userRole$ | async)"
     (toggleSidebar)="toggleDrawer()"
     (openWishlist)="wishlistPanel.open()"
     (openCart)="cartPanel.open()"
@@ -13,11 +13,19 @@
   </app-header>
 
   <app-product-filter
-    *ngIf="(userRole$ | async) !== 'Admin' && !isAccountRoute && !isDetailsOrFormRoute"
+    *ngIf="
+      (userRole$ | async) !== 'Admin' &&
+      (userRole$ | async) !== 'Vendor' &&
+      !isAccountRoute &&
+      !isDetailsOrFormRoute
+    "
     class="d-block"
   ></app-product-filter>
 
-  <mat-sidenav-container class="main-container" [class.account-container]="isAccountRoute">
+  <mat-sidenav-container
+    class="main-container"
+    [class.account-container]="isAccountRoute"
+  >
     <mat-sidenav
       #drawer
       *ngIf="shouldShowSidebar(userRole$ | async)"
@@ -25,16 +33,13 @@
       [opened]="isSidebarOpened"
       (openedChange)="isSidebarOpened = $event"
       [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
+      [class.vendor-sidebar]="(userRole$ | async) === 'Vendor'"
       [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
     >
       <app-sidebar
-        [title]="
-          (userRole$ | async) === 'Admin' ? 'Admin Panel' : 'Manage My Account'
-        "
-        [menuItems]="
-          (userRole$ | async) === 'Admin' ? adminMenuItems : consumerMenuItems
-        "
-        [sidebarType]="(userRole$ | async) === 'Admin' ? 'admin' : 'customer'"
+        [title]="getSidebarTitle(userRole$ | async)"
+        [menuItems]="(menuItems$ | async) || []"
+        [sidebarType]="getSidebarType(userRole$ | async)"
       >
       </app-sidebar>
     </mat-sidenav>
@@ -43,12 +48,12 @@
       <div class="content-wrapper">
         <div
           class="page-padding flex-grow-area"
-          [class.admin-page-padding]="(userRole$ | async) === 'Admin'"
+          [class.admin-page-padding]="(userRole$ | async) === 'Admin' || (userRole$ | async) === 'Vendor'"
           [class.customer-page-padding]="(userRole$ | async) === 'Customer'"
         >
           <router-outlet></router-outlet>
         </div>
-        <app-footer *ngIf="(userRole$ | async) !== 'Admin' && !isAccountRoute"></app-footer>
+         <app-footer *ngIf="(userRole$ | async) !== 'Admin' && (userRole$ | async) !== 'Vendor' && !isAccountRoute"></app-footer>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>

@@ -7,9 +7,9 @@ export interface UserProfile {
   phoneNumber: string;
   defaultAddress: Address | null;
   role: Role;
+  submittedDate?: string | null;
+  registrationId?: string | null;
   isApproved?: ApprovalStatus | null;
-  isBussinessDetailsCompleted?: boolean | null;
-  vendorBusinessDetails?: VendorBusinessDetail | null;
 }
 
 export interface VendorBusinessDetail {

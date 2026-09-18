@@ -2,15 +2,17 @@ import { createReducer, on } from '@ngrx/store';
 import * as AuthActions from './auth.actions';
 import { state } from '@angular/animations';
 import { ApprovalStatus } from '../../models/user.model';
+import { Role } from '../../models/auth.model';
 
 export interface AuthState {
   isLoggedIn: boolean;
   accessToken: string | null;
-  userRole: string | null;
-  isBussinessDetailsCompleted: boolean | null;
+  userRole: Role | string | null;
   approvalStatus: ApprovalStatus | null;
+  submittedDate: string | null;
+  registrationId: string | null;
+  status: string | null;
   pendingTimerExpiresAt: number | null;
-
   error: string | null;
 }
 
@@ -18,8 +20,10 @@ export const initialAuthState: AuthState = {
   isLoggedIn: false,
   accessToken: null,
   userRole: null,
-  isBussinessDetailsCompleted: null,
   approvalStatus: null,
+  submittedDate: null,
+  registrationId: null,
+  status: null,
   pendingTimerExpiresAt: null,
   error: null,
 };
@@ -33,8 +37,10 @@ export const authReducer = createReducer(
     isLoggedIn: true,
     accessToken: payload.token,
     userRole: payload.role,
-    isBussinessDetailsCompleted: payload.isBussinessDetailsCompleted ?? null,
     approvalStatus: (payload.approvalStatus as ApprovalStatus) ?? null,
+    submittedDate: payload.submittedDate ?? null, 
+    registrationId: payload.registrationId ?? null,
+    status: payload.status ?? null,
     error: null,
   })),
 

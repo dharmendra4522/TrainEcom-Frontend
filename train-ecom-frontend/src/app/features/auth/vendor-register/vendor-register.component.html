@@ -50,7 +50,7 @@
             class="nav-link"
             type="button"
             [class.active]="currentStep === 4"
-           [disabled]="!canAccessStep4 && currentStep < 4"
+            [disabled]="!canAccessStep4 && currentStep < 4"
             (click)="goToStep(4)"
           >
             Account & Tax
@@ -178,6 +178,7 @@
                 <input
                   matInput
                   type="tel"
+                  inputmode="numeric"
                   formControlName="phoneNumber"
                   placeholder="9876543210"
                   maxlength="10"
@@ -221,10 +222,15 @@
                   >Password required.</mat-error
                 >
                 <mat-error
-                  *ngIf="registerForm.get('password')?.hasError('minlength')"
-                  >Min 6 chars.</mat-error
+                  *ngIf="
+                    registerForm.get('password')?.hasError('pattern') &&
+                    !registerForm.get('password')?.hasError('required')
+                  "
                 >
+                  Password formate is invalid. e.g(aBcd&#64;123)
+                </mat-error>
               </mat-form-field>
+              
             </div>
             <div
               class="col-md-6 d-flex justify-content-md-end justify-content-center"
@@ -298,7 +304,7 @@
                   matInput
                   type="text"
                   formControlName="businessName"
-                  placeholder="John Doe"
+                  placeholder="Business Name"
                 />
                 <mat-error
                   *ngIf="registerForm.get('businessName')?.hasError('required')"
@@ -358,8 +364,20 @@
               *ngIf="
                 registerForm.get('businessDescription')?.hasError('required')
               "
-              >Company's Overview is Required</mat-error
+              >Business Description is Required</mat-error
             >
+            <mat-error
+              *ngIf="
+                registerForm.get('businessDescription')?.hasError('minlength')
+              "
+              >Business Description must be at least 10 character</mat-error
+            >
+            <mat-error
+              *ngIf="
+                registerForm.get('businessDescription')?.hasError('onlySpace')
+              "
+              >Spaces only are not allowed
+            </mat-error>
           </mat-form-field>
           <!--  Navigation Step 2 -->
           <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
@@ -510,6 +528,11 @@
                   *ngIf="registerForm.get('postalCode')?.hasError('required')"
                   >Postal Code is Required</mat-error
                 >
+                <mat-error
+                  *ngIf="registerForm.get('postalCode')?.hasError('pattern')"
+                >
+                  Enter a valid 6-digit postal code (0 is not allowed, use 1-9).
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -561,7 +584,7 @@
                   matInput
                   type="text"
                   formControlName="gstin"
-                  placeholder="27AABCT1234A1Z5"
+                  placeholder="22AAAAA0000A1Z5"
                 />
                 <mat-error
                   *ngIf="registerForm.get('gstin')?.hasError('required')"
@@ -569,8 +592,10 @@
                 >
                 <mat-error
                   *ngIf="registerForm.get('gstin')?.hasError('pattern')"
-                  >Enter a valid 15-character GSTIN format</mat-error
                 >
+                  Enter a valid 15-character GSTIN format (e.g.,
+                  22AAAAA0000A1Z5).
+                </mat-error>
               </mat-form-field>
             </div>
             <div
@@ -591,8 +616,9 @@
                 >
                 <mat-error
                   *ngIf="registerForm.get('panNumber')?.hasError('pattern')"
-                  >Enter a valid 10-character PAN format</mat-error
                 >
+                  Enter a valid 10-character PAN format (e.g., ABCDE1234F).
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -610,7 +636,9 @@
                 <input
                   matInput
                   type="text"
-                  inputmode="numeric" pattern="[0-9]*" maxlength="18"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  maxlength="18"
                   formControlName="bankAccountNumber"
                   placeholder="Ex. 123456789012"
                 />
@@ -654,12 +682,14 @@
                   matInput
                   type="text"
                   formControlName="ifscCode"
-                  placeholder="Ex. HDFC0001234"
+                  placeholder="Ex. SBIN0001234"
                 />
                 <mat-error
                   *ngIf="registerForm.get('ifscCode')?.hasError('pattern')"
-                  >Enter a valid 11 character IFSC code format</mat-error
                 >
+                  Enter a valid 11 character IFSC code format (e.g.,
+                  SBIN0001234).
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -833,10 +863,15 @@
               mat-flat-button
               color="primary"
               type="submit"
-              class="px-5 py-2"
-              [disabled]="registerForm.invalid"
+              class="px-5 py-2 d-flex align-items-center justify-content-center gap-2"
+              [disabled]="registerForm.invalid || isLoading"
             >
-              Submit
+              <mat-spinner
+                *ngIf="isLoading"
+                diameter="20"
+                color="accent"
+              ></mat-spinner>
+              <span>{{ isLoading ? "Submitting..." : "Submit" }}</span>
             </button>
           </div>
         </div>
