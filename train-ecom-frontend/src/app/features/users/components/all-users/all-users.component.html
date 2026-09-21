@@ -1,0 +1,93 @@
+<div class="container-fluid px-0">
+  <!-- Filter section -->
+  <div class="row g-3 mb-4 align-items-center" [formGroup]="filterForm">
+    <!-- Search Input -->
+    <div class="col-12 col-md-4">
+      <mat-form-field
+        appearance="outline"
+        class="w-100 mb-0"
+        subscriptSizing="dynamic"
+      >
+        <mat-label>Search users</mat-label>
+        <mat-icon matPrefix class="text-secondary">search</mat-icon>
+        <input
+          matInput
+          formControlName="search"
+          placeholder="Search by name or email..."
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Filter by Status -->
+    <div class="col-12 col-md-3">
+      <mat-form-field
+        appearance="outline"
+        class="w-100 mb-0"
+        subscriptSizing="dynamic"
+      >
+        <mat-label>Filter by Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="">All Status</mat-option>
+          <mat-option *ngFor="let status of statusOptions" [value]="status">
+            {{ status }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Filter by Role -->
+    <div class="col-12 col-md-3">
+      <mat-form-field
+        appearance="outline"
+        class="w-100 mb-0"
+        subscriptSizing="dynamic"
+      >
+        <mat-label>Filter by Role</mat-label>
+        <mat-select formControlName="role">
+          <mat-option value="All">All Roles</mat-option>
+          <mat-option *ngFor="let role of roleOptions" [value]="role">
+            {{ role }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Reset Button -->
+    <div
+      class="col-12 col-md-2 d-flex align-items-center"
+      *ngIf="
+        searchQuery ||
+        (selectedStatus && selectedStatus !== 'All') ||
+        (selectedRole && selectedRole !== 'All')
+      "
+    >
+      <button
+        mat-stroked-button
+        color="warn"
+        class="w-100 d-flex align-items-center justify-content-center gap-1 rounded-3"
+        style="height: 48px"
+        (click)="resetFilters()"
+        title="Reset Filters"
+      >
+        <mat-icon>clear</mat-icon> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <app-generic-table
+    [data]="allUsers"
+    [columns]="columns"
+    [actions]="actions"
+    [isLoading]="isLoading"
+    [showPaginator]="true"
+    [showInlineActions]="true"
+    [totalRecords]="totalRecords"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 20]"
+    (pageChange)="onPageChange($event)"
+    (actionClick)="onActionClick($event)"
+    emptyMessage="Users will appear here once the API is connected."
+  ></app-generic-table>
+</div>

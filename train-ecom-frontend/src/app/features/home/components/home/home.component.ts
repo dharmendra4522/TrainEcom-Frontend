@@ -71,20 +71,23 @@ export class HomeComponent implements OnInit {
     })
   );
 
-  ngOnInit() {
+ngOnInit() {
+  this.initStoreData();
+}
 
-    this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
-      if (!brands || brands.length === 0) {
-        this.store.dispatch(BrandActions.loadBrands());
-      }
-    });
+private initStoreData(): void {
+  this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+    if (!brands || brands.length === 0) {
+      this.store.dispatch(BrandActions.loadBrands());
+    }
+  });
 
-    this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
-      if (!categories || categories.length === 0) {
-        this.store.dispatch(CategoryActions.loadCategories());
-      }
-    });
-  }
+  this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+    if (!categories || categories.length === 0) {
+      this.store.dispatch(CategoryActions.loadCategories());
+    }
+  });
+}
 
   onBannerBuyNow() {
     console.log('Buy Now button clicked from banner');

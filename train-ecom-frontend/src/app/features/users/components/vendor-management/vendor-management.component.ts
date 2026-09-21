@@ -12,11 +12,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
   VendorItem,
-  VendorListResponse,
   VendorTableItem,
 } from '../../../../core/models/vendor.model';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vendor-management',
@@ -27,13 +27,10 @@ export class VendorManagementComponent {
   private vendorService = inject(VendorService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
-
-  private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
+  private router = inject(Router);
 
   isLoading: boolean = false;
-  // searchQuery: string = '';
-  // selectedStatus: string = 'All';
   statusOptions: string[] = ['Pending', 'Approved', 'Rejected'];
 
   totalRecords: number = 0;
@@ -59,7 +56,7 @@ export class VendorManagementComponent {
       badgeClassKey: 'vendorStatusClass',
     },
   ];
-  
+
   actions: TableAction[] = [
     // {
     //   actionKey: 'edit',
@@ -90,6 +87,45 @@ export class VendorManagementComponent {
   ngOnInit() {
     this.searchStream();
     this.loadVendors();
+  }
+
+  private updateVendorStatus(
+    vendorId: string,
+    status: ApprovalStatus,
+    vendorName: string,
+  ): void {
+    const isApproving = status === ApprovalStatus.Approved;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: `Are you sure you want to ${isApproving ? 'approve' : 'reject'} ${vendorName}`,
+        yesLabel: isApproving ? 'Approve' : 'Reject',
+        noLabel: 'Cancel',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        const payload = {
+          status: status,
+          rejectionReason: isApproving ? '' : 'Rejected by Admin',
+        };
+        this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+          next: (response) => {
+            this.notificationService.showSuccess(
+              response.message ||
+                `Vendor ${isApproving ? 'approved' : 'reject'} successfully`,
+            );
+            this.loadVendors();
+          },
+          error: (err) => {
+            this.notificationService.showError('Vendor Status Update Faild');
+            console.log('Vendor Status Update Faild', err);
+          },
+        });
+      }
+    });
   }
 
   // handle search query
@@ -177,8 +213,7 @@ export class VendorManagementComponent {
 
     if (event.action === 'edit') {
       console.log('Edit vendor', vendor.vendorId);
-    }
-    else if (event.action === 'delete') {
+    } else if (event.action === 'delete') {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
@@ -192,31 +227,28 @@ export class VendorManagementComponent {
           console.log('Delete vendor', vendor.vendorId);
         }
       });
-    }
-    
-    else if (event.action === 'verifyApprove') {
-      this.notificationService.showSuccess('Vendor Approved');
-      console.log('Approve vendor', vendor.vendorId);
-    }
-    else if (
+    } else if (event.action === 'verifyApprove') {
+      this.updateVendorStatus(
+        vendor.vendorId,
+        ApprovalStatus.Approved,
+        vendor.bussinessName,
+      );
+    } else if (
       event.action === 'verifyPending' ||
       event.action === 'verifyReject'
     ) {
-      const vendorId = vendor.vendorId;
-      const vendorName = vendor.bussinessName;
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        width: '400px',
-        data: {
-          message: `Are you sure to reject ${vendorName}?`,
-          vendorId: vendorId,
-        },
-      });
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          this.notificationService.showWarning('Vendor Rejected');
-          console.log('Reject vendor', vendor.vendorId);
-        }
-      });
+      this.updateVendorStatus(
+        vendor.vendorId,
+        ApprovalStatus.Rejected,
+        vendor.bussinessName,
+      );
+    }
+  }
+
+  onRowClick(row: VendorTableItem | Record<string, unknown>): void {
+    const vendor = row as VendorItem;
+    if (vendor && vendor.vendorId) {
+      this.router.navigate(['/admin/users/manage', vendor.vendorId]);
     }
   }
 

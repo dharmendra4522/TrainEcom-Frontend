@@ -85,14 +85,6 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     allowInPendingState: false,
   },
   {
-    key: 'admin-vendor',
-    label: 'Manage Vendors',
-    icon: 'person',
-    route: '/admin/users/vendors',
-    allowedRoles: [Role.Admin],
-    allowInPendingState: false,
-  },
-  {
     key: 'admin-orders',
     label: 'Manage Orders',
     icon: 'shopping_cart',
@@ -194,21 +186,21 @@ export function getRoleMenuItems(
   return ALL_MENU_ITEMS.filter((item) => item.allowedRoles.includes(role)).map(
     (item) => {
       let isDisabled = false;
-      if(role == Role.Vendor){
-        if(isPendingVendor){
-          isDisabled = !item.allowInPendingState
-        } else if(isApprovedVendor){
+      if (role == Role.Vendor) {
+        if (isPendingVendor) {
+          isDisabled = !item.allowInPendingState;
+        } else if (isApprovedVendor) {
           isDisabled = false;
-        }else{
+        } else {
           isDisabled = false;
         }
       }
       return {
         label: item.label,
-      icon: item.icon,
-      route: item.route,
-      disabled: isDisabled
-      }
+        icon: item.icon,
+        route: item.route,
+        disabled: isDisabled,
+      };
     },
   );
 }

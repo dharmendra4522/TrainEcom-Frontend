@@ -132,7 +132,7 @@ export function getFieldError(
   control: AbstractControl | null,
   fieldLabel: string,
 ): string {
-  if (!control || !control.errors || !control.dirty) {
+  if (!control || !control.errors || (!control.dirty && !control.touched)) {
     return '';
   }
 

@@ -1,0 +1,229 @@
+<div class="container-fluid px-0">
+  <div
+    *ngIf="isLoading"
+    class="d-flex justify-content-center align-items-center py-5"
+  >
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- header section -->
+    <div
+      class="d-flex flex-md-row flex-column justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom"
+    >
+      <h3 class="fw-bold mb-0">Vendor ID: {{ vendorDetails?.vendorId }}</h3>
+
+      <div
+        class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 w-100 w-md-auto"
+      >
+        <div>
+          <p
+            class="m-0 text-muted small text-nowrap d-flex align-items-center gap-2"
+          >
+            Current Status Of Vendor:
+            <span
+              class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill py-1 px-2"
+            >
+              {{ vendorDetails?.status }}
+            </span>
+          </p>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <button mat-flat-button color="primary">
+            <mat-icon>check_circle</mat-icon>Approve
+          </button>
+          <button mat-flat-button color="warn">
+            <mat-icon>cancel</mat-icon>Reject
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details section -->
+    <div class="row g-4">
+      <!-- left section -->
+      <div class="col-12 col-lg-8 d-flex flex-column gap-4">
+        <!-- card 1 -->
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body p-4">
+            <h5
+              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+            >
+              <mat-icon class="text-primary fs-5">person</mat-icon> Basic &
+              Contact Information
+            </h5>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Vendor Name</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.vendorName || "-"
+                }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Email Address</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.email || "-"
+                }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Phone Number</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.phoneNumber || "-"
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 2 -->
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body p-4">
+            <h5
+              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+            >
+              <mat-icon class="text-primary fs-5">store</mat-icon> Business &
+              Legal Information
+            </h5>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Store Name</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.storeName || "-"
+                }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Display Name</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.bussinessName || "-"
+                }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">GST Number </label>
+                <span class="fw-semibold text-dark font-monospace">{{
+                  vendorDetails?.gstin || "-"
+                }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">PAN Number </label>
+                <span class="fw-semibold text-dark font-monospace">{{
+                  vendorDetails?.pan || "-"
+                }}</span>
+              </div>
+              <div class="col-12">
+                <label class="text-muted small d-block"
+                  >Business Description
+                </label>
+                <p class="text-dark mb-0 bg-light p-2 rounded-2 small">
+                  {{
+                    vendorDetails?.bussinessDescription ||
+                      "No Business Description Provided"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right section -->
+      <div class="col-12 col-lg-4 d-flex flex-column gap-4">
+        <!-- card 1 (Bank Details) -->
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body p-4">
+            <h5
+              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+            >
+              <mat-icon class="text-primary fs-5">account_balance</mat-icon>
+              Account Details
+            </h5>
+
+            <div class="d-flex flex-column gap-3">
+              <div>
+                <label class="text-muted small d-block"
+                  >Account Holder Name</label
+                >
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.accountHolderName || "Not Provided"
+                }}</span>
+              </div>
+              <div>
+                <label class="text-muted small d-block">Account Number</label>
+                <strong class="text-dark font-monospace">{{
+                  vendorDetails?.bankAccountNumber || "Not Provided"
+                }}</strong>
+              </div>
+              <div>
+                <label class="text-muted small d-block">IFSC Code</label>
+                <strong class="text-dark font-monospace">{{
+                  vendorDetails?.ifscCode || "Not Provided"
+                }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body p-4">
+            <h5
+              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+            >
+              <mat-icon class="text-primary fs-5">location_on</mat-icon> Address
+              & Categories
+            </h5>
+
+            <div class="mb-3">
+              <span class="text-muted small d-block">Registered Address</span>
+              <p class="text-dark mb-0 small">
+                {{ vendorDetails?.addressLine1 }}
+                <span *ngIf="vendorDetails?.addressLine2"
+                  >, {{ vendorDetails?.addressLine2 }}</span
+                ><br />
+                {{ vendorDetails?.city }}, {{ vendorDetails?.state }} -
+                {{ vendorDetails?.postalCode }}<br />
+                {{ vendorDetails?.country }}
+              </p>
+            </div>
+
+            <div class="mb-3">
+              <span class="text-muted small d-block mb-1">Categories</span>
+              <div
+                class="d-flex flex-wrap gap-1"
+                *ngIf="vendorDetails?.categories?.length; else noCategories"
+              >
+                <span
+                  *ngFor="let cat of vendorDetails?.categories"
+                  class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"
+                >
+                  {{ cat }}
+                </span>
+              </div>
+              <ng-template #noCategories>
+                <span class="text-muted small">No categories assigned</span>
+              </ng-template>
+            </div>
+
+            <div>
+              <span class="text-muted small d-block mb-1">Documents</span>
+              <div *ngIf="vendorDetails?.documents?.length; else noDocs">
+                <ul class="list-unstyled m-0">
+                  <li
+                    *ngFor="let doc of vendorDetails?.documents"
+                    class="small text-truncate"
+                  >
+                    <a [href]="doc" target="_blank" class="text-decoration-none"
+                      >View Document</a
+                    >
+                  </li>
+                </ul>
+              </div>
+              <ng-template #noDocs>
+                <span class="text-muted small">No documents uploaded.</span>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

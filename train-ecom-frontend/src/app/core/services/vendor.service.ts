@@ -2,7 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { VendorListResponse } from '../models/vendor.model';
+import {
+  VendorDetails,
+  VendorListResponse,
+  VendorVerifyRequest,
+  VendorVerifyResponse,
+} from '../models/vendor.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +15,8 @@ import { VendorListResponse } from '../models/vendor.model';
 export class VendorService {
   private http = inject(HttpClient);
   private listAPI = `${environment.apiBaseUrl}/admin/vendors/all`;
+  private verifyAPI = `${environment.apiBaseUrl}/admin/user`;
+  private detailsAPI = `${environment.apiBaseUrl}/admin/vendors`;
 
   constructor() {}
 
@@ -36,5 +43,18 @@ export class VendorService {
     }
 
     return this.http.get<VendorListResponse>(this.listAPI, { params });
+  }
+
+  updateVendorStatus(
+    userId: string,
+    requestData: VendorVerifyRequest,
+  ): Observable<VendorVerifyResponse> {
+    const url = `${this.verifyAPI}/${userId}/verify`;
+    return this.http.patch<VendorVerifyResponse>(url, requestData);
+  }
+
+  getVendorById(userId: string): Observable<VendorDetails> {
+    const url = `${this.detailsAPI}/${userId}/details`;
+    return this.http.get<VendorDetails>(url);
   }
 }

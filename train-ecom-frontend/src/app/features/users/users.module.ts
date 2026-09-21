@@ -10,13 +10,17 @@ import { WishlistComponent } from './components/wishlist/wishlist.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
 import { FormsModule } from '@angular/forms';
 import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
+import { AllUsersComponent } from './components/all-users/all-users.component';
+import { UserDetailsComponent } from './components/user-details/user-details.component';
 @NgModule({
   declarations: [
     AddressComponent,
     ProfileComponent,
     WishlistComponent,
     UserManagementComponent,
-    VendorManagementComponent
+    VendorManagementComponent,
+    AllUsersComponent,
+    UserDetailsComponent
   ],
   imports: [
     CommonModule,

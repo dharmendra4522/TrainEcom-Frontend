@@ -13,7 +13,7 @@ export interface VendorTableItem extends VendorItem {
   id: string;
   statusDisplay: string;
   vendorStatusClass: string;
-  [key: string]: unknown; 
+  [key: string]: unknown;
 }
 
 export interface VendorListResponse {
@@ -29,8 +29,8 @@ export interface VendorDetails {
   vendorName: string;
   email: string;
   phoneNumber: string;
-  businessName: string;
-  businessDescription: string;
+  bussinessName: string;
+  bussinessDescription: string;
   storeName: string;
   gstin: string;
   pan: string;
@@ -45,9 +45,14 @@ export interface VendorDetails {
   accountHolderName: string;
   documents: string[];
   categories: string[];
+  status?: string;
 }
 
 export interface VendorVerifyRequest {
   status: ApprovalStatus;
   rejectionReason?: string;
+}
+
+export interface VendorVerifyResponse {
+  message: string;
 }
