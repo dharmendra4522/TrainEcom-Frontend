@@ -78,7 +78,7 @@
           <small class="text-muted d-block mt-1">Inclusive of all taxes & free shipping</small>
         </div>
 
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap" *ngIf="!isAdmin">
+        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap" *ngIf="!isManagementMode">
           <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
             Only {{ product.stockQuantity }} left! Hurry up before it's gone.
           </span>
@@ -93,7 +93,7 @@
 
         <mat-divider class="my-4"></mat-divider>
 
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *ngIf="!isManagementMode">
           <div class="actions-section mb-4">
             <div class="d-flex align-items-center gap-3 flex-wrap">
 
@@ -147,7 +147,7 @@
             </ng-template>
           </div>
         </ng-container>
-        <ng-container *ngIf="isAdmin && !isReadOnly">
+        <ng-container *ngIf="isManagementMode && !isReadOnly">
           <div class="d-flex gap-3 mb-4 flex-wrap">
             <button mat-raised-button color="primary"
               class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
@@ -166,7 +166,7 @@
         </ng-container>
 
 
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *ngIf="!isManagementMode">
           <div class="row g-2 border-top pt-3 text-secondary text-center">
             <div class="col-4" *ngFor="let feature of productFeatures">
               <div class="p-2" [class.border-start]="feature.hasBorder" [class.border-end]="feature.hasBorder">
@@ -182,7 +182,7 @@
   </div>
 
   <div class="related-products-section mt-5 pt-4 border-top"
-    *ngIf="!isAdmin && relatedProducts && relatedProducts.length > 0">
+    *ngIf="!isManagementMode && relatedProducts && relatedProducts.length > 0">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
         <h3 class="fw-bold text-dark m-0">Similar Products</h3>

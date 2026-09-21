@@ -13,6 +13,8 @@ import { ReviewRatingDialogComponent } from '../../../../shared/components/revie
 import { ReviewService } from '../../../../core/services/review.service';
 import { Review } from '../../../../core/models/review.model';
 import { Location } from '@angular/common';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-order-details',
@@ -27,15 +29,17 @@ export class OrderDetailsComponent {
   private router = inject(Router);
   private reviewService = inject(ReviewService);
   private location = inject(Location);
+  private portalRoutes = inject(PortalRouteService);
 
 
   orderDetail: OrderDetailsResponse | null = null;
   isCancelling: boolean = false;
-  isAdmin: boolean = false;
+  isManagementMode: boolean = false;
+  portal: PortalKey = 'admin';
 
   get breadcrumbs(): BreadcrumbItem[] {
-    const parentRoute = this.isAdmin
-      ? { label: 'Manage Orders', url: '/admin/orders' }
+    const parentRoute = this.isManagementMode
+      ? { label: 'Manage Orders', url: `/${this.portal}/orders/manage` }
       : { label: 'My Orders', url: '/account/orders/history' };
 
     const orderIdLabel = this.orderDetail?.orderId
@@ -59,12 +63,14 @@ export class OrderDetailsComponent {
 
   // check routes for admin or customer
   private setRouteContext(): void {
-    // Snapshot ensures isAdmin is set before deciding which endpoint to call.
-    this.isAdmin = !!this.route.snapshot.data['isAdmin'];
+    this.isManagementMode = this.route.snapshot.data['pageMode'] === 'management';
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
   }
 
   private loadOrderDetails(orderId: string): void {
-    const orderObservable = this.isAdmin ? this.orderService.getAdminOrderDetails(orderId) : this.orderService.getOrderDetails(orderId);
+    const orderObservable = this.isManagementMode
+      ? this.orderService.getManagedOrderDetails(this.portal, orderId)
+      : this.orderService.getOrderDetails(orderId);
     orderObservable.subscribe({
       next: (response) => {
         if (response && response.orderDate && !response.orderDate.includes('+')) {
@@ -155,7 +161,11 @@ export class OrderDetailsComponent {
       width: 'min(92vw, 460px)',
       maxWidth: '95vw',
       height: '500px',
-      data: { orderId: this.orderDetail.orderId, currentStatus: this.orderDetail.orderStatus }
+      data: {
+        orderId: this.orderDetail.orderId,
+        currentStatus: this.orderDetail.orderStatus,
+        portal: this.portal,
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {

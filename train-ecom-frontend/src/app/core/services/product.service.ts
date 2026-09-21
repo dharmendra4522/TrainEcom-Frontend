@@ -6,6 +6,8 @@ import { Product } from '../models/product.model';
 import { map } from 'rxjs/operators';
 import { PaginatedProductsResponse } from '../models/product.model';
 import { HttpParams } from '@angular/common/http';
+import { PortalKey } from '../config/management-access.config';
+import { MANAGEMENT_API_PATHS } from '../config/management-api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,13 @@ export class ProductService {
     );
   }
 
-  createProduct(productData: Partial<Product>, files: File[]): Observable<Product> {
+  private getBaseApi(portal?: PortalKey): string {
+    return portal
+      ? `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].products}`
+      : this.baseAPI;
+  }
+
+  createProduct(productData: Partial<Product>, files: File[], portal?: PortalKey): Observable<Product> {
     const formData = new FormData();
 
     formData.append('Name', productData.name || '');
@@ -37,18 +45,19 @@ export class ProductService {
       if (file) formData.append('Images', file);
     });
 
-    return this.http.post<Product>(`${this.baseAPI}/create`, formData);
+    return this.http.post<Product>(`${this.getBaseApi(portal)}/create`, formData);
   }
 
-  getProductById(productId: string): Observable<Product> {
-    return this.http.get<Product>(`${this.baseAPI}/getById/${productId}`);
+  getProductById(productId: string, portal?: PortalKey): Observable<Product> {
+    return this.http.get<Product>(`${this.getBaseApi(portal)}/getById/${productId}`);
   }
 
   updateProduct(
     productId: string,
     productData: Partial<Product>,
     newFiles: File[] = [],
-    deletedImageIds: string[] = []
+    deletedImageIds: string[] = [],
+    portal?: PortalKey,
   ): Observable<Product> {
     const formData = new FormData();
 
@@ -69,11 +78,11 @@ export class ProductService {
       }
     });
 
-    return this.http.put<Product>(`${this.baseAPI}/update/${productId}`, formData);
+    return this.http.put<Product>(`${this.getBaseApi(portal)}/update/${productId}`, formData);
   }
 
-  deleteProduct(productId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseAPI}/delete/${productId}`);
+  deleteProduct(productId: string, portal?: PortalKey): Observable<void> {
+    return this.http.delete<void>(`${this.getBaseApi(portal)}/delete/${productId}`);
   }
 
   getPaginatedProducts(
@@ -85,7 +94,8 @@ export class ProductService {
     minPrice?: number,
     maxPrice?: number,
     sortBy?: string,
-    minRating?: number
+    minRating?: number,
+    portal?: PortalKey,
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -113,7 +123,7 @@ export class ProductService {
       params = params.set('MinRating', minRating.toString());
     }
 
-    return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params });
+    return this.http.get<PaginatedProductsResponse>(this.getBaseApi(portal), { params });
   }
 
 

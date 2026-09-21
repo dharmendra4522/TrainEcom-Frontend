@@ -20,7 +20,6 @@ export class SidebarComponent {
   private store = inject(Store);
 
   @Input() menuItems: MenuItem[] = [];
-  @Input() title: string = 'Menu';
   @Input() sidebarType: string = 'admin';
 
   ngOnInit(): void{

@@ -1,16 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ValidatorFn,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Category } from '../../../core/models/category.model';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import * as CategoryActions from '../../../core/store/category/category.action';
 import { selectAllCategories } from '../../../core/store/category/category.selectors';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -18,67 +11,17 @@ import { Country, State, City } from 'country-state-city';
 import { ICountry, IState, ICity } from 'country-state-city';
 import { MatSelectChange } from '@angular/material/select';
 import { AuthService } from '../../../core/services/auth.service';
-import { VendorRegisterResponse } from '../../../core/models/auth.model';
+import {
+  VendorRegisterFormValues,
+  VendorRegisterResponse,
+} from '../../../core/models/auth.model';
+import {
+  createVendorFormData,
+  fileValidator,
+  noSpaceAllow,
+  passwordMatchValidator,
+} from '../register.utils';
 
-export const passwordMatchValidator: ValidatorFn = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const password = control.get('password')?.value;
-  const confirmPasswordControl = control.get('confirmPassword');
-  const confirmPassword = confirmPasswordControl?.value;
-
-  if (!confirmPasswordControl) {
-    return null;
-  }
-
-  if (password !== confirmPassword && confirmPassword) {
-    confirmPasswordControl.setErrors({
-      ...confirmPasswordControl.errors,
-      passwordMismatch: true,
-    });
-    return { passwordMismatch: true };
-  } else {
-    if (confirmPasswordControl.hasError('passwordMismatch')) {
-      const errors = { ...confirmPasswordControl.errors };
-      delete errors['passwordMismatch'];
-      confirmPasswordControl.setErrors(
-        Object.keys(errors).length > 0 ? errors : null,
-      );
-    }
-    return null;
-  }
-};
-
-export const fileValidator = (
-  allowedType: string[],
-  maxSize: number,
-): ValidatorFn => {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const file = control.value;
-    if (file instanceof File) {
-      const fileSize = file.size / (1024 * 1024);
-      if (fileSize > maxSize) {
-        return { maxFilesize: true };
-      }
-      if (!allowedType.includes(file.type)) {
-        return { invalidFileType: true };
-      }
-    }
-    return null;
-  };
-};
-
-
-export function noSpaceAllow(): ValidatorFn {
-  return (control:AbstractControl): ValidationErrors |null => {
-    const value = control.value;
-    if(!value){
-      return null;
-    }
-    const isWhiteSpace = value.trim().length === 0;
-    return isWhiteSpace ? {onlySpace: true} : null;
-  }
-}
 @Component({
   selector: 'app-vendor-register',
   templateUrl: './vendor-register.component.html',
@@ -119,6 +62,7 @@ export class VendorRegisterComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(3),
+            noSpaceAllow(),
             Validators.pattern(/^[a-zA-Z\s]+$/),
           ],
         ],
@@ -127,12 +71,13 @@ export class VendorRegisterComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(3),
+            noSpaceAllow(),
             Validators.pattern(/^[a-zA-Z\s]+$/),
           ],
         ],
         phoneNumber: [
           '',
-          [Validators.required, Validators.pattern(/^\d{10}$/)],
+          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)],
         ],
         email: ['', [Validators.required, Validators.email]],
         password: [
@@ -184,10 +129,16 @@ export class VendorRegisterComponent implements OnInit {
         city: ['', Validators.required],
         country: ['', Validators.required],
         state: ['', Validators.required],
-        postalCode: ['', [Validators.required, Validators.pattern(/^\d[1,9]{5}$/)]],
+        postalCode: [
+          '',
+          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)],
+        ],
 
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
-        acountHolderName: [''],
+        acountHolderName: [
+          '',
+          [Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()],
+        ],
         ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
       },
       { validators: passwordMatchValidator },
@@ -244,58 +195,9 @@ export class VendorRegisterComponent implements OnInit {
     }
 
     this.isLoading = true;
-    const formValue = this.registerForm.value;
-    const fullName = `${formValue.firstName.trim()} ${formValue.lastName.trim()}`;
-    const formData = new FormData();
-    // basic details
-    formData.append('BasicDetails.Name', fullName);
-    formData.append('BasicDetails.Email', formValue.email);
-    formData.append('BasicDetails.Password', formValue.password);
-    formData.append('BasicDetails.ConfirmPassword', formValue.confirmPassword);
-    formData.append('BasicDetails.PhoneNumber', formValue.phoneNumber);
-
-    // Business & Address Info
-    formData.append('BussinessName', formValue.businessName);
-    formData.append('BussinessDescription', formValue.businessDescription);
-    formData.append('StoreName', formValue.displayName);
-    formData.append('GSTIN', formValue.gstin);
-    formData.append('PAN', formValue.panNumber);
-    formData.append('AddressLine1', formValue.addressLine1);
-    if (formValue.addressLine2) {
-      formData.append('AddressLine2', formValue.addressLine2);
-    }
-    formData.append('City', formValue.city);
-    formData.append('State', formValue.state);
-    formData.append('Country', formValue.country);
-    formData.append('PostalCode', formValue.postalCode);
-    if (formValue.bankAccountNumber)
-      formData.append(
-        'BankAccountNumber',
-        formValue.bankAccountNumber.toString(),
-      );
-    if (formValue.ifscCode) formData.append('IFSCCode', formValue.ifscCode);
-    if (formValue.acountHolderName)
-      formData.append('AccountHolderName', formValue.acountHolderName);
-
-    const categories: string[] = Array.isArray(formValue.businessCategory)
-      ? formValue.businessCategory
-      : [formValue.businessCategory];
-    categories.forEach((catId: string) => {
-      formData.append('CategoryIds', catId);
-    });
-
-    if (formValue.gstDocument instanceof File) {
-      formData.append('DocumentTypes', 'GST');
-      formData.append('Documents', formValue.gstDocument);
-    }
-    if (formValue.businessDocument instanceof File) {
-      formData.append('DocumentTypes', 'BusinessRegistration');
-      formData.append('Documents', formValue.businessDocument);
-    }
-    if (formValue.businessLogo instanceof File) {
-      formData.append('BusinessLogo', formValue.businessLogo);
-    }
-
+    const formData = createVendorFormData(
+      this.registerForm.value as VendorRegisterFormValues,
+    );
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
         this.isLoading = false;
@@ -343,68 +245,51 @@ export class VendorRegisterComponent implements OnInit {
     }
   }
 
+  private checkStepValidity(controlNames: string[]): boolean {
+    return controlNames.every((name) => {
+      const control = this.registerForm.get(name);
+      return control && control.valid;
+    });
+  }
+
   // getter function for disable the next button
   get isStep1Valid(): boolean {
-    const firstName = this.registerForm.get('firstName');
-    const lastName = this.registerForm.get('lastName');
-    const email = this.registerForm.get('email');
-    const phoneNumber = this.registerForm.get('phoneNumber');
-    const password = this.registerForm.get('password');
-    const confirmPassword = this.registerForm.get('confirmPassword');
-    if (
-      firstName?.invalid ||
-      lastName?.invalid ||
-      email?.invalid ||
-      phoneNumber?.invalid ||
-      password?.invalid ||
-      confirmPassword?.invalid
-    ) {
-      return false;
-    }
-    return true;
+    return this.checkStepValidity([
+      'firstName',
+      'lastName',
+      'email',
+      'phoneNumber',
+      'password',
+      'confirmPassword',
+    ]);
   }
 
   get isStep2Valid(): boolean {
-    const businessName = this.registerForm.get('businessName');
-    const displayName = this.registerForm.get('displayName');
-    const businessCategory = this.registerForm.get('businessCategory');
-    const businessDescription = this.registerForm.get('businessDescription');
-    if (
-      businessName?.invalid ||
-      displayName?.invalid ||
-      businessCategory?.invalid ||
-      businessDescription?.invalid
-    ) {
-      return false;
-    }
-    return true;
+    return this.checkStepValidity([
+      'businessName',
+      'displayName',
+      'businessCategory',
+      'businessDescription',
+    ]);
   }
 
   get isStep3Valid(): boolean {
-    const addressLine1 = this.registerForm.get('addressLine1');
-    const country = this.registerForm.get('country');
-    const state = this.registerForm.get('state');
-    const city = this.registerForm.get('city');
-    const postalCode = this.registerForm.get('postalCode');
-    if (
-      addressLine1?.invalid ||
-      country?.invalid ||
-      state?.invalid ||
-      city?.invalid ||
-      postalCode?.invalid
-    ) {
-      return false;
-    }
-    return true;
+    return this.checkStepValidity([
+      'addressLine1',
+      'country',
+      'state',
+      'city',
+      'postalCode',
+    ]);
   }
 
   get isStep4Valid(): boolean {
-    const gstNumber = this.registerForm.get('gstin');
-    const panNumber = this.registerForm.get('panNumber');
-    if (gstNumber?.invalid || panNumber?.invalid) {
-      return false;
-    }
-    return true;
+    // const gstNumber = this.registerForm.get('gstin');
+    // const panNumber = this.registerForm.get('panNumber');
+    // if (gstNumber?.invalid || panNumber?.invalid) {
+    //   return false;
+    // }
+    return this.checkStepValidity(['gstin', 'panNumber']);
   }
 
   // back button

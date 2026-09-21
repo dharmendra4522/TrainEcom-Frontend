@@ -14,6 +14,8 @@ import * as CategoryActions from '../../../../core/store/category/category.actio
 import { combineLatest, Subject, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, startWith, take } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-products',
@@ -24,6 +26,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
+  readonly portalRoutes = inject(PortalRouteService);
 
   private destroy$ = new Subject<void>();
 
@@ -46,12 +49,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Name', type: 'string' },
-    { key: 'description', label: 'Description', type: 'string' },
+    { key: 'description', label: 'Description', type: 'string', sortable: false },
     { key: 'price', label: 'Price', type: 'number' },
     { key: 'stockQuantity', label: 'Stock', type: 'number' },
     { key: 'categoryName', label: 'Category', type: 'string' },
     { key: 'brandName', label: 'Brand', type: 'string' },
-    { key: 'thumbnailUrl', label: 'Thumbnail', type: 'image' }
+    { key: 'thumbnailUrl', label: 'Thumbnail', type: 'image',  sortable: false }
   ];
 
  actions: TableAction[] = [
@@ -61,10 +64,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ];
 
 
-  isAdminRoute: boolean = false;
+  portal: PortalKey = 'admin';
 
   ngOnInit() {
-    this.isAdminRoute = this.router.url.includes('/admin');
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     
     this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
       if (!brands || brands.length === 0) {
@@ -106,6 +109,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
           search: search || undefined,
           categoryName: category || undefined,
           brandName: brand || undefined
+          ,portal: this.portal
         }));
 
       });
@@ -113,7 +117,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   onRowClick(row: Record<string, unknown>): void {
     const product = row as Product;
-    this.router.navigate(['/admin/products/view', product.id]);
+    this.router.navigate(this.portalRoutes.products(this.portal, 'view', product.id));
   }
 
   clearFilters() {
@@ -129,6 +133,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       search: this.searchControl.value || undefined,
       categoryName: this.categoryControl.value || undefined,
       brandName: this.brandControl.value || undefined
+      ,portal: this.portal
     }));
   }
 
@@ -141,18 +146,18 @@ export class ProductsComponent implements OnInit, OnDestroy {
   handleTableAction(event: TableActionEvent): void {
     const product = event.row as Product;
     if (event.action === 'edit') {
-      this.router.navigate(['/admin/products/edit', product.id]);
+      this.router.navigate(this.portalRoutes.products(this.portal, 'edit', product.id));
     } else if (event.action === 'delete') {
       this.deleteProduct(product.id.toString());
     } else if (event.action === 'view') {
-      this.router.navigate(['/admin/products/view', product.id]);
+      this.router.navigate(this.portalRoutes.products(this.portal, 'view', product.id));
     }
   }
 
   deleteProduct(productId: string) {
     this.confirmDialog.confirm('Are you sure you want to delete this product?', 'Delete', 'Cancel').subscribe((confirmed) => {
       if (confirmed) {
-        this.store.dispatch(ProductActions.deleteProduct({ productId }));
+        this.store.dispatch(ProductActions.deleteProduct({ productId, portal: this.portal }));
       }
     });
   }

@@ -159,6 +159,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   navigateToOrderDetails(orderId: string): void {
-    this.router.navigate(['/account/orders/details', orderId]);
+    this.router.navigate(['/account/orders/customer-details', orderId]);
   }
 }

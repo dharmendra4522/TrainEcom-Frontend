@@ -1,8 +1,10 @@
+import { OrderStatus } from "./checkout.model";
+
 export interface RecentOrder {
   orderId: string;
   customerName: string;
   totalPrice: number;
-  orderStatus: string;
+  orderStatus: OrderStatus;
   orderDate: string;
 }
 
@@ -15,3 +17,22 @@ export interface DashboardData {
   totalCategories: number;
   recentOrders: RecentOrder[];
 }
+
+
+
+export interface DashboardStatItem {
+  title: string;
+  value: string;
+  icon: string;
+  color: string;
+}
+
+export type DashboardOrderRow = {
+  [key: string]: unknown;
+  orderId: string;
+  customerName: string;
+  orderDate: string;
+  totalAmount: number;
+  orderStatus: OrderStatus;
+  orderStatusClass: string;
+};

@@ -1,5 +1,11 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { selectAuthError } from '../../../core/store/auth/auth.selectors';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
@@ -8,14 +14,7 @@ import { BackendError } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { extractBackendMessage } from '../../../core/utils/error.utils';
-
-export const passwordMatchValidator = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const password = control.get('newPassword')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-  return password === confirmPassword ? null : { passwordMismatch: true };
-};
+import { passwordMatchValidator } from '../register.utils';
 
 type AuthStep = 'LOGIN' | 'FORGOT_EMAIL' | 'FORGOT_RESET_PASSWORD';
 
@@ -49,10 +48,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   isShowingConfirmPassword = false;
 
   error$ = this.store.select(selectAuthError).pipe(
-    map(err => {
-      if (!err) return null; 
+    map((err) => {
+      if (!err) return null;
       return extractBackendMessage(err, 'An unexpected error occurred');
-    })
+    }),
   );
   ngOnInit() {
     this.validateForm();
@@ -85,7 +84,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       {
         validators: [passwordMatchValidator],
-      }
+      },
     );
   }
 
@@ -170,7 +169,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isLoading = false;
         const errorMessage =
-          err?.error?.message || 'Failed to reset password. Invalid or expired OTP.';
+          err?.error?.message ||
+          'Failed to reset password. Invalid or expired OTP.';
         this.notificationService.showError(errorMessage);
       },
     });
@@ -193,7 +193,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.timerInterval = setInterval(() => {
       if (this.resendTimer > 0) this.resendTimer--;
       if (this.expiryTimer > 0) this.expiryTimer--;
-      
+
       if (this.resendTimer <= 0 && this.expiryTimer <= 0) {
         if (this.timerInterval) {
           clearInterval(this.timerInterval);

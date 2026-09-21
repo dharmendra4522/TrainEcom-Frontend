@@ -1,14 +1,8 @@
 <div class="container d-flex flex-column gap-3">
   <div class="timer-section">
     <div class="d-flex flex-column align-items-center gap-4">
-      <div class="d-flex gap-2 align-items-center">
-        <span>Session Time Remain:</span>
-        <strong>{{ formattedTime }}</strong>
-        <mat-icon>watch_later</mat-icon>
-      </div>
       <h3 class="text-center">
-        Your Application is Under Review! <br />Thank you for registering with
-        <span class="text-primary">TrainEcom</span>
+        Your Application is Under Review! <br />Thank you for registration
       </h3>
     </div>
   </div>
@@ -31,14 +25,6 @@
       </p>
 
       <p>Current Status: {{ (status$ | async) || localStatus }}</p>
-    </div>
-    <div class="help-section">
-      <p>
-        Any Help?
-        <a href="mailto:traniecom@gmail.com" class="text-decoration-none"
-          >traniecom&#64;gmail.com</a
-        >
-      </p>
     </div>
   </div>
 </div>

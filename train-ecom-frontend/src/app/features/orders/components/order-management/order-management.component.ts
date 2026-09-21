@@ -8,6 +8,8 @@ import { distinctUntilChanged, takeUntil } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { formatDate } from '@angular/common';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-order-management',
@@ -17,6 +19,9 @@ import { formatDate } from '@angular/common';
 export class OrderManagementComponent {
   private orderService = inject(OrderHistoryService);
   private router = inject(Router);
+  private portalRoutes = inject(PortalRouteService);
+
+  portal: PortalKey = 'admin';
 
   orders: AdminOrderItem[] = [];
   isLoading: boolean = false;
@@ -54,6 +59,7 @@ export class OrderManagementComponent {
   ];
 
   ngOnInit(): void {
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     this.loadOrders();
     this.setupSearchFilter();
   }
@@ -82,7 +88,7 @@ export class OrderManagementComponent {
       pageSize: this.pageSize,
     };
 
-    this.orderService.getAdminOrders(filter).subscribe({
+    this.orderService.getManagedOrders(this.portal, filter).subscribe({
       next: (response) => {
         this.orders = (response.items || []).map((item) => ({
           ...item,
@@ -180,7 +186,7 @@ export class OrderManagementComponent {
   navigateToOrderDetails(row: Record<string, unknown>): void {
     const orderId = row['orderId'] as string;
     if (orderId) {
-      this.router.navigate(['/admin/orders/details-admin', orderId]);
+      this.router.navigate(this.portalRoutes.orders(this.portal, 'details', orderId));
     }
   }
 

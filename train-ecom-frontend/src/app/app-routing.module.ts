@@ -9,7 +9,7 @@ import { customerGuard } from './core/guards/customer.guard';
 import { publicGuard } from './core/guards/public.guard';
 import { guestOrCustomerGuard } from './core/guards/guest-or-customer.guard';
 import { vendorApprovedGuard } from './core/guards/vendor-approved-guard';
-import { vendorGuard } from './core/guards/vendor.guard';
+import { portalAccessGuard } from './core/guards/management-access.guard';
 
 const routes: Routes = [
   {
@@ -70,7 +70,8 @@ const routes: Routes = [
       // vendor guard
       {
         path: 'vendor',
-        canActivate: [authGuard, vendorGuard],
+        canActivate: [authGuard, portalAccessGuard],
+        data: { portal: 'vendor' },
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           {
@@ -82,19 +83,31 @@ const routes: Routes = [
           },
           {
             path: 'products',
-            canActivate: [vendorApprovedGuard, vendorGuard],
-            loadChildren: () =>
-              import('./features/products/products.module').then(
-                (m) => m.ProductsModule,
-              ),
+            canActivate: [vendorApprovedGuard],
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'manage' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/products/products.module').then(
+                    (m) => m.ProductsModule,
+                  ),
+              },
+            ],
           },
           {
             path: 'orders',
-            canActivate: [vendorApprovedGuard, vendorGuard],
-            loadChildren: () =>
-              import('./features/orders/orders.module').then(
-                (m) => m.OrdersModule,
-              ),
+            canActivate: [vendorApprovedGuard],
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'manage' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/orders/orders.module').then(
+                    (m) => m.OrdersModule,
+                  ),
+              },
+            ],
           },
           {
             path: 'profile',
@@ -146,7 +159,8 @@ const routes: Routes = [
       // admin routes
       {
         path: 'admin',
-        canActivate: [authGuard, adminGuard],
+        canActivate: [authGuard, portalAccessGuard],
+        data: { portal: 'admin' },
         children: [
           {
             path: 'dashboard',
@@ -204,10 +218,16 @@ const routes: Routes = [
           },
           {
             path: 'orders',
-            loadChildren: () =>
-              import('./features/orders/orders.module').then(
-                (m) => m.OrdersModule,
-              ),
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'manage' },
+              {
+                path: '',
+                loadChildren: () =>
+                  import('./features/orders/orders.module').then(
+                    (m) => m.OrdersModule,
+                  ),
+              },
+            ],
           },
           {
             path: 'reports',

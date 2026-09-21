@@ -104,12 +104,12 @@ export class NotificationHistoryComponent {
         
         // Define route mappings dynamically
         const customerRoutes: Record<string, string> = {
-          'Order': '/account/orders/details',
+          'Order': '/account/orders/customer-details',
           'Product': '/products',
         };
         
         const adminRoutes: Record<string, string> = {
-          'Order': '/admin/orders/details-admin',
+          'Order': '/admin/orders/details',
           'Product': '/admin/products/view',
           'User': '/admin/users'
         };

@@ -5,6 +5,7 @@ export interface TableColumn {
   label: string;
   type?: 'text' | 'image' | 'badge' | 'currency' | 'date' | number | string;
   truncate?: boolean;
+    sortable?: boolean;
   role?: Role;
   badgeClassKey?: string;
 }

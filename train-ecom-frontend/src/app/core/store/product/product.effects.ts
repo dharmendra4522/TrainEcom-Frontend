@@ -9,6 +9,7 @@ import { Store } from '@ngrx/store';
 import { selectAllProducts, selectProductPageNumber, selectProductTotalPages, selectProductTotalRecords, selectProductPagesCache } from './product.selectors';
 
 import { extractBackendMessage } from '../../utils/error.utils';
+import { PortalRouteService } from '../../services/portal-route.service';
 
 @Injectable()
 export class ProductEffects {
@@ -16,6 +17,7 @@ export class ProductEffects {
     private productService = inject(ProductService);
     private notification = inject(NotificationService);
     private router = inject(Router);
+    private portalRoutes = inject(PortalRouteService);
     private store = inject(Store);
 
     loadProducts$ = createEffect(() =>
@@ -37,7 +39,8 @@ export class ProductEffects {
                 const sortBy = action.sortBy || '';
                 const minRating = action.minRating;
 
-                const cacheKey = `${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
+                const portal = action.portal;
+                const cacheKey = `${portal ?? 'public'}-${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
 
                 if (action.isAppend && pagesCache[cacheKey]) {
                     const computedCacheTotalPages = totalPages > 0 ? totalPages : Math.max(1, Math.ceil(totalRecords / pageSize));
@@ -60,7 +63,8 @@ export class ProductEffects {
                     action.minPrice,
                     action.maxPrice,
                     action.sortBy,
-                    action.minRating
+                    action.minRating,
+                    portal,
                 ).pipe(
                     map((response) => {
                         // calculate total pages based on totalRecords and pageSize
@@ -89,11 +93,11 @@ export class ProductEffects {
     createProduct$ = createEffect(() =>
         this.action$.pipe(
             ofType(ProductActions.createProduct),
-            exhaustMap(({ productData, files }) =>
-                this.productService.createProduct(productData, files).pipe(
+            exhaustMap(({ productData, files, portal }) =>
+                this.productService.createProduct(productData, files, portal).pipe(
                     map((product) => {
                         this.notification.showSuccess('Product created successfully', 'Close');
-                        this.router.navigate(['/admin/products']);
+                        if (portal) this.router.navigate(this.portalRoutes.products(portal, 'manage'));
                         return ProductActions.createProductSuccess({ product });
                     }),
                     catchError((error) => {
@@ -110,11 +114,11 @@ export class ProductEffects {
     updateProduct$ = createEffect(() =>
         this.action$.pipe(
             ofType(ProductActions.updateProduct),
-            exhaustMap(({ id, productData, newFiles, deletedImageIds }) =>
-                this.productService.updateProduct(id, productData, newFiles, deletedImageIds).pipe(
+            exhaustMap(({ id, productData, newFiles, deletedImageIds, portal }) =>
+                this.productService.updateProduct(id, productData, newFiles, deletedImageIds, portal).pipe(
                     map((product) => {
                         this.notification.showSuccess('Product updated successfully', 'Close');
-                        this.router.navigate(['/admin/products']);
+                        if (portal) this.router.navigate(this.portalRoutes.products(portal, 'manage'));
                         return ProductActions.updateProductSuccess({ product });
                     }),
                     catchError((error) => {
@@ -131,8 +135,8 @@ export class ProductEffects {
     deleteProduct$ = createEffect(() =>
         this.action$.pipe(
             ofType(ProductActions.deleteProduct),
-            exhaustMap(({ productId }) =>
-                this.productService.deleteProduct(productId).pipe(
+            exhaustMap(({ productId, portal }) =>
+                this.productService.deleteProduct(productId, portal).pipe(
                     map(() => {
                         this.notification.showSuccess('Product deleted successfully', 'Close');
                         return ProductActions.deleteProductSuccess({ productId });
@@ -151,8 +155,8 @@ export class ProductEffects {
     loadProductById$ = createEffect(() =>
         this.action$.pipe(
             ofType(ProductActions.loadProductById),
-            switchMap(({ id }) =>
-                this.productService.getProductById(id).pipe(
+            switchMap(({ id, portal }) =>
+                this.productService.getProductById(id, portal).pipe(
                     map((product) => ProductActions.loadProductByIdSuccess({ product })),
                     catchError((error) =>
                         of(ProductActions.loadProductByIdFailure({ error: error?.message || 'Failed to fetch product details' }))

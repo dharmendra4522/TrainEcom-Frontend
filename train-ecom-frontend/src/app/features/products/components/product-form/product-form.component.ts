@@ -26,6 +26,8 @@ import * as CategoryActions from '../../../../core/store/category/category.actio
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { Location } from '@angular/common';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-product-form',
@@ -42,6 +44,9 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private actions$ = inject(Actions);
   private destroy$ = new Subject<void>();
   private location = inject(Location);
+  private portalRoutes = inject(PortalRouteService);
+
+  private portal: PortalKey = 'admin';
 
   brandControl = new FormControl<string>('');
   categoryControl = new FormControl<string>('');
@@ -64,6 +69,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   // Lifecycle hook to initialize component data and setup subscriptions.
   ngOnInit(): void {
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     this.initFormAndData();
     this.checkRouteForEditMode();
     this.setupPaginatedListeners();
@@ -149,7 +155,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   // Dispatches action to load product details by ID and patches the form.
   private loadProductDetails(productId: string): void {
-    this.store.dispatch(ProductActions.loadProductById({ id: productId }));
+    this.store.dispatch(ProductActions.loadProductById({ id: productId, portal: this.portal }));
 
     this.store
       .select(selectProductById(productId))
@@ -409,6 +415,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             productData: productPayload,
             newFiles: cleanFiles,
             deletedImageIds: this.deletedImageIds,
+            portal: this.portal,
           }),
         );
       } else {
@@ -416,6 +423,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           ProductActions.createProduct({
             productData: productPayload,
             files: cleanFiles,
+            portal: this.portal,
           }),
         );
       }

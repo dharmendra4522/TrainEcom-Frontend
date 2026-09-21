@@ -70,6 +70,33 @@ export interface ApiBasicResponse {
   message: string;
 }
 
+export interface VendorRegisterFormValues {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  businessName: string;
+  displayName: string;
+  businessDescription: string;
+  businessCategory: string | string[];
+  gstDocument?: File | string;
+  businessDocument?: File | string;
+  businessLogo?: File | string;
+  gstin: string;
+  panNumber: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  country: string;
+  state: string;
+  postalCode: string;
+  bankAccountNumber?: string | number;
+  acountHolderName?: string;
+  ifscCode?: string;
+}
+
 export interface VendorRegisterResponse {
   success: boolean;
   message: string;

@@ -59,9 +59,6 @@ export class AuthEffects {
               localStorage.setItem('registrationId', res.registrationId);
             if (res.submittedDate)
               localStorage.setItem('submittedDate', res.submittedDate);
-            if (res.status)
-              localStorage.setItem('vendorStatusDetail', res.status);
-
             localStorage.setItem('vendor_session_expiry', calculatedExpireTime);
             return AuthActions.loginSuccess({
               payload: {
@@ -135,7 +132,6 @@ export class AuthEffects {
           localStorage.removeItem('vendor_session_expiry');
           localStorage.removeItem('registrationId');
           localStorage.removeItem('submittedDate');
-          localStorage.removeItem('vendorStatusDetail');
           this.userService.clearCache();
           this.router.navigate(['/login']);
         }),

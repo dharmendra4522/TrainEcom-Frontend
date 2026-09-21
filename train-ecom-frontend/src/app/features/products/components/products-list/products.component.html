@@ -5,7 +5,7 @@
         <h2 class="fs-4 fw-bold text-dark m-0">Product Management</h2>
         <p class="text-muted small m-0">View, search, and manage all products from one place.</p>
       </div>
-      <button mat-raised-button color="primary" routerLink="/admin/products/add">
+      <button mat-raised-button color="primary" [routerLink]="portalRoutes.products(portal, 'add')">
         <mat-icon>add</mat-icon> Add New Product
       </button>
     </div>

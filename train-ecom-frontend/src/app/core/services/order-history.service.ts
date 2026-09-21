@@ -11,6 +11,8 @@ import {
   OrderTrackingResponse,
   UpdateOrderStatusResponse
 } from '../models/order.model';
+import { PortalKey } from '../config/management-access.config';
+import { MANAGEMENT_API_PATHS } from '../config/management-api.config';
 @Injectable({
   providedIn: 'root'
 })
@@ -50,21 +52,34 @@ private buildParams<T extends object>(filter?: T): HttpParams {
     return this.http.get<OrderTrackingResponse>(`${this.baseAPI}/${orderId}/tracking`);
   }
 
-  getAdminOrders(filter?: AdminOrderFilterParams): Observable<AdminOrderListResponse> {
+  getManagedOrders(
+    portal: PortalKey,
+    filter?: AdminOrderFilterParams,
+  ): Observable<AdminOrderListResponse> {
     const params = this.buildParams(filter);
-    return this.http.get<AdminOrderListResponse>(`${environment.apiBaseUrl}/admin/orders/all`, { params });
+    return this.http.get<AdminOrderListResponse>(
+      `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.list}`,
+      { params },
+    );
   }
 
-
-  // Admin specific methods for order details and status update
-  getAdminOrderDetails(orderId: string): Observable<OrderDetailsResponse> {
-    return this.http.get<OrderDetailsResponse>(`${environment.apiBaseUrl}/admin/orders/getById/${orderId}`);
+  getManagedOrderDetails(
+    portal: PortalKey,
+    orderId: string,
+  ): Observable<OrderDetailsResponse> {
+    return this.http.get<OrderDetailsResponse>(
+      `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.detail}/${orderId}`,
+    );
   }
 
-  // Method to update order status for admin 
-  updateOrderStatus(orderId: string, status: string, remark?: string): Observable<UpdateOrderStatusResponse> {
+  updateManagedOrderStatus(
+    portal: PortalKey,
+    orderId: string,
+    status: string,
+    remark?: string,
+  ): Observable<UpdateOrderStatusResponse> {
     return this.http.patch<UpdateOrderStatusResponse>(
-      `${environment.apiBaseUrl}/admin/orders/${orderId}/update-status`,
+      `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.updateStatus}/${orderId}/update-status`,
       { status, remark }
     );
   }

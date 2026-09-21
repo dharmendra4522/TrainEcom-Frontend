@@ -35,7 +35,7 @@
                     <span class="text-muted small">{{ review.createdAt | date:'mediumDate' }}</span>
 
                     <!-- Admin Delete Icon Button (Only visible when logged in as admin) -->
-                    <button *ngIf="isAdmin" type="button" 
+                    <button *ngIf="isManagementMode" type="button" 
                         class="btn btn-link text-danger p-0 d-inline-flex align-items-center text-decoration-none border-0 bg-transparent"
                         (click)="onDeleteReview(review.reviewId)" title="Delete Review">
                         <mat-icon style="font-size: 18px; width: 18px; height: 18px;" class="text-danger align-middle">delete</mat-icon>

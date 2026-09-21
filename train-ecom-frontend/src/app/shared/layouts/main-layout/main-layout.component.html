@@ -37,7 +37,6 @@
       [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
     >
       <app-sidebar
-        [title]="getSidebarTitle(userRole$ | async)"
         [menuItems]="(menuItems$ | async) || []"
         [sidebarType]="getSidebarType(userRole$ | async)"
       >

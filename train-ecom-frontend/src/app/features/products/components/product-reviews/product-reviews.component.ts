@@ -24,7 +24,7 @@ export class ProductReviewsComponent {
 
   destroy$ = new Subject<void>();
 
-  isAdmin: boolean = false;
+  isManagementMode: boolean = false;
   reviews: Review[] = [];
   averageRating: number = 0;
   totalReviews: number = 0;
@@ -47,10 +47,10 @@ export class ProductReviewsComponent {
     this.setupRouteDataListener();
   }
 
-  // Setup a listener to check if the user is an admin based on route data
+  // Management routes expose moderation actions; public routes do not.
   setupRouteDataListener(): void {
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.isAdmin = !!data['isAdmin'];
+      this.isManagementMode = data['pageMode'] === 'management';
     });
   }
 

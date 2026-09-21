@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+
+.custom-field-width {
+  width: 100%;
+}
+
+h4 {
+  color: #1e293b !important;
+  font-size: 1.25rem !important;
+}
+
+@media (min-width: 768px) {
+  .custom-field-width {
+    width: 95%;
+  }
+}

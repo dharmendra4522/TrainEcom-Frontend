@@ -22,6 +22,8 @@ import {
 } from '../../../../core/store/product/product.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-product-detail',
@@ -36,12 +38,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private confirmDialog = inject(ConfirmDialogServiceService);
   private action$ = inject(Actions);
+  private portalRoutes = inject(PortalRouteService);
 
   product: Product | null = null;
   selectedImageUrl: string = '';
   quantity: number = 1;
   isLoading: boolean = true;
-  isAdmin: boolean = false;
+  isManagementMode: boolean = false;
+  portal: PortalKey = 'admin';
   isReadOnly: boolean = false;
 
   isFavorite$!: Observable<boolean>;
@@ -78,13 +82,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([data, queryParams, params]: [Data, Params, Params]) => {
-        this.isAdmin = !!data['isAdmin'];
+        this.isManagementMode = data['pageMode'] === 'management';
+        this.portal = this.portalRoutes.currentPortal() ?? 'admin';
         this.isReadOnly = queryParams['mode'] === 'view-only';
 
         const id = params['id'] as string;
         if (id) {
           this.loadProduct(id);
-          if (!this.isAdmin) {
+          if (!this.isManagementMode) {
             this.checkWishlistStatus(id);
           }
         }
@@ -101,8 +106,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // Store dispatch and subscription setup methods
   private dispatchProductActions(id: string): void {
-    this.store.dispatch(ProductActions.loadProductById({ id }));
-    if (!this.isAdmin) {
+    this.store.dispatch(ProductActions.loadProductById({
+      id,
+      portal: this.isManagementMode ? this.portal : undefined,
+    }));
+    if (!this.isManagementMode) {
       this.store.dispatch(ProductActions.loadRelatedProducts({ productId: id }));
     }
   }
@@ -114,7 +122,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.productDestroy$))
       .subscribe((product: Product | undefined) => this.handleProductLoaded(product));
 
-    if (!this.isAdmin) {
+    if (!this.isManagementMode) {
       this.store
         .select(selectRelatedProducts)
         .pipe(takeUntil(this.productDestroy$))
@@ -159,10 +167,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // --- Breadcrumbs Update Method ---
   private updateBreadcrumbs(product: Product): void {
-    if (this.isAdmin) {
+    if (this.isManagementMode) {
       this.productBreadcrumbs = [
         { label: 'Dashboard', url: '/' },
-        { label: 'Products List', url: '/admin/products/manage' },
+        { label: 'Products List', url: `/${this.portal}/products/manage` },
         { label: product.name },
       ];
     } else {
@@ -297,7 +305,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // --- Admin Specific Actions ---
   onEditProduct(): void {
     if (this.product) {
-      this.router.navigate(['/admin/products/edit', this.product.id]);
+      this.router.navigate(this.portalRoutes.products(this.portal, 'edit', this.product.id));
     }
   }
 
@@ -310,12 +318,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       .subscribe((confirmed: boolean) => {
         if (!confirmed || !this.product) return;
         const id = this.product.id.toString();
-        this.store.dispatch(ProductActions.deleteProduct({ productId: id }));
+        this.store.dispatch(ProductActions.deleteProduct({ productId: id, portal: this.portal }));
 
         this.action$
           .pipe(ofType(ProductActions.deleteProductSuccess), takeUntil(this.destroy$), take(1))
           .subscribe(() => {
-            this.router.navigate(['/admin/products/manage']);
+            this.router.navigate(this.portalRoutes.products(this.portal, 'manage'));
           });
       });
   }

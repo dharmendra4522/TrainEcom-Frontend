@@ -4,41 +4,49 @@ import { ProductsComponent } from './components/products-list/products.component
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { authGuard } from '../../core/guards/auth.guard';
-import { adminGuard } from '../../core/guards/admin.guard';
 import { PublicCatalogComponent } from './components/public-catalog/public-catalog.component';
+import { managementAccessGuard } from '../../core/guards/management-access.guard';
+
+const managementRouteData = {
+  feature: 'products.manage',
+  pageMode: 'management',
+};
 
 
 const routes: Routes = [
-  { path: '', component: PublicCatalogComponent },
+  { path: '', pathMatch: 'full', component: PublicCatalogComponent },
   {
     path: 'manage',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: ProductsComponent,
+    data: managementRouteData,
   },
   {
     path: 'add',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: ProductFormComponent,
+    data: managementRouteData,
   },
   {
     path: 'edit/:id',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: ProductFormComponent,
+    data: managementRouteData,
   },
 
-  // Admin View - Uses ProductDetailComponent with isAdmin: true
+  // Management view is shared by every configured portal.
   {
     path: 'view/:id',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: ProductDetailComponent,
-    data: { isAdmin: true },
+    data: managementRouteData,
   },
 
-  // Public View - Uses ProductDetailComponent with isAdmin: false
+  // Public view keeps customer actions enabled.
   {
     path: ':id',
     component: ProductDetailComponent,
-    data: { isAdmin: false },
+    data: { pageMode: 'public' },
   },
 ];
 

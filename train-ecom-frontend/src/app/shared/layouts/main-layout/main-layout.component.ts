@@ -47,41 +47,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     }),
   );
 
-  // adminMenuItems: MenuItem[] = [
-  //   { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
-  //   { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
-  //   { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
-  //   { label: 'Categories', icon: 'category', route: '/admin/categories' },
-  //   { label: 'Manage Users', icon: 'people', route: '/admin/users' },
-  //   { label: 'Manage Vendors', icon: 'store', route: '/admin/users/vendors' },
-  //   { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
-  //   { label: 'Platform Analytics', icon: 'bar_chart', route: '/admin/reports' },
-  //   {
-  //     label: 'Notifications',
-  //     icon: 'notifications',
-  //     route: '/admin/notifications-history',
-  //   },
-  // ];
-
-  // consumerMenuItems: MenuItem[] = [
-  //   { label: 'My Profile', icon: 'person', route: '/account/profile' },
-  //   { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
-  //   { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
-  //   { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
-  //   { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
-  //   {
-  //     label: 'My Notifications',
-  //     icon: 'notifications',
-  //     route: '/account/notifications-history',
-  //   },
-  // ];
-
-  // vendorMenuItems: MenuItem[] = [
-  //   { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
-  //   { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
-  //   { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
-  //   { label: 'My Profile', icon: 'person', route: '/account/profile' },
-  // ];
 
   isMobile$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
@@ -173,12 +138,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  // sidebar title
-  getSidebarTitle(role: string | null): string {
-    if (role === Role.Admin || role === 'Admin') return 'Admin Panel';
-    if (role === Role.Vendor || role === 'Vendor') return 'Vendor Portal';
-    return 'Manage My Account';
-  }
+
 
   getSidebarType(role: string | null): string {
     if (role === Role.Admin || role === 'Admin') return 'admin';

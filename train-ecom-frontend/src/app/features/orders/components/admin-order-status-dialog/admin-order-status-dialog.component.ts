@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-admin-order-status-dialog',
@@ -22,7 +23,11 @@ export class AdminOrderStatusDialogComponent {
   isUpdating: boolean = false;
   statuses: OrderStatus[] = Object.values(OrderStatus);
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { orderId: string, currentStatus: OrderStatus }) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: {
+    orderId: string;
+    currentStatus: OrderStatus;
+    portal: PortalKey;
+  }) {
     this.form = this.fb.group({
       status: [data.currentStatus, Validators.required],
       remark: ['']
@@ -64,7 +69,12 @@ export class AdminOrderStatusDialogComponent {
 
     this.isUpdating = true;
 
-    this.orderService.updateOrderStatus(this.data.orderId, newStatus, remark).subscribe({
+    this.orderService.updateManagedOrderStatus(
+      this.data.portal,
+      this.data.orderId,
+      newStatus,
+      remark,
+    ).subscribe({
       next: () => {
         this.notification.showSuccess('Order status updated successfully', 'Close');
         this.dialogRef.close(true);
