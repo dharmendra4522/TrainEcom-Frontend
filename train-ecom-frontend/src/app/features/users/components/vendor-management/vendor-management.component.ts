@@ -11,6 +11,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
+  VendorDetails,
   VendorItem,
   VendorTableItem,
 } from '../../../../core/models/vendor.model';
@@ -58,12 +59,12 @@ export class VendorManagementComponent {
   ];
 
   actions: TableAction[] = [
-    // {
-    //   actionKey: 'edit',
-    //   icon: 'edit',
-    //   color: 'primary',
-    //   tooltip: 'Edit Vendor',
-    // },
+    {
+      actionKey: 'edit',
+      icon: 'edit',
+      color: 'primary',
+      tooltip: 'Edit Vendor',
+    },
     {
       actionKey: 'delete',
       icon: 'delete',
@@ -206,7 +207,7 @@ export class VendorManagementComponent {
 
   // method for handle actions
   onActionClick(event: TableActionEvent): void {
-    const vendor = event.row as VendorTableItem;
+    const vendor = event.row as VendorDetails;
     if (!vendor) {
       return;
     }
@@ -228,6 +229,12 @@ export class VendorManagementComponent {
         }
       });
     } else if (event.action === 'verifyApprove') {
+      if (vendor.status?.toLocaleLowerCase() === 'verifiedApprove') {
+        this.notificationService.showWarning(
+          'Rejected Vendor cant not be approved',
+        );
+        return;
+      }
       this.updateVendorStatus(
         vendor.vendorId,
         ApprovalStatus.Approved,

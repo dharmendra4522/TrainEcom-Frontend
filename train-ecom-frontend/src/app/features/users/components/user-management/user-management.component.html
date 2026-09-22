@@ -18,32 +18,11 @@
     </div>
 
     <!-- new navigation tab -->
-    <ul class="nav nav-pills nav-justified mb-5">
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          [class.active]="activeTab === 'users'"
-          (click)="onTabSwitch('users')"
-          >All Users</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          [class.active]="activeTab === 'vendors'"
-          (click)="onTabSwitch('vendors')"
-          >All Vadors</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          [class.active]="activeTab === 'customers'"
-          (click)="onTabSwitch('customers')"
-          >All Vadors</a
-        >
-      </li>
-    </ul>
+    <mat-tab-group (selectedTabChange)="onTabChange($event)" class="mb-4">
+      <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
+      </mat-tab>
+    </mat-tab-group>
+
   </div>
 
   <div class="tab-content-area">

@@ -21,21 +21,13 @@ export const publicGuard: CanActivateFn = (route, state) => {
     map(([isLoggedIn, role, status]) => {
       if (isLoggedIn && role) {
         const normalizedRole = role.toString().toLowerCase();
-        
+
         if (normalizedRole === 'admin') {
           return router.createUrlTree(['/admin/dashboard']);
         }
-        
-        if (normalizedRole === 'vendor') {
-          const normalizedStatus = status
-            ? status.toString().toLowerCase()
-            : '';
 
-          if (normalizedStatus === 'approved') {
-            return router.createUrlTree(['/vendor/dashboard']);
-          } else {
-            return true;
-          }
+        if (normalizedRole === 'vendor') {
+          return router.createUrlTree(['/vendor/dashboard']);
         }
         return router.createUrlTree(['/']);
       }

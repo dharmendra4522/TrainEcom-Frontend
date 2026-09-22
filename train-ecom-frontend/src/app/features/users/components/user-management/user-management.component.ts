@@ -1,4 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+export interface TabItem {
+  label: string;
+  value: 'customers' | 'vendors' | 'users';
+}
+
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
@@ -7,7 +13,17 @@ import { Component, inject } from '@angular/core';
 export class UserManagementComponent {
   activeTab: 'users' | 'vendors' | 'customers' = 'users';
 
-  onTabSwitch(tab: 'users' | 'vendors' | 'customers') {
-    this.activeTab = tab;
+  tabs: TabItem[] = [
+    { label: 'Users', value: 'users' },
+    { label: 'Customers', value: 'customers' },
+    { label: 'Vendors', value: 'vendors' },
+  ];
+
+
+  onTabChange(event: MatTabChangeEvent): void {
+    const selectedTab = this.tabs[event.index];
+    if (selectedTab) {
+      this.activeTab = selectedTab.value;
+    }
   }
 }
