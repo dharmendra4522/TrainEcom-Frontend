@@ -37,9 +37,9 @@ export class UserService {
           const vd = profile.vendorDetails as Record<string, unknown> &
             typeof profile.vendorDetails;
           if ('bussinessName' in vd)
-            vd.businessName = vd['bussinessName'] as string;
+            vd.bussinessName = vd['bussinessName'] as string;
           if ('bussinessDescription' in vd)
-            vd.businessDescription = vd['bussinessDescription'] as string;
+            vd.bussinessDescription = vd['bussinessDescription'] as string;
         }
         return profile;
       }),
@@ -51,14 +51,14 @@ export class UserService {
   ): Observable<UserProfile> {
     const url = `${this.profileUrl}/update`;
     const payload: UpdateProfilePayload = { ...profileData };
-    if (payload.businessDetails) {
-      const businessDetails = payload.businessDetails as Record<
+    if (payload.bussinessDetails) {
+      const businessDetails = payload.bussinessDetails as Record<
         string,
         unknown
       >;
-      businessDetails['bussinessName'] = payload.businessDetails.businessName;
+      businessDetails['bussinessName'] = payload.bussinessDetails.bussinessName;
       businessDetails['bussinessDescription'] =
-        payload.businessDetails.businessDescription;
+        payload.bussinessDetails.bussinessDescription;
     }
     return this.http.put<UserProfile>(url, payload);
   }

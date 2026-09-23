@@ -98,7 +98,7 @@ export interface RegisterRequest {
   confirmPassword: string;
   phoneNumber: string;
   role?: RegistrationRole;
-  businessDetails?: BusinessDetailsPayload;
+  bussinessDetails?: BusinessDetailsPayload;
 }
 
 export interface BusinessDetailsPayload {
@@ -159,7 +159,7 @@ export interface VendorRegisterFormValues {
   confirmPassword: string;
   businessName: string;
   displayName: string;
-  businessDescription: string;
+  bussinessDescription: string;
   businessCategory: string | string[];
   gstDocument?: File | string;
   businessDocument?: File | string;

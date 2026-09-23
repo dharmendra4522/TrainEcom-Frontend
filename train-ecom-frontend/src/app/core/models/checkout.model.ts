@@ -1,7 +1,7 @@
 export enum PaymentMethod {
-  CashOnDelivery = 'CashOnDelivery',
-  Card = 'Card',
-  UPI = 'UPI',
+  CashOnDelivery = 1,
+  Card = 2,
+  UPI = 3,
 }
 
 export enum OrderStatus {

@@ -64,12 +64,12 @@
     <mat-label>Business Description</mat-label>
     <textarea
       matInput
-      formControlName="businessDescription"
+      formControlName="bussinessDescription"
       placeholder="Ex. About Your Shop and Quality....."
-      (blur)="onBlurTrim('businessDescription')"
+      (blur)="onBlurTrim('bussinessDescription')"
     ></textarea>
     <mat-error>
-      {{ getErrorMessage("businessDescription", "Business Description") }}
+      {{ getErrorMessage("bussinessDescription", "Business Description") }}
     </mat-error>
   </mat-form-field>
 

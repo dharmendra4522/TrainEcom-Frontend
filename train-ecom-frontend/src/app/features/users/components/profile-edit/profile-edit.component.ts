@@ -59,7 +59,7 @@ export class ProfileEditComponent {
         // Vendor fields
         businessName: [{ value: '', disabled: true }],
         storeName: ['', [Validators.required, Validators.minLength(3)]],
-        businessDescription: ['', [Validators.required, Validators.minLength(10), noSpaceAllow()]],
+        bussinessDescription: ['', [Validators.required, Validators.minLength(10), noSpaceAllow()]],
         gstin: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/)]],
         pan: [{ value: '', disabled: true }],
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
@@ -129,9 +129,9 @@ export class ProfileEditComponent {
       name: profile.name,
       email: profile.email,
       phoneNumber: profile.phoneNumber,
-      businessName: vDetails?.businessName,
+      businessName: vDetails?.bussinessName,
       storeName: vDetails?.storeName,
-      businessDescription: vDetails?.businessDescription,
+      bussinessDescription: vDetails?.bussinessDescription,
       gstin: vDetails?.gstin,
       pan: vDetails?.pan,
       bankAccountNumber: vDetails?.bankAccountNumber,
@@ -183,11 +183,11 @@ export class ProfileEditComponent {
     };
 
     if (this.userRole === Role.Vendor && this.userProfile?.vendorDetails) {
-      payload.businessDetails = {
+      payload.bussinessDetails = {
         ...addressPayload,
-        businessName: formValue.businessName,
+        bussinessName: formValue.bussinessName,
         storeName: formValue.storeName,
-        businessDescription: formValue.businessDescription,
+        bussinessDescription: formValue.bussinessDescription,
         gstin: formValue.gstin,
         pan: formValue.pan,
         bankAccountNumber: formValue.bankAccountNumber,
@@ -195,6 +195,21 @@ export class ProfileEditComponent {
         accountHolderName: formValue.accountHolderName,
         documentUrls: this.userProfile.vendorDetails.documentUrls,
         categories: this.userProfile.vendorDetails.categories,
+      };
+    }// Condition ko flexible banayein taaki vendorDetails hamesha attach ho
+    if (this.userRole === Role.Vendor || this.userProfile?.vendorDetails || formValue.storeName) {
+      payload.bussinessDetails = {
+        ...addressPayload,
+        bussinessName: formValue.businessName || this.userProfile?.vendorDetails?.bussinessName || null,
+        storeName: formValue.storeName,
+        bussinessDescription: formValue.bussinessDescription,
+        gstin: formValue.gstin || this.userProfile?.vendorDetails?.gstin || null,
+        pan: formValue.pan || this.userProfile?.vendorDetails?.pan || null,
+        bankAccountNumber: formValue.bankAccountNumber,
+        ifscCode: formValue.ifscCode,
+        accountHolderName: formValue.accountHolderName,
+        documentUrls: this.userProfile?.vendorDetails?.documentUrls || [],
+        categories: this.userProfile?.vendorDetails?.categories || [],
       };
     } else if (this.userRole === Role.Customer) {
       payload.defaultAddress = addressPayload;

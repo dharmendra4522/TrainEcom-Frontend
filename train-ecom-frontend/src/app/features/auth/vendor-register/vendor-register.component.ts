@@ -94,7 +94,7 @@ export class VendorRegisterComponent implements OnInit {
 
         businessName: ['', [Validators.required, Validators.minLength(3)]],
         displayName: ['', [Validators.required, Validators.minLength(3)]],
-        businessDescription: [
+        bussinessDescription: [
           '',
           [Validators.required, Validators.minLength(10), noSpaceAllow()],
         ],
@@ -269,7 +269,7 @@ export class VendorRegisterComponent implements OnInit {
       'businessName',
       'displayName',
       'businessCategory',
-      'businessDescription',
+      'bussinessDescription',
     ]);
   }
 

@@ -26,7 +26,8 @@ export class CheckoutService {
   placeCartOrder(payload: CreateOrderRequest): Observable<CreateOrderResponse> {
     const requestPayload = {
       ...payload,
-      addressId: Number(payload.addressId)
+      addressId: Number(payload.addressId),
+      paymentMethod: Number(payload.paymentMethod)
     };
     return this.http.post<CreateOrderResponse>(`${this.baseAPI}/cart-checkout`, requestPayload);
   }
@@ -35,7 +36,8 @@ export class CheckoutService {
     const requestPayload = {
       ...payload,
       addressId: Number(payload.addressId),
-      productId: Number(payload.productId)
+      productId: Number(payload.productId),
+      paymentMethod: Number(payload.paymentMethod)
     };
     return this.http.post<CreateOrderResponse>(`${this.baseAPI}/buy-now`, requestPayload);
   }

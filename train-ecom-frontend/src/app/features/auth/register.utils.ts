@@ -82,7 +82,7 @@ export function createVendorFormData(
   formData.append('Role', String(2));
 
   formData.append('BussinessDetails.BussinessName', formValue.businessName);
-  formData.append('BussinessDetails.BussinessDescription', formValue.businessDescription);
+  formData.append('BussinessDetails.BussinessDescription', formValue.bussinessDescription);
   formData.append('BussinessDetails.StoreName', formValue.displayName);
   formData.append('BussinessDetails.GSTIN', formValue.gstin);
   formData.append('BussinessDetails.PAN', formValue.panNumber);

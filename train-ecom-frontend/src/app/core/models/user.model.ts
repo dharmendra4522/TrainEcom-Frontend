@@ -60,9 +60,9 @@ export function approvalStatusToLabel(
 export interface ProfileVendorDetails {
   id?: number;
   userId?: number;
-  businessName?: string | null;
+  bussinessName?: string | null;
   storeName?: string | null;
-  businessDescription?: string | null;
+  bussinessDescription?: string | null;
   addressLine1?: string | null;
   addressLine2?: string | null;
   city?: string | null;
@@ -143,10 +143,10 @@ export interface UpdateProfilePayload {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
-  businessDetails? :{
-    businessName: string | null;
+  bussinessDetails? :{
+    bussinessName: string | null;
     storeName: string | null;
-    businessDescription: string | null;
+    bussinessDescription: string | null;
     addressLine1: string | null;
     addressLine2: string | null;
     city: string | null;
