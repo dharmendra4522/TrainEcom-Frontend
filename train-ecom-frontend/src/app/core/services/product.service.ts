@@ -38,8 +38,8 @@ export class ProductService {
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
     formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
-    formData.append('BrandId', productData.brandId || '');
-    formData.append('CategoryId', productData.categoryId || '');
+    formData.append('BrandId', String(productData.brandId ?? ''));
+    formData.append('CategoryId', String(productData.categoryId ?? ''));
 
     files.forEach((file) => {
       if (file) formData.append('Images', file);
@@ -56,7 +56,7 @@ export class ProductService {
     productId: string,
     productData: Partial<Product>,
     newFiles: File[] = [],
-    deletedImageIds: string[] = [],
+    deletedImageIds: Array<string | number> = [],
     portal?: PortalKey,
   ): Observable<Product> {
     const formData = new FormData();
@@ -65,11 +65,11 @@ export class ProductService {
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
     formData.append('StockQuantity', productData.stockQuantity?.toString() || '0');
-    formData.append('BrandId', productData.brandId || '');
-    formData.append('CategoryId', productData.categoryId || '');
+    formData.append('BrandId', String(productData.brandId ?? ''));
+    formData.append('CategoryId', String(productData.categoryId ?? ''));
 
     deletedImageIds.forEach((id) => {
-      formData.append('DeletedImageIds', id);
+      formData.append('DeletedImageIds', String(id));
     });
 
     newFiles.forEach((file) => {

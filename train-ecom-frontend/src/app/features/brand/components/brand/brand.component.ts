@@ -134,19 +134,18 @@ export class BrandComponent implements OnInit {
   }
 
   updateBrand(
-    id: string,
+    id: string | number,
     payload: { name: string; description: string }
   ): void {
     this.store.dispatch(
-      BrandActions.updateBrand({ brandId: id, brand: payload as Brand })
+      BrandActions.updateBrand({ brandId: String(id), brand: payload as Brand })
     );
   }
 
-  deleteBrand(brandId: string): void {
+  deleteBrand(brandId: string | number): void {
     this.confirmDialog.confirm('Are you sure you want to delete this brand?', 'Delete', 'Cancel').subscribe((confirmed) => {
-      debugger;
       if (confirmed) {
-        this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
+        this.store.dispatch(BrandActions.deleteBrand({ brandId: String(brandId) }));
       }
     });
   }

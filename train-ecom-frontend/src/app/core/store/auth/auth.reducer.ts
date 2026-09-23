@@ -38,9 +38,9 @@ export const authReducer = createReducer(
     accessToken: payload.token,
     userRole: payload.role,
     approvalStatus: (payload.approvalStatus as ApprovalStatus) ?? null,
-    submittedDate: payload.submittedDate ?? null, 
+    submittedDate: payload.submittedDate ?? null,
     registrationId: payload.registrationId ?? null,
-    status: payload.status ?? null,
+    status: payload.status === null || payload.status === undefined ? null : String(payload.status),
     error: null,
   })),
 

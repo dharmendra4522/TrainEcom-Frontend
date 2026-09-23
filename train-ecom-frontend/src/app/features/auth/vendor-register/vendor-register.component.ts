@@ -201,7 +201,7 @@ export class VendorRegisterComponent implements OnInit {
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
         this.isLoading = false;
-        this.notificationService.showSuccess(res.message);
+        this.notificationService.showSuccess(res.message || 'Registration successful');
         this.registerForm.reset();
         this.route.navigate(['/login']);
       },

@@ -56,20 +56,20 @@ export class CategoryService {
     );
   }
 
-  getCategoryById(id: string): Observable<Category> {
-    return this.http.get<Category>(`${this.baseApi}/getById/${id}`);
+  getCategoryById(id: string | number): Observable<Category> {
+    return this.http.get<Category>(`${this.baseApi}/getById/${String(id)}`);
   }
 
   createCategory(payload: CreateCategoryRequest): Observable<Category> {
     return this.http.post<Category>(`${this.baseApi}/create`, payload);
   }
 
-  updateCategory(id: string, payload: UpdateCategoryRequest): Observable<Category> {
-    return this.http.put<Category>(`${this.baseApi}/update/${id}`, payload);
+  updateCategory(id: string | number, payload: UpdateCategoryRequest): Observable<Category> {
+    return this.http.put<Category>(`${this.baseApi}/update/${String(id)}`, payload);
   }
 
-  deleteCategory(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
+  deleteCategory(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.baseApi}/delete/${String(id)}`);
   }
 
 }

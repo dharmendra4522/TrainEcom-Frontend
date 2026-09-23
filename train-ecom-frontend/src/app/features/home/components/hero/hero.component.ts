@@ -1,6 +1,11 @@
 import { Component, AfterViewInit } from '@angular/core';
 
-declare var bootstrap: any;
+declare const bootstrap: {
+  Carousel: new (
+    element: HTMLElement,
+    options?: { interval?: number; ride?: string; pause?: boolean | string },
+  ) => { cycle: () => void; pause: () => void };
+};
 
 @Component({
   selector: 'app-hero',

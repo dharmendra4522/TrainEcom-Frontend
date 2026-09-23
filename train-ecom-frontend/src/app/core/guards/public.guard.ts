@@ -7,6 +7,7 @@ import {
   selectUserRole,
 } from '../store/auth/auth.selectors';
 import { map, take, withLatestFrom } from 'rxjs/operators';
+import { Role, normalizeRole } from '../models/auth.model';
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);
@@ -18,15 +19,15 @@ export const publicGuard: CanActivateFn = (route, state) => {
       store.select(selectUserRole),
       store.select(selectAuthStatus),
     ),
-    map(([isLoggedIn, role, status]) => {
+    map(([isLoggedIn, role]) => {
       if (isLoggedIn && role) {
-        const normalizedRole = role.toString().toLowerCase();
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
 
-        if (normalizedRole === 'admin') {
+        if (normalizedRole === Role.Admin) {
           return router.createUrlTree(['/admin/dashboard']);
         }
 
-        if (normalizedRole === 'vendor') {
+        if (normalizedRole === Role.Vendor) {
           return router.createUrlTree(['/vendor/dashboard']);
         }
         return router.createUrlTree(['/']);

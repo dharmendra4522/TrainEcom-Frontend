@@ -1,4 +1,5 @@
 import { Role } from '../models/auth.model';
+import { ApprovalStatus, normalizeApprovalStatus } from '../models/user.model';
 
 export interface MenuItemConfig {
   key: string;
@@ -118,7 +119,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     allowInPendingState: false,
   },
 
-  // customer menu
+  // Customer menu
   {
     key: 'customer-profile',
     label: 'My Profile',
@@ -174,19 +175,19 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
 
 export function getRoleMenuItems(
   role: Role | null,
-  vendorStatus: string | null,
+  vendorStatus: string | number | ApprovalStatus | null,
 ): { label: string; icon: string; route: string; disabled: boolean }[] {
   if (!role) return [];
 
-  const status = vendorStatus?.toLowerCase() || '';
+  const status = normalizeApprovalStatus(vendorStatus);
 
-  const isApprovedVendor = role === Role.Vendor && status === 'approved';
-  const isPendingVendor = role === Role.Vendor && status === 'pending';
+  const isApprovedVendor = role === Role.Vendor && status === ApprovalStatus.Approved;
+  const isPendingVendor = role === Role.Vendor && status === ApprovalStatus.Pending;
 
   return ALL_MENU_ITEMS.filter((item) => item.allowedRoles.includes(role)).map(
     (item) => {
       let isDisabled = false;
-      if (role == Role.Vendor) {
+      if (role === Role.Vendor) {
         if (isPendingVendor) {
           isDisabled = !item.allowInPendingState;
         } else if (isApprovedVendor) {
@@ -204,3 +205,4 @@ export function getRoleMenuItems(
     },
   );
 }
+

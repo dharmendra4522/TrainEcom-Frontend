@@ -58,7 +58,7 @@ export const updateProduct = createAction(
     id: string;
     productData: Partial<Product>;
     newFiles: File[];
-    deletedImageIds: string[];
+    deletedImageIds: Array<string | number>;
     portal?: PortalKey;
   }>(),
 );

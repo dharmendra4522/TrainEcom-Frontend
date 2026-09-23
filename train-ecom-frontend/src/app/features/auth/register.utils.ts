@@ -74,53 +74,54 @@ export function createVendorFormData(
   const formData = new FormData();
   const fullName = `${formValue.firstName.trim()} ${formValue.lastName.trim()}`;
 
-  // basic details
-  formData.append('BasicDetails.Name', fullName);
-  formData.append('BasicDetails.Email', formValue.email);
-  formData.append('BasicDetails.Password', formValue.password);
-  formData.append('BasicDetails.ConfirmPassword', formValue.confirmPassword);
-  formData.append('BasicDetails.PhoneNumber', formValue.phoneNumber);
+  formData.append('Name', fullName);
+  formData.append('Email', formValue.email);
+  formData.append('Password', formValue.password);
+  formData.append('ConfirmPassword', formValue.confirmPassword);
+  formData.append('PhoneNumber', formValue.phoneNumber);
+  formData.append('Role', String(2));
 
-  // Business & Address Info
-  formData.append('BussinessName', formValue.businessName);
-  formData.append('BussinessDescription', formValue.businessDescription);
-  formData.append('StoreName', formValue.displayName);
-  formData.append('GSTIN', formValue.gstin);
-  formData.append('PAN', formValue.panNumber);
-  formData.append('AddressLine1', formValue.addressLine1);
+  formData.append('BussinessDetails.BussinessName', formValue.businessName);
+  formData.append('BussinessDetails.BussinessDescription', formValue.businessDescription);
+  formData.append('BussinessDetails.StoreName', formValue.displayName);
+  formData.append('BussinessDetails.GSTIN', formValue.gstin);
+  formData.append('BussinessDetails.PAN', formValue.panNumber);
+  formData.append('BussinessDetails.AddressLine1', formValue.addressLine1);
   if (formValue.addressLine2) {
-    formData.append('AddressLine2', formValue.addressLine2);
+    formData.append('BussinessDetails.AddressLine2', formValue.addressLine2);
   }
-  formData.append('City', formValue.city);
-  formData.append('State', formValue.state);
-  formData.append('Country', formValue.country);
-  formData.append('PostalCode', formValue.postalCode);
-  if (formValue.bankAccountNumber)
-    formData.append(
-      'BankAccountNumber',
-      formValue.bankAccountNumber.toString(),
-    );
-  if (formValue.ifscCode) formData.append('IFSCCode', formValue.ifscCode);
-  if (formValue.acountHolderName)
-    formData.append('AccountHolderName', formValue.acountHolderName);
+  formData.append('BussinessDetails.City', formValue.city);
+  formData.append('BussinessDetails.State', formValue.state);
+  formData.append('BussinessDetails.Country', formValue.country);
+  formData.append('BussinessDetails.PostalCode', formValue.postalCode);
+  if (formValue.bankAccountNumber) {
+    formData.append('BussinessDetails.BankAccountNumber', formValue.bankAccountNumber.toString());
+  }
+  if (formValue.ifscCode) {
+    formData.append('BussinessDetails.IFSCCode', formValue.ifscCode);
+  }
+  if (formValue.acountHolderName) {
+    formData.append('BussinessDetails.AccountHolderName', formValue.acountHolderName);
+  }
 
   const categories: string[] = Array.isArray(formValue.businessCategory)
     ? formValue.businessCategory
     : [formValue.businessCategory];
   categories.forEach((catId: string) => {
-    formData.append('CategoryIds', catId);
+    const parsed = Number(catId);
+    if (Number.isInteger(parsed)) {
+      formData.append('BussinessDetails.CategoryIds', String(parsed));
+    }
   });
 
   if (formValue.gstDocument instanceof File) {
-    formData.append('DocumentTypes', 'GST');
-    formData.append('Documents', formValue.gstDocument);
+    formData.append('BussinessDetails.GSTDocument', formValue.gstDocument);
   }
   if (formValue.businessDocument instanceof File) {
-    formData.append('DocumentTypes', 'BusinessRegistration');
-    formData.append('Documents', formValue.businessDocument);
+    formData.append('BussinessDetails.BussinessDocument', formValue.businessDocument);
   }
   if (formValue.businessLogo instanceof File) {
-    formData.append('BusinessLogo', formValue.businessLogo);
+    formData.append('BussinessDetails.Logo', formValue.businessLogo);
   }
 
   return formData;

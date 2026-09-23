@@ -1,20 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Store } from '@ngrx/store'; // 🔹 Store import kiya
+import { Store } from '@ngrx/store';
 import { AuthService } from '../../services/auth.service';
 import * as AuthActions from './auth.actions';
-import * as UserActions from '../user/user.actions'; // User Actions import kiya
+import * as UserActions from '../user/user.actions';
 import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { LoginResponse, Role } from '../../models/auth.model';
-import { BackendError, UserSessionPayload } from '../../models/auth.model';
+import { LoginResponse, Role, normalizeRole } from '../../models/auth.model';
+import { UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 
 import { extractBackendMessage } from '../../utils/error.utils';
-import { ApprovalStatus } from '../../models/user.model';
+import { ApprovalStatus, normalizeApprovalStatus } from '../../models/user.model';
 
 @Injectable()
 export class AuthEffects {
@@ -35,12 +35,10 @@ export class AuthEffects {
       exhaustMap((action) =>
         this.authService.login(action.request).pipe(
           map((res: LoginResponse) => {
-            const roleString = this.decodeRole(res.accessToken);
-
-            const role = roleString as Role | null;
+            const role = this.decodeRole(res.accessToken) ?? (normalizeRole(res.role) || null);
             const vendorStatus =
               role === Role.Vendor
-                ? (res.status as ApprovalStatus) || null
+                ? ((res.status ?? res.approvalStatus) as ApprovalStatus) || null
                 : null;
 
             const TIMER_DURATION = 5 * 60 * 1000;
@@ -51,7 +49,7 @@ export class AuthEffects {
             localStorage.setItem('accessToken', res.accessToken);
 
             if (vendorStatus) {
-              localStorage.setItem('vendorStatus', vendorStatus);
+              localStorage.setItem('vendorStatus', String(vendorStatus));
             } else {
               localStorage.removeItem('vendorStatus');
             }
@@ -67,7 +65,7 @@ export class AuthEffects {
                 approvalStatus: vendorStatus ?? undefined,
                 submittedDate: res.submittedDate,
                 registrationId: res.registrationId,
-                status: res.status,
+                status: normalizeApprovalStatus(res.status) ?? undefined,
               },
             });
           }),
@@ -92,18 +90,13 @@ export class AuthEffects {
             payload: UserSessionPayload;
             isRefresh?: boolean;
           }) => {
-            // Session restoration only rehydrates state; it must not redirect or
-            // duplicate the profile request. Cart hydration is handled by CartEffects.
             if (isRefresh) {
               return;
             }
 
             this.store.dispatch(UserActions.loadProfileReq());
 
-            const role = payload.role
-              ? payload.role.toString().toLowerCase()
-              : '';
-
+            const role = normalizeRole(payload.role);
             this.router.navigateByUrl(this.getPostLoginRoute(role));
           },
         ),
@@ -165,22 +158,20 @@ export class AuthEffects {
       const roleKey =
         'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
-      const rawRole = decoded[roleKey];
+      const rawRole = decoded[roleKey] ?? decoded['role'] ?? decoded['Role'];
       const role = Array.isArray(rawRole) ? rawRole[0] : rawRole;
-      console.log('Decoded Raw Role:', role);
-      return typeof role === 'string' ? (role as Role) : null;
+      return normalizeRole(role as string | number | null | undefined);
     } catch (error) {
       console.error('Token decoding failed:', error);
       return null;
     }
   }
 
-  private getPostLoginRoute(role: string): string {
+  private getPostLoginRoute(role: Role | null): string {
     let fallbackRoute = '/';
-    if (role === 'admin') {
+    if (role === Role.Admin) {
       fallbackRoute = '/admin/dashboard';
-    }
-    else if (role === 'vendor') {
+    } else if (role === Role.Vendor) {
       fallbackRoute = '/vendor/dashboard';
     }
     const returnUrl = this.router.parseUrl(this.router.url).queryParams[
@@ -195,10 +186,10 @@ export class AuthEffects {
       return fallbackRoute;
     }
 
-    if (role === 'admin') {
+    if (role === Role.Admin) {
       return returnUrl.startsWith('/admin') ? returnUrl : fallbackRoute;
     }
-    if (role === 'vendor') {
+    if (role === Role.Vendor) {
       return returnUrl.startsWith('/vendor') ? returnUrl : fallbackRoute;
     }
 
@@ -215,3 +206,4 @@ export class AuthEffects {
     }
   }
 }
+

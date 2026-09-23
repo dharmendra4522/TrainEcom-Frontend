@@ -2,13 +2,13 @@ import { Component, Inject, Optional, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface SelectionDialogItem {
-  id: string;
+  id: string | number;
 }
 
 export interface SelectionDialogData<T extends SelectionDialogItem> {
   title: string;
   items: T[];
-  selectedId?: string;
+  selectedId?: string | number;
   displayKey: string;
   secondaryKey?: string;
   addButtonLabel?: string;

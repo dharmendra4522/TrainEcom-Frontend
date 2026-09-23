@@ -48,13 +48,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   private portal: PortalKey = 'admin';
 
-  brandControl = new FormControl<string>('');
-  categoryControl = new FormControl<string>('');
+  brandControl = new FormControl<string | number | null>('');
+  categoryControl = new FormControl<string | number | null>('');
 
   isEditMode: boolean = false;
   productId: string | null = null;
-  originalBrandId: string = '';
-  originalCategoryId: string = '';
+  originalBrandId: string | number = '';
+  originalCategoryId: string | number = '';
   originalBrandName: string = '';
   originalCategoryName: string = '';
 
@@ -63,8 +63,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   selectFiles: File[] = [];
   previewUrls: (string | null)[] = [];
-  existingImages: { id: string; imageUrl: string }[] = [];
-  deletedImageIds: string[] = [];
+  existingImages: { id: string | number; imageUrl: string }[] = [];
+  deletedImageIds: Array<string | number> = [];
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
   // Lifecycle hook to initialize component data and setup subscriptions.
@@ -207,7 +207,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   //Removes an existing image from the list and marks it for deletion.
-  removeExistingImage(imageId: string, index: number): void {
+  removeExistingImage(imageId: string | number, index: number): void {
     this.deletedImageIds.push(imageId);
     this.existingImages.splice(index, 1);
   }
@@ -219,14 +219,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       data: { type },
       disableClose: true
     }).afterClosed().subscribe((newId: unknown) => {
-      if (newId && typeof newId === 'string') {
+      if (newId && (typeof newId === 'string' || typeof newId === 'number')) {
         this.handleManageDialogClose(type, newId);
       }
     });
   }
 
   // Handles state synchronization after manage entity dialog is closed.
-  private handleManageDialogClose(type: 'Brand' | 'Category', newId: string): void {
+  private handleManageDialogClose(type: 'Brand' | 'Category', newId: string | number): void {
     if (type === 'Brand') {
       this.store.select(selectAllBrands).pipe(take(1)).subscribe((brands: Brand[]) => {
         this.brands = brands;

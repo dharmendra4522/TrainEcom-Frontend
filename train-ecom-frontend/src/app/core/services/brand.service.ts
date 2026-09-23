@@ -54,9 +54,10 @@ export class BrandService {
     );
   }
 
-  getBrandById(id: string): Observable<Brand> {
-    return this.http.get<Brand>(`${this.baseApi}/${id}`).pipe(
-      catchError(() => this.http.get<Brand>(`${this.baseApi}/getById/${id}`))
+  getBrandById(id: string | number): Observable<Brand> {
+    const brandId = String(id);
+    return this.http.get<Brand>(`${this.baseApi}/${brandId}`).pipe(
+      catchError(() => this.http.get<Brand>(`${this.baseApi}/getById/${brandId}`))
     );
   }
 
@@ -64,11 +65,11 @@ export class BrandService {
     return this.http.post<Brand>(`${this.baseApi}/create`, payload);
   }
 
-  updateBrand(id: string, payload: CreateBrandRequest): Observable<Brand> {
-    return this.http.put<Brand>(`${this.baseApi}/update/${id}`, payload);
+  updateBrand(id: string | number, payload: CreateBrandRequest): Observable<Brand> {
+    return this.http.put<Brand>(`${this.baseApi}/update/${String(id)}`, payload);
   }
 
-  deleteBrand(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
+  deleteBrand(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.baseApi}/delete/${String(id)}`);
   }
 }

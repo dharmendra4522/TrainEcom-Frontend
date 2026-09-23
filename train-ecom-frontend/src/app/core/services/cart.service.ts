@@ -89,15 +89,16 @@ export class CartService {
     this.store.dispatch(CartActions.loadCart());
   }
 
-  addToCart(productId: string, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
+  addToCart(productId: string | number, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
+    const normalizedProductId = String(productId);
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
-      const existing = items.find((i: CartItem) => i.productId.toString() === productId.toString());
+      const existing = items.find((i: CartItem) => i.productId.toString() === normalizedProductId);
       if (existing) {
         existing.quantity += quantity;
       } else {
         const newItem: CartItem = {
-          productId: productId,
+          productId: normalizedProductId,
           productName: productDetails?.productName || 'Unknown Product',
           unitPrice: productDetails?.unitPrice || 0,
           quantity: quantity,
@@ -109,15 +110,16 @@ export class CartService {
       return of(this.buildLocalCartResponse(items));
     }
     return this.http
-      .post<CartResponse>(`${this.baseAPI}/addItem`, { productId, quantity });
+      .post<CartResponse>(`${this.baseAPI}/addItem`, { productId: normalizedProductId, quantity });
   }
 
-  updateCartItem(itemId: string, quantity: number): Observable<CartResponse> {
+  updateCartItem(itemId: string | number, quantity: number): Observable<CartResponse> {
+    const normalizedItemId = String(itemId);
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
       const existing = items.find(
         (i: CartItem) =>
-          (i.itemId || i.productId)?.toString() === itemId.toString(),
+          (i.itemId || i.productId)?.toString() === normalizedItemId,
       );
       if (existing) {
         existing.quantity = quantity;
@@ -126,19 +128,20 @@ export class CartService {
       return of(this.buildLocalCartResponse(items));
     }
     return this.http
-      .put<CartResponse>(`${this.baseAPI}/updateItem/${itemId}`, { quantity });
+      .put<CartResponse>(`${this.baseAPI}/updateItem/${normalizedItemId}`, { quantity });
   }
 
-  deleteCartItem(itemId: string): Observable<CartResponse> {
+  deleteCartItem(itemId: string | number): Observable<CartResponse> {
+    const normalizedItemId = String(itemId);
     if (!this.isUserLoggedIn()) {
       let items = this.getLocalCartItems();
-      items = items.filter((i: CartItem) => i.productId.toString() !== itemId.toString());
+      items = items.filter((i: CartItem) => i.productId.toString() !== normalizedItemId);
       this.saveLocalCartItems(items);
       return of(this.buildLocalCartResponse(items));
     }
 
     return this.http
-      .delete<CartResponse>(`${this.baseAPI}/deleteItem/${itemId}`);
+      .delete<CartResponse>(`${this.baseAPI}/deleteItem/${normalizedItemId}`);
   }
 
   mergeCart(cartItems: CartItem[]): Observable<CartResponse> {

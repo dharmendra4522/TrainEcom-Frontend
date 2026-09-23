@@ -16,6 +16,7 @@ import {
   getPaymentStatusBadgeClass,
   INITIAL_ADMIN_STATS,
 } from './dashboard.utils';
+import { ApprovalStatus, normalizeApprovalStatus } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -60,8 +61,13 @@ export class DashboardComponent implements OnInit {
   }
 
   private checkVendorStatus(): boolean {
+    if (this.portal !== 'vendor') {
+      return false; // Only vendors have a pending status screen
+    }
+    
     const vendorStatus = localStorage.getItem('vendorStatus');
-    if (vendorStatus === 'Pending') {
+    const status = normalizeApprovalStatus(vendorStatus);
+    if (status !== ApprovalStatus.Approved) {
       this.isVendorStatus = false;
       this.isLoadingStats = false;
       this.stats = [];

@@ -12,10 +12,10 @@
   >
   </app-header>
 
+  <!-- Product search/filter: only visible for guest/customer on home & product routes -->
   <app-product-filter
     *ngIf="
-      (userRole$ | async) !== 'Admin' &&
-      (userRole$ | async) !== 'Vendor' &&
+      !(isManagementRole$ | async) &&
       !isAccountRoute &&
       !isDetailsOrFormRoute
     "
@@ -32,9 +32,9 @@
       [mode]="(isMobile$ | async) ? 'over' : 'side'"
       [opened]="isSidebarOpened"
       (openedChange)="isSidebarOpened = $event"
-      [class.admin-sidebar]="(userRole$ | async) === 'Admin'"
-      [class.vendor-sidebar]="(userRole$ | async) === 'Vendor'"
-      [class.customer-sidebar]="(userRole$ | async) === 'Customer'"
+      [class.admin-sidebar]="isAdminRole$ | async"
+      [class.vendor-sidebar]="isVendorRole$ | async"
+      [class.customer-sidebar]="isCustomerRole$ | async"
     >
       <app-sidebar
         [menuItems]="(menuItems$ | async) || []"
@@ -47,12 +47,13 @@
       <div class="content-wrapper">
         <div
           class="page-padding flex-grow-area"
-          [class.admin-page-padding]="(userRole$ | async) === 'Admin' || (userRole$ | async) === 'Vendor'"
-          [class.customer-page-padding]="(userRole$ | async) === 'Customer'"
+          [class.admin-page-padding]="(isAdminRole$ | async) || (isVendorRole$ | async)"
+          [class.customer-page-padding]="isCustomerRole$ | async"
         >
           <router-outlet></router-outlet>
         </div>
-         <app-footer *ngIf="(userRole$ | async) !== 'Admin' && (userRole$ | async) !== 'Vendor' && !isAccountRoute"></app-footer>
+        <!-- Footer: only for customers/guests on public routes (not on /admin, /vendor, /account) -->
+        <app-footer *ngIf="!(isManagementRole$ | async) && !isAccountRoute"></app-footer>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>

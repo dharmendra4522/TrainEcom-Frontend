@@ -9,6 +9,7 @@ import {
   RegisterResponse,
   ResetPasswordRequest,
   VendorRegisterResponse,
+  RegistrationRole,
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 import { HttpContext } from '@angular/common/http';
@@ -22,7 +23,7 @@ export class AuthService {
   private registerAPI = `${environment.apiBaseUrl}/auth/register`;
   private forgotPasswordAPI = `${environment.apiBaseUrl}/auth/forgot-password`;
   private resetPasswordAPI = `${environment.apiBaseUrl}/auth/reset-password`;
-  private vendorRegistrationAPI = `${environment.apiBaseUrl}/vendors/register-vendor`;
+  private vendorRegistrationAPI = `${environment.apiBaseUrl}/auth/register`;
 
   private http = inject(HttpClient);
 
@@ -33,7 +34,15 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(this.registerAPI, userData, {
+    const payload = new FormData();
+    payload.append('Name', userData.name ?? '');
+    payload.append('Email', userData.email ?? '');
+    payload.append('Password', userData.password ?? '');
+    payload.append('ConfirmPassword', userData.confirmPassword ?? '');
+    payload.append('PhoneNumber', userData.phoneNumber ?? '');
+    payload.append('Role', String(RegistrationRole.Customer));
+
+    return this.http.post<RegisterResponse>(this.registerAPI, payload, {
       context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
     });
   }

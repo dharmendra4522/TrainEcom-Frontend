@@ -1,20 +1,91 @@
-import { Role } from './auth.model';
+import type { Role } from './auth.model';
+
+export enum UserStatusFilter {
+  All = 1,
+  Active = 2,
+  Blocked = 3,
+}
+
+export enum ApprovalStatus {
+  Pending = 1,
+  Approved = 2,
+  Rejected = 3,
+}
+
+// Normalize Approval Status
+export function normalizeApprovalStatus(
+  value: string | number | ApprovalStatus | null | undefined,
+): ApprovalStatus | null {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    if (Object.values(ApprovalStatus).includes(value as ApprovalStatus)) {
+      return value as ApprovalStatus;
+    }
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  const statusMap: Record<string, ApprovalStatus> = {
+    pending: ApprovalStatus.Pending,
+    approved: ApprovalStatus.Approved,
+    rejected: ApprovalStatus.Rejected,
+    '1': ApprovalStatus.Pending,
+    '2': ApprovalStatus.Approved,
+    '3': ApprovalStatus.Rejected,
+  };
+
+  return statusMap[normalized] ?? null;
+}
+
+export function approvalStatusToLabel(
+  value: string | number | ApprovalStatus | null | undefined,
+): string {
+  const normalized = normalizeApprovalStatus(value);
+  switch (normalized) {
+    case ApprovalStatus.Pending:
+      return 'Pending';
+    case ApprovalStatus.Approved:
+      return 'Approved';
+    case ApprovalStatus.Rejected:
+      return 'Rejected';
+    default:
+      return typeof value === 'string' ? value : 'Pending';
+  }
+}
+
+export interface ProfileVendorDetails {
+  id?: number;
+  userId?: number;
+  businessName?: string | null;
+  storeName?: string | null;
+  businessDescription?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postalCode?: string | number | null;
+  gstin?: string | null;
+  pan?: string | null;
+}
 
 export interface UserProfile {
-  id: string;
+  id: number;
   name: string;
   email: string;
   phoneNumber: string;
   defaultAddress: Address | null;
-  role: Role;
+  role: Role | number;
+  vendorDetails?: ProfileVendorDetails | null;
   submittedDate?: string | null;
   registrationId?: string | null;
-  isApproved?: ApprovalStatus | null;
+  isApproved?: ApprovalStatus | number | null;
 }
 
 export interface VendorBusinessDetail {
-  id?: string;
-  userId: string;
+  id?: number;
+  userId: number;
   CompanyName: string;
   CompanyOverview: string;
   StoreName: string;
@@ -32,7 +103,7 @@ export interface VendorBusinessDetail {
 }
 
 export interface Address {
-  id: string;
+  id: number;
   fullName: string;
   phone: string;
   addressLine1: string;
@@ -49,6 +120,7 @@ export interface UserState {
   isLoading: boolean;
   error: string | null;
 }
+
 export interface UpdateProfilePayload {
   name: string;
   phoneNumber: string;
@@ -58,10 +130,12 @@ export interface UpdateProfilePayload {
 }
 
 export interface AdminUser extends Record<string, unknown> {
-  userId: string;
+  userId: number;
   name: string;
   email: string;
   phoneNumber: string;
+  role?: Role | number;
+  approvalStatus?: ApprovalStatus | number | null;
   address: {
     addressLine1: string;
     addressLine2?: string;
@@ -71,7 +145,7 @@ export interface AdminUser extends Record<string, unknown> {
     postalCode: string;
   };
   isBlocked: boolean;
-  isApproved?: ApprovalStatus;
+  isApproved?: ApprovalStatus | number | null;
   userStatusClass?: string;
 }
 
@@ -84,21 +158,22 @@ export interface AdminUserListResponse {
 }
 
 export interface AdminUserFilterParams {
+  Search?: string;
   search?: string;
-  status?: string;
-  role?: string;
+  Role?: Role | number;
+  role?: Role | number | string;
+  ApprovalStatus?: ApprovalStatus | number;
+  approvalStatus?: ApprovalStatus | number | string;
+  UserStatus?: UserStatusFilter | number;
+  status?: UserStatusFilter | number | string;
+  PageNumber?: number;
   pageNumber?: number;
+  PageSize?: number;
   pageSize?: number;
 }
 
 export interface UpdateUserStatusPayload {
   isBlocked: boolean;
-}
-
-export enum ApprovalStatus {
-  Pending = 'Pending',
-  Approved = 'Approved',
-  Rejected = 'Rejected',
 }
 
 export interface VendorBusinessDetails {
@@ -109,7 +184,7 @@ export interface VendorBusinessDetails {
 }
 
 export interface BusinessAddress {
-  id?: string;
+  id?: number;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -117,3 +192,4 @@ export interface BusinessAddress {
   country: string;
   postalCode: number;
 }
+

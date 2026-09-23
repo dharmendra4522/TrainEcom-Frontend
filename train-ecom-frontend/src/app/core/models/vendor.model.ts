@@ -1,16 +1,18 @@
-import { ApprovalStatus } from './user.model';
+import type { ApprovalStatus } from './user.model';
 
 export interface VendorItem {
-  vendorId: string;
+  vendorId: number;
+  name?: string;
   bussinessName: string;
   email: string;
   phoneNumber: string;
   city: string;
-  status: string;
+  categories?: string[];
+  status: ApprovalStatus | number;
 }
 
 export interface VendorTableItem extends VendorItem {
-  id: string;
+  id: number;
   statusDisplay: string;
   vendorStatusClass: string;
   [key: string]: unknown;
@@ -25,7 +27,7 @@ export interface VendorListResponse {
 }
 
 export interface VendorDetails {
-  vendorId: string;
+  vendorId: number;
   vendorName: string;
   email: string;
   phoneNumber: string;
@@ -45,11 +47,11 @@ export interface VendorDetails {
   accountHolderName: string;
   documents: string[];
   categories: string[];
-  status?: string;
+  status?: ApprovalStatus | number;
 }
 
 export interface VendorVerifyRequest {
-  status: ApprovalStatus;
+  status: ApprovalStatus | number;
   rejectionReason?: string;
 }
 

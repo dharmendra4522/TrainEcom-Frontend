@@ -34,29 +34,29 @@ export interface PaymentSimulationResponse {
 }
 
 export interface CreateOrderRequest {
-  addressId: string;
+  addressId: number | string;
   paymentMethod: PaymentMethod;
   transactionId?: string;
 }
 
 export interface BuyNowRequest {
-  addressId: string;
-  productId: string;
+  addressId: number | string;
+  productId: number | string;
   quantity: number;
   paymentMethod: PaymentMethod;
   transactionId?: string;
 }
 
 export interface CreateOrderResponse {
-  orderId: string;
+  orderId: number | string;
   orderStatus: OrderStatus;
   totalAmount: number;
   paymentStatus: PaymentStatus;
 }
 
 export interface CheckoutItem {
-  itemId?: string;
-  productId: string;
+  itemId?: number | string;
+  productId: number | string;
   productName: string;
   unitPrice: number;
   quantity: number;
@@ -64,7 +64,7 @@ export interface CheckoutItem {
 }
 
 export interface ValidateCheckoutItem {
-  productId: string;
+  productId: number | string;
   productName: string;
   cartQuantity: number;
   availableStock: number;

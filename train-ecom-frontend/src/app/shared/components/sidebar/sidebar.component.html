@@ -5,9 +5,11 @@
     <a
       mat-list-item
       *ngFor="let item of menuItems"
-      [routerLink]="item.route"
+      [routerLink]="item.disabled ? null : item.route"
       routerLinkActive="active-link"
       class="sidebar-nav-item rounded-3 px-3 text-decoration-none transition-all"
+      [style.pointer-events]="item.disabled ? 'none' : 'auto'"
+      [style.opacity]="item.disabled ? '0.5' : '1'"
     >
       <mat-icon matListItemIcon class="text-secondary menu-icon me-3">{{
         item.icon

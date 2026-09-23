@@ -47,7 +47,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   directQty: number | null = null;
 
   addresses: Address[] = [];
-  selectedAddressid: string | null = null;
+  selectedAddressid: string | number | null = null;
 
   checkoutItems: CheckoutItem[] = [];
   subtotal: number = 0;
@@ -93,7 +93,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // Load user addresses and set the default or first address as selected
-  private loadUserAddresses(preferredAddressId?: string): void {
+  private loadUserAddresses(preferredAddressId?: string | number): void {
     this.userService
       .getAllAddress()
       .pipe(takeUntil(this.destroy$))
@@ -102,12 +102,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           this.addresses = data || [];
           const selectedAddress =
             this.addresses.find(
-              (address) => address.id === preferredAddressId,
+              (address) => String(address.id) === String(preferredAddressId),
             ) ||
             this.addresses.find((address) => address.isDefault) ||
             this.addresses[0];
 
-          this.selectedAddressid = selectedAddress?.id || null;
+          this.selectedAddressid = selectedAddress?.id ?? null;
         },
         error: (err) => {
           console.error('Error fetching addresses:', err);
@@ -199,7 +199,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.grandTotal = this.subtotal;
   }
 
-  selectAddress(addressId: string): void {
+  selectAddress(addressId: string | number): void {
     this.selectedAddressid = addressId;
   }
 
@@ -210,7 +210,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   handleAddressSubmission(formResult: AddressFormResult): void {
     const addressPayload: Address = {
       ...formResult,
-      id: '',
+      id: 0,
       phone: String(formResult.phone),
       postalCode: String(formResult.postalCode),
       country: 'India',
@@ -223,7 +223,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (newAddress: Address) => {
           this.notification.showSuccess('Address added successfully', 'Close');
-          this.loadUserAddresses(newAddress.id);
+          this.loadUserAddresses(String(newAddress.id));
         },
         error: (err) => {
           console.error('Error adding address:', err);
@@ -271,7 +271,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     this.store.dispatch(
-      CartActions.deleteCartItem({ itemId: item.itemId || item.productId }),
+      CartActions.deleteCartItem({ itemId: String(item.itemId ?? item.productId) }),
     );
   }
 
@@ -378,7 +378,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     } else {
       this.store.dispatch(
         CartActions.updateCartItem({
-          itemId: item.itemId || item.productId,
+          itemId: String(item.itemId ?? item.productId),
           quantity: newQuantity,
         })
       );
@@ -399,22 +399,23 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleAddressUpdate(event: { id: string; address: AddressFormResult }): void {
+  handleAddressUpdate(event: { id: string | number; address: AddressFormResult }): void {
+    const addressId = Number(event.id);
     const addressPayload: Address = {
       ...event.address,
-      id: event.id,
+      id: addressId,
       phone: String(event.address.phone),
       postalCode: String(event.address.postalCode),
       country: 'India',
       isDefault: false,
     };
     this.userService
-      .updateAddress(event.id, addressPayload)
+      .updateAddress(addressId, addressPayload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.notification.showSuccess('Address updated successfully', 'Close');
-          this.loadUserAddresses(event.id);
+          this.loadUserAddresses(addressId);
         },
         error: (err) => {
           console.error('Error updating address:', err);
@@ -423,8 +424,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleAddressDelete(addressId: string): void {
-    const addressToDelete = this.addresses.find(a => a.id === addressId);
+  handleAddressDelete(addressId: string | number): void {
+    const numAddressId = Number(addressId);
+    const addressToDelete = this.addresses.find(a => a.id === numAddressId || a.id === addressId);
     if (!addressToDelete) return;
 
     this.confirmDialog
@@ -438,7 +440,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         if (!confirmed) return;
 
         this.userService
-          .deleteAddress(addressId)
+          .deleteAddress(numAddressId)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {

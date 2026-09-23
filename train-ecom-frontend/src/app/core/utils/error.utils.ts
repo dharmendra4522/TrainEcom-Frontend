@@ -1,4 +1,4 @@
-export function extractBackendMessage(error: any, fallbackMessage: string = 'An unexpected error occurred'): string {
+export function extractBackendMessage(error: unknown, fallbackMessage: string = 'An unexpected error occurred'): string {
   if (!error) return fallbackMessage;
 
   // 1. Direct string error
@@ -7,7 +7,8 @@ export function extractBackendMessage(error: any, fallbackMessage: string = 'An 
   }
 
   // 2. Extract nested error body
-  const body = error.error ?? error;
+  const errObj = error as Record<string, unknown>;
+  const body = errObj['error'] ?? error;
 
   // 3. String body
   if (typeof body === 'string' && body.trim().length > 0) {
@@ -19,27 +20,29 @@ export function extractBackendMessage(error: any, fallbackMessage: string = 'An 
 
   // 4. Object body
   if (typeof body === 'object' && body !== null) {
+    const b = body as Record<string, unknown>;
     // Check Message (Capital M)
-    if (body.Message && typeof body.Message === 'string' && body.Message.trim()) {
-      return body.Message;
+    if (b['Message'] && typeof b['Message'] === 'string' && (b['Message'] as string).trim()) {
+      return b['Message'] as string;
     }
     // Check message (lowercase m)
-    if (body.message && typeof body.message === 'string' && body.message.trim()) {
-      return body.message;
+    if (b['message'] && typeof b['message'] === 'string' && (b['message'] as string).trim()) {
+      return b['message'] as string;
     }
     // Check detail
-    if (body.detail && typeof body.detail === 'string' && body.detail.trim()) {
-      return body.detail;
+    if (b['detail'] && typeof b['detail'] === 'string' && (b['detail'] as string).trim()) {
+      return b['detail'] as string;
     }
     // Check title
-    if (body.title && typeof body.title === 'string' && body.title.trim()) {
-      return body.title;
+    if (b['title'] && typeof b['title'] === 'string' && (b['title'] as string).trim()) {
+      return b['title'] as string;
     }
     // Check errors dictionary
-    if (body.errors && typeof body.errors === 'object') {
+    if (b['errors'] && typeof b['errors'] === 'object') {
       const messages: string[] = [];
-      for (const key of Object.keys(body.errors)) {
-        const val = body.errors[key];
+      const errorsDict = b['errors'] as Record<string, unknown>;
+      for (const key of Object.keys(errorsDict)) {
+        const val = errorsDict[key];
         if (Array.isArray(val)) {
           messages.push(...val);
         } else if (typeof val === 'string') {
@@ -53,14 +56,15 @@ export function extractBackendMessage(error: any, fallbackMessage: string = 'An 
   }
 
   // 5. Connection refused / Server down check
-  if (error.status === 0 || (error.message && typeof error.message === 'string' && error.message.includes('0 Unknown Error'))) {
+  if (errObj['status'] === 0 || (typeof errObj['message'] === 'string' && (errObj['message'] as string).includes('0 Unknown Error'))) {
     return 'Unable to connect to the server. Please check your internet connection or try again later.';
   }
 
   // 6. Direct error.message fallback if non-generic
-  if (error.message && typeof error.message === 'string' && error.message.trim() && !error.message.includes('Http failure response')) {
-    return error.message;
+  if (typeof errObj['message'] === 'string' && (errObj['message'] as string).trim() && !(errObj['message'] as string).includes('Http failure response')) {
+    return errObj['message'] as string;
   }
 
   return fallbackMessage;
 }
+

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PageEvent } from '@angular/material/paginator';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-order-history',
@@ -136,7 +137,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.loadOrderHistory();
   }
 
-  onDateChange(type: 'from' | 'to', event: any): void {
+  onDateChange(type: 'from' | 'to', event: MatDatepickerInputEvent<Date>): void {
     const rawDate = event.value;
     if (rawDate) {
       const year = rawDate.getFullYear();
@@ -158,7 +159,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateToOrderDetails(orderId: string): void {
+  navigateToOrderDetails(orderId: string | number): void {
     this.router.navigate(['/account/orders/customer-details', orderId]);
   }
 }

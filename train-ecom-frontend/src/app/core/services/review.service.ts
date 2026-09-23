@@ -24,15 +24,15 @@ export class ReviewService {
     return this.http.get<ProductReviewsResponse>(`${environment.apiBaseUrl}/products/${productId}/reviews`, { params });
   }
 
-  getReviewById(reviewId: string): Observable<Review> {
+  getReviewById(reviewId: string | number): Observable<Review> {
     return this.http.get<Review>(`${this.baseAPI}/getById/reviews/${reviewId}`);
   }
 
-  updateReview(reviewId: string, updateReviewRequest: UpdateReviewRequest): Observable<UpdateReviewResponse> {
+  updateReview(reviewId: string | number, updateReviewRequest: UpdateReviewRequest): Observable<UpdateReviewResponse> {
     return this.http.put<UpdateReviewResponse>(`${this.baseAPI}/update/reviews/${reviewId}`, updateReviewRequest);
   }
 
-  deleteReview(reviewId: string): Observable<void> {
+  deleteReview(reviewId: string | number): Observable<void> {
     return this.http.delete<void>(`${this.baseAPI}/delete/reviews/${reviewId}`);
   }
 

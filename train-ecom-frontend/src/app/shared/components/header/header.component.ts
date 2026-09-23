@@ -27,7 +27,8 @@ import {
 } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
 import { Router } from '@angular/router';
-import { Role } from '../../../core/models/auth.model';
+import { Role, normalizeRole } from '../../../core/models/auth.model';
+import { ApprovalStatus, normalizeApprovalStatus } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-header',
@@ -52,10 +53,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   wishlistCount$ = this.store.select(selectWishlistCount);
   cartCount$ = this.store.select(selectCartTotalQuantity);
 
-  // session timer
+  /** Computed role booleans — avoids string comparisons in template */
+  isAdminRole$ = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Admin),
+  );
+  isVendorRole$ = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Vendor),
+  );
+  isCustomerRole$ = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Customer),
+  );
+  /** True for admin or vendor — hides customer-specific controls */
+  isManagementRole$ = combineLatest([this.isAdminRole$, this.isVendorRole$]).pipe(
+    map(([isAdmin, isVendor]) => isAdmin || isVendor),
+  );
+
   formattedTime: string = '05:00';
   private timerSubscribe?: Subscription;
-  private TIMER_DURATION: number = 5 * 60 * 1000;
 
   ngOnInit() {
     this.initAuthSubscription();
@@ -65,21 +79,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    if ((this, this.timerSubscribe)) {
+    if (this.timerSubscribe) {
       this.timerSubscribe.unsubscribe();
     }
   }
 
   get isPendingStatus(): boolean {
-    const status: string | null = localStorage.getItem('vendorStatus');
-    return status === 'Pending';
+    const status = localStorage.getItem('vendorStatus');
+    const normalized = normalizeApprovalStatus(status);
+    return normalized === ApprovalStatus.Pending;
   }
 
   private checkAndStartVendorTimer(): void {
     combineLatest([this.userRole$, this.isLoggedIn$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([role, isLoggedIn]) => {
-        if (isLoggedIn && role === Role.Vendor && this.isPendingStatus) {
+        const normalizedRole = normalizeRole(role);
+        if (isLoggedIn && normalizedRole === Role.Vendor && this.isPendingStatus) {
           this.startCount();
         }
       });
@@ -130,13 +146,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([isLoggedIn, role]) => {
         if (isLoggedIn) {
-          if ((role && role === 'Admin') || role === 'Vendor') {
+          const normalizedRole = normalizeRole(role);
+          if (normalizedRole === Role.Admin || normalizedRole === Role.Vendor) {
             return;
           }
           this.store.dispatch(WishlistActions.loadWishlist());
-        } else {
-          // The cart feature owns hydration/reset for session changes.
-          // The badge remains selector-driven and updates from cart state.
         }
       });
   }
@@ -159,3 +173,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.openNotification.emit();
   }
 }
+

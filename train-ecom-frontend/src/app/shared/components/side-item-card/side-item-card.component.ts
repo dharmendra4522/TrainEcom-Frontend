@@ -2,13 +2,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { WishListItem } from '../../../core/models/wishList.model';
 
 export interface SideItem {
-  id: string;
+  id: string | number;
   name: string;
   price: number;
   image?: string;
   thumbnailUrl?: string;
   quantity?: number;
-  productId?: string;
+  productId?: string | number;
 }
 
 @Component({
@@ -20,8 +20,8 @@ export class SideItemCardComponent {
   @Input() item!: SideItem;
   @Input() mode: 'cart' | 'wishlist' = 'wishlist';
 
-  @Output() remove = new EventEmitter<string>();
-  @Output() quantityChange = new EventEmitter<{ id: string, action: 'add' | 'subtract' }>();
+  @Output() remove = new EventEmitter<string | number>();
+  @Output() quantityChange = new EventEmitter<{ id: string | number, action: 'add' | 'subtract' }>();
   @Output() moveToCart = new EventEmitter<SideItem>();
   @Output() viewProduct = new EventEmitter<SideItem>();
 

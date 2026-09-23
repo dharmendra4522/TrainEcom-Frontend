@@ -1,6 +1,6 @@
 export interface CartItem {
-    itemId?: string;
-    productId: string;
+    itemId?: number | string;
+    productId: number | string;
     productName: string;
     unitPrice: number;
     quantity: number;
@@ -15,7 +15,7 @@ export interface CartProductDetails {
 }
 
 export interface CartWarning {
-    productId: string;
+    productId: number | string;
     productName: string;
     requestedQuantity: number;
     availableQuantity: number;
@@ -31,7 +31,7 @@ export interface CartResponse {
 }
 
 export interface MergeCartItemRequest {
-    productId: string;
+    productId: number | string;
     quantity: number;
 }
 

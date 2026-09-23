@@ -1,17 +1,17 @@
 export interface ProductImage {
-  id: string;
+  id: number | string;
   imageUrl: string;
   isPrimary: boolean;
 }
 
 export interface Product extends Record<string, unknown> {
-  id: string | number;
+  id: number | string;
   name: string;
   description: string;
   price: number;
-  brandId?: string;
+  brandId?: number | string;
   brandName: string;
-  categoryId?: string;
+  categoryId?: number | string;
   categoryName: string;
   stockQuantity?: number;
   thumbnailUrl?: string;
@@ -32,8 +32,8 @@ export interface PaginatedProductsResponse {
 
 export interface ProductFilterPayload {
   searchQuery: string;
-  categoryId: string;
-  brandId: string;
+  categoryId: number | string;
+  brandId: number | string;
   minPrice?: number;
   maxPrice?: number;
   sortBy: string;

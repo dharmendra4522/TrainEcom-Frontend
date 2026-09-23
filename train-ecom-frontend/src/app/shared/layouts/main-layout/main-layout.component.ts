@@ -10,7 +10,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { SidePanelComponent } from '../../components/side-panel/side-panel.component';
 import { LoadingService } from '../../../core/services/loading.service';
 import { getRoleMenuItems } from '../../../core/config/role-permission.config';
-import { Role } from '../../../core/models/auth.model';
+import { Role, normalizeRole } from '../../../core/models/auth.model';
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
@@ -25,13 +25,28 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   sidebarTitle: string = '';
 
-  userRole$: Observable<string | null> = this.store.select(selectUserRole);
+  userRole$: Observable<string | number | null> = this.store.select(selectUserRole);
+
+  // Computed boolean role observables — used in template instead of string comparisons 
+  isAdminRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Admin),
+  );
+  isVendorRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Vendor),
+  );
+  isCustomerRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Customer),
+  );
+  // True when user is Admin or Vendor — hides footer & search bar 
+  isManagementRole$: Observable<boolean> = combineLatest([this.isAdminRole$, this.isVendorRole$]).pipe(
+    map(([isAdmin, isVendor]) => isAdmin || isVendor),
+  );
+
   isAccountRoute: boolean = false;
   isVendorRoute: boolean = false;
   isAdminRoute: boolean = false;
   isDetailsOrFormRoute: boolean = false;
   isCheckoutRoute: boolean = false;
-  // currentMenuItems: MenuItem[] = [];
 
   @ViewChild('drawer') drawer!: MatSidenav;
   isSidebarOpened: boolean = true;
@@ -129,20 +144,21 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.isCheckoutRoute = url.includes('/checkout');
   }
 
+
   // Method to determine if the sidebar should be shown based on the user's role and current route
-  shouldShowSidebar(role: string | null): boolean {
+  shouldShowSidebar(role: string | number | null): boolean {
+    const normalizedRole = normalizeRole(role as string | number | null | undefined);
     if (this.isCheckoutRoute) return false;
-    if (role === 'Admin' || role === Role.Admin) return true;
-    if (role === 'Vendor' || role === Role.Vendor) return true;
-    if (role === 'Customer' && this.isAccountRoute) return true;
+    if (normalizedRole === Role.Admin) return true;
+    if (normalizedRole === Role.Vendor) return true;
+    if (normalizedRole === Role.Customer && this.isAccountRoute) return true;
     return false;
   }
 
-
-
-  getSidebarType(role: string | null): string {
-    if (role === Role.Admin || role === 'Admin') return 'admin';
-    if (role === Role.Vendor || role === 'Vendor') return 'vendor';
+  getSidebarType(role: string | number | null): string {
+    const normalizedRole = normalizeRole(role as string | number | null | undefined);
+    if (normalizedRole === Role.Admin) return 'admin';
+    if (normalizedRole === Role.Vendor) return 'vendor';
     return 'customer';
   }
 

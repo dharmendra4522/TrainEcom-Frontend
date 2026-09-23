@@ -18,6 +18,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { CartResponse, CartWarning } from '../../models/cart.model';
+import { Role, normalizeRole } from '../../models/auth.model';
 import {
   selectCartLoaded,
   selectCartItems,
@@ -37,8 +38,8 @@ export class CartEffects {
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
         filter(({ payload }) => {
-          const role = payload.role?.toString().toLowerCase();
-          return role !== 'admin' && role !== 'vendor';
+          const role = normalizeRole(payload.role);
+          return role !== Role.Admin && role !== Role.Vendor;
         }),
         tap(() => this.cartService.loadCart()),
       ),
@@ -91,7 +92,7 @@ export class CartEffects {
       ofType(CartActions.addToCart),
       mergeMap((action) => {
         return this.cartService
-          .addToCart(action.productId, action.quantity, action.productDetails)
+          .addToCart(String(action.productId), action.quantity, action.productDetails)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -125,7 +126,7 @@ export class CartEffects {
       ofType(CartActions.updateCartItem),
       concatMap((action) => {
         return this.cartService
-          .updateCartItem(action.itemId, action.quantity)
+          .updateCartItem(String(action.itemId), action.quantity)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -162,7 +163,7 @@ export class CartEffects {
     return this.actions$.pipe(
       ofType(CartActions.deleteCartItem),
       mergeMap((action) => {
-        return this.cartService.deleteCartItem(action.itemId).pipe(
+        return this.cartService.deleteCartItem(String(action.itemId)).pipe(
           switchMap((response) => {
             return this.cartService.getCartItems().pipe(
               map((cartResponse) => {

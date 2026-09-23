@@ -5,9 +5,13 @@
     profile: userProfile$ | async,
     wishlistCount: wishlistCount$ | async,
     cartCount: cartCount$ | async,
+    isAdmin: isAdminRole$ | async,
+    isVendor: isVendorRole$ | async,
+    isCustomer: isCustomerRole$ | async,
+    isManagement: isManagementRole$ | async,
   } as auth"
 >
-  <ng-container *ngIf="auth.loggedIn && auth.role === 'Customer'">
+  <ng-container *ngIf="auth.loggedIn && auth.isCustomer">
     <app-top-promo-bar></app-top-promo-bar>
   </ng-container>
 
@@ -33,9 +37,10 @@
 
     <span class="spacer"></span>
 
+    <!-- Nav links: only for guests and customers -->
     <div
       class="nav-links d-none d-lg-flex align-items-center gap-1 me-4"
-      *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'"
+      *ngIf="!auth.isManagement"
     >
       <a
         mat-button
@@ -67,7 +72,8 @@
     <span class="spacer d-none d-lg-block"></span>
 
     <div class="action-icons d-flex align-items-center gap-1 gap-md-2">
-      <ng-container *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'">
+      <!-- Cart & Wishlist: only for guests and customers -->
+      <ng-container *ngIf="!auth.isManagement">
         <button
           mat-icon-button
           (click)="onOpenWishlistClick()"
@@ -103,32 +109,6 @@
       </ng-container>
 
       <ng-container *ngIf="!auth.loggedIn">
-        <!-- <button
-          mat-icon-button
-          [matMenuTriggerFor]="guestNavMenu"
-          class="d-lg-none text-dark"
-          matTooltip="Navigation Menu"
-        >
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu
-          #guestNavMenu="matMenu"
-          class="custom-profile-menu rounded-3 shadow-lg"
-        >
-          <a mat-menu-item routerLink="/" class="py-2">
-            <mat-icon class="text-dark me-2">home</mat-icon>
-            <span class="fw-medium">Home</span>
-          </a>
-          <!-- <a mat-menu-item routerLink="/contact" class="py-2">
-            <mat-icon class="text-dark me-2">contact_support</mat-icon>
-            <span class="fw-medium">Contact</span>
-          </a>
-          <a mat-menu-item routerLink="/about" class="py-2">
-            <mat-icon class="text-dark me-2">info</mat-icon> 
-            <span class="fw-medium">About</span>
-          </a> -->
-        <!-- </mat-menu> -->
-
         <a
           mat-flat-button
           color="primary"
@@ -173,7 +153,8 @@
         </mat-menu>
       </ng-container>
 
-      <ng-container *ngIf="auth.loggedIn && auth.role !== 'Vendor'">
+      <!-- Notifications: for admin & customers (not vendors) -->
+      <ng-container *ngIf="auth.loggedIn && !auth.isVendor">
         <button
           mat-icon-button
           matTooltip="Notifications"
@@ -186,8 +167,9 @@
       </ng-container>
 
       <ng-container *ngIf="auth.loggedIn">
+        <!-- Vendor pending session timer -->
         <div
-          *ngIf="auth.role === 'Vendor' && isPendingStatus"
+          *ngIf="auth.isVendor && isPendingStatus"
           class="d-none d-md-flex align-items-center gap-1 text-danger px-3 py-1 rounded-pill bg-light border fw-semibold fs-7 ms-2"
         >
           <mat-icon
@@ -213,7 +195,7 @@
         </div>
         <!-- for mobile -->
         <div
-          *ngIf="auth.role === 'Vendor' && isPendingStatus"
+          *ngIf="auth.isVendor && isPendingStatus"
           class="d-flex d-md-none align-items-center gap-1 text-danger px-2 py-1 fw-semibold fs-7 me-2"
         >
           <mat-icon
@@ -244,7 +226,8 @@
             </div>
           </div>
 
-          <ng-container *ngIf="auth.role !== 'Admin' && auth.role !== 'Vendor'">
+          <!-- Customer menu items -->
+          <ng-container *ngIf="!auth.isManagement">
             <a mat-menu-item routerLink="/" class="d-lg-none py-2">
               <mat-icon class="text-dark me-2">home</mat-icon>
               <span class="fw-medium">Home</span>
@@ -257,13 +240,24 @@
             <mat-divider></mat-divider>
           </ng-container>
 
-          <ng-container *ngIf="auth.role === 'Admin'">
+          <!-- Admin profile link -->
+          <ng-container *ngIf="auth.isAdmin">
             <a mat-menu-item routerLink="/admin/profile" class="py-2">
               <mat-icon class="text-primary me-2">person</mat-icon>
               <span class="fw-medium">My Profile</span>
             </a>
             <mat-divider></mat-divider>
           </ng-container>
+
+          <!-- Vendor profile link -->
+          <ng-container *ngIf="auth.isVendor">
+            <a mat-menu-item routerLink="/vendor/profile" class="py-2">
+              <mat-icon class="text-primary me-2">person</mat-icon>
+              <span class="fw-medium">My Profile</span>
+            </a>
+            <mat-divider></mat-divider>
+          </ng-container>
+
           <button mat-menu-item (click)="onLogout()" class="text-danger py-2">
             <mat-icon class="text-danger me-2">logout</mat-icon>
             <span class="fw-medium">Logout</span>

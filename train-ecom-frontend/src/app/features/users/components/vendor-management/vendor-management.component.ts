@@ -1,5 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { ApprovalStatus } from '../../../../core/models/user.model';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  ApprovalStatus,
+  approvalStatusToLabel,
+  normalizeApprovalStatus,
+} from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -24,7 +28,7 @@ import { Router } from '@angular/router';
   templateUrl: './vendor-management.component.html',
   styleUrl: './vendor-management.component.css',
 })
-export class VendorManagementComponent {
+export class VendorManagementComponent implements OnInit, OnDestroy {
   private vendorService = inject(VendorService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
@@ -32,7 +36,12 @@ export class VendorManagementComponent {
   private router = inject(Router);
 
   isLoading: boolean = false;
-  statusOptions: string[] = ['Pending', 'Approved', 'Rejected'];
+  statusOptions: Array<{ label: string; value: ApprovalStatus | 'All' }> = [
+    { label: 'All Status', value: 'All' },
+    { label: 'Pending', value: ApprovalStatus.Pending },
+    { label: 'Approved', value: ApprovalStatus.Approved },
+    { label: 'Rejected', value: ApprovalStatus.Rejected },
+  ];
 
   totalRecords: number = 0;
   pageSize: number = 10;
@@ -42,14 +51,15 @@ export class VendorManagementComponent {
 
   filterForm = new FormGroup({
     search: new FormControl(''),
-    status: new FormControl('All'),
+    status: new FormControl<ApprovalStatus | 'All'>('All'),
   });
 
   columns: TableColumn[] = [
-    { key: 'bussinessName', label: 'Name', truncate: false },
-    { key: 'email', label: 'Email', truncate: true },
+    { key: 'name', label: 'Name', truncate: false },
     { key: 'phoneNumber', label: 'Phone' },
-    { key: 'city', label: 'city' },
+    { key: 'email', label: 'Email', truncate: true },
+    { key: 'bussinessName', label: 'Business Name', truncate: false },
+    { key: 'categoriesDisplay', label: 'Categories', truncate: false },
     {
       key: 'statusDisplay',
       label: 'Status',
@@ -90,8 +100,9 @@ export class VendorManagementComponent {
     this.loadVendors();
   }
 
+  // update vendor status
   private updateVendorStatus(
-    vendorId: string,
+    vendorId: number,
     status: ApprovalStatus,
     vendorName: string,
   ): void {
@@ -100,7 +111,7 @@ export class VendorManagementComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        message: `Are you sure you want to ${isApproving ? 'approve' : 'reject'} ${vendorName}`,
+        message: `Are you sure you want to ${isApproving ? 'approve' : 'reject'} ${vendorName}?`,
         yesLabel: isApproving ? 'Approve' : 'Reject',
         noLabel: 'Cancel',
       },
@@ -116,20 +127,19 @@ export class VendorManagementComponent {
           next: (response) => {
             this.notificationService.showSuccess(
               response.message ||
-                `Vendor ${isApproving ? 'approved' : 'reject'} successfully`,
+                `Vendor ${isApproving ? 'approved' : 'rejected'} successfully`,
             );
             this.loadVendors();
           },
           error: (err) => {
-            this.notificationService.showError('Vendor Status Update Faild');
-            console.log('Vendor Status Update Faild', err);
+            this.notificationService.showError('Vendor Status Update Failed');
+            console.error('Vendor Status Update Failed', err);
           },
         });
       }
     });
   }
 
-  // handle search query
   private searchStream(): void {
     this.filterForm.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -139,12 +149,15 @@ export class VendorManagementComponent {
       });
   }
 
-  // load list of vendors
+  // load vendor details for table
   loadVendors(): void {
     this.isLoading = true;
     const filter = {
       search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
+      status:
+        this.selectedStatus === 'All'
+          ? undefined
+          : (this.selectedStatus as ApprovalStatus),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -154,8 +167,12 @@ export class VendorManagementComponent {
         this.vendors = res.items.map(
           (vendor: VendorItem): VendorTableItem => ({
             ...vendor,
-            id: vendor.vendorId,
-            statusDisplay: vendor.status,
+            id: Number(vendor.vendorId),
+            name: vendor.name || vendor.bussinessName || 'N/A',
+            categoriesDisplay: Array.isArray(vendor.categories)
+              ? vendor.categories.join(', ')
+              : 'N/A',
+            statusDisplay: approvalStatusToLabel(vendor.status),
             vendorStatusClass: this.getStatusBadgeClass(vendor.status),
           }),
         );
@@ -163,19 +180,22 @@ export class VendorManagementComponent {
         this.isLoading = false;
       },
       error: () => {
-        this.notificationService.showError('Error to fetch vendor list');
+        this.notificationService.showError('Error fetching vendor list');
         this.isLoading = false;
       },
     });
   }
 
-  private getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'Approved':
+  private getStatusBadgeClass(
+    status: string | number | ApprovalStatus,
+  ): string {
+    const numStatus = Number(status);
+    switch (numStatus) {
+      case ApprovalStatus.Approved:
         return 'bg-success-subtle text-success border border-success-subtle';
-      case 'Pending':
+      case ApprovalStatus.Pending:
         return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'Rejected':
+      case ApprovalStatus.Rejected:
         return 'bg-danger-subtle text-danger border border-danger-subtle';
       default:
         return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
@@ -188,7 +208,6 @@ export class VendorManagementComponent {
     this.loadVendors();
   }
 
-  // handle reset filters
   resetFilter(): void {
     this.filterForm.setValue(
       { search: '', status: 'All' },
@@ -201,53 +220,77 @@ export class VendorManagementComponent {
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
   }
-  get selectedStatus(): string {
-    return this.filterForm.get('status')?.value || '';
+  get selectedStatus(): ApprovalStatus | 'All' {
+    return this.filterForm.get('status')?.value || 'All';
   }
 
-  // method for handle actions
   onActionClick(event: TableActionEvent): void {
     const vendor = event.row as VendorDetails;
     if (!vendor) {
       return;
     }
 
+    const vendorId = Number(vendor.vendorId);
+    const currentApprovalStatus = normalizeApprovalStatus(vendor.status);
+    const isAlreadyRejected = currentApprovalStatus === ApprovalStatus.Rejected;
+    const isAlreadyApproved = currentApprovalStatus === ApprovalStatus.Approved;
+    const vendorName = vendor.bussinessName || vendor.vendorName || 'Vendor';
+
     if (event.action === 'edit') {
-      console.log('Edit vendor', vendor.vendorId);
+      console.log('Edit vendor', vendorId);
     } else if (event.action === 'delete') {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
-          message: `Are you sure you want to delete ${vendor.bussinessName}?`,
-          vendorId: vendor.vendorId,
+          message: `Are you sure you want to delete ${vendorName}?`,
+          vendorId: vendorId,
         },
       });
       dialogRef.afterClosed().subscribe((result) => {
         if (result) {
           this.notificationService.showSuccess('Vendor Deleted Successfully');
-          console.log('Delete vendor', vendor.vendorId);
         }
       });
     } else if (event.action === 'verifyApprove') {
-      if (vendor.status?.toLocaleLowerCase() === 'verifiedApprove') {
+      // 🛠️ Agar vendor already rejected ya approved hai toh dialog open nahi hoga, sirf warning aayegi
+      if (isAlreadyRejected) {
         this.notificationService.showWarning(
-          'Rejected Vendor cant not be approved',
+          'Rejected vendor status cannot be changed.',
+        );
+        return;
+      }
+      if (isAlreadyApproved) {
+        this.notificationService.showWarning(
+          'This vendor is already approved.',
         );
         return;
       }
       this.updateVendorStatus(
-        vendor.vendorId,
+        vendorId,
         ApprovalStatus.Approved,
-        vendor.bussinessName,
+        vendorName,
       );
     } else if (
       event.action === 'verifyPending' ||
       event.action === 'verifyReject'
     ) {
+      // 🛠️ Rejected vendor ke liye reject action par bhi warning show karega
+      if (isAlreadyRejected) {
+        this.notificationService.showWarning(
+          'Vendor is already rejected.',
+        );
+        return;
+      }
+      if (isAlreadyApproved) {
+        this.notificationService.showWarning(
+          'Approved vendor cannot be rejected directly.',
+        );
+        return;
+      }
       this.updateVendorStatus(
-        vendor.vendorId,
+        vendorId,
         ApprovalStatus.Rejected,
-        vendor.bussinessName,
+        vendorName,
       );
     }
   }

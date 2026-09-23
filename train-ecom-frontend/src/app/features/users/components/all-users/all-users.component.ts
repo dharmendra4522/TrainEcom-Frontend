@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { AdminUser } from '../../../../core/models/user.model';
-import { Role } from '../../../../core/models/auth.model';
+import { AdminUser, UserStatusFilter } from '../../../../core/models/user.model';
+import { Role, ROLE_NAME_MAP } from '../../../../core/models/auth.model';
 import {
   TableAction,
   TableActionEvent,
@@ -19,41 +19,52 @@ import { FormControl, FormGroup } from '@angular/forms';
   templateUrl: './all-users.component.html',
   styleUrl: './all-users.component.css',
 })
-export class AllUsersComponent {
+export class AllUsersComponent implements OnInit, OnDestroy {
+  @Input() fixedRole: Role | number = Role.Customer;
   private userService = inject(UserService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
 
-  // for search debounce
   private destroy$ = new Subject<void>();
 
   allUsers: AdminUser[] = [];
   isLoading: boolean = false;
 
-  // Paginator properties
   totalRecords: number = 0;
   pageSize: number = 10;
   pageIndex: number = 0;
-  statusOptions: string[] = ['All', 'Active', 'Blocked'];
-  roleOptions: Role[] = [];
+
+  statusOptions: Array<{ label: string; value: UserStatusFilter | 'All' }> = [
+    { label: 'All Status', value: 'All' },
+    { label: 'Active', value: UserStatusFilter.Active },
+    { label: 'Blocked', value: UserStatusFilter.Blocked },
+  ];
+
+  roleOptions: Array<{ label: string; value: Role | 'All' }> = [];
 
   filterForm = new FormGroup({
     search: new FormControl(''),
-    status: new FormControl('All'),
-    role: new FormControl('All'),
+    status: new FormControl<UserStatusFilter | 'All'>('All'),
+    role: new FormControl<Role | 'All'>('All'),
   });
 
   ngOnInit(): void {
     this.setupSearchStream();
-    this.loadUsers();
     this.loadRoleOptions();
+    this.loadUsers();
   }
 
   private loadRoleOptions(): void {
-    this.roleOptions = Object.values(Role).filter((role) => role != Role.Admin);
+    const allowedRoles = [Role.Customer, Role.Vendor, Role.Accounting, Role.OfficeAdmin];
+    this.roleOptions = [
+      { label: 'All Roles', value: 'All' },
+      ...allowedRoles.map((role) => ({
+        label: ROLE_NAME_MAP[role] || `Role ${role}`,
+        value: role,
+      })),
+    ];
   }
 
-  // search stream setup
   private setupSearchStream(): void {
     this.filterForm.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -68,7 +79,7 @@ export class AllUsersComponent {
     { key: 'email', label: 'Email', truncate: true },
     { key: 'phoneNumber', label: 'Phone' },
     { key: 'formattedAddress', label: 'Location', truncate: true },
-    { key: 'role', label: 'ROle', truncate: false },
+    { key: 'role', label: 'Role', truncate: false },
     {
       key: 'statusDisplay',
       label: 'Status',
@@ -90,8 +101,8 @@ export class AllUsersComponent {
     this.isLoading = true;
     const filter = {
       search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
-      role: this.selectedRole === 'All' ? undefined : this.selectedRole,
+      status: this.selectedStatus === 'All' ? undefined : (this.selectedStatus as UserStatusFilter),
+      role: this.fixedRole !== undefined ? this.fixedRole : (this.selectedRole === 'All' ? undefined : (this.selectedRole as Role)),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -99,21 +110,19 @@ export class AllUsersComponent {
       next: (response) => {
         this.allUsers = response.items.map((user) => ({
           ...user,
+          userId: Number(user.userId),
           statusDisplay: user.isBlocked ? 'Blocked' : 'Active',
           userStatusClass: user.isBlocked
             ? 'bg-danger-subtle text-danger border border-danger-subtle'
             : 'bg-success-subtle text-success border border-success-subtle',
           actionLabel: user.isBlocked ? 'Unblock' : 'Block',
           actionIcon: user.isBlocked ? 'lock_open' : 'block',
-          // short address
           formattedAddress: user.address
             ? `${user.address.city || ''}, ${user.address.state || ''}`.replace(
                 /^,\s*|,\s*$/g,
                 '',
               )
             : 'N/A',
-
-          // full address on tooltip
           description: user.address
             ? `${user.address.addressLine1 || ''}${user.address.addressLine2 ? ', ' + user.address.addressLine2 : ''}, ${user.address.city || ''}, ${user.address.state || ''} - ${user.address.postalCode || ''}`
             : 'N/A',
@@ -141,14 +150,15 @@ export class AllUsersComponent {
     const action = newBlockStatus ? 'block' : 'unblock';
 
     this.userService
-      .updateUserStatus(user.userId, { isBlocked: newBlockStatus })
+      .updateUserStatus(Number(user.userId), { isBlocked: newBlockStatus })
       .subscribe({
         next: () => {
           this.notification.showSuccess(`User ${action}ed successfully.`);
           this.loadUsers();
         },
-        error: (error) => {
-          const errorMessage = error?.error?.message || 'An error occurred';
+        error: (error: Record<string, unknown>) => {
+          const errBody = error['error'] as { message?: string } | undefined;
+          const errorMessage = errBody?.message || 'An error occurred';
           this.notification.showError(
             `Failed to ${action} user. ${errorMessage}`,
           );
@@ -156,7 +166,6 @@ export class AllUsersComponent {
       });
   }
 
-  // handle actions
   onActionClick(event: TableActionEvent): void {
     if (event.action === 'toggleBlock') {
       const user = event.row as AdminUser;
@@ -182,12 +191,12 @@ export class AllUsersComponent {
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
   }
-  get selectedStatus(): string {
-    return this.filterForm.get('status')?.value || '';
+  get selectedStatus(): UserStatusFilter | 'All' {
+    return this.filterForm.get('status')?.value || 'All';
   }
 
-  get selectedRole(): string {
-    return this.filterForm.get('role')?.value || '';
+  get selectedRole(): Role | 'All' {
+    return this.filterForm.get('role')?.value || 'All';
   }
 
   resetFilters(): void {
@@ -204,3 +213,4 @@ export class AllUsersComponent {
     this.destroy$.complete();
   }
 }
+

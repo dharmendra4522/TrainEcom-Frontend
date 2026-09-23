@@ -1,5 +1,5 @@
 export interface WishListItem {
-    productId: string;
+    productId: number | string;
     productName: string;
     thumbnailUrl: string;
     price: number;
@@ -9,7 +9,7 @@ export interface WishListItem {
     stockQuantity: number;
     addedAt: string;
     quantity?: number;
-    id: string;
+    id: number | string;
     name: string;
     image?: string;
     averageRating?: number;
@@ -26,7 +26,7 @@ export interface WishlistApiResponse {
 }
 
 export interface WishlistActionResponse {
-    wishlistId: string;
-    productId: string;
+    wishlistId: number | string;
+    productId: number | string;
     addedAt: string;
 }

@@ -4,7 +4,7 @@ import { OrderItemReviewSummary } from './review.model';
 export { PaymentMethod, OrderStatus, PaymentStatus };
 
 export interface OrderListItem extends Record<string, unknown> {
-  orderId: string;
+  orderId: number | string;
   orderDate: string;
   totalAmount: number;
   orderStatus: OrderStatus;
@@ -14,7 +14,7 @@ export interface OrderListItem extends Record<string, unknown> {
 }
 
 export interface AdminOrderItem extends Record<string, unknown> {
-  orderId: string;
+  orderId: number | string;
   customerName: string;
   totalAmount: number;
   totalItems: number;
@@ -41,7 +41,7 @@ export interface AdminOrderFilterParams {
 }
 
 export interface OrderHistoryItem {
-  orderId: string;
+  orderId: number | string;
   orderName: string;
   orderDate: string;
   totalAmount: number;
@@ -70,7 +70,7 @@ export interface OrderHistoryFilterParams {
 }
 
 export interface OrderItemDetail {
-  productId: string;
+  productId: number | string;
   productName: string;
   thumbnailUrl: string;
   quantity: number;
@@ -98,7 +98,7 @@ export interface PaymentDetail {
 }
 
 export interface OrderDetailsResponse {
-  orderId: string;
+  orderId: number | string;
   orderDate: string;
   orderStatus: OrderStatus;
   remark?: string | null;
@@ -125,13 +125,13 @@ export interface OrderTrackingStep {
 }
 
 export interface OrderTrackingResponse {
-  orderId: string;
+  orderId: number | string;
   currentStatus: string;
   trackingSteps: OrderTrackingStep[];
 }
 
 export interface UpdateOrderStatusResponse {
-  orderId: string;
+  orderId: number | string;
   orderStatus: OrderStatus;
   message: string;
 }

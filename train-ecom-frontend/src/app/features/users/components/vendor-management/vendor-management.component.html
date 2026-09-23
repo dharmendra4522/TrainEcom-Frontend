@@ -28,9 +28,8 @@
         >
           <mat-label>Filter by Status</mat-label>
           <mat-select formControlName="status">
-            <mat-option value="All">All Status</mat-option>
-            <mat-option *ngFor="let status of statusOptions" [value]="status">
-              {{ status }}
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>

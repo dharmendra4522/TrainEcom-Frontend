@@ -2,15 +2,17 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import {
   Address,
-  AdminUser,
   UserProfile,
   UpdateProfilePayload,
   AdminUserFilterParams,
   AdminUserListResponse,
   UpdateUserStatusPayload,
+  UserStatusFilter,
+  ApprovalStatus,
 } from '../models/user.model';
 import { Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Role } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,25 +58,73 @@ export class UserService {
       .pipe(tap(() => (this.addressesCache = null)));
   }
 
-  updateAddress(Id: string, addressData: Address): Observable<Address> {
-    const url = `${this.addressBaseUrl}/update/${Id}`;
+  updateAddress(id: number, addressData: Address): Observable<Address> {
+    const url = `${this.addressBaseUrl}/update/${id}`;
     return this.http
       .put<Address>(url, addressData)
       .pipe(tap(() => (this.addressesCache = null)));
   }
 
-  deleteAddress(Id: string): Observable<void> {
-    const url = `${this.addressBaseUrl}/delete/${Id}`;
+  deleteAddress(id: number): Observable<void> {
+    const url = `${this.addressBaseUrl}/delete/${id}`;
     return this.http
       .delete<void>(url)
       .pipe(tap(() => (this.addressesCache = null)));
   }
 
-  setDefaultAddress(Id: string): Observable<void> {
-    const url = `${this.addressBaseUrl}/set-default/${Id}`;
+  setDefaultAddress(id: number): Observable<void> {
+    const url = `${this.addressBaseUrl}/set-default/${id}`;
     return this.http
       .patch<void>(url, {})
       .pipe(tap(() => (this.addressesCache = null)));
+  }
+
+  private normalizeUserStatus(status: UserStatusFilter | string | number | undefined): number | undefined {
+    if (status === undefined || status === null || status === '') {
+      return undefined;
+    }
+    if (typeof status === 'number') {
+      return status;
+    }
+    const value = status.trim().toLowerCase();
+    if (value === 'all') return UserStatusFilter.All;
+    if (value === 'active') return UserStatusFilter.Active;
+    if (value === 'blocked') return UserStatusFilter.Blocked;
+    return Number(status) || undefined;
+  }
+
+  private normalizeRole(role: Role | string | number | undefined): number | undefined {
+    if (role === undefined || role === null || role === '') {
+      return undefined;
+    }
+    if (typeof role === 'number') {
+      return role;
+    }
+    const normalized = role.trim();
+    const roleMap: Record<string, number> = {
+      customer: Role.Customer,
+      vendor: Role.Vendor,
+      admin: Role.Admin,
+      accounting: Role.Accounting,
+      officeadmin: Role.OfficeAdmin,
+    };
+    return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;
+  }
+
+  private normalizeApprovalStatus(status: ApprovalStatus | string | number | undefined): number | undefined {
+    if (status === undefined || status === null || status === '') {
+      return undefined;
+    }
+    if (typeof status === 'number') {
+      return status;
+    }
+    const normalized = status.trim().toLowerCase();
+    const statusMap: Record<string, number> = {
+      pending: ApprovalStatus.Pending,
+      approved: ApprovalStatus.Approved,
+      rejected: ApprovalStatus.Rejected,
+    };
+    return statusMap[normalized] ?? Number(normalized) ?? undefined;
   }
 
   // Admin: Fetch all users
@@ -83,20 +133,33 @@ export class UserService {
   ): Observable<AdminUserListResponse> {
     let params = new HttpParams();
     if (filter) {
-      if (filter.search) {
-        params = params.set('search', filter.search);
+      const searchValue = filter.Search ?? filter.search;
+      const roleValue = filter.Role ?? filter.role;
+      const approvalValue = filter.ApprovalStatus ?? filter.approvalStatus;
+      const statusValue = filter.UserStatus ?? filter.status;
+      const pageNumberValue = filter.PageNumber ?? filter.pageNumber;
+      const pageSizeValue = filter.PageSize ?? filter.pageSize;
+
+      if (searchValue) {
+        params = params.set('Search', String(searchValue));
       }
-      if (filter.status) {
-        params = params.set('status', filter.status);
+      const normalizedApproval = this.normalizeApprovalStatus(approvalValue);
+      if (normalizedApproval !== undefined) {
+        params = params.set('ApprovalStatus', String(normalizedApproval));
       }
-      if (filter.role) {
-        params = params.set('role', filter.role);
+      const normalizedRole = this.normalizeRole(roleValue);
+      if (normalizedRole !== undefined) {
+        params = params.set('Role', String(normalizedRole));
       }
-      if (filter.pageNumber !== undefined) {
-        params = params.set('pageNumber', filter.pageNumber.toString());
+      const normalizedStatus = this.normalizeUserStatus(statusValue);
+      if (normalizedStatus !== undefined) {
+        params = params.set('UserStatus', String(normalizedStatus));
       }
-      if (filter.pageSize !== undefined) {
-        params = params.set('pageSize', filter.pageSize.toString());
+      if (pageNumberValue !== undefined) {
+        params = params.set('PageNumber', pageNumberValue.toString());
+      }
+      if (pageSizeValue !== undefined) {
+        params = params.set('PageSize', pageSizeValue.toString());
       }
     }
     const url = `${environment.apiBaseUrl}/admin/users/all`;
@@ -105,7 +168,7 @@ export class UserService {
 
   // Admin: Update user status (block/unblock)
   updateUserStatus(
-    userId: string,
+    userId: number,
     payload: UpdateUserStatusPayload,
   ): Observable<void> {
     const url = `${environment.apiBaseUrl}/admin/users/${userId}/update-status`;

@@ -5,12 +5,12 @@
     >
       <div>
         <h2 class="fs-4 fw-bold text-dark m-0">
-          {{ activeTab === "users" ? "User Management" : "Vendor Management" }}
+          {{ activeTab === "customers" ? "Customer Management" : "Vendor Management" }}
         </h2>
         <p class="text-muted small m-0">
           {{
-            activeTab === "users"
-              ? "View and manage all registered users."
+            activeTab === "customers"
+              ? "View and manage all registered customers."
               : "View and manage all registered vendors."
           }}
         </p>
@@ -26,7 +26,8 @@
   </div>
 
   <div class="tab-content-area">
-    <app-all-users *ngIf="activeTab === 'users'"></app-all-users>
+    <app-all-users *ngIf="activeTab === 'customers'"></app-all-users>
     <app-vendor-management *ngIf="activeTab === 'vendors'"></app-vendor-management>
   </div>
 </div>
+

@@ -1,9 +1,9 @@
 export interface NotificationItem {
-    id: string;
+    id: string | number;
     type: NotificationType | string;
     title: string;
     message: string;
-    referenceId: string | null;
+    referenceId: string | number | null;
     referenceType: string | null;
     isRead: boolean;
     readAt: string | null;

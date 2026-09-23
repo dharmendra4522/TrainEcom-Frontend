@@ -106,14 +106,14 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.store.dispatch(CategoryActions.createCategory({ category: payload as Category }));
   }
 
-  updateCategory(id: string, payload: CreateCategoryRequest): void {
-    this.store.dispatch(CategoryActions.updateCategory({ categoryId: id, category: payload as Category }));
+  updateCategory(id: string | number, payload: CreateCategoryRequest): void {
+    this.store.dispatch(CategoryActions.updateCategory({ categoryId: String(id), category: payload as Category }));
   }
 
-  deleteCategory(id: string): void {
+  deleteCategory(id: string | number): void {
     this.confirmDialog.confirm('Are you sure you want to delete this category?', 'Delete', 'Cancel').subscribe((confirmed) => {
       if (confirmed) {
-        this.store.dispatch(CategoryActions.deleteCategory({ categoryId: id }));
+        this.store.dispatch(CategoryActions.deleteCategory({ categoryId: String(id) }));
       }
     });
   }

@@ -4,7 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { VendorDetails } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ApprovalStatus } from '../../../../core/models/user.model';
+import {
+  ApprovalStatus,
+  approvalStatusToLabel,
+} from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -18,7 +21,7 @@ export class UserDetailsComponent {
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
 
-  private vendorId: string = '';
+  private vendorId: number = 0;
   vendorDetails: VendorDetails | null = null;
   isLoading: boolean = false;
 
@@ -29,30 +32,34 @@ export class UserDetailsComponent {
     }
   }
 
-  private fetchVendorId(): string {
+  private fetchVendorId(): number {
     this.route.paramMap.subscribe((params) => {
-      this.vendorId = params.get('id') || '';
+      const idParam = params.get('id');
+      this.vendorId = idParam ? Number(idParam) : 0;
     });
     return this.vendorId;
   }
 
   private loadVendorDetail(): void {
+    if (!this.vendorId) return;
     this.isLoading = true;
     this.vendorService.getVendorById(this.vendorId).subscribe({
       next: (response) => {
         this.vendorDetails = response;
-
         this.isLoading = false;
       },
       error: (err) => {
-        this.notificationService.showError('Faild to load vendor details', err);
+        this.notificationService.showError(
+          'Failed to load vendor details',
+          String(err),
+        );
         this.isLoading = false;
       },
     });
   }
 
-  transformId(id: string): string {
-    return id.substring(0, 6).concat('...');
+  transformId(id: number | string): string {
+    return String(id).substring(0, 6).concat('...');
   }
 
   private updateStatus(status: ApprovalStatus): void {
@@ -60,11 +67,12 @@ export class UserDetailsComponent {
       return;
     }
     const isApprove = status === ApprovalStatus.Approved;
-    const vendorName = this.vendorDetails?.vendorName;
+    const vendorName =
+      this.vendorDetails?.vendorName || this.vendorDetails?.bussinessName;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        message: `Are you sure want to ${isApprove ? 'approve' : 'reject'} ${vendorName}`,
+        message: `Are you sure want to ${isApprove ? 'approve' : 'reject'} ${vendorName}?`,
         yesLabel: isApprove ? 'Approve' : 'Reject',
         noLabel: 'Cancel',
       },
@@ -83,13 +91,13 @@ export class UserDetailsComponent {
             next: (response) => {
               this.notificationService.showSuccess(
                 response.message ||
-                  `vendor ${isApprove ? 'approve' : 'reject'} successfully`,
+                  `Vendor ${isApprove ? 'approved' : 'rejected'} successfully`,
               );
               this.loadVendorDetail();
             },
             error: (err) => {
               this.notificationService.showError(
-                err || 'faild to update vendor status',
+                String(err) || 'Failed to update vendor status',
               );
             },
           });
@@ -97,14 +105,22 @@ export class UserDetailsComponent {
     });
   }
 
-  onApprove(): void{
+  onApprove(): void {
     this.updateStatus(ApprovalStatus.Approved);
   }
-  onReject(): void{
+  onReject(): void {
     this.updateStatus(ApprovalStatus.Rejected);
   }
 
-  get isApproveDisabled(): boolean{
-    return this.vendorDetails?.status?.toLowerCase() === 'rejected';
+  get vendorStatusDisplay(): string {
+    return approvalStatusToLabel(this.vendorDetails?.status);
+  }
+
+  get isApproveDisabled(): boolean {
+    const currentStatus = Number(this.vendorDetails?.status);
+    return (
+      currentStatus === ApprovalStatus.Approved ||
+      currentStatus === ApprovalStatus.Rejected
+    );
   }
 }

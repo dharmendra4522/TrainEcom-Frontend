@@ -43,7 +43,7 @@ export class OrderDetailsComponent {
       : { label: 'My Orders', url: '/account/orders/history' };
 
     const orderIdLabel = this.orderDetail?.orderId
-      ? `Order #${this.orderDetail.orderId.slice(0, 8)}`
+      ? `Order #${String(this.orderDetail.orderId).slice(0, 8)}`
       : 'Order Details';
 
     return [
@@ -67,10 +67,11 @@ export class OrderDetailsComponent {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
   }
 
-  private loadOrderDetails(orderId: string): void {
+  private loadOrderDetails(orderId: string | number): void {
+    const normalizedOrderId = String(orderId);
     const orderObservable = this.isManagementMode
-      ? this.orderService.getManagedOrderDetails(this.portal, orderId)
-      : this.orderService.getOrderDetails(orderId);
+      ? this.orderService.getManagedOrderDetails(this.portal, normalizedOrderId)
+      : this.orderService.getOrderDetails(normalizedOrderId);
     orderObservable.subscribe({
       next: (response) => {
         if (response && response.orderDate && !response.orderDate.includes('+')) {
@@ -110,7 +111,7 @@ export class OrderDetailsComponent {
     this.location.back();
   }
 
-  onCancelOrder(orderId: string): void {
+  onCancelOrder(orderId: string | number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -122,13 +123,13 @@ export class OrderDetailsComponent {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.isCancelling = true;
-        this.orderService.cancelOrder(orderId).subscribe({
+        this.orderService.cancelOrder(String(orderId)).subscribe({
           next: () => {
             this.isCancelling = false;
             this.notification.showSuccess('Order cancelled successfully.');
             if (this.orderDetail) {
               this.orderDetail.orderStatus = OrderStatus.Cancelled;
-              this.loadOrderDetails(orderId);
+              this.loadOrderDetails(String(orderId));
             }
           },
           error: (error) => {
@@ -176,9 +177,9 @@ export class OrderDetailsComponent {
   }
 
   // Open dialog for user to add/edit review or admin to view review details
-  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string; rating: number; review: string }): void {
+  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string | number; rating: number; review: string }): void {
     if (reviewSummary?.reviewId) {
-      this.reviewService.getReviewById(reviewSummary.reviewId).subscribe({
+      this.reviewService.getReviewById(String(reviewSummary.reviewId)).subscribe({
         next: (reviewData: Review) => {
           this.showDialog(productId, productName, reviewData.rating, reviewData.review, true, reviewSummary.reviewId);
         }, error: (error) => {
@@ -198,7 +199,7 @@ export class OrderDetailsComponent {
     existingRating?: number,
     existingReview?: string,
     isEdit: boolean = false,
-    reviewId?: string): void {
+    reviewId?: string | number): void {
     const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
       width: '420px',
       data: { productId, productName, existingRating, existingReview, isEdit, reviewId }
@@ -215,12 +216,12 @@ export class OrderDetailsComponent {
     productId: string | number,
     result: { rating: number; review: string },
     isEdit: boolean,
-    reviewId?: string
+    reviewId?: string | number
   ): void {
     const pauload = { rating: result.rating, review: result.review };
 
     if (isEdit && reviewId) {
-      this.reviewService.updateReview(reviewId, pauload).subscribe({
+      this.reviewService.updateReview(String(reviewId), pauload).subscribe({
         next: (response) => {
           this.notification.showSuccess(response.Message || 'Review updated successfully');
           this.reloadDetails();
