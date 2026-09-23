@@ -4,7 +4,11 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Role } from '../models/auth.model';
-import { ApprovalStatus, AdminUserListResponse, AdminUser } from '../models/user.model';
+import {
+  ApprovalStatus,
+  AdminUserListResponse,
+  AdminUser,
+} from '../models/user.model';
 import {
   VendorDetails,
   VendorListResponse,
@@ -34,7 +38,12 @@ export class VendorService {
     if (filter?.search) {
       params = params.set('Search', filter.search);
     }
-    if (filter?.status !== undefined && filter?.status !== null && filter?.status !== '' && filter?.status !== 'All') {
+    if (
+      filter?.status !== undefined &&
+      filter?.status !== null &&
+      filter?.status !== '' &&
+      filter?.status !== 'All'
+    ) {
       params = params.set('ApprovalStatus', String(filter.status));
     }
     if (filter?.pageNumber !== undefined) {
@@ -48,14 +57,49 @@ export class VendorService {
       map((response: AdminUserListResponse) => {
         const items = Array.isArray(response?.items) ? response.items : [];
         return {
-          items: items.map((item: AdminUser) => ({
-            vendorId: Number(item.userId ?? item['vendorId'] ?? item['id']),
-            bussinessName: (item['businessDetail'] as { businessName?: string })?.businessName || (item['bussinessName'] as string) || item.name || 'N/A',
-            email: item.email,
-            phoneNumber: item.phoneNumber,
-            city: (item['address'] as { city?: string })?.city || (item['businessDetail'] as { city?: string })?.city || '',
-            status: (item.approvalStatus as ApprovalStatus) ?? ApprovalStatus.Pending,
-          })),
+          items: items.map((item: AdminUser) => {
+            let bDetailRaw =
+              item['bussinessDetail'] || item['businessDetail'] || {};
+            if (typeof bDetailRaw === 'string') {
+              try {
+                bDetailRaw = JSON.parse(bDetailRaw);
+              } catch (e) {
+                bDetailRaw = {};
+              }
+            }
+            const bDetail = bDetailRaw as Record<string, unknown>;
+            const categories =
+              bDetail['bussinessCategories'] ||
+              bDetail['businessCategories'] ||
+              item['categories'] ||
+              item['bussinessCategories'] ||
+              [];
+            return {
+              vendorId: Number(item.userId ?? item['vendorId'] ?? item['id']),
+              userId: Number(item.userId ?? item['vendorId'] ?? item['id']),
+              name: item.name,
+              bussinessName:
+                (bDetail['bussinessName'] as string) ||
+                (bDetail['businessName'] as string) ||
+                (item['bussinessName'] as string) ||
+                item.name ||
+                'N/A',
+              email: item.email,
+              phoneNumber: item.phoneNumber,
+              city:
+                (item['address'] as { city?: string })?.city ||
+                (bDetail['city'] as string) ||
+                '',
+              status:
+                (item.approvalStatus as ApprovalStatus) ??
+                ApprovalStatus.Pending,
+              categories: Array.isArray(categories)
+                ? categories
+                : typeof categories === 'string'
+                  ? [categories]
+                  : [],
+            };
+          }),
           pageNumber: response?.pageNumber ?? 1,
           pageSize: response?.pageSize ?? items.length,
           totalRecords: response?.totalRecords ?? items.length,
@@ -77,5 +121,5 @@ export class VendorService {
     const url = `${this.detailsAPI}/${userId}/details`;
     return this.http.get<VendorDetails>(url);
   }
-}
 
+}

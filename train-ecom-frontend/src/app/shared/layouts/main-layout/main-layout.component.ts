@@ -10,7 +10,8 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { SidePanelComponent } from '../../components/side-panel/side-panel.component';
 import { LoadingService } from '../../../core/services/loading.service';
 import { getRoleMenuItems } from '../../../core/config/role-permission.config';
-import { Role, normalizeRole } from '../../../core/models/auth.model';
+import { Role } from '../../../core/models/auth.model';
+import { normalizeRole } from '../../../core/utils/role.utils';
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',

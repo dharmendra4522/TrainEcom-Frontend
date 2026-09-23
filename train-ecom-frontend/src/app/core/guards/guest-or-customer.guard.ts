@@ -3,7 +3,8 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { map, take } from 'rxjs/operators';
 import { selectUserRole } from '../store/auth/auth.selectors';
-import { Role, normalizeRole } from '../models/auth.model';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const guestOrCustomerGuard: CanActivateFn = () => {
   const store = inject(Store);

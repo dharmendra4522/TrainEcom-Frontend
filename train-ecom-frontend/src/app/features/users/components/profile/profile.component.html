@@ -12,7 +12,7 @@
       *ngIf="!state.loading && !state.error && userProfile"
       class="content-card"
     >
-      <div class="header-action">
+      <div class="header-action" *ngIf="!isVendorPending()">
         <h2>{{ isEditMode ? "Edit Profile" : "My Profile" }}</h2>
         <button class="edit-btn" (click)="toggleEditMode()">
           {{ isEditMode ? "Cancel" : "Edit Profile" }}

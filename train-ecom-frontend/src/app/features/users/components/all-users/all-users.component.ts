@@ -95,6 +95,12 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       color: 'warn',
       tooltip: 'Block / Unblock User',
     },
+    {
+      actionKey: 'delete',
+      icon: 'delete',
+      color: 'warn',
+      tooltip: 'Delete User',
+    },
   ];
 
   loadUsers(): void {
@@ -167,8 +173,8 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   onActionClick(event: TableActionEvent): void {
+    const user = event.row as AdminUser;
     if (event.action === 'toggleBlock') {
-      const user = event.row as AdminUser;
       const actionName = user.isBlocked ? 'unblock' : 'block';
 
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -183,6 +189,30 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe((confirmed) => {
         if (confirmed) {
           this.toggleUserStatus(user);
+        }
+      });
+    } else if( event.action === 'delete'){
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '400px',
+        data: {
+          message: `Kya aap sach mein ${user.name} ko delete karna chahte hain?`,
+          yesLabel: 'Delete',
+          noLabel: 'Cancel',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((confirmed) => {
+        if (confirmed) {
+          this.userService.deleteUser(Number(user.userId)).subscribe({
+            next: (res) => {
+              this.notification.showSuccess(res.message || 'User Deleted Successfully.');
+              this.loadUsers();
+            },
+            error: (err) => {
+              const errorMessage = err?.error?.message || 'User delete karne mein safalta nahi mili.';
+              this.notification.showError(errorMessage);
+            }
+          });
         }
       });
     }

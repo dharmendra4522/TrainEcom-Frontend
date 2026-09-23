@@ -1,14 +1,20 @@
 import type { ApprovalStatus } from './user.model';
 
 export interface VendorItem {
-  vendorId: number;
+  vendorId?: number;
+  userId?: number;
   name?: string;
-  bussinessName: string;
+  bussinessName?: string;
   email: string;
   phoneNumber: string;
-  city: string;
+  city?: string;
   categories?: string[];
-  status: ApprovalStatus | number;
+  status?: ApprovalStatus | number;
+  approvalStatus?: ApprovalStatus | number;
+  bussinessDetail?: {
+    bussinessName?: string;
+    bussinessCategories?: string[];
+  };
 }
 
 export interface VendorTableItem extends VendorItem {

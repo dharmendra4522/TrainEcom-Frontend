@@ -2,7 +2,8 @@ import { Directive, inject, Input, TemplateRef, ViewContainerRef, OnInit, OnDest
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { selectUserRole } from '../../core/store/auth/auth.selectors';
-import { Role, normalizeRole } from '../../core/models/auth.model';
+import { Role } from '../../core/models/auth.model';
+import { normalizeRole } from '../../core/utils/role.utils';
 
 @Directive({
   selector: '[appRole]'

@@ -4,8 +4,7 @@
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Name</mat-label>
       <input matInput formControlName="name" placeholder="Enter name" />
-      <mat-error *ngIf="profileForm.get('name')?.hasError('required')">Name is required.</mat-error>
-      <mat-error *ngIf="profileForm.get('name')?.hasError('pattern')">Only alphabets and spaces are allowed.</mat-error>
+      <mat-error>{{ getErrorMessage('name', 'Name') }}</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="w-100 mb-3">
@@ -15,15 +14,14 @@
 
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Phone Number</mat-label>
-      <span matPrefix class="me-2 ms-2 ">+91 &nbsp;</span>
+      <!-- <span matPrefix class="me-2 ms-2 ">+91</span> -->
       <input
         matInput
         formControlName="phoneNumber"
         maxlength="10"
         placeholder="Enter 10-digit number"
       />
-      <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('required')">Phone number is required.</mat-error>
-      <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('pattern')">Must be exactly 10 digits.</mat-error>
+      <mat-error>{{ getErrorMessage('phoneNumber', 'Phone Number') }}</mat-error>
     </mat-form-field>
 
     <!-- Vendor Specific Editable Fields -->
@@ -32,13 +30,15 @@
       <h4 class="mb-3 business-title">Business & Bank Details</h4>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Business Name</mat-label>
+        <mat-label>Business Name(Cannot be changed)</mat-label>
         <input matInput formControlName="businessName" />
+        <mat-error>{{ getErrorMessage('businessName', 'Business Name') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Store Name / Display Name</mat-label>
+        <mat-label>Display Name</mat-label>
         <input matInput formControlName="storeName" />
+        <mat-error>{{ getErrorMessage('storeName', 'Display') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
@@ -48,39 +48,56 @@
           formControlName="businessDescription"
           rows="3"
         ></textarea>
+        <mat-error>{{ getErrorMessage('businessDescription', 'Business Description') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>GSTIN</mat-label>
+        <mat-label>GST Number</mat-label>
         <input matInput formControlName="gstin" />
+        <mat-error>{{ getErrorMessage('gstin', 'GST Number') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>PAN Number</mat-label>
         <input matInput formControlName="pan" />
+        <mat-error>{{ getErrorMessage('pan', 'PAN Number') }}</mat-error>
+
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>Address Line 1</mat-label>
         <input matInput formControlName="addressLine1" />
+        <mat-error>{{ getErrorMessage('addressLine1', 'Address Line') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>Address Line 2</mat-label>
         <input matInput formControlName="addressLine2" />
+                <mat-error>{{ getErrorMessage('addressLine2', 'Address Line') }}</mat-error>
+
       </mat-form-field>
 
       <div class="row">
         <div class="col-md-6">
           <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>City</mat-label>
-            <input matInput formControlName="city" />
+            <mat-label>Country</mat-label>
+            <mat-select formControlName="country" (selectionChange)="onCountryChange($event)">
+              <mat-option *ngFor="let country of countries" [value]="country.name">
+                {{ country.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getErrorMessage('country', 'Country') }}</mat-error>
           </mat-form-field>
         </div>
         <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
+         <mat-form-field appearance="outline" class="w-100 mb-3">
             <mat-label>State</mat-label>
-            <input matInput formControlName="state" />
+            <mat-select formControlName="state" (selectionChange)="onStateChange($event)">
+              <mat-option *ngFor="let state of states" [value]="state.name">
+                {{ state.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getErrorMessage('state', 'State') }}</mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -88,14 +105,20 @@
       <div class="row">
         <div class="col-md-6">
           <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>Country</mat-label>
-            <input matInput formControlName="country" />
+            <mat-label>City</mat-label>
+            <mat-select formControlName="city">
+              <mat-option *ngFor="let city of cities" [value]="city.name">
+                {{ city.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ getErrorMessage('city', 'City') }}</mat-error>
           </mat-form-field>
         </div>
         <div class="col-md-6">
           <mat-form-field appearance="outline" class="w-100 mb-3">
             <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postalCode" />
+            <input matInput formControlName="postalCode" />        
+            <mat-error>{{ getErrorMessage('postalCode', 'Postal Code') }}</mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -105,64 +128,24 @@
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>Account Holder Name</mat-label>
         <input matInput formControlName="accountHolderName" />
+        <mat-error>{{ getErrorMessage('accountHolderName', 'Account Holder Name') }}</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>Bank Account Number</mat-label>
         <input matInput formControlName="bankAccountNumber" />
+        <mat-error>{{ getErrorMessage('bankAccountNumber', 'Bank Account Number') }}</mat-error>
+
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>IFSC Code</mat-label>
         <input matInput formControlName="ifscCode" />
+                <mat-error>{{ getErrorMessage('ifscCode', 'IFSC Code') }}</mat-error>
+
       </mat-form-field>
     </ng-container>
 
-    <!-- Customer Address Editable Fields -->
-    <ng-container *appRole="roleEnum.Customer">
-      <hr class="my-4" />
-      <h4 class="mb-3 business-title">Default Address</h4>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Address Line 1</mat-label>
-        <input matInput formControlName="addressLine1" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Address Line 2</mat-label>
-        <input matInput formControlName="addressLine2" />
-      </mat-form-field>
-
-      <div class="row">
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>City</mat-label>
-            <input matInput formControlName="city" />
-          </mat-form-field>
-        </div>
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>State</mat-label>
-            <input matInput formControlName="state" />
-          </mat-form-field>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>Country</mat-label>
-            <input matInput formControlName="country" />
-          </mat-form-field>
-        </div>
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postalCode" />
-          </mat-form-field>
-        </div>
-      </div>
-    </ng-container>
 
     <!-- Password Toggle Section -->
     <div class="password-toggle my-3">
@@ -187,23 +170,22 @@
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>Old Password</mat-label>
         <input matInput type="password" formControlName="oldPassword" />
+                <mat-error>{{ getErrorMessage('oldPassword', 'Old Password') }}</mat-error>
+
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100 mb-3">
         <mat-label>New Password</mat-label>
         <input matInput type="password" formControlName="newPassword" />
+                        <mat-error>{{ getErrorMessage('newPassword', 'New Password') }}</mat-error>
+
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>Confirm Password</mat-label>
         <input matInput type="password" formControlName="confirmPassword" />
-        <mat-error
-          *ngIf="
-            profileForm.get('confirmPassword')?.hasError('passwordMismatch')
-          "
-        >
-          Passwords do not match.
-        </mat-error>
+                <mat-error>{{ getErrorMessage('confirmPassword', 'Confirm Password') }}</mat-error>
+
       </mat-form-field>
     </div>
 

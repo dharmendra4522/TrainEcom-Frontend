@@ -7,7 +7,8 @@ import {
   selectUserRole,
 } from '../store/auth/auth.selectors';
 import { map, take, withLatestFrom } from 'rxjs/operators';
-import { Role, normalizeRole } from '../models/auth.model';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);

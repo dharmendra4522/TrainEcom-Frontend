@@ -2,62 +2,61 @@
   <h2 class="fs-4 fw-bold text-dark m-0">Dashboard</h2>
 </div>
 
-<!-- Stats Cards -->
-<div class="stats-grid" *ngIf="stats && stats.length > 0">
-  <mat-card *ngFor="let stat of stats" class="stat-card">
-    <mat-card-content>
-      <div class="stat-info" [class.w-75]="isLoadingStats">
-        <span class="stat-title">{{ stat.title }}</span>
+<ng-container *ngIf="isApproved; else pendingMessage">
+  <!-- Stats Cards -->
+  <div class="stats-grid" *ngIf="stats && stats.length > 0">
+    <mat-card *ngFor="let stat of stats" class="stat-card">
+      <mat-card-content>
+        <div class="stat-info" [class.w-75]="isLoadingStats">
+          <span class="stat-title">{{ stat.title }}</span>
 
-        <h2 class="stat-value" *ngIf="!isLoadingStats; else valueLoader">
-          {{ stat.value }}
-        </h2>
-        <ng-template #valueLoader>
-          <div class="placeholder-glow mt-1">
-            <span class="placeholder col-6 rounded"></span>
+          <h2 class="stat-value" *ngIf="!isLoadingStats; else valueLoader">
+            {{ stat.value }}
+          </h2>
+          <ng-template #valueLoader>
+            <div class="placeholder-glow mt-1">
+              <span class="placeholder col-6 rounded"></span>
+            </div>
+          </ng-template>
+        </div>
+        <mat-icon
+          *ngIf="!isLoadingStats; else iconLoader"
+          [style.color]="stat.color"
+          >{{ stat.icon }}</mat-icon
+        >
+        <ng-template #iconLoader>
+          <div class="placeholder-glow">
+            <span
+              class="placeholder rounded-circle"
+              style="width: 40px; height: 40px; display: inline-block"
+            ></span>
           </div>
         </ng-template>
-      </div>
-      <mat-icon
-        *ngIf="!isLoadingStats; else iconLoader"
-        [style.color]="stat.color"
-        >{{ stat.icon }}</mat-icon
-      >
-      <ng-template #iconLoader>
-        <div class="placeholder-glow">
-          <span
-            class="placeholder rounded-circle"
-            style="width: 40px; height: 40px; display: inline-block"
-          ></span>
-        </div>
-      </ng-template>
-    </mat-card-content>
-  </mat-card>
-</div>
-
-<!-- Recent Orders -->
-<div
-  class="orders-table-container mat-elevation-z2"
-  *ngIf="isVendorStatus || stats.length > 2; else pendingMessage"
->
-  <div class="table-header d-flex justify-content-between align-items-center">
-    <h3>Recent Orders</h3>
-    <button mat-raised-button color="primary" (click)="navigateToOrders()">
-      View All Orders
-    </button>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <app-generic-table
-    [data]="dataSource"
-    [columns]="tableColumns"
-    [isLoading]="isLoadingStats"
-    emptyMessage="No recent orders found."
-    (rowClick)="onOrderClick($event)"
-  ></app-generic-table>
-</div>
+  <!-- Recent Orders -->
+  <div class="orders-table-container mat-elevation-z2">
+    <div class="table-header d-flex justify-content-between align-items-center">
+      <h3>Recent Orders</h3>
+      <button mat-raised-button color="primary" (click)="navigateToOrders()">
+        View All Orders
+      </button>
+    </div>
+
+    <app-generic-table
+      [data]="dataSource"
+      [columns]="tableColumns"
+      [isLoading]="isLoadingStats"
+      emptyMessage="No recent orders found."
+      (rowClick)="onOrderClick($event)"
+    ></app-generic-table>
+  </div>
+</ng-container>
 
 <ng-template #pendingMessage>
-  <div class="">
-    <app-status-card> </app-status-card>
+  <div class="mt-4">
+    <app-status-card></app-status-card>
   </div>
 </ng-template>

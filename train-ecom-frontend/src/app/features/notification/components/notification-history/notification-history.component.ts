@@ -6,7 +6,8 @@ import { Router } from '@angular/router';
 import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
 import { NotificationItem, NotificationType } from '../../../../core/models/notification.model';
 import { NotificationStreamService } from '../../../../core/services/notification-stream.service';
-import { Role, normalizeRole } from '../../../../core/models/auth.model';
+import { Role } from '../../../../core/models/auth.model';
+import { normalizeRole } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-notification-history',
@@ -100,7 +101,7 @@ export class NotificationHistoryComponent {
     // 2. Dynamic Redirect logic based on referenceType
     if (notification.referenceType && notification.referenceId) {
       this.userRole$.pipe(take(1)).subscribe(role => {
-        const type = notification.referenceType as string; // e.g., 'Order', 'Product'
+        const type = notification.referenceType as string;
         const id = notification.referenceId;
         const normalizedRole = normalizeRole(role as string | number | null | undefined);
 

@@ -24,7 +24,7 @@ import { ApprovalStatus, normalizeApprovalStatus } from '../../../../core/models
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
-  isVendorStatus: boolean = false;
+  isApproved: boolean = true;
   stats: DashboardStatItem[] = INITIAL_ADMIN_STATS;
   recentOrders: DashboardOrderRow[] = [];
   dataSource = this.recentOrders;
@@ -53,36 +53,28 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    // for vendor role dashborad api not call 
+    
     if (this.portal === 'vendor') {
-      this.isLoadingStats = false;
-      this.stats = [];          
-      this.recentOrders = [];  
-      this.dataSource = [];
-      this.isVendorStatus = true;
-      return;
+      this.stats = []; // Clear admin stats for vendor
+      if (this.checkVendorPending()) {
+        this.isApproved = false;
+        this.isLoadingStats = false;
+        return; // Stop here if pending
+      }
+      
+      
+      this.fetchDashboardData();
+    } else {
+      // for Admin
+      this.isApproved = true;
+      this.fetchDashboardData();
     }
-    if (this.checkVendorStatus()) {
-      return;
-    }
-    this.isVendorStatus = true;
-    this.fetchDashboardData();
   }
 
-  private checkVendorStatus(): boolean {
-    if (this.portal !== 'vendor') {
-      return false; // Only vendors have a pending status screen
-    }
-
+  private checkVendorPending(): boolean {
     const vendorStatus = localStorage.getItem('vendorStatus');
     const status = normalizeApprovalStatus(vendorStatus);
-    if (status !== ApprovalStatus.Approved) {
-      this.isVendorStatus = false;
-      this.isLoadingStats = false;
-      // this.stats = [];
-      return true;
-    }
-    return false;
+    return status !== ApprovalStatus.Approved;
   }
 
   private fetchDashboardData(): void {

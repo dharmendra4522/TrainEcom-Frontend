@@ -27,8 +27,9 @@ import {
 } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
 import { Router } from '@angular/router';
-import { Role, normalizeRole } from '../../../core/models/auth.model';
+import { Role } from '../../../core/models/auth.model';
 import { ApprovalStatus, normalizeApprovalStatus } from '../../../core/models/user.model';
+import { normalizeRole } from '../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-header',

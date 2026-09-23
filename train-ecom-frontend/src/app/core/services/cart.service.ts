@@ -90,10 +90,10 @@ export class CartService {
   }
 
   addToCart(productId: string | number, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
-    const normalizedProductId = String(productId);
+    const normalizedProductId = Number(productId);
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
-      const existing = items.find((i: CartItem) => i.productId.toString() === normalizedProductId);
+      const existing = items.find((i: CartItem) => Number(i.productId) === normalizedProductId);
       if (existing) {
         existing.quantity += quantity;
       } else {
@@ -114,12 +114,12 @@ export class CartService {
   }
 
   updateCartItem(itemId: string | number, quantity: number): Observable<CartResponse> {
-    const normalizedItemId = String(itemId);
+    const normalizedItemId = Number(itemId);
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
       const existing = items.find(
         (i: CartItem) =>
-          (i.itemId || i.productId)?.toString() === normalizedItemId,
+          Number(i.itemId || i.productId) === normalizedItemId,
       );
       if (existing) {
         existing.quantity = quantity;
@@ -132,10 +132,10 @@ export class CartService {
   }
 
   deleteCartItem(itemId: string | number): Observable<CartResponse> {
-    const normalizedItemId = String(itemId);
+    const normalizedItemId = Number(itemId);
     if (!this.isUserLoggedIn()) {
       let items = this.getLocalCartItems();
-      items = items.filter((i: CartItem) => i.productId.toString() !== normalizedItemId);
+      items = items.filter((i: CartItem) => Number(i.productId) !== normalizedItemId);
       this.saveLocalCartItems(items);
       return of(this.buildLocalCartResponse(items));
     }
@@ -145,8 +145,13 @@ export class CartService {
   }
 
   mergeCart(cartItems: CartItem[]): Observable<CartResponse> {
+    // Ensure all items have numeric productId
+    const normalizedItems = cartItems.map(item => ({
+      ...item,
+      productId: Number(item.productId)
+    }));
     return this.http
-      .post<CartResponse>(`${this.baseAPI}/merge`, { items: cartItems });
+      .post<CartResponse>(`${this.baseAPI}/merge`, { items: normalizedItems });
   }
 
   clearCart(): Observable<CartResponse> {

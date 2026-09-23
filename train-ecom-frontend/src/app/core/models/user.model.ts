@@ -143,7 +143,7 @@ export interface UpdateProfilePayload {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
-  VendorDetails? :{
+  businessDetails? :{
     businessName: string | null;
     storeName: string | null;
     businessDescription: string | null;

@@ -18,13 +18,14 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { CartResponse, CartWarning } from '../../models/cart.model';
-import { Role, normalizeRole } from '../../models/auth.model';
+import { Role } from '../../models/auth.model';
 import {
   selectCartLoaded,
   selectCartItems,
   selectCartTotalQuantity,
   selectCartTotalAmount,
 } from './cart.selectors';
+import { normalizeRole } from '../../utils/role.utils';
 
 @Injectable()
 export class CartEffects {

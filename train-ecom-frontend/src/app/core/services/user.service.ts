@@ -10,7 +10,7 @@ import {
   UserStatusFilter,
   ApprovalStatus,
 } from '../models/user.model';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, tap, map } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Role } from '../models/auth.model';
 
@@ -31,14 +31,36 @@ export class UserService {
   }
 
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(this.profileUrl);
+    return this.http.get<UserProfile>(this.profileUrl).pipe(
+      map((profile) => {
+        if (profile.vendorDetails) {
+          const vd = profile.vendorDetails as Record<string, unknown> &
+            typeof profile.vendorDetails;
+          if ('bussinessName' in vd)
+            vd.businessName = vd['bussinessName'] as string;
+          if ('bussinessDescription' in vd)
+            vd.businessDescription = vd['bussinessDescription'] as string;
+        }
+        return profile;
+      }),
+    );
   }
 
   updateUserProfile(
     profileData: UpdateProfilePayload,
   ): Observable<UserProfile> {
     const url = `${this.profileUrl}/update`;
-    return this.http.put<UserProfile>(url, profileData);
+    const payload: UpdateProfilePayload = { ...profileData };
+    if (payload.businessDetails) {
+      const businessDetails = payload.businessDetails as Record<
+        string,
+        unknown
+      >;
+      businessDetails['bussinessName'] = payload.businessDetails.businessName;
+      businessDetails['bussinessDescription'] =
+        payload.businessDetails.businessDescription;
+    }
+    return this.http.put<UserProfile>(url, payload);
   }
 
   getAllAddress(): Observable<Address[]> {
@@ -79,7 +101,9 @@ export class UserService {
       .pipe(tap(() => (this.addressesCache = null)));
   }
 
-  private normalizeUserStatus(status: UserStatusFilter | string | number | undefined): number | undefined {
+  private normalizeUserStatus(
+    status: UserStatusFilter | string | number | undefined,
+  ): number | undefined {
     if (status === undefined || status === null || status === '') {
       return undefined;
     }
@@ -93,7 +117,9 @@ export class UserService {
     return Number(status) || undefined;
   }
 
-  private normalizeRole(role: Role | string | number | undefined): number | undefined {
+  private normalizeRole(
+    role: Role | string | number | undefined,
+  ): number | undefined {
     if (role === undefined || role === null || role === '') {
       return undefined;
     }
@@ -111,7 +137,9 @@ export class UserService {
     return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;
   }
 
-  private normalizeApprovalStatus(status: ApprovalStatus | string | number | undefined): number | undefined {
+  private normalizeApprovalStatus(
+    status: ApprovalStatus | string | number | undefined,
+  ): number | undefined {
     if (status === undefined || status === null || status === '') {
       return undefined;
     }
@@ -173,5 +201,11 @@ export class UserService {
   ): Observable<void> {
     const url = `${environment.apiBaseUrl}/admin/users/${userId}/update-status`;
     return this.http.patch<void>(url, payload);
+  }
+
+  // delete api
+  deleteUser(userId: number): Observable<{ status: boolean; message: string }> {
+    const url = `${environment.apiBaseUrl}/admin/users/${userId}/delete`;
+    return this.http.delete<{ status: boolean; message: string }>(url);
   }
 }

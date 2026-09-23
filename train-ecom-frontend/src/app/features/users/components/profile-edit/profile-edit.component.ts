@@ -1,10 +1,15 @@
-import { passwordMatchValidator } from './../../../auth/register.utils';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { UpdateProfilePayload, UserProfile } from '../../../../core/models/user.model';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import {
+  UpdateProfilePayload,
+  UserProfile,
+} from '../../../../core/models/user.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Role } from '../../../../core/models/auth.model';
+import { City, Country, ICity, ICountry, IState, State } from 'country-state-city';
+import { MatSelectChange } from '@angular/material/select';
+import { getFieldError, noSpaceAllow, passwordMatchValidator } from './../../../auth/register.utils';
 
 @Component({
   selector: 'app-profile-edit',
@@ -25,93 +30,121 @@ export class ProfileEditComponent {
   isChangePasswordMode: boolean = false;
   roleEnum = Role;
 
+  countries: ICountry[] = Country.getAllCountries();
+  states: IState[] = [];
+  cities: ICity[] = [];
+
   ngOnInit() {
     this.initializeForm();
     if (this.userProfile) {
-      this.patchformWithUserProfile(this.userProfile);
+      this.patchFormWithUserProfile(this.userProfile);
     }
+    this.findInvalidControls();
+  }
+
+  findInvalidControls(): void {
+    const invalid = Object.keys(this.profileForm.controls).filter(
+      (name) => this.profileForm.controls[name].invalid
+    );
+    console.log('Invalid controls: ', invalid);
   }
 
   private initializeForm(): void {
-    this.profileForm = this.fb.group({
-      name: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
-      email: [{ value: '', disabled: true }],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      // Vendor fields
-      businessName: [''],
-      storeName: [''],
-      businessDescription: [''],
-      gstin: [''],
-      pan: [''],
-      bankAccountNumber: [''],
-      ifscCode: [''],
-      accountHolderName: [''],
-      // Customer Address fields
-      addressLine1: [''],
-      addressLine2: [''],
-      city: [''],
-      state: [''],
-      country: [''],
-      postalCode: [''],
-      // Password fields
-      oldPassword: [''],
-      newPassword: [''],
-      confirmPassword: ['']
-    }, { validators: this.passwordMatchValidator });
+    this.profileForm = this.fb.group(
+      {
+        name: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
+        email: [{ value: '', disabled: true }],
+        phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+        
+        // Vendor fields
+        businessName: [{ value: '', disabled: true }],
+        storeName: ['', [Validators.required, Validators.minLength(3)]],
+        businessDescription: ['', [Validators.required, Validators.minLength(10), noSpaceAllow()]],
+        gstin: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/)]],
+        pan: [{ value: '', disabled: true }],
+        bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
+        ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
+        accountHolderName: ['', [Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()]],
+
+        // Address fields
+        addressLine1: ['', Validators.required],
+        addressLine2: [''],
+        city: ['', Validators.required],
+        state: ['', Validators.required],
+        country: ['', Validators.required],
+        postalCode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+
+        // Password fields
+        oldPassword: [''],
+        newPassword: ['', [Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],
+        confirmPassword: [''],
+      },
+      { validators: passwordMatchValidator }
+    );
   }
 
-  // patch form with user profile data
-  private patchformWithUserProfile(profile: UserProfile): void {
+  // Location Handlers
+  onCountryChange(event: MatSelectChange): void {
+    this.updateStates(event.value);
+    this.profileForm.patchValue({ state: '', city: '', postalCode: '' });
+    this.cities = [];
+  }
+
+  onStateChange(event: MatSelectChange): void {
+    const countryName = this.profileForm.get('country')?.value;
+    this.updateCities(countryName, event.value);
+    this.profileForm.patchValue({ city: '' });
+  }
+
+  private updateStates(countryName: string): void {
+    const country = this.countries.find((c) => c.name === countryName);
+    this.states = country ? State.getStatesOfCountry(country.isoCode) : [];
+  }
+
+  private updateCities(countryName: string, stateName: string): void {
+    const country = this.countries.find((c) => c.name === countryName);
+    if (!country) {
+      this.cities = [];
+      return;
+    }
+    const state = State.getStatesOfCountry(country.isoCode).find((s) => s.name === stateName);
+    this.cities = state ? City.getCitiesOfState(country.isoCode, state.isoCode) : [];
+  }
+
+  
+  private patchFormWithUserProfile(profile: UserProfile): void {
+    const address = profile.defaultAddress || profile.vendorDetails;
+    const countryName = address?.country;
+    const stateName = address?.state;
+
+    if (countryName) {
+      this.updateStates(countryName);
+      if (stateName) {
+        this.updateCities(countryName, stateName);
+      }
+    }
+
+    const vDetails = profile.vendorDetails;
     this.profileForm.patchValue({
       name: profile.name,
       email: profile.email,
       phoneNumber: profile.phoneNumber,
-      businessName: profile.vendorDetails?.businessName,
-      storeName: profile.vendorDetails?.storeName,
-      businessDescription: profile.vendorDetails?.businessDescription,
-      gstin: profile.vendorDetails?.gstin,
-      pan: profile.vendorDetails?.pan,
-      bankAccountNumber: profile.vendorDetails?.bankAccountNumber,
-      ifscCode: profile.vendorDetails?.ifscCode,
-      accountHolderName: profile.vendorDetails?.accountHolderName,
-      addressLine1: profile.defaultAddress?.addressLine1 || profile.vendorDetails?.addressLine1,
-      addressLine2: profile.defaultAddress?.addressLine2 || profile.vendorDetails?.addressLine2,
-      city: profile.defaultAddress?.city || profile.vendorDetails?.city,
-      state: profile.defaultAddress?.state || profile.vendorDetails?.state,
-      country: profile.defaultAddress?.country || profile.vendorDetails?.country,
-      postalCode: profile.defaultAddress?.postalCode || profile.vendorDetails?.postalCode
+      businessName: vDetails?.businessName,
+      storeName: vDetails?.storeName,
+      businessDescription: vDetails?.businessDescription,
+      gstin: vDetails?.gstin,
+      pan: vDetails?.pan,
+      bankAccountNumber: vDetails?.bankAccountNumber,
+      ifscCode: vDetails?.ifscCode,
+      accountHolderName: vDetails?.accountHolderName,
+      addressLine1: address?.addressLine1,
+      addressLine2: address?.addressLine2,
+      city: address?.city,
+      state: stateName,
+      country: countryName,
+      postalCode: address?.postalCode,
     });
   }
-
-  // password match validator fix (correcting 'password' to 'newPassword')
-  private passwordMatchValidator: ValidatorFn = (
-    control: AbstractControl,
-  ): ValidationErrors | null => {
-    const password = control.get('newPassword')?.value;
-    const confirmPasswordControl = control.get('confirmPassword');
-    const confirmPassword = confirmPasswordControl?.value;
-
-    if (!confirmPasswordControl) {
-      return null;
-    }
-
-    if (password !== confirmPassword && confirmPassword) {
-      confirmPasswordControl.setErrors({
-        ...confirmPasswordControl.errors,
-        passwordMismatch: true,
-      });
-      return { passwordMismatch: true };
-    } else {
-      if (confirmPasswordControl.hasError('passwordMismatch')) {
-        const errors = { ...confirmPasswordControl.errors };
-        delete errors['passwordMismatch'];
-        confirmPasswordControl.setErrors(
-          Object.keys(errors).length > 0 ? errors : null,
-        );
-      }
-      return null;
-    }
-  };
 
   togglePasswordFields(): void {
     this.isChangePasswordMode = !this.isChangePasswordMode;
@@ -124,47 +157,47 @@ export class ProfileEditComponent {
     this.isCancleEdit.emit();
   }
 
+  public getErrorMessage(controlName: string, label: string): string {
+    return getFieldError(this.profileForm.get(controlName), label);
+  }
+
   onSubmit(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       return;
     }
-    
+
     const formValue = this.profileForm.getRawValue();
-    
     const payload: UpdateProfilePayload = {
       name: formValue.name,
       phoneNumber: formValue.phoneNumber,
     };
 
+    const addressPayload = {
+      addressLine1: formValue.addressLine1,
+      addressLine2: formValue.addressLine2,
+      city: formValue.city,
+      state: formValue.state,
+      country: formValue.country,
+      postalCode: formValue.postalCode,
+    };
+
     if (this.userRole === Role.Vendor && this.userProfile?.vendorDetails) {
-      payload.VendorDetails = {
+      payload.businessDetails = {
+        ...addressPayload,
         businessName: formValue.businessName,
         storeName: formValue.storeName,
         businessDescription: formValue.businessDescription,
         gstin: formValue.gstin,
         pan: formValue.pan,
-        addressLine1: formValue.addressLine1,
-        addressLine2: formValue.addressLine2,
-        city: formValue.city,
-        state: formValue.state,
-        country: formValue.country,
-        postalCode: formValue.postalCode,
         bankAccountNumber: formValue.bankAccountNumber,
         ifscCode: formValue.ifscCode,
         accountHolderName: formValue.accountHolderName,
         documentUrls: this.userProfile.vendorDetails.documentUrls,
-        categories: this.userProfile.vendorDetails.categories
+        categories: this.userProfile.vendorDetails.categories,
       };
     } else if (this.userRole === Role.Customer) {
-      payload.defaultAddress = {
-        addressLine1: formValue.addressLine1,
-        addressLine2: formValue.addressLine2,
-        city: formValue.city,
-        state: formValue.state,
-        country: formValue.country,
-        postalCode: formValue.postalCode
-      };
+      payload.defaultAddress = addressPayload;
     }
 
     if (this.isChangePasswordMode && formValue.oldPassword) {
@@ -177,11 +210,11 @@ export class ProfileEditComponent {
       next: () => {
         this.notification.showSuccess('Profile updated successfully', 'Close');
         this.profileUpdated.emit();
-      }, 
+      },
       error: (error) => {
         const errorMessage = error?.error?.message || 'Failed to update profile. Please try again.';
         this.notification.showError(errorMessage, 'Close');
-      }
+      },
     });
   }
 }

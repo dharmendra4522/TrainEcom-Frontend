@@ -4,7 +4,8 @@ import { Store } from '@ngrx/store';
 import { take } from 'rxjs/internal/operators/take';
 import { selectUserRole } from '../store/auth/auth.selectors';
 import { map } from 'rxjs/internal/operators/map';
-import { Role, normalizeRole } from '../models/auth.model';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const adminGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);

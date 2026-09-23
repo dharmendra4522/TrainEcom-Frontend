@@ -5,6 +5,7 @@ import * as AuthActions from './core/store/auth/auth.actions';
 import { jwtDecode } from 'jwt-decode';
 import { Role } from './core/models/auth.model';
 import * as UserActions from './core/store/user/user.actions';
+import { normalizeRole } from './core/utils/role.utils';
 
 interface DecodedToken {
   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: Role;
@@ -36,7 +37,8 @@ export class AppComponent implements OnInit {
         const decoded = jwtDecode<DecodedToken>(token);
 
         const roleKey = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-        const role: Role | null = decoded[roleKey] || decoded.role || decoded.Role || null;
+        const rawRole = decoded[roleKey] || decoded.role || decoded.Role || null;
+        const role = normalizeRole(rawRole as string | number | null | undefined);
         this.store.dispatch(AuthActions.loginSuccess({
           payload: { token, role,
             registrationId: localStorage.getItem('registrationId'),

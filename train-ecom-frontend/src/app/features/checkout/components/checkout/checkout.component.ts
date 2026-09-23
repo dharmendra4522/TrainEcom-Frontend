@@ -61,7 +61,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   PaymentMethod = PaymentMethod;
 
   ngOnInit(): void {
-    this.validateCartInventory();
     this.loadUserAddresses();
     this.parseRouteParamsAndSetContext();
     this.validateRouteParams();
@@ -169,6 +168,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private loadCartDetails(): void {
+    this.validateCartInventory();
     combineLatest([
       this.store.select(selectCartItems),
       this.store.select(selectCartTotalAmount),

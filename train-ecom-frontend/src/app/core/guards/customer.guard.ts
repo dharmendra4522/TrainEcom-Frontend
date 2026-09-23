@@ -5,7 +5,8 @@ import { take } from 'rxjs/internal/operators/take';
 import { selectIsLoggedIn, selectUserRole } from '../store/auth/auth.selectors';
 import { withLatestFrom } from 'rxjs/internal/operators/withLatestFrom';
 import { map } from 'rxjs/internal/operators/map';
-import { Role, normalizeRole } from '../models/auth.model';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const customerGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);

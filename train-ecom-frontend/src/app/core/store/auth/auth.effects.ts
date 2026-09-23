@@ -8,13 +8,14 @@ import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { LoginResponse, Role, normalizeRole } from '../../models/auth.model';
+import { LoginResponse, Role } from '../../models/auth.model';
 import { UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 
 import { extractBackendMessage } from '../../utils/error.utils';
 import { ApprovalStatus, normalizeApprovalStatus } from '../../models/user.model';
+import { normalizeRole } from '../../utils/role.utils';
 
 @Injectable()
 export class AuthEffects {

@@ -27,7 +27,8 @@ import * as ProductActions from '../../../core/store/product/product.action';
 import { Subject, combineLatest } from 'rxjs';
 import { ConfirmDialogServiceService } from '../../../core/services/confirm-dialog.service';
 import { NotificationStreamService } from '../../../core/services/notification-stream.service';
-import { Role, normalizeRole } from '../../../core/models/auth.model';
+import { Role } from '../../../core/models/auth.model';
+import { normalizeRole } from '../../../core/utils/role.utils';
 
 export interface SidePanelItem {
   id: string | number;
