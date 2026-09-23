@@ -1,3 +1,4 @@
+import { VendorDetails } from './vendor.model';
 import type { Role } from './auth.model';
 
 export enum UserStatusFilter {
@@ -62,12 +63,27 @@ export interface ProfileVendorDetails {
   businessName?: string | null;
   storeName?: string | null;
   businessDescription?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
   city?: string | null;
   state?: string | null;
   country?: string | null;
   postalCode?: string | number | null;
   gstin?: string | null;
   pan?: string | null;
+  accountHolderName?: string | null;
+  bankAccountNumber?: string | null;
+  ifscCode?: string | null;
+  categories?: string[] | null;
+  documentUrls?: string[] | null;
+  defaultAddress?: {
+    addressLine1: string;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+    postalCode?: string | number | null;
+  }
 }
 
 export interface UserProfile {
@@ -127,6 +143,32 @@ export interface UpdateProfilePayload {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
+  VendorDetails? :{
+    businessName: string | null;
+    storeName: string | null;
+    businessDescription: string | null;
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    country: string | null;
+    postalCode: string | null;
+    gstin: string | null;
+    pan: string | null;
+    accountHolderName: string | null;
+    bankAccountNumber: string | null;
+    ifscCode: string | null;
+    categories?: string[] | null;      
+    documentUrls?: string[] | null
+  };
+  defaultAddress?: {
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    country?: string | null;
+    postalCode?: string | number | null;
+  };
 }
 
 export interface AdminUser extends Record<string, unknown> {

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { interval, map, Observable, Subscription, takeWhile } from 'rxjs';
+import { approvalStatusToLabel } from '../../../core/models/user.model';
 
 import {
   selectAuthStatus,
@@ -30,6 +31,10 @@ export class StatusCardComponent {
       regId = regId.substring(0, 8).toUpperCase();
     }
     return regId;
+  }
+
+  getStatusLabel(status: string | number | null | undefined): string {
+    return approvalStatusToLabel(status);
   }
 
   get localRegistrationId(): string | null {

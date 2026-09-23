@@ -17,7 +17,7 @@ export const MANAGEMENT_API_PATHS: Record<
     },
   },
   vendor: {
-    products: '/vendor/products',
+    products: '/products',
     orders: {
       list: '/vendor/orders/all',
       detail: '/vendor/orders/getById',

@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
 import { AllUsersComponent } from './components/all-users/all-users.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
+import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -20,7 +21,8 @@ import { UserDetailsComponent } from './components/user-details/user-details.com
     UserManagementComponent,
     VendorManagementComponent,
     AllUsersComponent,
-    UserDetailsComponent
+    UserDetailsComponent,
+    ProfileEditComponent
   ],
   imports: [
     CommonModule,

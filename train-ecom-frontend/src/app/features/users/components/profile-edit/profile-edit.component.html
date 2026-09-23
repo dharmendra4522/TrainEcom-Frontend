@@ -1,0 +1,225 @@
+<div class="content-card p-4">
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="edit-mode">
+    <!-- Basic User Fields -->
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Enter name" />
+      <mat-error *ngIf="profileForm.get('name')?.hasError('required')">Name is required.</mat-error>
+      <mat-error *ngIf="profileForm.get('name')?.hasError('pattern')">Only alphabets and spaces are allowed.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Email (Cannot be changed)</mat-label>
+      <input matInput formControlName="email" readonly />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Phone Number</mat-label>
+      <span matPrefix class="me-2 ms-2 ">+91 &nbsp;</span>
+      <input
+        matInput
+        formControlName="phoneNumber"
+        maxlength="10"
+        placeholder="Enter 10-digit number"
+      />
+      <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('required')">Phone number is required.</mat-error>
+      <mat-error *ngIf="profileForm.get('phoneNumber')?.hasError('pattern')">Must be exactly 10 digits.</mat-error>
+    </mat-form-field>
+
+    <!-- Vendor Specific Editable Fields -->
+    <ng-container *appRole="roleEnum.Vendor">
+      <hr class="my-4" />
+      <h4 class="mb-3 business-title">Business & Bank Details</h4>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Business Name</mat-label>
+        <input matInput formControlName="businessName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Store Name / Display Name</mat-label>
+        <input matInput formControlName="storeName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Business Description</mat-label>
+        <textarea
+          matInput
+          formControlName="businessDescription"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>GSTIN</mat-label>
+        <input matInput formControlName="gstin" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>PAN Number</mat-label>
+        <input matInput formControlName="pan" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Address Line 1</mat-label>
+        <input matInput formControlName="addressLine1" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Address Line 2</mat-label>
+        <input matInput formControlName="addressLine2" />
+      </mat-form-field>
+
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" />
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" />
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Postal Code</mat-label>
+            <input matInput formControlName="postalCode" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <h4 class="mb-3 business-title mt-4">Bank Details</h4>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Account Holder Name</mat-label>
+        <input matInput formControlName="accountHolderName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Bank Account Number</mat-label>
+        <input matInput formControlName="bankAccountNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>IFSC Code</mat-label>
+        <input matInput formControlName="ifscCode" />
+      </mat-form-field>
+    </ng-container>
+
+    <!-- Customer Address Editable Fields -->
+    <ng-container *appRole="roleEnum.Customer">
+      <hr class="my-4" />
+      <h4 class="mb-3 business-title">Default Address</h4>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Address Line 1</mat-label>
+        <input matInput formControlName="addressLine1" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Address Line 2</mat-label>
+        <input matInput formControlName="addressLine2" />
+      </mat-form-field>
+
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" />
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" />
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Postal Code</mat-label>
+            <input matInput formControlName="postalCode" />
+          </mat-form-field>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Password Toggle Section -->
+    <div class="password-toggle my-3">
+      <button
+        mat-button
+        color="accent"
+        type="button"
+        (click)="togglePasswordFields()"
+      >
+        {{
+          isChangePasswordMode
+            ? "- Cancel Password Change"
+            : "+ Change Password?"
+        }}
+      </button>
+    </div>
+
+    <div
+      *ngIf="isChangePasswordMode"
+      class="password-section p-3 border rounded mb-3 bg-light"
+    >
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>Old Password</mat-label>
+        <input matInput type="password" formControlName="oldPassword" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100 mb-3">
+        <mat-label>New Password</mat-label>
+        <input matInput type="password" formControlName="newPassword" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Confirm Password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" />
+        <mat-error
+          *ngIf="
+            profileForm.get('confirmPassword')?.hasError('passwordMismatch')
+          "
+        >
+          Passwords do not match.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions d-flex justify-content-end gap-2 mt-4">
+      <button mat-flat-button color="basic" type="button" (click)="onCancel()">
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="profileForm.invalid"
+      >
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>

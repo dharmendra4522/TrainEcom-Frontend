@@ -37,12 +37,15 @@ export class AppComponent implements OnInit {
 
         const roleKey = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
         const role: Role | null = decoded[roleKey] || decoded.role || decoded.Role || null;
-
         this.store.dispatch(AuthActions.loginSuccess({
-          payload: { token, role },
+          payload: { token, role,
+            registrationId: localStorage.getItem('registrationId'),
+            submittedDate: localStorage.getItem('submittedDate'),
+            approvalStatus: null,
+            status: localStorage.getItem('vendorStatus'),
+           },
           isRefresh: true
         }));
-
         this.store.dispatch(UserActions.loadProfileReq());
 
       } catch (error) {

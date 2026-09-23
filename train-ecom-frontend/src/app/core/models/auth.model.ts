@@ -87,7 +87,7 @@ export interface UserSessionPayload {
   submittedDate?: string | null;
   registrationId?: string | null;
   approvalStatus?: ApprovalStatus | number | null;
-  status?: ApprovalStatus | number | null;
+  status?: ApprovalStatus | number | string | null;
   expiresAt?: number | null;
 }
 

@@ -24,7 +24,9 @@
         }}
       </p>
 
-      <p>Current Status: {{ (status$ | async) || localStatus }}</p>
+      <p>
+        Current Status: {{ getStatusLabel((status$ | async) || localStatus) }}
+      </p>
     </div>
   </div>
 </div>

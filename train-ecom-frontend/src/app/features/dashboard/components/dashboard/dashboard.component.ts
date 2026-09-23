@@ -49,10 +49,19 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
+    // for vendor role dashborad api not call 
+    if (this.portal === 'vendor') {
+      this.isLoadingStats = false;
+      this.stats = [];          
+      this.recentOrders = [];  
+      this.dataSource = [];
+      this.isVendorStatus = true;
+      return;
+    }
     if (this.checkVendorStatus()) {
       return;
     }
@@ -64,13 +73,13 @@ export class DashboardComponent implements OnInit {
     if (this.portal !== 'vendor') {
       return false; // Only vendors have a pending status screen
     }
-    
+
     const vendorStatus = localStorage.getItem('vendorStatus');
     const status = normalizeApprovalStatus(vendorStatus);
     if (status !== ApprovalStatus.Approved) {
       this.isVendorStatus = false;
       this.isLoadingStats = false;
-      this.stats = [];
+      // this.stats = [];
       return true;
     }
     return false;
@@ -92,6 +101,10 @@ export class DashboardComponent implements OnInit {
   }
 
   private updateStatsCards(data: DashboardData): void {
+    if (this.portal === 'vendor') {
+      this.stats = [];
+      return;
+    }
     this.stats = buildDashboardStats(data);
   }
 
