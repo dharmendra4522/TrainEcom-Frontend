@@ -14,48 +14,48 @@ export enum ApprovalStatus {
 }
 
 // Normalize Approval Status
-export function normalizeApprovalStatus(
-  value: string | number | ApprovalStatus | null | undefined,
-): ApprovalStatus | null {
-  if (value === null || value === undefined || value === '') {
-    return null;
-  }
+// export function normalizeApprovalStatus(
+//   value: string | number | ApprovalStatus | null | undefined,
+// ): ApprovalStatus | null {
+//   if (value === null || value === undefined || value === '') {
+//     return null;
+//   }
 
-  if (typeof value === 'number') {
-    if (Object.values(ApprovalStatus).includes(value as ApprovalStatus)) {
-      return value as ApprovalStatus;
-    }
-    return null;
-  }
+//   if (typeof value === 'number') {
+//     if (Object.values(ApprovalStatus).includes(value as ApprovalStatus)) {
+//       return value as ApprovalStatus;
+//     }
+//     return null;
+//   }
 
-  const normalized = value.trim().toLowerCase();
-  const statusMap: Record<string, ApprovalStatus> = {
-    pending: ApprovalStatus.Pending,
-    approved: ApprovalStatus.Approved,
-    rejected: ApprovalStatus.Rejected,
-    '1': ApprovalStatus.Pending,
-    '2': ApprovalStatus.Approved,
-    '3': ApprovalStatus.Rejected,
-  };
+//   const normalized = value.trim().toLowerCase();
+//   const statusMap: Record<string, ApprovalStatus> = {
+//     pending: ApprovalStatus.Pending,
+//     approved: ApprovalStatus.Approved,
+//     rejected: ApprovalStatus.Rejected,
+//     '1': ApprovalStatus.Pending,
+//     '2': ApprovalStatus.Approved,
+//     '3': ApprovalStatus.Rejected,
+//   };
 
-  return statusMap[normalized] ?? null;
-}
+//   return statusMap[normalized] ?? null;
+// }
 
-export function approvalStatusToLabel(
-  value: string | number | ApprovalStatus | null | undefined,
-): string {
-  const normalized = normalizeApprovalStatus(value);
-  switch (normalized) {
-    case ApprovalStatus.Pending:
-      return 'Pending';
-    case ApprovalStatus.Approved:
-      return 'Approved';
-    case ApprovalStatus.Rejected:
-      return 'Rejected';
-    default:
-      return typeof value === 'string' ? value : 'Pending';
-  }
-}
+// export function approvalStatusToLabel(
+//   value: string | number | ApprovalStatus | null | undefined,
+// ): string {
+//   const normalized = normalizeApprovalStatus(value);
+//   switch (normalized) {
+//     case ApprovalStatus.Pending:
+//       return 'Pending';
+//     case ApprovalStatus.Approved:
+//       return 'Approved';
+//     case ApprovalStatus.Rejected:
+//       return 'Rejected';
+//     default:
+//       return typeof value === 'string' ? value : 'Pending';
+//   }
+// }
 
 export interface ProfileVendorDetails {
   id?: number;

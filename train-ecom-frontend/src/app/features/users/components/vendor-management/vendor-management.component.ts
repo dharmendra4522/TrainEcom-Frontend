@@ -1,8 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import {
   ApprovalStatus,
-  approvalStatusToLabel,
-  normalizeApprovalStatus,
 } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
@@ -23,6 +21,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
+import { approvalStatusToLabel, normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-vendor-management',

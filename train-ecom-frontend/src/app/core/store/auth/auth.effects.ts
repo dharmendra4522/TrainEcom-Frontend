@@ -14,8 +14,8 @@ import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 
 import { extractBackendMessage } from '../../utils/error.utils';
-import { ApprovalStatus, normalizeApprovalStatus } from '../../models/user.model';
-import { normalizeRole } from '../../utils/role.utils';
+import { ApprovalStatus } from '../../models/user.model';
+import { normalizeApprovalStatus, normalizeRole } from '../../utils/role.utils';
 
 @Injectable()
 export class AuthEffects {

@@ -1,4 +1,5 @@
 import { Role, ROLE_NAME_MAP } from '../models/auth.model';
+import { ApprovalStatus } from '../models/user.model';
 
 export function normalizeRole(
   value: string | number | Role | null | undefined,
@@ -42,4 +43,47 @@ export function getRoleName(
 ): string {
   const role = normalizeRole(value);
   return role === null ? '' : ROLE_NAME_MAP[role] || 'Unknown';
+}
+
+export function normalizeApprovalStatus(
+  value: string | number | ApprovalStatus | null | undefined,
+): ApprovalStatus | null {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    if (Object.values(ApprovalStatus).includes(value as ApprovalStatus)) {
+      return value as ApprovalStatus;
+    }
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  const statusMap: Record<string, ApprovalStatus> = {
+    pending: ApprovalStatus.Pending,
+    approved: ApprovalStatus.Approved,
+    rejected: ApprovalStatus.Rejected,
+    '1': ApprovalStatus.Pending,
+    '2': ApprovalStatus.Approved,
+    '3': ApprovalStatus.Rejected,
+  };
+
+  return statusMap[normalized] ?? null;
+}
+
+export function approvalStatusToLabel(
+  value: string | number | ApprovalStatus | null | undefined,
+): string {
+  const normalized = normalizeApprovalStatus(value);
+  switch (normalized) {
+    case ApprovalStatus.Pending:
+      return 'Pending';
+    case ApprovalStatus.Approved:
+      return 'Approved';
+    case ApprovalStatus.Rejected:
+      return 'Rejected';
+    default:
+      return typeof value === 'string' ? value : 'Pending';
+  }
 }

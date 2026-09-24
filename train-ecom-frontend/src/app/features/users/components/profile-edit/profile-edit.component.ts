@@ -196,7 +196,7 @@ export class ProfileEditComponent {
         documentUrls: this.userProfile.vendorDetails.documentUrls,
         categories: this.userProfile.vendorDetails.categories,
       };
-    }// Condition ko flexible banayein taaki vendorDetails hamesha attach ho
+    }
     if (this.userRole === Role.Vendor || this.userProfile?.vendorDetails || formValue.storeName) {
       payload.bussinessDetails = {
         ...addressPayload,

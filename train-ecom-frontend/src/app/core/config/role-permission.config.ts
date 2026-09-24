@@ -1,5 +1,6 @@
 import { Role } from '../models/auth.model';
-import { ApprovalStatus, normalizeApprovalStatus } from '../models/user.model';
+import { ApprovalStatus } from '../models/user.model';
+import { normalizeApprovalStatus } from '../utils/role.utils';
 
 export interface MenuItemConfig {
   key: string;

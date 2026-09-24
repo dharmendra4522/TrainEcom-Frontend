@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import {
   ApprovalStatus,
-  normalizeApprovalStatus,
   UserProfile,
 } from '../../../../core/models/user.model';
 import { Store } from '@ngrx/store';
@@ -14,6 +13,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, take } from 'rxjs/operators';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { Role } from '../../../../core/models/auth.model';
+import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-profile',
@@ -43,7 +43,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
     this.subscribeToStoreData();
   }
-  
+
   public isVendorPending(): boolean {
     const vendorStatus = localStorage.getItem('vendorStatus');
     const status = normalizeApprovalStatus(vendorStatus);

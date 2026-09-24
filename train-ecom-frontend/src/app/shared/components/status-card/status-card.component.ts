@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { interval, map, Observable, Subscription, takeWhile } from 'rxjs';
-import { approvalStatusToLabel } from '../../../core/models/user.model';
 
 import {
   selectAuthStatus,
@@ -9,6 +8,7 @@ import {
   selectSubmittedDate,
 } from '../../../core/store/auth/auth.selectors';
 import { Router } from '@angular/router';
+import { approvalStatusToLabel } from '../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-status-card',

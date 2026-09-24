@@ -6,9 +6,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { MatDialog } from '@angular/material/dialog';
 import {
   ApprovalStatus,
-  approvalStatusToLabel,
 } from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-user-details',

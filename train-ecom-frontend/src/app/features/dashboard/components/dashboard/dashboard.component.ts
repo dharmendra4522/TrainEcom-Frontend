@@ -16,7 +16,8 @@ import {
   getPaymentStatusBadgeClass,
   INITIAL_ADMIN_STATS,
 } from './dashboard.utils';
-import { ApprovalStatus, normalizeApprovalStatus } from '../../../../core/models/user.model';
+import { ApprovalStatus } from '../../../../core/models/user.model';
+import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-dashboard',
