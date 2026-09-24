@@ -49,13 +49,13 @@
 
         <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 mb-3"
           *ngIf="product.averageRating !== undefined">
-          <div class="d-flex align-items-center text-warning gap-1">
+          <div class="d-flex align-items-center text-warning gap-1" *ngIf="product.averageRating !== 0">
             <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating)">{{ star }}</mat-icon>
             <span class="text-dark fw-bold ms-1">{{ product.averageRating | number:'1.1-1' }}</span>
             <span class="text-muted fs-7">({{ product.reviewCount || 0 }} reviews)</span>
           </div>
 
-          <span class="vr d-none d-sm-inline"></span>
+          <span class="vr d-none d-sm-inline" *ngIf="product.averageRating !== 0"></span>
 
           <div>
             <span *ngIf="product.stockQuantity && product.stockQuantity > 0"
@@ -84,11 +84,17 @@
           </span>
         </div>
 
-        <div class="description-section mb-4">
+        <div class="description-section mb-2">
           <h6 class="fw-bold text-dark mb-2">Description</h6>
           <p class="text-secondary leading-relaxed mb-0">
             {{ product.description }}
           </p>
+        </div>
+         <div class="description-section mb-4">
+          <h6 class="fw-semibold text-dark mb-2">Store Name</h6>
+          <span class="text-secondary leading-relaxed mb-0">
+            {{ product.storeName }}
+          </span>
         </div>
 
         <mat-divider class="my-4"></mat-divider>

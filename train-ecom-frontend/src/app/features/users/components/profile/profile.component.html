@@ -2,212 +2,99 @@
   [items]="profileBreadcrumbs"
   *appRole="roleEnum.Customer"
 ></app-breadcrumb>
-<ng-container
-  *ngIf="{ loading: isLoading$ | async, error: error$ | async } as state"
->
-  <div class="profile-content">
-    <div *ngIf="state.loading" class="loading">Loading profile...</div>
 
-    <div
-      *ngIf="!state.loading && !state.error && userProfile"
-      class="content-card"
-    >
-      <div class="header-action" *ngIf="!isVendorPending()">
-        <h2>{{ isEditMode ? "Edit Profile" : "My Profile" }}</h2>
-        <button class="edit-btn" (click)="toggleEditMode()">
-          {{ isEditMode ? "Cancel" : "Edit Profile" }}
-        </button>
-      </div>
+<ng-container *appRole="roleEnum.Customer && roleEnum.Admin">
+  <ng-container
+    *ngIf="{ loading: isLoading$ | async, error: error$ | async } as state"
+  >
+    <div class="profile-content">
 
-      <div *ngIf="!isEditMode" class="view-mode">
-        <div class="detail-row">
-          <span class="label">Name:</span>
-          <span class="value text-break">{{ userProfile.name }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Email:</span>
-          <span class="value text-break">{{ userProfile.email }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="label">Phone:</span>
-          <span class="value text-break"
-            >{{
-              userProfile.phoneNumber &&
-              !userProfile.phoneNumber.startsWith("+91")
-                ? "+91 "
-                : ""
-            }}{{ userProfile.phoneNumber }}</span
-          >
+      <div *ngIf="state.loading" class="loading">
+        <mat-spinner diameter="30"></mat-spinner>
+        Loading profile...</div>
+
+      <div
+        *ngIf="!state.loading && !state.error && userProfile"
+        class="content-card"
+      >
+        <div class="header-action" *ngIf="!isVendorPending()">
+          <h2>{{ isEditMode ? "Edit Profile" : "My Profile" }}</h2>
+          <button class="edit-btn" (click)="toggleEditMode()">
+            {{ isEditMode ? "Cancel" : "Edit Profile" }}
+          </button>
         </div>
 
-        <!-- Business Information -->
-        <ng-container *appRole="roleEnum.Vendor">
-          <ng-container *ngIf="userProfile.vendorDetails">
-            <hr class="my-3" />
-            <h4 class="mb-3 business-title">Business Information</h4>
+        <div *ngIf="!isEditMode" class="view-mode">
+          <div class="detail-row">
+            <span class="label">Name:</span>
+            <span class="value text-break">{{ userProfile.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email:</span>
+            <span class="value text-break">{{ userProfile.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Phone:</span>
+            <span class="value text-break"
+              >{{
+                userProfile.phoneNumber &&
+                !userProfile.phoneNumber.startsWith("+91")
+                  ? "+91 "
+                  : ""
+              }}{{ userProfile.phoneNumber }}</span
+            >
+          </div>
 
-            <div class="detail-row">
-              <span class="label">Business Name:</span>
-              <span class="value text-break">{{
-                userProfile.vendorDetails.bussinessName || "-"
-              }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Display Name:</span>
-              <span class="value text-break">{{
-                userProfile.vendorDetails.storeName || "-"
-              }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Business Description:</span>
-              <span class="value text-break">{{
-                userProfile.vendorDetails.bussinessDescription || "-"
-              }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">GSTIN:</span>
-              <span class="value text-break">{{
-                userProfile.vendorDetails.gstin || "-"
-              }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">PAN Number:</span>
-              <span class="value text-break">{{
-                userProfile.vendorDetails.pan || "-"
-              }}</span>
-            </div>
-
-            <div class="detail-row">
-              <span class="label">Location:</span>
-              <span class="value text-break">
-                {{ userProfile.vendorDetails.city || "-" }}
-                {{
-                  userProfile.vendorDetails.state
-                    ? ", " + userProfile.vendorDetails.state
-                    : ""
-                }}
-                {{
-                  userProfile.vendorDetails.country
-                    ? ", " + userProfile.vendorDetails.country
-                    : ""
-                }}
-                {{
-                  userProfile.vendorDetails.postalCode
-                    ? " - " + userProfile.vendorDetails.postalCode
-                    : ""
-                }}
-              </span>
-            </div>
-
-            <!-- bank details -->
-            <div class="my-3">
-              <h4 class="mb-3 business-title">Bank Details</h4>
+          <!-- Customer Address Section -->
+          <ng-container *appRole="roleEnum.Customer">
+            <div class="address-section" *ngIf="userProfile.defaultAddress">
               <div class="detail-row">
-                <span class="label">Account Holder Name:</span>
-                <span class="value text-break">{{
-                  userProfile.vendorDetails.accountHolderName || "-"
-                }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="label">Account Number:</span>
-                <span class="value text-break">{{
-                  userProfile.vendorDetails.bankAccountNumber || "-"
-                }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="label">IFSC Code:</span>
-                <span class="value text-break">{{
-                  userProfile.vendorDetails.ifscCode || "-"
-                }}</span>
-              </div>
-            </div>
-
-            <!-- Document & category -->
-            <div class="my-3">
-              <h4 class="mb-3 business-title">Categories</h4>
-              <div class="detail-row">
-                <span class="label">Categories:</span>
-                <span class="value text-break">{{
-                  getFormattedCategories(userProfile.vendorDetails.categories)
-                }}</span>
-              </div>
-              <h4 class="mb-3 business-title">Documents</h4>
-              <div class="detail-row">
-                <span class="label">Documents:</span>
+                <span class="label">Address:</span>
                 <span class="value text-break">
-                  <ng-container
-                    *ngIf="
-                      userProfile.vendorDetails.documentUrls?.length;
-                      else noDocs
-                    "
-                  >
-                    <ul>
-                      <li
-                        *ngFor="
-                          let docUrl of userProfile.vendorDetails.documentUrls
-                        "
-                      >
-                        <a
-                          [href]="docUrl"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          >{{ docUrl }}</a
-                        >
-                      </li>
-                    </ul>
-                  </ng-container>
-                  <ng-template #noDocs>No documents uploaded.</ng-template>
+                  {{ userProfile.defaultAddress.addressLine1 }},
+                  {{
+                    userProfile.defaultAddress.addressLine2
+                      ? userProfile.defaultAddress.addressLine2 + ", "
+                      : ""
+                  }}
+                  {{ userProfile.defaultAddress.city }},
+                  {{ userProfile.defaultAddress.state }} -
+                  {{ userProfile.defaultAddress.postalCode }}
                 </span>
               </div>
             </div>
-          </ng-container>
-        </ng-container>
 
-        <!-- Customer Address Section -->
-        <ng-container *appRole="roleEnum.Customer">
-          <div class="address-section" *ngIf="userProfile.defaultAddress">
-            <div class="detail-row">
-              <span class="label">Address:</span>
-              <span class="value text-break">
-                {{ userProfile.defaultAddress.addressLine1 }},
-                {{
-                  userProfile.defaultAddress.addressLine2
-                    ? userProfile.defaultAddress.addressLine2 + ", "
-                    : ""
-                }}
-                {{ userProfile.defaultAddress.city }},
-                {{ userProfile.defaultAddress.state }} -
-                {{ userProfile.defaultAddress.postalCode }}
-              </span>
+            <div class="address-section" *ngIf="!userProfile.defaultAddress">
+              <p>No default address set.</p>
             </div>
-          </div>
+          </ng-container>
+        </div>
 
-          <div class="address-section" *ngIf="!userProfile.defaultAddress">
-            <p>No default address set.</p>
-          </div>
-        </ng-container>
+        <app-profile-edit
+          *ngIf="isEditMode"
+          [userProfile]="userProfile"
+          (isCancleEdit)="toggleEditMode()"
+          (profileUpdated)="onProfileUpdated()"
+        ></app-profile-edit>
       </div>
 
-      <app-profile-edit
-        *ngIf="isEditMode"
-        [userProfile]="userProfile"
-        (isCancleEdit)="toggleEditMode()"
-        (profileUpdated)="onProfileUpdated()"
-      ></app-profile-edit>
+      <div *ngIf="!state.loading && state.error" class="empty-state">
+        <h3 style="color: #db4444; font-size: 20px; font-weight: 600">
+          Oops! Could not load profile.
+        </h3>
+        <p style="color: #7d8184; margin: 10px 0">{{ state.error }}</p>
+        <button
+          class="btn-save"
+          style="margin-top: 15px"
+          (click)="fetchUserProfile()"
+        >
+          Retry
+        </button>
+      </div>
     </div>
+  </ng-container>
+</ng-container>
 
-    <div *ngIf="!state.loading && state.error" class="empty-state">
-      <h3 style="color: #db4444; font-size: 20px; font-weight: 600">
-        Oops! Could not load profile.
-      </h3>
-      <p style="color: #7d8184; margin: 10px 0">{{ state.error }}</p>
-      <button
-        class="btn-save"
-        style="margin-top: 15px"
-        (click)="fetchUserProfile()"
-      >
-        Retry
-      </button>
-    </div>
-  </div>
+<ng-container *appRole="roleEnum.Vendor">
+  <app-vendor-profile></app-vendor-profile>
 </ng-container>

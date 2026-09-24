@@ -1,0 +1,179 @@
+<div class="container py-4 min-vh-100" *ngIf="userProfileData; else loadingTemplate">
+  <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+    <!-- Header section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap border-bottom pb-3 gap-2">
+      <h2 class="fw-bold text-dark m-0">Vendor Profile Details</h2>
+
+      <button mat-flat-button color="primary" (click)="toggleEditMode()">
+        <mat-icon>{{ isEditMode ? "visibility" : "edit" }}</mat-icon>
+        {{ isEditMode ? "View Mode" : "Edit Mode" }}
+      </button>
+    </div>
+
+    <!-- Tabs Mapping -->
+    <mat-tab-group animationDuration="300ms">
+      
+      <!-- General Information Tab -->
+      <mat-tab label="General Information">
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Full Name</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ userProfileData.name || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Email Address</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ userProfileData.email || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Phone Number</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ userProfileData.phoneNumber || "N/A" }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Business Tab -->
+      <mat-tab label="Business">
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Business Name</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.bussinessName || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Display Name</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.storeName || "N/A" }}</div>
+            </div>
+            <div class="col-12 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Business Description</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.bussinessDescription || "N/A" }}</div>
+            </div>
+            <div class="col-12 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Categories</span>
+              <div class="p-3 bg-light rounded border">
+                <div *ngIf="vendorData?.categories?.length; else noCategories" class="d-flex gap-2 flex-wrap">
+                  <span *ngFor="let cat of vendorData?.categories" class="badge bg-light text-dark border px-3 py-2 fs-6 fw-normal">
+                    {{ cat }}
+                  </span>
+                </div>
+                <ng-template #noCategories><span class="text-muted">Not provided</span></ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Address Tab -->
+      <mat-tab label="Address">
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Address Line 1</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.addressLine1 || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Address Line 2</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.addressLine2 || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">City</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.city || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">State</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.state || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Country</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.country || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Postal Code</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.postalCode || "N/A" }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Account & Tax Tab -->
+      <mat-tab label="Account & Tax">
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">GSTIN</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.gstin || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">PAN Number</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.pan || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Account Holder Name</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.accountHolderName || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Bank Account Number</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.bankAccountNumber || "N/A" }}</div>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">IFSC Code</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">{{ vendorData?.ifscCode || "N/A" }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Documents Tab -->
+      <mat-tab label="Documents">
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            
+            <!-- Business Registration Document -->
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Business Registration Document</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                <a *ngIf="vendorData?.documentUrls?.[0]; else noDoc1" [href]="vendorData?.documentUrls?.[0]" target="_blank" rel="noopener noreferrer" class="text-decoration-underline text-primary">
+                  View Document
+                </a>
+                <ng-template #noDoc1><span class="text-muted">Not provided</span></ng-template>
+              </div>
+            </div>
+
+            <!-- GST Document -->
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">GST Document</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                <a *ngIf="vendorData?.documentUrls?.[1]; else noDoc2" [href]="vendorData?.documentUrls?.[1]" target="_blank" rel="noopener noreferrer" class="text-decoration-underline text-primary">
+                  View Document
+                </a>
+                <ng-template #noDoc2><span class="text-muted">Not provided</span></ng-template>
+              </div>
+            </div>
+
+            <!-- Business Logo / Additional Document -->
+            <div class="col-md-6 d-flex flex-column">
+              <span class="text-secondary small fw-semibold mb-1">Business Logo / Other Document</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                <a *ngIf="vendorData?.documentUrls?.[2]; else noDoc3" [href]="vendorData?.documentUrls?.[2]" target="_blank" rel="noopener noreferrer" class="text-decoration-underline text-primary">
+                  View Document
+                </a>
+                <ng-template #noDoc3><span class="text-muted">Not provided</span></ng-template>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="container text-center py-5">
+    <mat-spinner diameter="40" class="mx-auto"></mat-spinner>
+    <p class="text-secondary mt-2">Loading vendor profile details...</p>
+  </div>
+</ng-template>

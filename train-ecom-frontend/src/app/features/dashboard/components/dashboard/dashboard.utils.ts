@@ -9,7 +9,7 @@ export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
   {
     title: 'Total Revenue',
     value: '₹...',
-    icon: 'attach_money',
+    icon: 'currency_rupee',
     color: '#4caf50',
   },
   { title: 'Orders', value: '...', icon: 'shopping_cart', color: '#2196f3' },
@@ -29,7 +29,7 @@ export function buildDashboardStats(data: DashboardData): DashboardStatItem[] {
     {
       title: 'Total Revenue',
       value: `₹${data.totalRevenue}`,
-      icon: 'attach_money',
+      icon: 'currency_rupee',
       color: '#4caf50',
     },
     {

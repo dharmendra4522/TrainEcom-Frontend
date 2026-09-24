@@ -13,6 +13,7 @@ import { VendorManagementComponent } from './components/vendor-management/vendor
 import { AllUsersComponent } from './components/all-users/all-users.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
+import { VendorProfileComponent } from './components/vendor-profile/vendor-profile.component';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -22,7 +23,8 @@ import { ProfileEditComponent } from './components/profile-edit/profile-edit.com
     VendorManagementComponent,
     AllUsersComponent,
     UserDetailsComponent,
-    ProfileEditComponent
+    ProfileEditComponent,
+    VendorProfileComponent
   ],
   imports: [
     CommonModule,
