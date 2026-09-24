@@ -12,9 +12,12 @@ export class PersonalDetailsComponent {
   @Input() isStep1Valid: boolean = false;
   @Input() isPasswordView: boolean = false;
   @Input() isConfirmPassView: boolean = false;
+  @Input() isEditMode: boolean = false;
+  @Input() isPasswordChangeMode: boolean = false;
 
   @Output() togglePassword = new EventEmitter<void>();
   @Output() toggleConfirmPassword = new EventEmitter<void>();
+  @Output() togglePasswordChange = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
 
   onTogglePassword(): void {
@@ -23,6 +26,10 @@ export class PersonalDetailsComponent {
 
   onToggleConfirmPassword(): void {
     this.toggleConfirmPassword.emit();
+  }
+
+  onTogglePasswordChange(): void {
+    this.togglePasswordChange.emit();
   }
 
   onNext(): void {

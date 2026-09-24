@@ -14,6 +14,7 @@ import { AllUsersComponent } from './components/all-users/all-users.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 import { VendorProfileComponent } from './components/vendor-profile/vendor-profile.component';
+import { AuthModule } from '../auth/auth.module';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -31,7 +32,8 @@ import { VendorProfileComponent } from './components/vendor-profile/vendor-profi
     UsersRoutingModule,
     SharedModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    AuthModule,
   ],
 })
 export class UsersModule {}

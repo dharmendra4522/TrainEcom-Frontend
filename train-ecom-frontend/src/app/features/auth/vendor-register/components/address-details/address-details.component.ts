@@ -15,6 +15,7 @@ export class AddressDetailsComponent {
   @Input() states: IState[] = [];
   @Input() cities: ICity[] = [];
   @Input() isStep3Valid: boolean = false;
+  @Input() isEditMode: boolean = false;
 
   @Output() countryChange = new EventEmitter<MatSelectChange>();
   @Output() stateChange = new EventEmitter<MatSelectChange>();

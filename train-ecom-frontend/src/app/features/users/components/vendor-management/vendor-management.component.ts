@@ -88,7 +88,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       actionKey: 'toggleBlock',
       icon: 'block',
       color: 'warn',
-      tooltip: 'Toggle Block',
+      tooltip: 'Block/Unblock ',
     },
     {
       actionKey: 'delete',

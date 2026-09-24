@@ -27,6 +27,13 @@ import { DocumentsDetailsComponent } from './vendor-register/components/document
     TaxBankDetailsComponent,
     DocumentsDetailsComponent,
   ],
+  exports: [
+    PersonalDetailsComponent,
+    BusinessDetailsComponent,
+    AddressDetailsComponent,
+    TaxBankDetailsComponent,
+    DocumentsDetailsComponent,
+  ],
   imports: [
     CommonModule,
     MaterialModule,

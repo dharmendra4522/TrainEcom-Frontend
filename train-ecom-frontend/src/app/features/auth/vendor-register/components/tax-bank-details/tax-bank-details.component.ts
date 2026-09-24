@@ -10,6 +10,7 @@ import { getFieldError, trimControlValue } from '../../../register.utils';
 export class TaxBankDetailsComponent {
   @Input() registerForm!: FormGroup;
   @Input() isStep4Valid: boolean = false;
+  @Input() isEditMode: boolean = false;
 
   @Output() prev = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();

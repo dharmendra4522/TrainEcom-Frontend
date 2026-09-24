@@ -17,7 +17,8 @@
           type="text"
           formControlName="businessName"
           placeholder="Business Name"
-          (blur)="onBlurTrim('businessName')" 
+          [disabled]="isEditMode"
+          (blur)="onBlurTrim('businessName')"
         />
         <mat-error>
           {{ getErrorMessage("businessName", "Business Name") }}
@@ -47,6 +48,20 @@
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Select Business Category</mat-label>
     <mat-icon matPrefix class="me-2 text-secondary">category</mat-icon>
+    <!-- <app-searchable-dropdown
+      label="Select Business Category"
+      placeholder="Select Business category"
+      type="Category"
+      [items]="(categories$ | async) || []"
+      diasplayKey="name"
+      [valueKey]="'id'"
+      [control]="getCategoryControl()"
+      formControlName="businessCategory"
+      [multiple]="true"
+      [disabled]="isEditMode"
+      [showManage]="false"
+      errorMsg="Business Category is rerquired"
+    ></app-searchable-dropdown> -->
     <mat-select formControlName="businessCategory" multiple>
       <mat-option
         *ngFor="let category of categories$ | async"

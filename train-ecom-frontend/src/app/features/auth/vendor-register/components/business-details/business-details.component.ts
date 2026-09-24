@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Category } from '../../../../../core/models/category.model';
 import { getFieldError, trimControlValue } from '../../../register.utils';
@@ -13,6 +13,7 @@ export class BusinessDetailsComponent {
   @Input() registerForm!: FormGroup;
   @Input() categories$!: Observable<Category[]>;
   @Input() isStep2Valid: boolean = false;
+  @Input() isEditMode: boolean = false;
 
   @Output() prev = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();

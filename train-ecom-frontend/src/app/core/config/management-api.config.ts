@@ -19,9 +19,9 @@ export const MANAGEMENT_API_PATHS: Record<
   vendor: {
     products: '/products',
     orders: {
-      list: '/vendor/orders/all',
-      detail: '/vendor/orders/getById',
-      updateStatus: '/vendor/orders',
+      list: '/admin/orders/all',
+      detail: '/admin/orders/getById',
+      updateStatus: '/admin/orders',
     },
   },
 };

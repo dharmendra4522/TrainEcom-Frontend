@@ -18,6 +18,7 @@
           type="text"
           formControlName="gstin"
           placeholder="22AAAAA0000A1Z5"
+          [disabled]="isEditMode"
           (blur)="onBlurTrim('gstin')"
         />
         <mat-error>
@@ -34,6 +35,7 @@
           type="text"
           formControlName="panNumber"
           placeholder="ABCDE1234F"
+          [disabled]="isEditMode"
           (blur)="onBlurTrim('panNumber')" 
         />
         <mat-error>
@@ -59,6 +61,7 @@
           maxlength="18"
           formControlName="bankAccountNumber"
           placeholder="Ex. 123456789012"
+          [disabled]="isEditMode"
         />
         <mat-error>
           {{ getErrorMessage("bankAccountNumber", "Account Number") }}
@@ -74,6 +77,7 @@
           type="text"
           formControlName="acountHolderName"
           placeholder="John Doe"
+          [disabled]="isEditMode"
           (blur)="onBlurTrim('acountHolderName')"
         />
         <mat-error>
@@ -95,6 +99,7 @@
           type="text"
           formControlName="ifscCode"
           placeholder="Ex. SBIN0001234"
+          [disabled]="isEditMode"
           
         />
         <mat-error>

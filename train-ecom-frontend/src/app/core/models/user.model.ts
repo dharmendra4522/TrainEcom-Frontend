@@ -32,6 +32,8 @@ export interface ProfileVendorDetails {
   ifscCode?: string | null;
   categories?: string[] | null;
   documentUrls?: string[] | null;
+  approvalStatus?: ApprovalStatus | number | string | null;
+  status?: ApprovalStatus | number | string | null;
   defaultAddress?: {
     addressLine1: string;
     addressLine2?: string | null;
@@ -53,6 +55,8 @@ export interface UserProfile {
   submittedDate?: string | null;
   registrationId?: string | null;
   isApproved?: ApprovalStatus | number | null;
+  approvalStatus?: ApprovalStatus | number | string | null;
+  status?: ApprovalStatus | number | string | null;
 }
 
 export interface VendorBusinessDetail {

@@ -51,6 +51,7 @@
           type="email"
           formControlName="email"
           placeholder="Ex. user@example.com"
+          [disabled]="isEditMode"
           (blur)="onBlurTrim('email')"
         />
         <mat-error>
@@ -80,7 +81,7 @@
     </div>
   </div>
 
-  <div class="row gx-4 gy-3 justify-content-between">
+  <div class="row gx-4 gy-3 justify-content-between" *ngIf="!isEditMode">
     <div
       class="col-md-6 d-flex justify-content-md-start justify-content-center"
     >
@@ -127,6 +128,36 @@
         <mat-error>
           {{ getErrorMessage("confirmPassword", "Confirm Password") }}
         </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="password-toggle my-2" *ngIf="isEditMode">
+    <button mat-stroked-button color="primary" type="button" (click)="onTogglePasswordChange()">
+      {{ isPasswordChangeMode ? 'Cancel Password Change' : 'Change Password?' }}
+    </button>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between" *ngIf="isEditMode && isPasswordChangeMode">
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Old Password</mat-label>
+        <input matInput type="password" formControlName="oldPassword" />
+        <mat-error>{{ getErrorMessage("oldPassword", "Old Password") }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>New Password</mat-label>
+        <input matInput type="password" formControlName="newPassword" />
+        <mat-error>{{ getErrorMessage("newPassword", "New Password") }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Confirm Password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" />
+        <mat-error>{{ getErrorMessage("confirmPassword", "Confirm Password") }}</mat-error>
       </mat-form-field>
     </div>
   </div>
