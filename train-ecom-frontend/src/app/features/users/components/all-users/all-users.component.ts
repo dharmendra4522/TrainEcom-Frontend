@@ -79,7 +79,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     { key: 'email', label: 'Email', truncate: true },
     { key: 'phoneNumber', label: 'Phone' },
     { key: 'formattedAddress', label: 'Location', truncate: true },
-    { key: 'role', label: 'Role', truncate: false },
+    // { key: 'role', label: 'Role', truncate: false },
     {
       key: 'statusDisplay',
       label: 'Status',

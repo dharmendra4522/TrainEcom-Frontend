@@ -1,4 +1,4 @@
-import type { ApprovalStatus } from './user.model';
+import type { ApprovalStatus, UserStatusFilter } from './user.model';
 
 export interface VendorItem {
   vendorId?: number;
@@ -8,6 +8,7 @@ export interface VendorItem {
   email: string;
   phoneNumber: string;
   city?: string;
+  isBlocked?: boolean;
   categories?: string[];
   status?: ApprovalStatus | number;
   approvalStatus?: ApprovalStatus | number;
@@ -21,8 +22,10 @@ export interface VendorTableItem extends VendorItem {
   id: number;
   statusDisplay: string;
   vendorStatusClass: string;
+  isBlockedDisplay: string;
+  isBlockedClass: string;
   [key: string]: unknown;
-}
+} 
 
 export interface VendorListResponse {
   items: VendorItem[];
@@ -63,4 +66,13 @@ export interface VendorVerifyRequest {
 
 export interface VendorVerifyResponse {
   message: string;
+}
+
+
+export interface vendorFilterParams {
+  search?: string;
+  status?: ApprovalStatus | number | string;
+  isBlocked?: UserStatusFilter | boolean | string | 'All';
+  pageNumber?: number;
+  pageSize?: number;
 }

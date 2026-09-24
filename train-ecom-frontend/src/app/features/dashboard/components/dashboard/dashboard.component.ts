@@ -17,7 +17,7 @@ import {
   INITIAL_ADMIN_STATS,
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
-import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
+import { normalizeApprovalStatus, normalizeOrderStatus } from '../../../../core/utils/role.utils';
 import { OrderStatus } from '../../../../core/models/order.model';
 
 @Component({
@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
       }
       
       
-      this.fetchDashboardData();
+      // this.fetchDashboardData();
     } else {
       // for Admin
       this.isApproved = true;
@@ -113,7 +113,7 @@ export class DashboardComponent implements OnInit {
       customerName: order.customerName,
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
-      orderStatus: order.orderStatus,
+      orderStatus: normalizeOrderStatus(order.orderStatus), 
       orderStatusClass: getOrderStatusBadgeClass(order.orderStatus),
     };
   }

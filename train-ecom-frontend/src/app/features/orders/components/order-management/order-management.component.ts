@@ -40,10 +40,15 @@ export class OrderManagementComponent {
   toDate: Date | string | null = '';
 
   maxDate: Date = new Date();
-  
+
   // Dropdown Options
-  orderStatusOptions = Object.values(OrderStatus).filter(val => typeof val === 'number') as OrderStatus[];
-  paymentStatusOptions = Object.values(PaymentStatus);
+  orderStatusOptions = Object.values(OrderStatus).filter(
+    (val) => typeof val === 'string'
+  ) as string[];
+
+  paymentStatusOptions = Object.values(PaymentStatus).filter(
+    (val) => typeof val === 'string'
+  ) as string[];
 
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
@@ -93,6 +98,8 @@ export class OrderManagementComponent {
       next: (response) => {
         this.orders = (response.items || []).map((item) => ({
           ...item,
+          orderStatus: normalizeOrderStatus(item.orderStatus),
+          paymentStatus: normalizePaymentStatus(item.paymentStatus),
           orderStatusClass: this.getOrderStatusClass(item.orderStatus),
           paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus),
         }));
@@ -106,7 +113,7 @@ export class OrderManagementComponent {
       }
     });
   }
-  getOrderStatusClass(status: OrderStatus): string {
+  getOrderStatusClass(status: string): string {
     const statusStr = normalizeOrderStatus(status).toLowerCase();
     switch (statusStr?.toLowerCase()) {
       case 'confirmed':
@@ -125,8 +132,8 @@ export class OrderManagementComponent {
     }
   }
 
-  getPaymentStatusClass(status: PaymentStatus): string {
-    const normalizeStatus = normalizePaymentStatus(status); 
+  getPaymentStatusClass(status: string): string {
+    const normalizeStatus = normalizePaymentStatus(status);
     switch (normalizeStatus?.toLowerCase()) {
       case 'success':
       case 'paid':

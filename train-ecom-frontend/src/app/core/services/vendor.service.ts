@@ -8,13 +8,16 @@ import {
   ApprovalStatus,
   AdminUserListResponse,
   AdminUser,
+  UserStatusFilter,
 } from '../models/user.model';
 import {
   VendorDetails,
   VendorListResponse,
   VendorVerifyRequest,
   VendorVerifyResponse,
+  vendorFilterParams,
 } from '../models/vendor.model';
+import { normalizeUserStatus } from '../utils/filter.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -25,14 +28,9 @@ export class VendorService {
   private verifyAPI = `${environment.apiBaseUrl}/admin/user`;
   private detailsAPI = `${environment.apiBaseUrl}/admin/vendors`;
 
-  constructor() {}
+  constructor() { }
 
-  getVendors(filter?: {
-    search?: string;
-    status?: ApprovalStatus | number | string;
-    pageNumber?: number;
-    pageSize?: number;
-  }): Observable<VendorListResponse> {
+  getVendors(filter?: vendorFilterParams): Observable<VendorListResponse> {
     let params = new HttpParams().set('Role', String(Role.Vendor));
 
     if (filter?.search) {
@@ -46,6 +44,12 @@ export class VendorService {
     ) {
       params = params.set('ApprovalStatus', String(filter.status));
     }
+
+    const normalizedIsBlocked = normalizeUserStatus(filter?.isBlocked);
+    if (normalizedIsBlocked !== undefined && normalizedIsBlocked !== UserStatusFilter.All) {
+      params = params.set('UserStatus', String(normalizedIsBlocked));
+    }
+
     if (filter?.pageNumber !== undefined) {
       params = params.set('PageNumber', String(filter.pageNumber));
     }
@@ -55,7 +59,14 @@ export class VendorService {
 
     return this.http.get<AdminUserListResponse>(this.listAPI, { params }).pipe(
       map((response: AdminUserListResponse) => {
-        const items = Array.isArray(response?.items) ? response.items : [];
+        let items = Array.isArray(response?.items) ? response.items : [];
+
+        // Client-side safety filter
+        if (normalizedIsBlocked !== undefined && normalizedIsBlocked !== UserStatusFilter.All) {
+          const targetIsBlocked = normalizedIsBlocked === UserStatusFilter.Blocked;
+          items = items.filter(item => Boolean(item.isBlocked) === targetIsBlocked);
+        }
+
         return {
           items: items.map((item: AdminUser) => {
             let bDetailRaw =
@@ -93,6 +104,7 @@ export class VendorService {
               status:
                 (item.approvalStatus as ApprovalStatus) ??
                 ApprovalStatus.Pending,
+              isBlocked: item.isBlocked ?? false,
               categories: Array.isArray(categories)
                 ? categories
                 : typeof categories === 'string'
@@ -121,5 +133,4 @@ export class VendorService {
     const url = `${this.detailsAPI}/${userId}/details`;
     return this.http.get<VendorDetails>(url);
   }
-
 }

@@ -41,7 +41,7 @@
                 *ngFor="let status of orderStatusOptions"
                 [value]="status"
               >
-                {{ status }}
+                {{ normalizeOrderStatus(status) }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -190,7 +190,7 @@
                   class="badge px-2 py-1 rounded-pill small fw-semibold"
                   [ngClass]="getOrdertatusClass(order.orderStatus)"
                 >
-                  {{ order.orderStatus }}
+                  {{ normalizeOrderStatus(order.orderStatus) }}
                 </span>
                 <span class="text-muted small fs-7"
                   >Items: {{ order.totalItems }}</span

@@ -3,29 +3,17 @@
     <!-- Filter section -->
     <div class="row g-3 mb-4 align-items-center" [formGroup]="filterForm">
       <!-- Search Input -->
-      <div class="col-12 col-md-5">
-        <mat-form-field
-          appearance="outline"
-          class="w-100 mb-0"
-          subscriptSizing="dynamic"
-        >
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Search Vendors</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input
-            matInput
-            formControlName="search"
-            placeholder="Search by name or email..."
-          />
+          <input matInput formControlName="search" placeholder="Search by name or email..." />
         </mat-form-field>
       </div>
 
       <!-- Filter by Status -->
-      <div class="col-12 col-md-5">
-        <mat-form-field
-          appearance="outline"
-          class="w-100 mb-0"
-          subscriptSizing="dynamic"
-        >
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Filter by Status</mat-label>
           <mat-select formControlName="status">
             <mat-option *ngFor="let option of statusOptions" [value]="option.value">
@@ -34,18 +22,25 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div
-        class="col-12 col-md-2 d-flex align-items-center"
-        *ngIf="searchQuery || (selectedStatus && selectedStatus !== 'All')"
-      >
-        <button
-          mat-stroked-button
-          color="warn"
+
+      <!-- Filter by Block Status (New) -->
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+          <mat-label>Block Status</mat-label>
+          <mat-select formControlName="isBlocked">
+            <mat-option [value]="'All'">All Block Status</mat-option>
+            <mat-option [value]="false">Active</mat-option>
+            <mat-option [value]="true">Blocked</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="col-12 col-md-2 d-flex align-items-center"
+        *ngIf="searchQuery || (selectedStatus && selectedStatus !== 'All') || selectedIsBlocked !== 'All'">
+        <button mat-stroked-button color="warn"
           class="w-100 d-flex align-items-center justify-content-center gap-1 rounded-3"
-          style="height: 48px"
-          (click)="resetFilter()"
-          title="Reset Filters"
-        >
+          style="height: 48px" (click)="resetFilter()" title="Reset Filters">
           <mat-icon>clear</mat-icon> Reset
         </button>
       </div>

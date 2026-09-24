@@ -37,6 +37,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   selectedStatus: OrderStatus | '' = '';
   orderStatusOptions = Object.values(OrderStatus).filter(val => typeof val === 'number') as OrderStatus[];
+  
+  normalizeOrderStatus = normalizeOrderStatus;
 
   private searchSubject = new Subject<string>();
   private searchSub?: Subscription;
@@ -166,4 +168,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   navigateToOrderDetails(orderId: string | number): void {
     this.router.navigate(['/account/orders/customer-details', orderId]);
   }
+
+   get formattedOrderStatus(): string {
+    return normalizeOrderStatus(this.selectedStatus);
+  }
+
 }

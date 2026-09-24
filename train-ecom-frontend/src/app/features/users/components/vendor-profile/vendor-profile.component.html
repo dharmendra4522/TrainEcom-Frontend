@@ -4,7 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap border-bottom pb-3 gap-2">
       <h2 class="fw-bold text-dark m-0">Vendor Profile Details</h2>
 
-      <button mat-flat-button color="primary" (click)="toggleEditMode()">
+      <button mat-flat-button color="primary" (click)="toggleEditMode()" *ngIf="">
         <mat-icon>{{ isEditMode ? "visibility" : "edit" }}</mat-icon>
         {{ isEditMode ? "View Mode" : "Edit Mode" }}
       </button>

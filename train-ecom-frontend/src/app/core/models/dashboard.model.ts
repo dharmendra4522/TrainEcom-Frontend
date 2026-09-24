@@ -33,6 +33,6 @@ export type DashboardOrderRow = {
   customerName: string;
   orderDate: string;
   totalAmount: number;
-  orderStatus: OrderStatus;
+  orderStatus: string;
   orderStatusClass: string;
 };

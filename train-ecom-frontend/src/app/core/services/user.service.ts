@@ -101,7 +101,9 @@ export class UserService {
       .pipe(tap(() => (this.addressesCache = null)));
   }
 
-  private normalizeUserStatus(
+
+  // normalize the status, role, and approval status values to ensure they are in the correct format for API requests
+  public normalizeUserStatus(
     status: UserStatusFilter | string | number | undefined,
   ): number | undefined {
     if (status === undefined || status === null || status === '') {

@@ -18,8 +18,8 @@ export interface AdminOrderItem extends Record<string, unknown> {
   customerName: string;
   totalAmount: number;
   totalItems: number;
-  orderStatus: OrderStatus;
-  paymentStatus: PaymentStatus;
+  orderStatus: string;
+  paymentStatus: string;
   orderDate: string;
 }
 

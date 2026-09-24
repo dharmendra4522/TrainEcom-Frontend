@@ -53,6 +53,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   filterForm = new FormGroup({
     search: new FormControl(''),
     status: new FormControl<ApprovalStatus | 'All'>('All'),
+    isBlocked: new FormControl<'All' | boolean>('All'),
   });
 
   columns: TableColumn[] = [
@@ -67,6 +68,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       type: 'badge',
       badgeClassKey: 'vendorStatusClass',
     },
+    {
+      key: 'isBlockedDisplay',
+      label: 'Blocked',
+      type: 'badge',
+      badgeClassKey: 'isBlockedClass',
+    },
+
   ];
 
   actions: TableAction[] = [
@@ -75,6 +83,12 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'edit',
       color: 'primary',
       tooltip: 'Edit Vendor',
+    },
+    {
+      actionKey: 'toggleBlock',
+      icon: 'block',
+      color: 'warn',
+      tooltip: 'Toggle Block',
     },
     {
       actionKey: 'delete',
@@ -118,6 +132,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         this.selectedStatus === 'All'
           ? undefined
           : (this.selectedStatus as ApprovalStatus),
+      isBlocked: this.selectedIsBlocked === 'All' ? undefined : (this.selectedIsBlocked as boolean),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -145,6 +160,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
                 : 'N/A',
             statusDisplay: approvalStatusToLabel(status),
             vendorStatusClass: this.getStatusBadgeClass(status),
+            isBlockedDisplay: vendor.isBlocked ? 'Blocked' : 'Active',
+            isBlockedClass: vendor.isBlocked
+              ? 'bg-danger-subtle text-danger border border-danger-subtle'
+              : 'bg-success-subtle text-success border border-success-subtle',
           };
         });
         this.totalRecords = res.totalRecords;
@@ -181,7 +200,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   resetFilter(): void {
     this.filterForm.setValue(
-      { search: '', status: 'All' },
+      { search: '', status: 'All', isBlocked: 'All' },
       { emitEvent: false },
     );
     this.pageIndex = 0;
@@ -193,6 +212,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   }
   get selectedStatus(): ApprovalStatus | 'All' {
     return this.filterForm.get('status')?.value || 'All';
+  }
+  get selectedIsBlocked(): 'All' | boolean {
+    return this.filterForm.get('isBlocked')?.value ?? 'All';
   }
 
   onActionClick(event: TableActionEvent): void {
@@ -211,6 +233,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     switch (event.action) {
       case 'edit':
         this.handleEditVendor(vendorId);
+        break;
+      case 'toggleBlock':
+        this.handleToggleBlockVendor(vendor);
         break;
       case 'delete':
         this.handleDeleteVendor(vendorId, vendorName);
@@ -314,7 +339,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
           next: (response) => {
             this.notificationService.showSuccess(
               response.message ||
-                `Vendor ${isApproving ? 'approved' : 'rejected'} successfully`,
+              `Vendor ${isApproving ? 'approved' : 'rejected'} successfully`,
             );
             this.loadVendors();
           },
@@ -326,6 +351,36 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+private handleToggleBlockVendor(vendor: VendorTableItem): void {
+  const vendorId = Number(vendor.userId || vendor.vendorId || vendor.id);
+  const vendorName = vendor.name || 'Vendor';
+  const newBlockStatus = !vendor.isBlocked;
+  const actionName = newBlockStatus ? 'block' : 'unblock';
+
+  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '400px',
+    data: {
+      message: `Kya aap sach mein ${vendorName} ko ${actionName} karna chahte hain?`,
+      yesLabel: newBlockStatus ? 'Block' : 'Unblock',
+      noLabel: 'Cancel',
+    },
+  });
+
+  dialogRef.afterClosed().subscribe((confirmed) => {
+    if (confirmed) {
+      this.userService.updateUserStatus(vendorId, { isBlocked: newBlockStatus }).subscribe({
+        next: () => {
+          this.notificationService.showSuccess(`Vendor ${actionName}ed successfully.`);
+          this.loadVendors();
+        },
+        error: (err) => {
+          this.notificationService.showError(err?.error?.message || `Failed to ${actionName} vendor.`);
+        },
+      });
+    }
+  });
+}
 
   onRowClick(row: VendorTableItem | Record<string, unknown>): void {
     const vendor = row as VendorTableItem;
