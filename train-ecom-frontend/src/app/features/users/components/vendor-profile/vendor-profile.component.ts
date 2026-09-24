@@ -6,6 +6,7 @@ import { ProfileVendorDetails, UserProfile, ApprovalStatus, UpdateProfilePayload
 import { Category } from '../../../../core/models/category.model';
 import { Country, ICountry, IState, ICity, State, City } from 'country-state-city';
 import { Observable } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import * as UserActions from '../../../../core/store/user/user.actions';
@@ -82,6 +83,14 @@ export class VendorProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeEditForm();
     this.store.dispatch(CategoryActions.loadCategories());
+    this.categories$
+      .pipe(filter((categories) => categories.length > 0), take(1))
+      .subscribe((categories) => {
+        this.categoryOptions = categories;
+        if (this.userProfileData) {
+          this.patchEditForm(this.userProfileData);
+        }
+      });
     this.store.select(selectAuthStatus).subscribe((status) => {
       this.authStatus = status;
     });
@@ -134,7 +143,7 @@ export class VendorProfileComponent implements OnInit {
         confirmPassword: [''],
         businessName: [{ value: '', disabled: true }],
         displayName: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/.*\S.*/)]],
-        businessCategory: [{ value: [], disabled: true }],
+        businessCategory: [[], Validators.required],
         bussinessDescription: ['', [Validators.required, Validators.minLength(10), Validators.pattern(/.*\S.*/)]],
         gstin: [{ value: '', disabled: true }],
         panNumber: [{ value: '', disabled: true }],
@@ -158,7 +167,25 @@ export class VendorProfileComponent implements OnInit {
   private patchEditForm(profile: UserProfile): void {
     const vendor = profile.vendorDetails;
     const nameParts = profile.name.trim().split(/\s+/);
-    const address = vendor || profile.defaultAddress;
+    const vendorRecord = (vendor || {}) as ProfileVendorDetails & {
+      address?: ProfileVendorDetails['defaultAddress'];
+      businessAddress?: ProfileVendorDetails['defaultAddress'];
+    };
+    const profileRecord = profile as UserProfile & {
+      address?: ProfileVendorDetails['defaultAddress'];
+    };
+    const address =
+      vendorRecord.defaultAddress ||
+      vendorRecord.address ||
+      vendorRecord.businessAddress ||
+      profile.defaultAddress ||
+      profileRecord.address ||
+      vendor;
+    const location = this.resolveLocation(
+      address?.country,
+      address?.state,
+      address?.city,
+    );
     this.editForm.patchValue({
       firstName: nameParts.shift() || '',
       lastName: nameParts.join(' '),
@@ -166,27 +193,84 @@ export class VendorProfileComponent implements OnInit {
       phoneNumber: profile.phoneNumber,
       businessName: vendor?.bussinessName || '',
       displayName: vendor?.storeName || '',
-      businessCategory: vendor?.categories || [],
+      businessCategory: this.normalizeCategoryNames(vendor?.categories),
       bussinessDescription: vendor?.bussinessDescription || '',
       gstin: vendor?.gstin || '',
       panNumber: vendor?.pan || '',
       addressLine1: address?.addressLine1 || '',
       addressLine2: address?.addressLine2 || '',
-      city: address?.city || '',
-      state: address?.state || '',
-      country: address?.country || '',
+      city: location.city,
+      state: location.state,
+      country: location.country,
       postalCode: address?.postalCode || '',
       bankAccountNumber: vendor?.bankAccountNumber || '',
       acountHolderName: vendor?.accountHolderName || '',
       ifscCode: vendor?.ifscCode || '',
     });
-    this.updateLocationLists(address?.country, address?.state);
+    this.updateLocationLists(location.country, location.state);
+  }
+
+  private resolveLocation(
+    countryName?: string | number | null,
+    stateName?: string | number | null,
+    cityName?: string | number | null,
+  ): { country: string; state: string; city: string } {
+    const country = this.countries.find(
+      (item) => this.matchesLocation(item.name, countryName) ||
+        this.matchesLocation(item.isoCode, countryName),
+    );
+    const states = country ? State.getStatesOfCountry(country.isoCode) : [];
+    const state = states.find(
+      (item) => this.matchesLocation(item.name, stateName) ||
+        this.matchesLocation(item.isoCode, stateName),
+    );
+    const cities = country && state
+      ? City.getCitiesOfState(country.isoCode, state.isoCode)
+      : [];
+    const city = cities.find(
+      (item) => this.matchesLocation(item.name, cityName),
+    );
+
+    return {
+      country: country?.name || String(countryName || ''),
+      state: state?.name || String(stateName || ''),
+      city: city?.name || String(cityName || ''),
+    };
+  }
+
+  private matchesLocation(
+    option: string | undefined,
+    value?: string | number | null,
+  ): boolean {
+    return option?.trim().toLowerCase() === String(value || '').trim().toLowerCase();
+  }
+
+  private normalizeCategoryNames(categories?: string[] | null): string[] {
+    if (!categories?.length) {
+      return [];
+    }
+
+    return categories.map((category) => {
+      const match = this.categoryOptions.find(
+        (option) => String(option.id) === String(category),
+      );
+      return match?.name || category;
+    });
+  }
+
+  private categoryOptions: Category[] = [];
+
+  private getSelectedCategoryNames(): string[] {
+    const selectedCategories = this.editForm.get('businessCategory')?.value;
+    return Array.isArray(selectedCategories)
+      ? selectedCategories.map((category: unknown) => String(category))
+      : [];
   }
 
   private updateLocationLists(countryName?: string | null, stateName?: string | null): void {
-    const country = this.countries.find((item) => item.name === countryName);
+    const country = this.countries.find((item) => this.matchesLocation(item.name, countryName));
     this.states = country ? State.getStatesOfCountry(country.isoCode) : [];
-    const state = this.states.find((item) => item.name === stateName);
+    const state = this.states.find((item) => this.matchesLocation(item.name, stateName));
     this.cities = country && state ? City.getCitiesOfState(country.isoCode, state.isoCode) : [];
   }
 
@@ -246,7 +330,7 @@ export class VendorProfileComponent implements OnInit {
     return this.controlValid('firstName', 'lastName', 'phoneNumber') && (!this.isPasswordChangeMode || this.passwordControlsValid);
   }
 
-  get isStep2Valid(): boolean { return this.controlValid('displayName', 'bussinessDescription'); }
+  get isStep2Valid(): boolean { return this.controlValid('displayName', 'businessCategory', 'bussinessDescription'); }
   get isStep3Valid(): boolean { return this.controlValid('addressLine1', 'country', 'state', 'city', 'postalCode'); }
   get isStep4Valid(): boolean { return true; }
   get isStep5Valid(): boolean { return true; }
@@ -264,30 +348,34 @@ export class VendorProfileComponent implements OnInit {
   prevStep(): void { if (this.currentStep > 1) this.currentStep--; }
 
   saveProfile(): void {
-    if (!this.isStep1Valid || !this.isStep2Valid || !this.isStep3Valid) {
-      this.editForm.markAllAsTouched();
+    if (this.isSaving) {
       return;
     }
-    const value = this.editForm.getRawValue() as VendorProfileEditValues;
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      this.notificationService.showError('Please fix the errors in the form before saving.');
+      return;
+    }
+    const value = this.editForm.value as VendorProfileEditValues; // Only get enabled values
     const payload: UpdateProfilePayload = {
-      name: `${value.firstName.trim()} ${value.lastName.trim()}`.trim(),
+      name: `${value.firstName?.trim() || ''} ${value.lastName?.trim() || ''}`.trim(),
       phoneNumber: value.phoneNumber,
       bussinessDetails: {
-        bussinessName: value.businessName,
-        storeName: value.displayName,
-        bussinessDescription: value.bussinessDescription,
-        addressLine1: value.addressLine1,
-        addressLine2: value.addressLine2,
-        city: value.city,
-        state: value.state,
-        country: value.country,
-        postalCode: String(value.postalCode),
-        gstin: value.gstin,
-        pan: value.panNumber,
-        accountHolderName: value.acountHolderName,
-        bankAccountNumber: String(value.bankAccountNumber),
-        ifscCode: value.ifscCode,
-        categories: this.vendorData?.categories || [],
+        bussinessName: value.businessName ?? null,
+        storeName: value.displayName ?? null,
+        bussinessDescription: value.bussinessDescription ?? null,
+        addressLine1: value.addressLine1 ?? null,
+        addressLine2: value.addressLine2 ?? null,
+        city: value.city ?? null,
+        state: value.state ?? null,
+        country: value.country ?? null,
+        postalCode: value.postalCode ? String(value.postalCode) : null,
+        gstin: value.gstin ?? null,
+        pan: value.panNumber ?? null,
+        accountHolderName: value.acountHolderName ?? null,
+        bankAccountNumber: value.bankAccountNumber ? String(value.bankAccountNumber) : null,
+        ifscCode: value.ifscCode ?? null,
+        categories: this.getSelectedCategoryNames(),
         documentUrls: this.vendorData?.documentUrls || [],
       },
     };
@@ -325,7 +413,7 @@ export class VendorProfileComponent implements OnInit {
 
     this.vendorsTabs = [
       {
-        label: 'General Information',
+        label: 'General',
         fields: [
           { label: 'Full Name', value: u?.name },
           { label: 'Email Address', value: u?.email },

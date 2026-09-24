@@ -10,6 +10,7 @@ import { getFieldError, trimControlValue } from '../../../register.utils';
 export class DocumentsDetailsComponent {
   @Input() registerForm!: FormGroup;
   @Input() isLoading: boolean = false;
+  @Input() isEditMode: boolean = false;
 
   @Output() fileSelect = new EventEmitter<{
     event: Event;

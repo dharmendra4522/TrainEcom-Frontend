@@ -182,7 +182,7 @@ export class ProfileEditComponent {
       postalCode: formValue.postalCode,
     };
 
-    if (this.userRole === Role.Vendor && this.userProfile?.vendorDetails) {
+    if (this.userRole === Role.Vendor || this.userProfile?.vendorDetails) {
       payload.bussinessDetails = {
         ...addressPayload,
         bussinessName: formValue.bussinessName,
@@ -190,21 +190,6 @@ export class ProfileEditComponent {
         bussinessDescription: formValue.bussinessDescription,
         gstin: formValue.gstin,
         pan: formValue.pan,
-        bankAccountNumber: formValue.bankAccountNumber,
-        ifscCode: formValue.ifscCode,
-        accountHolderName: formValue.accountHolderName,
-        documentUrls: this.userProfile.vendorDetails.documentUrls,
-        categories: this.userProfile.vendorDetails.categories,
-      };
-    }
-    if (this.userRole === Role.Vendor || this.userProfile?.vendorDetails || formValue.storeName) {
-      payload.bussinessDetails = {
-        ...addressPayload,
-        bussinessName: formValue.businessName || this.userProfile?.vendorDetails?.bussinessName || null,
-        storeName: formValue.storeName,
-        bussinessDescription: formValue.bussinessDescription,
-        gstin: formValue.gstin || this.userProfile?.vendorDetails?.gstin || null,
-        pan: formValue.pan || this.userProfile?.vendorDetails?.pan || null,
         bankAccountNumber: formValue.bankAccountNumber,
         ifscCode: formValue.ifscCode,
         accountHolderName: formValue.accountHolderName,

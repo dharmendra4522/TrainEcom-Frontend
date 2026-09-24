@@ -9,5 +9,5 @@ h4 {
 
 .custom-field-width {
   width: 100%;
-  max-width: 640px;
+  max-width: none;
 }

@@ -11,7 +11,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Business Name</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">business</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">business</mat-icon>
         <input
           matInput
           type="text"
@@ -29,7 +29,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Display Name</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">storefront</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">storefront</mat-icon>
         <input
           matInput
           type="text"
@@ -47,7 +47,7 @@
   <!-- select category -->
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Select Business Category</mat-label>
-    <mat-icon matPrefix class="me-2 text-secondary">category</mat-icon>
+    <mat-icon matIconPrefix class="me-2 text-secondary">category</mat-icon>
     <!-- <app-searchable-dropdown
       label="Select Business Category"
       placeholder="Select Business category"
@@ -65,7 +65,7 @@
     <mat-select formControlName="businessCategory" multiple>
       <mat-option
         *ngFor="let category of categories$ | async"
-        [value]="category.id"
+        [value]="isEditMode ? category.name : category.id"
       >
         {{ category.name }}
       </mat-option>
@@ -88,7 +88,7 @@
     </mat-error>
   </mat-form-field>
 
-  <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
+  <div class="d-flex justify-content-end align-items-center gap-2 mt-3" *ngIf="!isEditMode">
     <button
       mat-stroked-button
       color="primary"

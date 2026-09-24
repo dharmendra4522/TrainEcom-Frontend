@@ -10,7 +10,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Address Line 1</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">home</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">home</mat-icon>
         <input
           matInput
           type="text"
@@ -25,7 +25,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Address Line 2 (Optional)</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">home</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">home</mat-icon>
         <input
           matInput
           type="text"
@@ -42,7 +42,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Country</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">public</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">public</mat-icon>
         <mat-select
           formControlName="country"
           (selectionChange)="onCountryChange($event)"
@@ -61,7 +61,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>State</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">map</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">map</mat-icon>
         <mat-select
           formControlName="state"
           (selectionChange)="onStateChange($event)"
@@ -83,7 +83,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>City</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">location_city</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">location_city</mat-icon>
         <mat-select formControlName="city">
           <mat-option *ngFor="let city of cities" [value]="city.name">{{
             city.name
@@ -97,7 +97,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Postal Code</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary"
+        <mat-icon matIconPrefix class="me-2 text-secondary"
           >markunread_mailbox</mat-icon
         >
         <input
@@ -116,7 +116,7 @@
   </div>
 
   <!-- Navigation -->
-  <div class="d-flex justify-content-end gap-2 align-items-center mt-3">
+  <div class="d-flex justify-content-end gap-2 align-items-center mt-3" *ngIf="!isEditMode">
     <button
       mat-stroked-button
       color="primary"

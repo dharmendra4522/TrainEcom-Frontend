@@ -12,7 +12,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>GSTIN</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">percent</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">percent</mat-icon>
         <input
           matInput
           type="text"
@@ -29,7 +29,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>PAN Number</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">badge</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">badge</mat-icon>
         <input
           matInput
           type="text"
@@ -51,7 +51,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Account Number</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary"
+        <mat-icon matIconPrefix class="me-2 text-secondary"
           >account_balance_wallet</mat-icon
         >
         <input
@@ -71,7 +71,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Account Holder Name</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">person</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">person</mat-icon>
         <input
           matInput
           type="text"
@@ -93,7 +93,7 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>IFSC Code</mat-label>
-        <mat-icon matPrefix class="me-2 text-secondary">password</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary">password</mat-icon>
         <input
           matInput
           type="text"
@@ -109,7 +109,7 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-end gap-2 align-items-center mt-3">
+  <div class="d-flex justify-content-end gap-2 align-items-center mt-3" *ngIf="!isEditMode">
     <button
       mat-stroked-button
       color="primary"
