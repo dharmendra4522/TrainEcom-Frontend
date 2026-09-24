@@ -28,6 +28,7 @@ import { ManageEntityDialogComponent } from './components/manage-entity-dialog/m
 import { ReviewRatingDialogComponent } from './components/review-rating-dialog/review-rating-dialog.component';
 import { NotificationCardComponent } from './components/notification-card/notification-card.component';
 import { StatusCardComponent } from './components/status-card/status-card.component';
+import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { StatusCardComponent } from './components/status-card/status-card.compon
     ManageEntityDialogComponent,
     ReviewRatingDialogComponent,
     NotificationCardComponent,
-    StatusCardComponent
+    StatusCardComponent,
+    VendorActionDialogComponent
   ],
   imports: [
     CommonModule,

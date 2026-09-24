@@ -152,6 +152,7 @@
                 *ngFor="let act of actions"
                 mat-icon-button
                 [color]="getActionColor(act, row)"
+                [disabled]="isActionDisabled(act, row)"
                 class="action-btn"
                 [matTooltip]="getActionLabel(act, row) | titlecase"
                 (click)="onActionClick(act.actionKey, row)"
@@ -173,6 +174,7 @@
                 <button
                   *ngFor="let act of actions"
                   mat-menu-item
+                  [disabled]="isActionDisabled(act, row)"
                   (click)="onActionClick(act.actionKey, row)"
                 >
                   <mat-icon *ngIf="act.icon">{{

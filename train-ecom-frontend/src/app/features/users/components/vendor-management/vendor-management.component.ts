@@ -22,6 +22,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { approvalStatusToLabel, normalizeApprovalStatus } from '../../../../core/utils/role.utils';
+import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
 
 @Component({
   selector: 'app-vendor-management',
@@ -101,14 +102,29 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'check_circle',
       color: 'primary',
       tooltip: 'Approve Vendor',
+      disabled: (row: unknown) => this.isVerificationDisabled(row),
     },
     {
       actionKey: 'verifyPending',
       icon: 'cancel',
       color: 'warn',
       tooltip: 'Reject Vendor',
+      disabled: (row: unknown) => this.isVerificationDisabled(row),
     },
   ];
+
+  private isVerificationDisabled(row: unknown): boolean {
+    if (!this.isVendorTableItem(row)) {
+      return false;
+    }
+
+    const status = normalizeApprovalStatus(row.approvalStatus ?? row.status);
+    return status === ApprovalStatus.Approved || status === ApprovalStatus.Rejected;
+  }
+
+  private isVendorTableItem(row: unknown): row is VendorTableItem {
+    return typeof row === 'object' && row !== null;
+  }
 
   ngOnInit() {
     this.searchStream();
@@ -260,10 +276,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
   }
 
+  // handle edit vendor
   private handleEditVendor(vendorId: number): void {
     console.log('Edit vendor', vendorId);
   }
 
+
+  // handle delete vendor 
   private handleDeleteVendor(vendorId: number, vendorName: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -277,7 +296,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.userService.deleteUser(vendorId).subscribe({
-          next: (res: any) => {
+          next: (res: { message?: string }) => {
             this.notificationService.showSuccess(
               res?.message || 'Vendor Deleted Successfully',
             );
@@ -293,7 +312,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  private handleStatusUpdate(
+
+  // handle verify status
+ private handleStatusUpdate(
     vendorId: number,
     vendorName: string,
     targetStatus: ApprovalStatus,
@@ -319,38 +340,68 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Confirmation Dialog
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        message: `Are you sure you want to ${isApproving ? 'approve' : 'reject'} ${vendorName}?`,
-        yesLabel: isApproving ? 'Approve' : 'Reject',
-        noLabel: 'Cancel',
-      },
-    });
+    if (isApproving) {
+      // 1. Agar Approve karna ho toh simple confirm dialog khulega
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '400px',
+        data: {
+          message: `Are you sure you want to approve ${vendorName}?`,
+          yesLabel: 'Approve',
+          noLabel: 'Cancel',
+        },
+      });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        const payload = {
-          status: targetStatus,
-          rejectionReason: isApproving ? '' : 'Rejected by Admin',
-        };
-        this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
-          next: (response) => {
-            this.notificationService.showSuccess(
-              response.message ||
-              `Vendor ${isApproving ? 'approved' : 'rejected'} successfully`,
-            );
-            this.loadVendors();
-          },
-          error: (err) => {
-            this.notificationService.showError('Vendor Status Update Failed');
-            console.error('Vendor Status Update Failed', err);
-          },
-        });
-      }
-    });
+      dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
+        if (confirmed) {
+          const payload = {
+            status: targetStatus,
+            rejectionReason: '',
+          };
+          this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+            next: (response: { message?: string }) => {
+              this.notificationService.showSuccess(
+                response.message || 'Vendor approved successfully',
+              );
+              this.loadVendors();
+            },
+            error: (err: { error?: { message?: string } }) => {
+              this.notificationService.showError(err?.error?.message || 'Vendor Status Update Failed');
+            },
+          });
+        }
+      });
+    } else {
+      const dialogRef = this.dialog.open(VendorActionDialogComponent, {
+        width: '450px',
+        data: {
+          vendorName: vendorName,
+          actionType: 'reject',
+        },
+      });
+
+      dialogRef.afterClosed().subscribe((result: { confirmed: boolean; message: string; } | undefined) => {
+        if (result && result.confirmed) {
+          const payload = {
+            status: targetStatus,
+            rejectionReason: result.message, 
+          };
+
+          this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+            next: (response: { message?: string }) => {
+              this.notificationService.showSuccess(
+                response.message || 'Vendor rejected successfully',
+              );
+              this.loadVendors();
+            },
+            error: (err: { error?: { message?: string } }) => {
+              this.notificationService.showError(err?.error?.message || 'Vendor Status Update Failed');
+            },
+          });
+        }
+      });
+    }
   }
+
 
 private handleToggleBlockVendor(vendor: VendorTableItem): void {
   const vendorId = Number(vendor.userId || vendor.vendorId || vendor.id);

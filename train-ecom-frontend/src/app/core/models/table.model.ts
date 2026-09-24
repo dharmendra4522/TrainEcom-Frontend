@@ -14,6 +14,7 @@ export interface TableAction<T = unknown> {
   actionKey: string;
   icon: string | ((row: T) => string);
   color: 'primary' | 'warn' | 'accent' | ((row: T) => string);
+  disabled?: boolean | ((row: T) => boolean);
   tooltip?: string;
   label?: string | ((row: T) => string);
 }

@@ -192,4 +192,13 @@ export class GenericTableComponent {
     }
     return act.tooltip || act.actionKey;
   }
+
+  isActionDisabled(
+    act: TableAction,
+    row: Record<string, unknown>,
+  ): boolean {
+    return typeof act.disabled === 'function'
+      ? act.disabled(row)
+      : act.disabled === true;
+  }
 }
