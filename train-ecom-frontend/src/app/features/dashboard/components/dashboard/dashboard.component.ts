@@ -18,6 +18,7 @@ import {
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
 import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
+import { OrderStatus } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -117,7 +118,7 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  getOrderStatusClass(orderStatus: string): string {
+getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
     return getOrderStatusBadgeClass(orderStatus);
   }
 

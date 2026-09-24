@@ -2,6 +2,8 @@ import {
   DashboardData,
   DashboardStatItem,
 } from '../../../../core/models/dashboard.model';
+import { OrderStatus } from '../../../../core/models/order.model';
+import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
 export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
   {
@@ -63,8 +65,9 @@ export function buildDashboardStats(data: DashboardData): DashboardStatItem[] {
   ];
 }
 
-export function getOrderStatusBadgeClass(orderStatus: string): string {
-  switch (orderStatus?.toLowerCase()) {
+export function getOrderStatusBadgeClass(orderStatus: OrderStatus | number | string): string {
+  const statusLabel = normalizeOrderStatus(orderStatus);
+  switch (statusLabel?.toLowerCase()) {
     case 'confirmed':
       return 'bg-primary-subtle text-primary border border-primary-subtle';
     case 'processing':

@@ -7,6 +7,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-order-history',
@@ -28,13 +29,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   // Filters State
   searchQuery = '';
-  selectedStatus = '';
+  // selectedStatus = '';
   fromDate = '';
   toDate = '';
 
   todayDate = new Date().toISOString().split('T')[0];
 
-  orderStatusOptions = Object.values(OrderStatus);
+  selectedStatus: OrderStatus | '' = '';
+  orderStatusOptions = Object.values(OrderStatus).filter(val => typeof val === 'number') as OrderStatus[];
 
   private searchSubject = new Subject<string>();
   private searchSub?: Subscription;
@@ -62,7 +64,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     const filter: OrderHistoryFilterParams = {
-      orderStatus: this.selectedStatus ? (this.selectedStatus as OrderStatus) : undefined,
+      orderStatus: this.selectedStatus !== '' ? (this.selectedStatus as OrderStatus) : undefined,
       fromDate: this.fromDate ? this.fromDate : undefined,
       toDate: this.toDate ? this.toDate : undefined,
       pageNumber: this.pageIndex + 1,
@@ -107,9 +109,11 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.loadOrderHistory();
   }
 
-  getOrdertatusClass(orderStatus: string): string {
-    switch (orderStatus?.toLowerCase()) {
+  getOrdertatusClass(orderStatus: OrderStatus | string | number): string {
+    const statusStr = String(orderStatus).toLowerCase();
+    switch (statusStr) {
       case 'confirmed':
+      case '1':
         return 'bg-primary-subtle text-primary border border-primary-subtle';
       case 'processing':
         return 'bg-warning-subtle text-warning border border-warning-subtle';

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order.model';
+import { OrderDetailsResponse, OrderStatus, PaymentMethod, PaymentStatus } from '../../../../core/models/order.model';
 import { BreadcrumbItem } from '../../../../core/models/table.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
@@ -15,6 +15,8 @@ import { Review } from '../../../../core/models/review.model';
 import { Location } from '@angular/common';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
+import { normalizeOrderStatus, normalizePaymentMethod, normalizePaymentStatus } from '../../../../core/utils/role.utils';
+
 
 @Component({
   selector: 'app-order-details',
@@ -26,7 +28,6 @@ export class OrderDetailsComponent {
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  private router = inject(Router);
   private reviewService = inject(ReviewService);
   private location = inject(Location);
   private portalRoutes = inject(PortalRouteService);
@@ -88,8 +89,9 @@ export class OrderDetailsComponent {
     });
   }
 
-  getStatusClass(orderStatus: string): string {
-    switch (orderStatus?.toLowerCase()) {
+  getStatusClass(orderStatus: OrderStatus | string | number): string {
+    const statusStr = normalizeOrderStatus(orderStatus).toLowerCase();
+    switch (statusStr?.toLowerCase()) {
       case 'confirmed':
         return 'bg-primary-subtle text-primary border border-primary-subtle';
       case 'processing':
@@ -283,5 +285,25 @@ export class OrderDetailsComponent {
         });
       }
     });
+  }
+
+  // getter to check if the order is delivered
+  get isDelivered(): boolean {
+    return this.orderDetail?.orderStatus === OrderStatus.Delivered;
+  }
+  
+  // normalize the payment method for display
+  getNormalizePaymentMathod(status: PaymentMethod): string {
+    return normalizePaymentMethod(status);
+  }
+
+  // normalize payment status for display
+  getNormalizePaymentStatus(status: PaymentStatus): string {
+    return normalizePaymentStatus(status);
+  }
+
+
+  get formattedOrderStatus(): string {
+    return this.orderDetail ? normalizeOrderStatus(this.orderDetail.orderStatus) : '';
   }
 }

@@ -8,6 +8,7 @@ import {
   OrderDetailsResponse,
   OrderHistoryFilterParams,
   OrderHistoryResponse,
+  OrderStatus,
   OrderTrackingResponse,
   UpdateOrderStatusResponse
 } from '../models/order.model';
@@ -75,7 +76,7 @@ private buildParams<T extends object>(filter?: T): HttpParams {
   updateManagedOrderStatus(
     portal: PortalKey,
     orderId: string,
-    status: string,
+   status: OrderStatus | string | number,
     remark?: string,
   ): Observable<UpdateOrderStatusResponse> {
     return this.http.patch<UpdateOrderStatusResponse>(

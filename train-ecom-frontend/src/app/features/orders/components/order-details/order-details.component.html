@@ -21,7 +21,7 @@
           <div>
             <span class="badge px-3 py-2 rounded-pill fw-bold fs-6 mb-2 d-inline-block"
               [ngClass]="getStatusClass(orderDetail.orderStatus)">
-              {{ orderDetail.orderStatus }}
+              {{ formattedOrderStatus }}
             </span>
             <div class="text-secondary small">
               Ordered on: <span class="fw-semibold text-dark">{{ orderDetail.orderDate | date:'medium':'+0530' }}</span>
@@ -111,7 +111,7 @@
             </div>
 
             <div class="d-flex align-items-center justify-content-start justify-content-sm-end gap-2 mt-1 mt-sm-0 pt-0"
-              *ngIf="!isManagementMode && orderDetail.orderStatus === 'Delivered'">
+             *ngIf="!isManagementMode && isDelivered">
 
               <!-- Rate Product Button (Borderless Text Button) -->
               <button mat-button color="primary"
@@ -169,11 +169,11 @@
         </h5>
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Method:</span>
-          <span class="fw-semibold text-dark">{{ orderDetail.payment.paymentMethod }}</span>
+          <span class="fw-semibold text-dark">{{ getNormalizePaymentMathod(orderDetail.payment.paymentMethod) }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Status:</span>
-          <span class="fw-semibold text-success">{{ orderDetail.payment.paymentStatus }}</span>
+          <span class="fw-semibold text-success">{{ getNormalizePaymentStatus(orderDetail.payment.paymentStatus) }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small" *ngIf="orderDetail.payment.paidAt">
           <span class="text-secondary">Paid At:</span>

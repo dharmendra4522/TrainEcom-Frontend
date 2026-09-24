@@ -1,12 +1,12 @@
 import { Component, Inject, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { OrderStatus } from '../../../../core/models/order.model';
+import { OrderStatus, PaymentMethod } from '../../../../core/models/order.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PortalKey } from '../../../../core/config/management-access.config';
-
+import { normalizeOrderStatus, normalizePaymentMethod } from '../../../../core/utils/role.utils';
 @Component({
   selector: 'app-admin-order-status-dialog',
   templateUrl: './admin-order-status-dialog.component.html',
@@ -21,7 +21,9 @@ export class AdminOrderStatusDialogComponent {
 
   form!: FormGroup;
   isUpdating: boolean = false;
-  statuses: OrderStatus[] = Object.values(OrderStatus);
+  statuses: OrderStatus[] = Object.values(OrderStatus).filter(
+    (val) => typeof val === 'number'
+  ) as OrderStatus[];
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: {
     orderId: string;
@@ -35,7 +37,7 @@ export class AdminOrderStatusDialogComponent {
   }
 
   // helper method to check if the selected status is different from the current status
-  isStatusDisabled(status: OrderStatus): boolean {
+  isStatusDisabled(status: OrderStatus | string | number): boolean {
     const statusHierarchy: OrderStatus[] = [
       OrderStatus.Pending,
       OrderStatus.Confirmed,
@@ -43,16 +45,17 @@ export class AdminOrderStatusDialogComponent {
       OrderStatus.Shipped,
       OrderStatus.Delivered,
       OrderStatus.Cancelled
-    ]
+    ];
+    const numericStatus = typeof status === 'string' ? OrderStatus[status as keyof typeof OrderStatus] : status;
+    
     const currentIndex = statusHierarchy.indexOf(this.data.currentStatus);
-    const selectedIndex = statusHierarchy.indexOf(status);
+    const selectedIndex = statusHierarchy.indexOf(numericStatus as OrderStatus);
 
-    // If the current status is Delivered, only allow Cancelled if it's a valid transition
-    if (this.data.currentStatus === OrderStatus.Delivered && status === OrderStatus.Cancelled) {
+    if (this.data.currentStatus === OrderStatus.Delivered && numericStatus === OrderStatus.Cancelled) {
       return true;
     }
 
-    return selectedIndex <= currentIndex; // Disable if the selected status is earlier or same as current
+    return selectedIndex <= currentIndex;
   }
 
   onSubmit(): void {
@@ -97,5 +100,9 @@ export class AdminOrderStatusDialogComponent {
     this.dialogRef.close(false);
   }
 
+  // Helper for template dropdown text
+  normalizeOrderStatus(status: OrderStatus | string | number): string {
+    return normalizeOrderStatus(status);
+  }
 
 }

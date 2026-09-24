@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { formatDate } from '@angular/common';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
+import { normalizeOrderStatus, normalizePaymentStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-order-management',
@@ -41,7 +42,7 @@ export class OrderManagementComponent {
   maxDate: Date = new Date();
   
   // Dropdown Options
-  orderStatusOptions = Object.values(OrderStatus);
+  orderStatusOptions = Object.values(OrderStatus).filter(val => typeof val === 'number') as OrderStatus[];
   paymentStatusOptions = Object.values(PaymentStatus);
 
   private searchSubject = new Subject<string>();
@@ -105,8 +106,9 @@ export class OrderManagementComponent {
       }
     });
   }
-  getOrderStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
+  getOrderStatusClass(status: OrderStatus): string {
+    const statusStr = normalizeOrderStatus(status).toLowerCase();
+    switch (statusStr?.toLowerCase()) {
       case 'confirmed':
         return 'bg-primary-subtle text-primary border border-primary-subtle';
       case 'processing':
@@ -123,8 +125,9 @@ export class OrderManagementComponent {
     }
   }
 
-  getPaymentStatusClass(status: string): string {
-    switch (status?.toLowerCase()) {
+  getPaymentStatusClass(status: PaymentStatus): string {
+    const normalizeStatus = normalizePaymentStatus(status); 
+    switch (normalizeStatus?.toLowerCase()) {
       case 'success':
       case 'paid':
         return 'bg-success-subtle text-success border border-success-subtle';

@@ -1,8 +1,9 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { OrderTrackingResponse, OrderTrackingStep } from '../../../../core/models/order.model';
+import { OrderStatus, OrderTrackingResponse, OrderTrackingStep } from '../../../../core/models/order.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-order-tracking-dialog',
@@ -64,10 +65,13 @@ export class OrderTrackingDialogComponent implements OnInit {
 
   // Checks if the order tracking state indicates a cancellation.
   private isOrderCancelled(response: OrderTrackingResponse): boolean {
+    const currentStatusStr = normalizeOrderStatus(response.currentStatus).toLowerCase();
+
     return response.trackingSteps.some(
-      (step: OrderTrackingStep) =>
-        step.status.toLowerCase() === 'cancelled' &&
-        (step.completed || response.currentStatus.toLowerCase() === 'cancelled')
+      (step: OrderTrackingStep) => {
+        const stepStatusStr = normalizeOrderStatus(step.status).toLowerCase();
+        return stepStatusStr === 'cancelled' && (step.completed || currentStatusStr === 'cancelled');
+      }
     );
   }
 
@@ -75,18 +79,18 @@ export class OrderTrackingDialogComponent implements OnInit {
   // Filters out irrelevant steps and marks non-cancelled steps as completed for cancelled orders.
   private filterAndCompleteCancelledSteps(steps: OrderTrackingStep[]): OrderTrackingStep[] {
     const filteredSteps = steps.filter((step: OrderTrackingStep) => {
-      const statusLower = step.status.toLowerCase();
+      const statusLower = normalizeOrderStatus(step.status).toLowerCase();
       return statusLower === 'cancelled' || step.completed || statusLower === 'pending' || statusLower === 'confirmed';
     });
 
     return filteredSteps.map((step: OrderTrackingStep) => {
-      if (step.status.toLowerCase() !== 'cancelled') {
+      const statusLower = normalizeOrderStatus(step.status).toLowerCase();
+      if (statusLower !== 'cancelled') {
         return { ...step, completed: true };
       }
       return step;
     });
   }
-
 
   // Handles errors during the tracking details fetch operation.
   private handleTrackingError(error: HttpErrorResponse): void {
@@ -94,8 +98,12 @@ export class OrderTrackingDialogComponent implements OnInit {
     this.isLoading = false;
   }
 
-
-  closeDialog(): void {
-    this.dialogRef.close();
+  // Helper method to get string label from status without using 'any'
+  getStatusLabel(status: OrderStatus | number | string): string {
+    return normalizeOrderStatus(status);
   }
-}
+
+    closeDialog(): void {
+      this.dialogRef.close();
+    }
+  }

@@ -1,4 +1,5 @@
 import { Role, ROLE_NAME_MAP } from '../models/auth.model';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '../models/order.model';
 import { ApprovalStatus } from '../models/user.model';
 
 export function normalizeRole(
@@ -86,4 +87,74 @@ export function approvalStatusToLabel(
     default:
       return typeof value === 'string' ? value : 'Pending';
   }
+}
+
+
+// Order Normalize
+export function normalizeOrderStatus(status: OrderStatus | string | number): string {
+  if (typeof status === 'number') {
+    switch (status) {
+      case OrderStatus.Pending: return 'Pending';
+      case OrderStatus.Confirmed: return 'Confirmed';
+      case OrderStatus.Processing: return 'Processing';
+      case OrderStatus.Shipped: return 'Shipped';
+      case OrderStatus.Delivered: return 'Delivered';
+      case OrderStatus.Cancelled: return 'Cancelled';
+      default: return 'Unknown';
+    }
+  }
+  return String(status ?? 'Pending');
+}
+
+
+// Payment Method Import karein apne model se
+export function normalizePaymentMethod(method: PaymentMethod | string | number | null | undefined): string {
+  if (method === null || method === undefined) {
+    return 'Unknown';
+  }
+
+  if (typeof method === 'number') {
+    switch (method) {
+      case PaymentMethod.CashOnDelivery: return 'Cash on Delivery';
+      case PaymentMethod.Card: return 'Card';
+      case PaymentMethod.UPI: return 'UPI';
+      default: return 'Unknown';
+    }
+  }
+
+  const str = String(method).trim();
+  if (!str) return 'Unknown';
+
+  const numericVal = Number(str);
+  if (!Number.isNaN(numericVal)) {
+    return normalizePaymentMethod(numericVal);
+  }
+
+  return str;
+}
+
+
+
+export function normalizePaymentStatus(status: PaymentStatus | string | number | null | undefined): string {
+  if (status === null || status === undefined) {
+    return 'Unknown';
+  }
+  if (typeof status === 'number') {
+    switch (status) {
+      case PaymentStatus.Pending: return 'Pending';
+      case PaymentStatus.Success: return 'Success';
+      case PaymentStatus.Refunded: return 'Refunded';
+      case PaymentStatus.Cancelled: return 'Cancelled';
+      default: return 'Unknown';
+    }
+  }
+
+  const str = String(status).trim();
+  if (!str) return 'Unknown';
+
+  const numericVal = Number(str);
+  if (!Number.isNaN(numericVal)) {
+    return normalizePaymentStatus(numericVal);
+  }
+  return str;
 }

@@ -41,7 +41,7 @@
 
                 <div class="timeline-body pb-4">
                     <h6 class="mb-0 fw-semibold" [class.text-muted]="!step.completed"
-                        [class.text-danger]="step.status === 'Cancelled' && step.completed">
+                        [class.text-danger]="getStatusLabel(step.status) === 'Cancelled' && step.completed">
                         {{ step.status }}
                     </h6>
                     <small *ngIf="step.statusDate" class="text-muted d-block">
