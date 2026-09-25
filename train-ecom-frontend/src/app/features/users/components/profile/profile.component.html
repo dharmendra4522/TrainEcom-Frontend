@@ -79,10 +79,10 @@
       </div>
 
       <div *ngIf="!state.loading && state.error" class="empty-state">
-        <h3 style="color: #db4444; font-size: 20px; font-weight: 600">
+        <h3 class="not-load">
           Oops! Could not load profile.
         </h3>
-        <p style="color: #7d8184; margin: 10px 0">{{ state.error }}</p>
+        <p class="state-error">{{ state.error }}</p>
         <button
           class="btn-save"
           style="margin-top: 15px"

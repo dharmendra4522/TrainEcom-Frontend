@@ -71,11 +71,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     },
     {
       key: 'isBlockedDisplay',
-      label: 'Blocked',
+      label: 'Active Status',
       type: 'badge',
       badgeClassKey: 'isBlockedClass',
     },
-
   ];
 
   actions: TableAction[] = [

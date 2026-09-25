@@ -1,10 +1,10 @@
-<div class="content-card p-4">
+<div class="content-card">
   <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="edit-mode">
     <!-- Basic User Fields -->
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter name" />
-      <mat-error>{{ getErrorMessage('name', 'Name') }}</mat-error>
+      <input matInput formControlName="name" placeholder="Enter name" (blur)="onBlurTrim('name')" />
+      <mat-error>{{ getErrorMessage("name", "Name") }}</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="w-100 mb-3">
@@ -21,131 +21,10 @@
         maxlength="10"
         placeholder="Enter 10-digit number"
       />
-      <mat-error>{{ getErrorMessage('phoneNumber', 'Phone Number') }}</mat-error>
+      <mat-error>{{
+        getErrorMessage("phoneNumber", "Phone Number")
+      }}</mat-error>
     </mat-form-field>
-
-    <!-- Vendor Specific Editable Fields -->
-    <ng-container *appRole="roleEnum.Vendor">
-      <hr class="my-4" />
-      <h4 class="mb-3 business-title">Business & Bank Details</h4>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Business Name(Cannot be changed)</mat-label>
-        <input matInput formControlName="businessName" />
-        <mat-error>{{ getErrorMessage('businessName', 'Business Name') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Display Name</mat-label>
-        <input matInput formControlName="storeName" />
-        <mat-error>{{ getErrorMessage('storeName', 'Display') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Business Description</mat-label>
-        <textarea
-          matInput
-          formControlName="bussinessDescription"
-          rows="3"
-        ></textarea>
-        <mat-error>{{ getErrorMessage('bussinessDescription', 'Business Description') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>GST Number</mat-label>
-        <input matInput formControlName="gstin" />
-        <mat-error>{{ getErrorMessage('gstin', 'GST Number') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>PAN Number</mat-label>
-        <input matInput formControlName="pan" />
-        <mat-error>{{ getErrorMessage('pan', 'PAN Number') }}</mat-error>
-
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Address Line 1</mat-label>
-        <input matInput formControlName="addressLine1" />
-        <mat-error>{{ getErrorMessage('addressLine1', 'Address Line') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Address Line 2</mat-label>
-        <input matInput formControlName="addressLine2" />
-                <mat-error>{{ getErrorMessage('addressLine2', 'Address Line') }}</mat-error>
-
-      </mat-form-field>
-
-      <div class="row">
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>Country</mat-label>
-            <mat-select formControlName="country" (selectionChange)="onCountryChange($event)">
-              <mat-option *ngFor="let country of countries" [value]="country.name">
-                {{ country.name }}
-              </mat-option>
-            </mat-select>
-            <mat-error>{{ getErrorMessage('country', 'Country') }}</mat-error>
-          </mat-form-field>
-        </div>
-        <div class="col-md-6">
-         <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>State</mat-label>
-            <mat-select formControlName="state" (selectionChange)="onStateChange($event)">
-              <mat-option *ngFor="let state of states" [value]="state.name">
-                {{ state.name }}
-              </mat-option>
-            </mat-select>
-            <mat-error>{{ getErrorMessage('state', 'State') }}</mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>City</mat-label>
-            <mat-select formControlName="city">
-              <mat-option *ngFor="let city of cities" [value]="city.name">
-                {{ city.name }}
-              </mat-option>
-            </mat-select>
-            <mat-error>{{ getErrorMessage('city', 'City') }}</mat-error>
-          </mat-form-field>
-        </div>
-        <div class="col-md-6">
-          <mat-form-field appearance="outline" class="w-100 mb-3">
-            <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postalCode" />        
-            <mat-error>{{ getErrorMessage('postalCode', 'Postal Code') }}</mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <h4 class="mb-3 business-title mt-4">Bank Details</h4>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Account Holder Name</mat-label>
-        <input matInput formControlName="accountHolderName" />
-        <mat-error>{{ getErrorMessage('accountHolderName', 'Account Holder Name') }}</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>Bank Account Number</mat-label>
-        <input matInput formControlName="bankAccountNumber" />
-        <mat-error>{{ getErrorMessage('bankAccountNumber', 'Bank Account Number') }}</mat-error>
-
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="w-100 mb-3">
-        <mat-label>IFSC Code</mat-label>
-        <input matInput formControlName="ifscCode" />
-                <mat-error>{{ getErrorMessage('ifscCode', 'IFSC Code') }}</mat-error>
-
-      </mat-form-field>
-    </ng-container>
-
 
     <!-- Password Toggle Section -->
     <div class="password-toggle my-3">
@@ -165,27 +44,75 @@
 
     <div
       *ngIf="isChangePasswordMode"
-      class="password-section p-3 border rounded mb-3 bg-light"
+      class="password-section p-3 border rounded mb-3 d-flex flex-wrap gap-3"
     >
-      <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-form-field appearance="outline" class="flex-fill mb-0">
         <mat-label>Old Password</mat-label>
-        <input matInput type="password" formControlName="oldPassword" />
-                <mat-error>{{ getErrorMessage('oldPassword', 'Old Password') }}</mat-error>
-
+        <input
+          matInput
+          type="password"
+          formControlName="oldPassword"
+          [type]="hideOldPassword ? 'password' : 'text'"
+        />
+        <button
+          mat-icon-button
+          type="button"
+          matSuffix
+          (click)="toggleOldPasswordVisibility()"
+        >
+          <mat-icon>{{
+            hideOldPassword ? "visibility_off" : "visibility"
+          }}</mat-icon>
+        </button>
+        <mat-error>{{
+          getErrorMessage("oldPassword", "Old Password")
+        }}</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-form-field appearance="outline" class="flex-fill mb-0">
         <mat-label>New Password</mat-label>
-        <input matInput type="password" formControlName="newPassword" />
-                        <mat-error>{{ getErrorMessage('newPassword', 'New Password') }}</mat-error>
-
+        <input
+          matInput
+          type="password"
+          formControlName="newPassword"
+          [type]="hideNewPassword ? 'password' : 'text'"
+        />
+        <button
+          mat-icon-button
+          type="button"
+          matSuffix
+          (click)="toggleNewPasswordVisibility()"
+        >
+          <mat-icon>{{
+            hideNewPassword ? "visibility_off" : "visibility"
+          }}</mat-icon>
+        </button>
+        <mat-error>{{
+          getErrorMessage("newPassword", "New Password")
+        }}</mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-100">
+      <mat-form-field appearance="outline" class="flex-fill mb-0">
         <mat-label>Confirm Password</mat-label>
-        <input matInput type="password" formControlName="confirmPassword" />
-                <mat-error>{{ getErrorMessage('confirmPassword', 'Confirm Password') }}</mat-error>
-
+        <input
+          matInput
+          type="password"
+          formControlName="confirmPassword"
+          [type]="hideConfirmPassword ? 'password' : 'text'"
+        />
+        <button
+          mat-icon-button
+          type="button"
+          matSuffix
+          (click)="toggleConfirmPasswordVisibility()"
+        >
+          <mat-icon>{{
+            hideConfirmPassword ? "visibility_off" : "visibility"
+          }}</mat-icon>
+        </button>
+        <mat-error>{{
+          getErrorMessage("confirmPassword", "Confirm Password")
+        }}</mat-error>
       </mat-form-field>
     </div>
 
@@ -198,7 +125,7 @@
         mat-flat-button
         color="primary"
         type="submit"
-        [disabled]="profileForm.invalid"
+        [disabled]="profileForm.invalid || !isFormChanged"
       >
         Save Changes
       </button>

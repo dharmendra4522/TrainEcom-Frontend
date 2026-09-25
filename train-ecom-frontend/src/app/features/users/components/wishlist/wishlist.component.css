@@ -1,5 +1,5 @@
 .wishlist-page {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: "Poppins", "Inter", sans-serif;
   color: #000;
 }
 
@@ -55,9 +55,10 @@
 }
 
 .product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
+  justify-content: start;
 }
 
 .product-grid-item,
@@ -68,7 +69,7 @@
 
 @container (min-width: 1020px) {
   .product-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+   grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 

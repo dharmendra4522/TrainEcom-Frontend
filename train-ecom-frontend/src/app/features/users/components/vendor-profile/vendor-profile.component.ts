@@ -14,6 +14,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 import { selectAuthStatus } from '../../../../core/store/auth/auth.selectors';
+import { VendorProfileEditValues } from '../../../../core/models/vendor.model';
 
 interface ProfileField {
   label: string;
@@ -29,29 +30,6 @@ interface TabConfig {
   fields: ProfileField[];
 }
 
-interface VendorProfileEditValues {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  oldPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-  businessName: string;
-  displayName: string;
-  bussinessDescription: string;
-  gstin: string;
-  panNumber: string;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  country: string;
-  state: string;
-  postalCode: string | number;
-  bankAccountNumber: string | number;
-  acountHolderName: string;
-  ifscCode: string;
-}
-
 @Component({
   selector: 'app-vendor-profile',
   templateUrl: './vendor-profile.component.html',
@@ -63,16 +41,14 @@ export class VendorProfileComponent implements OnInit {
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);
 
-
   isEditMode: boolean = false;
   userProfile$ = this.store.select(selectUserProfile);
-  // Yeh properties add karein class ke andar
+  // password visibility toggles
   isPasswordView: boolean = false;
   isConfirmPassView: boolean = false;
   isOldPassView: boolean = false;
   isNewPassView: boolean = false;
   isEditConfirmPassView: boolean = false;
-
 
   vendorData: ProfileVendorDetails | null = null;
   userProfileData: UserProfile | null = null;
@@ -84,61 +60,19 @@ export class VendorProfileComponent implements OnInit {
   isSaving: boolean = false;
   authStatus: string | null = null;
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  private categoryOptions: Category[] = [];
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
   cities: ICity[] = [];
 
   ngOnInit(): void {
     this.initializeEditForm();
-    this.store.dispatch(CategoryActions.loadCategories());
-    this.categories$
-      .pipe(filter((categories) => categories.length > 0), take(1))
-      .subscribe((categories) => {
-        this.categoryOptions = categories;
-        if (this.userProfileData) {
-          this.patchEditForm(this.userProfileData);
-        }
-      });
-    this.store.select(selectAuthStatus).subscribe((status) => {
-      this.authStatus = status;
-    });
+    this.loadCategories();
+    this.subscribeAuthStatus();
     this.fetchVendorDetails();
   }
 
-  private fetchVendorDetails(): void {
-    this.userProfile$.subscribe((profile) => {
-      if (profile) {
-        this.userProfileData = profile;
-        this.vendorData = profile.vendorDetails || null;
-        this.patchEditForm(profile);
-        this.buildTabConfigurations();
-      }
-    });
-  }
-
-  toggleEditMode(): void {
-    if (!this.isApprovedVendor) {
-      return;
-    }
-    this.isEditMode = !this.isEditMode;
-    if (this.isEditMode && this.userProfileData) {
-      this.currentStep = 1;
-      this.patchEditForm(this.userProfileData);
-    }
-  }
-
-  get isApprovedVendor(): boolean {
-    const approvalValue =
-      this.userProfileData?.isApproved ??
-      this.userProfileData?.approvalStatus ??
-      this.userProfileData?.status ??
-      this.userProfileData?.vendorDetails?.approvalStatus ??
-      this.userProfileData?.vendorDetails?.status ??
-      this.authStatus ??
-      localStorage.getItem('vendorStatus');
-    return normalizeApprovalStatus(approvalValue) === ApprovalStatus.Approved;
-  }
-
+  // form initialization and patching methods
   private initializeEditForm(): void {
     this.editForm = this.fb.group(
       {
@@ -172,6 +106,64 @@ export class VendorProfileComponent implements OnInit {
     );
   }
 
+  // handle category load fron store and set to form
+  private loadCategories(): void {
+    this.store.dispatch(CategoryActions.loadCategories());
+    this.categories$
+      .pipe(filter((categories) => categories.length > 0), take(1))
+      .subscribe((categories) => {
+        this.categoryOptions = categories;
+        if (this.userProfileData) {
+          this.patchEditForm(this.userProfileData);
+        }
+      });
+  }
+
+  // subscribe Auth status from store 
+  private subscribeAuthStatus(): void {
+    this.store.select(selectAuthStatus).subscribe((status) => {
+      this.authStatus = status;
+    });
+  }
+
+  // fetch vendor details from user profile and patch the form
+  private fetchVendorDetails(): void {
+    this.userProfile$.subscribe((profile) => {
+      if (profile) {
+        this.userProfileData = profile;
+        this.vendorData = profile.vendorDetails || null;
+        this.patchEditForm(profile);
+        this.buildTabConfigurations();
+      }
+    });
+  }
+
+  // toggle edit mode only if vendor is approved
+  toggleEditMode(): void {
+    if (!this.isApprovedVendor) {
+      return;
+    }
+    this.isEditMode = !this.isEditMode;
+    if (this.isEditMode && this.userProfileData) {
+      this.currentStep = 1;
+      this.patchEditForm(this.userProfileData);
+    }
+  }
+
+  get isApprovedVendor(): boolean {
+    const approvalValue =
+      this.userProfileData?.isApproved ??
+      this.userProfileData?.approvalStatus ??
+      this.userProfileData?.status ??
+      this.userProfileData?.vendorDetails?.approvalStatus ??
+      this.userProfileData?.vendorDetails?.status ??
+      this.authStatus ??
+      localStorage.getItem('vendorStatus');
+    return normalizeApprovalStatus(approvalValue) === ApprovalStatus.Approved;
+  }
+
+
+  // Patch the form with user profile data
   private patchEditForm(profile: UserProfile): void {
     const vendor = profile.vendorDetails;
     const nameParts = profile.name.trim().split(/\s+/);
@@ -218,6 +210,7 @@ export class VendorProfileComponent implements OnInit {
     this.updateLocationLists(location.country, location.state);
   }
 
+  // resolve location names from country, state, and city codes or names
   private resolveLocation(
     countryName?: string | number | null,
     stateName?: string | number | null,
@@ -246,6 +239,7 @@ export class VendorProfileComponent implements OnInit {
     };
   }
 
+  // Utility methods for form validation and location matching
   private matchesLocation(
     option: string | undefined,
     value?: string | number | null,
@@ -253,6 +247,7 @@ export class VendorProfileComponent implements OnInit {
     return option?.trim().toLowerCase() === String(value || '').trim().toLowerCase();
   }
 
+  // Utility method to normalize category IDs from names or numbers
   private normalizeCategoryIds(categories?: Array<string | number> | null): number[] {
     if (!categories?.length) {
       return [];
@@ -270,15 +265,7 @@ export class VendorProfileComponent implements OnInit {
     }, []);
   }
 
-  private categoryOptions: Category[] = [];
-
-  private getSelectedCategoryNames(): string[] {
-    const selectedCategories = this.editForm.get('businessCategory')?.value;
-    return Array.isArray(selectedCategories)
-      ? selectedCategories.map((category: unknown) => String(category))
-      : [];
-  }
-
+  // utility methods for updating location lists based on selected country and state
   private updateLocationLists(countryName?: string | null, stateName?: string | null): void {
     const country = this.countries.find((item) => this.matchesLocation(item.name, countryName));
     this.states = country ? State.getStatesOfCountry(country.isoCode) : [];
@@ -286,16 +273,20 @@ export class VendorProfileComponent implements OnInit {
     this.cities = country && state ? City.getCitiesOfState(country.isoCode, state.isoCode) : [];
   }
 
+  // Event handlers for country and state selection changes
   onCountryChange(countryName: string): void {
-    this.editForm.patchValue({ state: '', city: '' });
+    this.editForm.patchValue({ state: '', city: '', postalCode: '' });
     this.updateLocationLists(countryName, null);
   }
 
+
+  // Event handler for state selection change
   onStateChange(stateName: string): void {
     this.editForm.patchValue({ city: '' });
     this.updateLocationLists(this.editForm.get('country')?.value as string, stateName);
   }
 
+  // Event handler for file selection for document uploads
   onFileSelect(event: Event, controlName: string): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -304,6 +295,7 @@ export class VendorProfileComponent implements OnInit {
     }
   }
 
+  // Toggle password change mode and update validators accordingly
   togglePasswordChange(): void {
     this.isPasswordChangeMode = !this.isPasswordChangeMode;
     const controls = ['oldPassword', 'newPassword', 'confirmPassword'];
@@ -323,6 +315,7 @@ export class VendorProfileComponent implements OnInit {
     this.editForm.updateValueAndValidity();
   }
 
+  // Custom validator to ensure new password and confirm password match
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const newPassword = control.get('newPassword')?.value as string;
     const confirmControl = control.get('confirmPassword');
@@ -338,10 +331,12 @@ export class VendorProfileComponent implements OnInit {
     return null;
   }
 
+  // Getter methods to check the validity of each step in the multi-step form
   get isStep1Valid(): boolean {
     return this.controlValid('firstName', 'lastName', 'phoneNumber') && (!this.isPasswordChangeMode || this.passwordControlsValid);
   }
 
+  // Getter methods to check the validity of each step in the multi-step form
   get isStep2Valid(): boolean { return this.controlValid('displayName', 'businessCategory', 'bussinessDescription'); }
   get isStep3Valid(): boolean { return this.controlValid('addressLine1', 'country', 'state', 'city', 'postalCode'); }
   get isStep4Valid(): boolean { return true; }
@@ -355,10 +350,13 @@ export class VendorProfileComponent implements OnInit {
     return this.controlValid('oldPassword', 'newPassword', 'confirmPassword') && !this.editForm.hasError('passwordMismatch');
   }
 
+  // steps navigation methods
   goToStep(step: number): void { this.currentStep = step; }
   nextStep(): void { if (this.currentStep < 5) this.currentStep++; }
   prevStep(): void { if (this.currentStep > 1) this.currentStep--; }
 
+
+  // Save the profile data by sending an update request to the server
   saveProfile(): void {
     if (this.isSaving) {
       return;
@@ -415,7 +413,7 @@ export class VendorProfileComponent implements OnInit {
     });
   }
 
-
+  // Get selected category IDs from the form for submission
   private getSelectedCategoryIds(): number[] {
     const selectedCategories = this.editForm.get('businessCategory')?.value;
     if (!Array.isArray(selectedCategories)) {
@@ -492,24 +490,36 @@ export class VendorProfileComponent implements OnInit {
     ];
   }
 
-  togglePassword(): void {
-    this.isPasswordView = !this.isPasswordView;
+  hidePassword: Record<string, boolean> = {
+    password: false,
+    confirmPassword: false,
+    oldPassword: false,
+    newPassword: false,
+    editConfirmPassword: false
   }
 
-  toggleConfirmPassword(): void {
-    this.isConfirmPassView = !this.isConfirmPassView;
+  togglePassword(key: string): void{
+    this.hidePassword[key] = !this.hidePassword[key];
   }
 
-  toggleOldPassword(): void {
-    this.isOldPassView = !this.isOldPassView;
-  }
+  // togglePassword(): void {
+  //   this.isPasswordView = !this.isPasswordView;
+  // }
 
-  toggleNewPassword(): void {
-    this.isNewPassView = !this.isNewPassView;
-  }
+  // toggleConfirmPassword(): void {
+  //   this.isConfirmPassView = !this.isConfirmPassView;
+  // }
 
-  toggleEditConfirmPassword(): void {
-    this.isEditConfirmPassView = !this.isEditConfirmPassView;
-  }
+  // toggleOldPassword(): void {
+  //   this.isOldPassView = !this.isOldPassView;
+  // }
+
+  // toggleNewPassword(): void {
+  //   this.isNewPassView = !this.isNewPassView;
+  // }
+
+  // toggleEditConfirmPassword(): void {
+  //   this.isEditConfirmPassView = !this.isEditConfirmPassView;
+  // }
 
 }

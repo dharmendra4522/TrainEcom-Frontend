@@ -73,6 +73,29 @@ export interface VendorVerifyResponse {
   message: string;
 }
 
+export interface VendorProfileEditValues {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  businessName: string;
+  displayName: string;
+  bussinessDescription: string;
+  gstin: string;
+  panNumber: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  country: string;
+  state: string;
+  postalCode: string | number;
+  bankAccountNumber: string | number;
+  acountHolderName: string;
+  ifscCode: string;
+}
+
 
 export interface VendorFilterParams extends AdminUserFilterParams {
   status?: ApprovalStatus | number | string;
