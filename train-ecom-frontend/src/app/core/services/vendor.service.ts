@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -8,117 +8,92 @@ import {
   ApprovalStatus,
   AdminUserListResponse,
   AdminUser,
+  AdminUserFilterParams,
   UserStatusFilter,
 } from '../models/user.model';
 import {
   VendorDetails,
+  VendorItem,
   VendorListResponse,
   VendorVerifyRequest,
   VendorVerifyResponse,
-  vendorFilterParams,
+  VendorFilterParams,
 } from '../models/vendor.model';
-import { normalizeUserStatus } from '../utils/filter.utils';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VendorService {
   private http = inject(HttpClient);
-  private listAPI = `${environment.apiBaseUrl}/admin/users/all`;
+  private userService = inject(UserService);
   private verifyAPI = `${environment.apiBaseUrl}/admin/user`;
   private detailsAPI = `${environment.apiBaseUrl}/admin/vendors`;
 
   constructor() { }
 
-  getVendors(filter?: vendorFilterParams): Observable<VendorListResponse> {
-    let params = new HttpParams().set('Role', String(Role.Vendor));
+  getVendors(filter?: VendorFilterParams): Observable<VendorListResponse> {
+    const vendorFilter: AdminUserFilterParams = {
+      Search: filter?.search,
+      Role: Role.Vendor,
+      approvalStatus: filter?.status === 'All' ? undefined : filter?.status,
+      UserStatus: this.toUserStatus(filter?.isBlocked),
+      PageNumber: filter?.pageNumber,
+      PageSize: filter?.pageSize,
+    };
 
-    if (filter?.search) {
-      params = params.set('Search', filter.search);
-    }
-    if (
-      filter?.status !== undefined &&
-      filter?.status !== null &&
-      filter?.status !== '' &&
-      filter?.status !== 'All'
-    ) {
-      params = params.set('ApprovalStatus', String(filter.status));
-    }
-
-    const normalizedIsBlocked = normalizeUserStatus(filter?.isBlocked);
-    if (normalizedIsBlocked !== undefined && normalizedIsBlocked !== UserStatusFilter.All) {
-      params = params.set('UserStatus', String(normalizedIsBlocked));
-    }
-
-    if (filter?.pageNumber !== undefined) {
-      params = params.set('PageNumber', String(filter.pageNumber));
-    }
-    if (filter?.pageSize !== undefined) {
-      params = params.set('PageSize', String(filter.pageSize));
-    }
-
-    return this.http.get<AdminUserListResponse>(this.listAPI, { params }).pipe(
-      map((response: AdminUserListResponse) => {
-        let items = Array.isArray(response?.items) ? response.items : [];
-
-        // Client-side safety filter
-        if (normalizedIsBlocked !== undefined && normalizedIsBlocked !== UserStatusFilter.All) {
-          const targetIsBlocked = normalizedIsBlocked === UserStatusFilter.Blocked;
-          items = items.filter(item => Boolean(item.isBlocked) === targetIsBlocked);
-        }
-
-        return {
-          items: items.map((item: AdminUser) => {
-            let bDetailRaw =
-              item['bussinessDetail'] || item['businessDetail'] || {};
-            if (typeof bDetailRaw === 'string') {
-              try {
-                bDetailRaw = JSON.parse(bDetailRaw);
-              } catch (e) {
-                bDetailRaw = {};
-              }
-            }
-            const bDetail = bDetailRaw as Record<string, unknown>;
-            const categories =
-              bDetail['bussinessCategories'] ||
-              bDetail['businessCategories'] ||
-              item['categories'] ||
-              item['bussinessCategories'] ||
-              [];
-            return {
-              vendorId: Number(item.userId ?? item['vendorId'] ?? item['id']),
-              userId: Number(item.userId ?? item['vendorId'] ?? item['id']),
-              name: item.name,
-              bussinessName:
-                (bDetail['bussinessName'] as string) ||
-                (bDetail['businessName'] as string) ||
-                (item['bussinessName'] as string) ||
-                item.name ||
-                'N/A',
-              email: item.email,
-              phoneNumber: item.phoneNumber,
-              city:
-                (item['address'] as { city?: string })?.city ||
-                (bDetail['city'] as string) ||
-                '',
-              status:
-                (item.approvalStatus as ApprovalStatus) ??
-                ApprovalStatus.Pending,
-              isBlocked: item.isBlocked ?? false,
-              categories: Array.isArray(categories)
-                ? categories
-                : typeof categories === 'string'
-                  ? [categories]
-                  : [],
-            };
-          }),
-          pageNumber: response?.pageNumber ?? 1,
-          pageSize: response?.pageSize ?? items.length,
-          totalRecords: response?.totalRecords ?? items.length,
-          totalPages: response?.totalPages ?? 1,
-        };
-      }),
+    return this.userService.getAllUsers(vendorFilter).pipe(
+      map((response: AdminUserListResponse): VendorListResponse => ({
+        ...response,
+        items: response.items.map((item) => this.toVendorItem(item)),
+      })),
     );
+  }
+
+  private toUserStatus(
+    status: VendorFilterParams['isBlocked'],
+  ): UserStatusFilter | undefined {
+    if (status === undefined || status === 'All') {
+      return undefined;
+    }
+    if (typeof status === 'boolean') {
+      return status ? UserStatusFilter.Blocked : UserStatusFilter.Active;
+    }
+    return typeof status === 'string' ? Number(status) : status;
+  }
+
+  private toVendorItem(item: AdminUser): VendorItem {
+    const business = item.businessDetail || item.bussinessDetail;
+    const categories =
+      business?.bussinessCategories ||
+      business?.businessCategories ||
+      item.categories ||
+      item.bussinessCategories ||
+      [];
+
+    return {
+      vendorId: item.userId,
+      userId: item.userId,
+      name: item.name,
+      bussinessName:
+        business?.bussinessName ||
+        business?.businessName ||
+        item.bussinessName ||
+        item.name ||
+        'N/A',
+      email: item.email,
+      phoneNumber: item.phoneNumber,
+      city: business?.city || item.address?.city || '',
+      status: item.approvalStatus ?? ApprovalStatus.Pending,
+      isBlocked: item.isBlocked,
+      categories,
+      bussinessDetail: business
+        ? {
+            bussinessName: business.bussinessName || business.businessName,
+            bussinessCategories: categories,
+          }
+        : undefined,
+    };
   }
 
   updateVendorStatus(

@@ -3,7 +3,7 @@
   *appRole="roleEnum.Customer"
 ></app-breadcrumb>
 
-<ng-container *appRole="roleEnum.Customer && roleEnum.Admin">
+<ng-container *appRole="[roleEnum.Customer, roleEnum.Admin]">
   <ng-container
     *ngIf="{ loading: isLoading$ | async, error: error$ | async } as state"
   >

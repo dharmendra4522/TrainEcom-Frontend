@@ -1,4 +1,9 @@
-import type { ApprovalStatus, UserStatusFilter } from './user.model';
+
+import type {
+  AdminUserFilterParams,
+  ApprovalStatus,
+  UserStatusFilter,
+} from './user.model';
 
 export interface VendorItem {
   vendorId?: number;
@@ -69,10 +74,9 @@ export interface VendorVerifyResponse {
 }
 
 
-export interface vendorFilterParams {
-  search?: string;
+export interface VendorFilterParams extends AdminUserFilterParams {
   status?: ApprovalStatus | number | string;
   isBlocked?: UserStatusFilter | boolean | string | 'All';
-  pageNumber?: number;
-  pageSize?: number;
 }
+
+export type vendorFilterParams = VendorFilterParams;

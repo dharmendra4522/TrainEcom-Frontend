@@ -65,7 +65,7 @@
     <mat-select formControlName="businessCategory" multiple>
       <mat-option
         *ngFor="let category of categories$ | async"
-        [value]="isEditMode ? category.name : category.id"
+        [value]="category.id"
       >
         {{ category.name }}
       </mat-option>

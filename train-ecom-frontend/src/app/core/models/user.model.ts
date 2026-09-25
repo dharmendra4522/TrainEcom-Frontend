@@ -118,7 +118,7 @@ export interface UpdateProfilePayload {
     accountHolderName: string | null;
     bankAccountNumber: string | null;
     ifscCode: string | null;
-    categories?: string[] | null;      
+    newCategoryIds?: number[] | string[] | null;
     documentUrls?: string[] | null
   };
   defaultAddress?: {
@@ -149,6 +149,19 @@ export interface AdminUser extends Record<string, unknown> {
   isBlocked: boolean;
   isApproved?: ApprovalStatus | number | null;
   userStatusClass?: string;
+  businessDetail?: VendorBusinessSummary | null;
+  bussinessDetail?: VendorBusinessSummary | null;
+  bussinessName?: string;
+  categories?: string[];
+  bussinessCategories?: string[];
+}
+
+export interface VendorBusinessSummary {
+  bussinessName?: string;
+  businessName?: string;
+  bussinessCategories?: string[];
+  businessCategories?: string[];
+  city?: string;
 }
 
 export interface AdminUserListResponse {
@@ -194,4 +207,3 @@ export interface BusinessAddress {
   country: string;
   postalCode: number;
 }
-

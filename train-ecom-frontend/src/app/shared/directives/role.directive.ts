@@ -13,12 +13,12 @@ export class RoleDirective implements OnInit, OnDestroy {
   private viewContainer = inject(ViewContainerRef);
   private store = inject(Store);
 
-  private requiredRole: Role | number | string | null = null;
+  private requiredRole: Array<Role | number | string> = [];
   private currentUserRole: Role | number | string | null = null;
   private roleSubscription!: Subscription;
 
-  @Input() set appRole(role: Role | number | string) {
-    this.requiredRole = role;
+  @Input() set appRole(role: Role | number | string | Array<Role | number | string>) {
+    this.requiredRole = Array.isArray(role) ? role : [role];
     this.updateView();
   }
 
@@ -33,9 +33,9 @@ export class RoleDirective implements OnInit, OnDestroy {
     this.viewContainer.clear();
 
     const current = normalizeRole(this.currentUserRole);
-    const required = normalizeRole(this.requiredRole);
+    const requiredRoles = this.requiredRole.map((role) => normalizeRole(role));
 
-    if (current !== null && required !== null && current === required) {
+    if (current !== null && requiredRoles.includes(current)) {
       this.viewContainer.createEmbeddedView(this.templateRef);
     }
   }

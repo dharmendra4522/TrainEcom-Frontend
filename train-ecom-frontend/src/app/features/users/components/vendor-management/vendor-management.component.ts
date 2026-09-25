@@ -61,8 +61,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     { key: 'name', label: 'Name', truncate: false },
     { key: 'phoneNumber', label: 'Phone' },
     { key: 'email', label: 'Email', truncate: true },
-    { key: 'bussinessName', label: 'Business Name', truncate: false },
-    { key: 'categoriesDisplay', label: 'Categories', truncate: false },
+    { key: 'bussinessName', label: 'Business Name', truncate: true },
+    { key: 'categoriesDisplay', label: 'Categories', truncate: true },
     {
       key: 'statusDisplay',
       label: 'Status',

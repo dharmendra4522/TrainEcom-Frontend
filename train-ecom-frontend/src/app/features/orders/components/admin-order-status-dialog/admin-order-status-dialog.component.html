@@ -5,7 +5,7 @@
 <mat-dialog-content class="mat-typography mb-4 admin-status-dialog-content">
     <form [formGroup]="form" class="d-flex flex-column gap-3 admin-status-form">
         <p class="m-0 small text-secondary">
-            Current Status: <span class="fw-semibold text-dark">{{ data.currentStatus }}</span>
+            Current Status: <span class="fw-semibold text-dark">{{normalizeOrderStatus(data.currentStatus)}}</span>
         </p>
 
         <mat-form-field appearance="outline" class="w-100">

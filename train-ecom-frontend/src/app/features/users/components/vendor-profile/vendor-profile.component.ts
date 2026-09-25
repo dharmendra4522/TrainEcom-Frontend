@@ -63,8 +63,16 @@ export class VendorProfileComponent implements OnInit {
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);
 
+
   isEditMode: boolean = false;
   userProfile$ = this.store.select(selectUserProfile);
+  // Yeh properties add karein class ke andar
+  isPasswordView: boolean = false;
+  isConfirmPassView: boolean = false;
+  isOldPassView: boolean = false;
+  isNewPassView: boolean = false;
+  isEditConfirmPassView: boolean = false;
+
 
   vendorData: ProfileVendorDetails | null = null;
   userProfileData: UserProfile | null = null;
@@ -193,7 +201,7 @@ export class VendorProfileComponent implements OnInit {
       phoneNumber: profile.phoneNumber,
       businessName: vendor?.bussinessName || '',
       displayName: vendor?.storeName || '',
-      businessCategory: this.normalizeCategoryNames(vendor?.categories),
+      businessCategory: this.normalizeCategoryIds(vendor?.categories),
       bussinessDescription: vendor?.bussinessDescription || '',
       gstin: vendor?.gstin || '',
       panNumber: vendor?.pan || '',
@@ -245,17 +253,21 @@ export class VendorProfileComponent implements OnInit {
     return option?.trim().toLowerCase() === String(value || '').trim().toLowerCase();
   }
 
-  private normalizeCategoryNames(categories?: string[] | null): string[] {
+  private normalizeCategoryIds(categories?: Array<string | number> | null): number[] {
     if (!categories?.length) {
       return [];
     }
 
-    return categories.map((category) => {
+    return categories.reduce<number[]>((categoryIds, category) => {
       const match = this.categoryOptions.find(
-        (option) => String(option.id) === String(category),
+        (option) => String(option.id) === String(category) || option.name === category,
       );
-      return match?.name || category;
-    });
+      const categoryId = Number(match?.id ?? category);
+      if (Number.isInteger(categoryId) && categoryId > 0) {
+        categoryIds.push(categoryId);
+      }
+      return categoryIds;
+    }, []);
   }
 
   private categoryOptions: Category[] = [];
@@ -356,7 +368,7 @@ export class VendorProfileComponent implements OnInit {
       this.notificationService.showError('Please fix the errors in the form before saving.');
       return;
     }
-    const value = this.editForm.value as VendorProfileEditValues; // Only get enabled values
+    const value = this.editForm.value as VendorProfileEditValues;
     const payload: UpdateProfilePayload = {
       name: `${value.firstName?.trim() || ''} ${value.lastName?.trim() || ''}`.trim(),
       phoneNumber: value.phoneNumber,
@@ -375,7 +387,7 @@ export class VendorProfileComponent implements OnInit {
         accountHolderName: value.acountHolderName ?? null,
         bankAccountNumber: value.bankAccountNumber ? String(value.bankAccountNumber) : null,
         ifscCode: value.ifscCode ?? null,
-        categories: this.getSelectedCategoryNames(),
+        newCategoryIds: this.getSelectedCategoryIds(),
         documentUrls: this.vendorData?.documentUrls || [],
       },
     };
@@ -401,6 +413,25 @@ export class VendorProfileComponent implements OnInit {
         this.notificationService.showError(error.error?.message || 'Profile update failed');
       },
     });
+  }
+
+
+  private getSelectedCategoryIds(): number[] {
+    const selectedCategories = this.editForm.get('businessCategory')?.value;
+    if (!Array.isArray(selectedCategories)) {
+      return [];
+    }
+
+    return selectedCategories.reduce<number[]>((categoryIds, cat: unknown) => {
+      const matched = this.categoryOptions.find(
+        (option) => String(option.id) === String(cat) || option.name === cat,
+      );
+      const categoryId = Number(matched?.id ?? cat);
+      if (Number.isInteger(categoryId) && categoryId > 0) {
+        categoryIds.push(categoryId);
+      }
+      return categoryIds;
+    }, []);
   }
 
   // Map data in label-value format for display in UI
@@ -460,4 +491,25 @@ export class VendorProfileComponent implements OnInit {
       }
     ];
   }
+
+  togglePassword(): void {
+    this.isPasswordView = !this.isPasswordView;
+  }
+
+  toggleConfirmPassword(): void {
+    this.isConfirmPassView = !this.isConfirmPassView;
+  }
+
+  toggleOldPassword(): void {
+    this.isOldPassView = !this.isOldPassView;
+  }
+
+  toggleNewPassword(): void {
+    this.isNewPassView = !this.isNewPassView;
+  }
+
+  toggleEditConfirmPassword(): void {
+    this.isEditConfirmPassView = !this.isEditConfirmPassView;
+  }
+
 }

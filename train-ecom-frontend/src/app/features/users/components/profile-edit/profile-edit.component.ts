@@ -3,13 +3,18 @@ import {
   UpdateProfilePayload,
   UserProfile,
 } from '../../../../core/models/user.model';
+import { Category } from '../../../../core/models/category.model';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import * as CategoryActions from '../../../../core/store/category/category.action';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Role } from '../../../../core/models/auth.model';
 import { City, Country, ICity, ICountry, IState, State } from 'country-state-city';
 import { MatSelectChange } from '@angular/material/select';
 import { getFieldError, noSpaceAllow, passwordMatchValidator } from './../../../auth/register.utils';
+import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile-edit',
@@ -18,6 +23,7 @@ import { getFieldError, noSpaceAllow, passwordMatchValidator } from './../../../
 })
 export class ProfileEditComponent {
   private fb = inject(FormBuilder);
+  private store = inject(Store);
   private useService = inject(UserService);
   private notification = inject(NotificationService);
 
@@ -33,9 +39,16 @@ export class ProfileEditComponent {
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
   cities: ICity[] = [];
+  private categoryOptions: Category[] = [];
 
   ngOnInit() {
     this.initializeForm();
+    this.store.dispatch(CategoryActions.loadCategories());
+    this.store.select(selectAllCategories)
+      .pipe(filter((categories) => categories.length > 0), take(1))
+      .subscribe((categories) => {
+        this.categoryOptions = categories;
+      });
     if (this.userProfile) {
       this.patchFormWithUserProfile(this.userProfile);
     }
@@ -194,7 +207,7 @@ export class ProfileEditComponent {
         ifscCode: formValue.ifscCode,
         accountHolderName: formValue.accountHolderName,
         documentUrls: this.userProfile?.vendorDetails?.documentUrls || [],
-        categories: this.userProfile?.vendorDetails?.categories || [],
+        newCategoryIds: this.getCategoryIds(this.userProfile?.vendorDetails?.categories),
       };
     } else if (this.userRole === Role.Customer) {
       payload.defaultAddress = addressPayload;
@@ -216,5 +229,22 @@ export class ProfileEditComponent {
         this.notification.showError(errorMessage, 'Close');
       },
     });
+  }
+
+  private getCategoryIds(categories?: Array<string | number> | null): number[] {
+    if (!categories?.length) {
+      return [];
+    }
+
+    return categories.reduce<number[]>((categoryIds, category) => {
+      const match = this.categoryOptions.find(
+        (option) => String(option.id) === String(category) || option.name === category,
+      );
+      const categoryId = Number(match?.id ?? category);
+      if (Number.isInteger(categoryId) && categoryId > 0) {
+        categoryIds.push(categoryId);
+      }
+      return categoryIds;
+    }, []);
   }
 }
