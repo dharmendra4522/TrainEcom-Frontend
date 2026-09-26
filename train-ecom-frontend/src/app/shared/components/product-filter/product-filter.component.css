@@ -16,14 +16,15 @@
     top: 62px;
     z-index: 890;
     padding: 0 16px;
-    margin-top: 12px;
   }
 }
  
 .filter-container {
-  border-color: #e2e8f0 !important;
-  transition: all 0.2s ease-in-out;
-  height: 62px; /* Slim height on desktop */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  height: 100%;
+  width: 100% !important;
 }
  
 @media (max-width: 768px) {
@@ -79,7 +80,7 @@
 }
  
 .search-wrapper {
-  width: 250px;
+  width: 180px;
   max-width: 100%;
 }
  

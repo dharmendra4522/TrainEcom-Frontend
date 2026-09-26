@@ -42,31 +42,9 @@
       class="nav-links d-none d-lg-flex align-items-center gap-1 me-4"
       *ngIf="!auth.isManagement"
     >
-      <a
-        mat-button
-        routerLink="/"
-        routerLinkActive="active-nav-link"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="nav-item-btn text-dark fw-semibold px-3"
-      >
-        Home
-      </a>
-      <!-- <a
-        mat-button
-        routerLink="/contact"
-        routerLinkActive="active-nav-link"
-        class="nav-item-btn text-dark fw-semibold px-3"
-      >
-        Contact
-      </a>
-      <a
-        mat-button
-        routerLink="/about"
-        routerLinkActive="active-nav-link"
-        class="nav-item-btn text-dark fw-semibold px-3"
-      >
-        About
-      </a> -->
+
+    <!-- filter and serach section -->
+    <app-product-filter></app-product-filter>
     </div>
 
     <span class="spacer d-none d-lg-block"></span>
@@ -137,10 +115,7 @@
         </button>
 
         <mat-menu #guestActionMenu class="rounded-3 shadow-lg">
-          <a mat-menu-item routerLink="/" class="py-2">
-            <mat-icon class="text-dark me-2">home</mat-icon>
-            <span class="fw-medium">Home</span>
-          </a>
+          
           <mat-divider></mat-divider>
           <a mat-menu-item routerLink="/login" class="py-2">
             <mat-icon class="text-primary me-2">login</mat-icon>
@@ -228,10 +203,7 @@
 
           <!-- Customer menu items -->
           <ng-container *ngIf="!auth.isManagement">
-            <a mat-menu-item routerLink="/" class="d-lg-none py-2">
-              <mat-icon class="text-dark me-2">home</mat-icon>
-              <span class="fw-medium">Home</span>
-            </a>
+          
             <mat-divider class="d-lg-none"></mat-divider>
             <a mat-menu-item routerLink="/account" class="py-2">
               <mat-icon class="text-primary me-2">manage_accounts</mat-icon>
@@ -245,6 +217,11 @@
             <a mat-menu-item routerLink="/admin/profile" class="py-2">
               <mat-icon class="text-primary me-2">person</mat-icon>
               <span class="fw-medium">My Profile</span>
+            </a>
+            <mat-divider></mat-divider>
+            <a mat-menu-item routerLink="/admin/aoolication-setings" class="py-2">
+              <mat-icon class="text-primary me-2">settings</mat-icon>
+              <span class="fw-medium">App Settings</span>
             </a>
             <mat-divider></mat-divider>
           </ng-container>

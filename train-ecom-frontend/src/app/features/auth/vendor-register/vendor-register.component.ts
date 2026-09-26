@@ -16,6 +16,7 @@ import {
   VendorRegisterResponse,
 } from '../../../core/models/auth.model';
 import {
+  bankDetailsValidator,
   createVendorFormData,
   fileValidator,
   noSpaceAllow,
@@ -141,7 +142,7 @@ export class VendorRegisterComponent implements OnInit {
         ],
         ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
       },
-      { validators: passwordMatchValidator },
+      { validators: [passwordMatchValidator, bankDetailsValidator()] },
     );
   }
 
@@ -201,7 +202,9 @@ export class VendorRegisterComponent implements OnInit {
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
         this.isLoading = false;
-        this.notificationService.showSuccess(res.message || 'Registration successful');
+        this.notificationService.showSuccess(
+          res.message || 'Registration successful',
+        );
         this.registerForm.reset();
         this.route.navigate(['/login']);
       },
@@ -284,12 +287,15 @@ export class VendorRegisterComponent implements OnInit {
   }
 
   get isStep4Valid(): boolean {
-    // const gstNumber = this.registerForm.get('gstin');
-    // const panNumber = this.registerForm.get('panNumber');
-    // if (gstNumber?.invalid || panNumber?.invalid) {
-    //   return false;
-    // }
-    return this.checkStepValidity(['gstin', 'panNumber']);
+    const isGstPanValid = this.checkStepValidity(['gstin', 'panNumber']);
+
+    const isBankGroupValid = !this.registerForm.errors?.['bankIncomplete'];
+    const areBankFieldsValid =
+      !!this.registerForm.get('bankAccountNumber')?.valid &&
+      !!this.registerForm.get('acountHolderName')?.valid &&
+      !!this.registerForm.get('ifscCode')?.valid;
+
+    return isGstPanValid && isBankGroupValid && areBankFieldsValid;
   }
 
   // back button
@@ -301,6 +307,24 @@ export class VendorRegisterComponent implements OnInit {
 
   //next button
   nextStep(): void {
+    // Current step ke mutabiq validation check karein
+    if (this.currentStep === 1 && !this.isStep1Valid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+    if (this.currentStep === 2 && !this.isStep2Valid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+    if (this.currentStep === 3 && !this.isStep3Valid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+    if (this.currentStep === 4 && !this.isStep4Valid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+
     if (this.currentStep < 5) {
       this.currentStep++;
     }

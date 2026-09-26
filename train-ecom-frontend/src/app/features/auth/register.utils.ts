@@ -1,5 +1,6 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { VendorRegisterFormValues } from '../../core/models/auth.model';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 // pasword match validator
 export const passwordMatchValidator: ValidatorFn = (
@@ -66,7 +67,6 @@ export function noSpaceAllow(): ValidatorFn {
   };
 }
 
-
 // handle vendor multipart form data
 export function createVendorFormData(
   formValue: VendorRegisterFormValues,
@@ -82,7 +82,10 @@ export function createVendorFormData(
   formData.append('Role', String(2));
 
   formData.append('BussinessDetails.BussinessName', formValue.businessName);
-  formData.append('BussinessDetails.BussinessDescription', formValue.bussinessDescription);
+  formData.append(
+    'BussinessDetails.BussinessDescription',
+    formValue.bussinessDescription,
+  );
   formData.append('BussinessDetails.StoreName', formValue.displayName);
   formData.append('BussinessDetails.GSTIN', formValue.gstin);
   formData.append('BussinessDetails.PAN', formValue.panNumber);
@@ -95,13 +98,19 @@ export function createVendorFormData(
   formData.append('BussinessDetails.Country', formValue.country);
   formData.append('BussinessDetails.PostalCode', formValue.postalCode);
   if (formValue.bankAccountNumber) {
-    formData.append('BussinessDetails.BankAccountNumber', formValue.bankAccountNumber.toString());
+    formData.append(
+      'BussinessDetails.BankAccountNumber',
+      formValue.bankAccountNumber.toString(),
+    );
   }
   if (formValue.ifscCode) {
     formData.append('BussinessDetails.IFSCCode', formValue.ifscCode);
   }
   if (formValue.acountHolderName) {
-    formData.append('BussinessDetails.AccountHolderName', formValue.acountHolderName);
+    formData.append(
+      'BussinessDetails.AccountHolderName',
+      formValue.acountHolderName,
+    );
   }
 
   const categories: string[] = Array.isArray(formValue.businessCategory)
@@ -118,7 +127,10 @@ export function createVendorFormData(
     formData.append('BussinessDetails.GSTDocument', formValue.gstDocument);
   }
   if (formValue.businessDocument instanceof File) {
-    formData.append('BussinessDetails.BussinessDocument', formValue.businessDocument);
+    formData.append(
+      'BussinessDetails.BussinessDocument',
+      formValue.businessDocument,
+    );
   }
   if (formValue.businessLogo instanceof File) {
     formData.append('BussinessDetails.Logo', formValue.businessLogo);
@@ -126,7 +138,6 @@ export function createVendorFormData(
 
   return formData;
 }
-
 
 // handle input field validation error message
 export function getFieldError(
@@ -194,6 +205,11 @@ export function getFieldError(
   return '';
 }
 
+export class ImmediateErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched || control.invalid));
+  }
+}
 
 // trim the input field's data
 export function trimControlValue(control: AbstractControl | null): void {
@@ -203,4 +219,61 @@ export function trimControlValue(control: AbstractControl | null): void {
       control.setValue(trimedValue, { emitEvent: false });
     }
   }
+}
+
+// custome bank files validator
+export function bankDetailsValidator(): ValidatorFn | null {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const accNumber = group.get('bankAccountNumber');
+    const accHolderName = group.get('acountHolderName');
+    const ifscCode = group.get('ifscCode');
+
+    if (!accNumber || !accHolderName || !ifscCode) {
+      return null;
+    }
+
+    const hasAccNumber = !!accNumber.value?.toString().trim();
+    const hasAccHolderName = !!accHolderName.value?.toString().trim();
+    const hasIfscCode = !!ifscCode.value?.toString().trim();
+
+    const isAnyFill = hasAccNumber || hasAccHolderName || hasIfscCode;
+
+    if (isAnyFill) {
+      let hasError = false;
+
+      if (!hasAccNumber) {
+        accNumber.setErrors({ ...accNumber.errors, required: true });
+        hasError = true;
+      }
+
+      if (!hasAccHolderName) {
+        accHolderName.setErrors({ ...accHolderName.errors, required: true });
+        hasError = true;
+      }
+      if (!hasIfscCode) {
+        ifscCode.setErrors({ ...ifscCode.errors, required: true });
+        hasError = true;
+      }
+      if (hasError) {
+        return { bankIncomplete: true };
+      }
+    } else {
+      if (accNumber.hasError('required')) {
+        const errs = { ...accNumber.errors };
+        delete errs['required'];
+        accNumber.setErrors(Object.keys(errs).length ? errs : null);
+      }
+      if (accHolderName.hasError('required')) {
+        const errs = { ...accHolderName.errors };
+        delete errs['required'];
+        accHolderName.setErrors(Object.keys(errs).length ? errs : null);
+      }
+      if (ifscCode.hasError('required')) {
+        const errs = { ...ifscCode.errors };
+        delete errs['required'];
+        ifscCode.setErrors(Object.keys(errs).length ? errs : null);
+      }
+    }
+    return null;
+  };
 }

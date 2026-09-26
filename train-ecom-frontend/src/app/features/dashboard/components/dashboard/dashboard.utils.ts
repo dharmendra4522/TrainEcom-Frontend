@@ -3,6 +3,8 @@ import {
   DashboardStatItem,
 } from '../../../../core/models/dashboard.model';
 import { OrderStatus } from '../../../../core/models/order.model';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
 export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
@@ -15,53 +17,63 @@ export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
   { title: 'Orders', value: '...', icon: 'shopping_cart', color: '#2196f3' },
   { title: 'Customers', value: '...', icon: 'people', color: '#ff9800' },
   { title: 'Products', value: '...', icon: 'inventory_2', color: '#f44336' },
-  {
-    title: 'Brands',
-    value: '...',
-    icon: 'branding_watermark',
-    color: '#9c27b0',
-  },
-  { title: 'Categories', value: '...', icon: 'category', color: '#3f51b5' },
+  // {
+  //   title: 'Brands',
+  //   value: '...',
+  //   icon: 'branding_watermark',
+  //   color: '#9c27b0',
+  // },
+  // { title: 'Categories', value: '...', icon: 'category', color: '#3f51b5' },
 ];
 
-export function buildDashboardStats(data: DashboardData): DashboardStatItem[] {
+export function buildDashboardStats(
+  data: DashboardData,
+  portalRoutes: PortalRouteService,
+  portal: PortalKey
+): DashboardStatItem[] {
   return [
     {
       title: 'Total Revenue',
       value: `₹${data.totalRevenue}`,
       icon: 'currency_rupee',
       color: '#4caf50',
+      route: portalRoutes.orders(portal, 'manage'),
     },
     {
       title: 'Orders',
       value: data.totalOrders.toString(),
       icon: 'shopping_cart',
       color: '#2196f3',
+      route: portalRoutes.orders(portal, 'manage'),
     },
     {
       title: 'Customers',
       value: data.totalUsers.toString(),
       icon: 'people',
       color: '#ff9800',
+      route: portalRoutes.orders(portal, 'manage'),
     },
     {
       title: 'Products',
       value: data.totalProducts.toString(),
       icon: 'inventory_2',
       color: '#f44336',
+      route: portalRoutes.products(portal, 'manage'),
     },
-    {
-      title: 'Brands',
-      value: data.totalBrands.toString(),
-      icon: 'branding_watermark',
-      color: '#9c27b0',
-    },
-    {
-      title: 'Categories',
-      value: data.totalCategories.toString(),
-      icon: 'category',
-      color: '#3f51b5',
-    },
+    // {
+    //   title: 'Brands',
+    //   value: data.totalBrands.toString(),
+    //   icon: 'branding_watermark',
+    //   color: '#9c27b0',
+    //   route: portalRoutes.brands(portal),
+    // },
+    // {
+    //   title: 'Categories',
+    //   value: data.totalCategories.toString(),
+    //   icon: 'category',
+    //   color: '#3f51b5',
+    //   route: portalRoutes.brands(portal),
+    // },
   ];
 }
 

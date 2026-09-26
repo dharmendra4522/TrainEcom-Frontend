@@ -18,4 +18,13 @@ export class PortalRouteService {
   orders(portal: PortalKey, ...segments: (string | number)[]): (string | number)[] {
     return ['/', portal, 'orders', ...segments];
   }
+
+  brands(portal: PortalKey, ...segments: (string | number)[]): (string | number)[] {
+    return ['/', portal, 'brands', ...segments];
+  }
+
+  categories(portal: PortalKey, ...segments: (string | number)[]): (string | number)[] {
+    return ['/', portal, 'categories', ...segments];
+  }
+
 }

@@ -17,7 +17,10 @@ import {
   INITIAL_ADMIN_STATS,
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
-import { normalizeApprovalStatus, normalizeOrderStatus } from '../../../../core/utils/role.utils';
+import {
+  normalizeApprovalStatus,
+  normalizeOrderStatus,
+} from '../../../../core/utils/role.utils';
 import { OrderStatus } from '../../../../core/models/order.model';
 
 @Component({
@@ -51,11 +54,11 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private router: Router,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    
+
     if (this.portal === 'vendor') {
       this.stats = []; // Clear admin stats for vendor
       if (this.checkVendorPending()) {
@@ -63,8 +66,7 @@ export class DashboardComponent implements OnInit {
         this.isLoadingStats = false;
         return; // Stop here if pending
       }
-      
-      
+
       // this.fetchDashboardData();
     } else {
       // for Admin
@@ -99,7 +101,7 @@ export class DashboardComponent implements OnInit {
       this.stats = [];
       return;
     }
-    this.stats = buildDashboardStats(data);
+    this.stats = buildDashboardStats(data, this.portalRoutes, this.portal);
   }
 
   private updateRecentOrders(orders: RecentOrder[]): void {
@@ -113,12 +115,12 @@ export class DashboardComponent implements OnInit {
       customerName: order.customerName,
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
-      orderStatus: normalizeOrderStatus(order.orderStatus), 
+      orderStatus: normalizeOrderStatus(order.orderStatus),
       orderStatusClass: getOrderStatusBadgeClass(order.orderStatus),
     };
   }
 
-getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
+  getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
     return getOrderStatusBadgeClass(orderStatus);
   }
 
@@ -140,5 +142,11 @@ getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
 
   navigateToOrders(): void {
     this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'));
+  }
+
+  onStatCardClick(route?: (string | number)[]): void {
+    if (route && route.length > 0) {
+      this.router.navigate(route);
+    }
   }
 }

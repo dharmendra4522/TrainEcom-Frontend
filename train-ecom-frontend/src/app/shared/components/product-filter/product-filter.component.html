@@ -1,20 +1,20 @@
-<div class="filter-container bg-white border rounded-4 shadow-sm mb-4 p-2 px-3 d-flex align-items-center justify-content-between gap-3">
+<div class="filter-container d-flex align-items-center justify-content-between gap-2 w-100 px-2">
  
-  <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden position-relative pe-3">
-    <div
-      class="filter-icon-wrapper bg-light text-primary d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-      matTooltip="Filter Categories">
-      <mat-icon class="fs-5 w-auto h-auto">filter_list</mat-icon>
-    </div>
+  <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden position-relative px-4">
  
-    <button type="button"
+    <!-- left button -->
+   <button type="button"
       class="scroll-btn left-btn position-absolute start-0 z-2 bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center"
-      (click)="scrollChips('left')" style="left: 46px !important;">
+      [disabled]="isLeftDisable"
+      [class.opacity-50]="isLeftDisable"
+      [style.cursor]="isLeftDisable ? 'not-allowed' : 'pointer'"
+      (click)="scrollChips('left')">
       <mat-icon class="text-dark">chevron_left</mat-icon>
     </button>
- 
-    <div #chipsContainer class="filter-chips-container overflow-x-auto w-100 ps-4 pe-4 scrollbar-none"
-      style="scroll-behavior: smooth; white-space: nowrap; margin-left: 10px; margin-right: 10px;">
+    
+    <!-- chips container -->
+    <div #chipsContainer class="filter-chips-container overflow-x-auto w-100 scrollbar-none"
+      style="scroll-behavior: smooth; white-space: nowrap;" (scroll)="checkScrollButtons()">
       <div class="chips-scroll-wrapper d-inline-flex align-items-center gap-2 py-1">
         <a [routerLink]="['/products']" [queryParams]="{}" routerLinkActive="active-chip"
           [routerLinkActiveOptions]="{ exact: true }"
@@ -22,13 +22,13 @@
           All
         </a>
  
-        <ng-container *ngIf="brands$ | async as brands">
+        <!-- <ng-container *ngIf="brands$ | async as brands">
           <a *ngFor="let brand of brands" [routerLink]="['/products']" [queryParams]="{ brand: brand.name }"
             routerLinkActive="active-chip"
             class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block">
             {{ brand.name }}
           </a>
-        </ng-container>
+        </ng-container> -->
  
         <ng-container *ngIf="categories$ | async as categories">
           <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.name }"
@@ -40,13 +40,18 @@
       </div>
     </div>
  
+    <!-- right button -->
     <button type="button"
       class="scroll-btn right-btn position-absolute end-0 z-2 bg-white shadow-sm border rounded-circle d-flex align-items-center justify-content-center"
+      [disabled]="isRightDisable"
+      [class.opacity-50]="isRightDisable"
+      [style.cursor]="isRightDisable ? 'not-allowed' : 'pointer'"
       (click)="scrollChips('right')">
       <mat-icon class="text-dark">chevron_right</mat-icon>
     </button>
   </div>
  
+ <!-- Search Box Section -->
   <div class="search-wrapper flex-shrink-0">
     <div class="search-box d-flex align-items-center rounded-pill px-3 border">
       <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>

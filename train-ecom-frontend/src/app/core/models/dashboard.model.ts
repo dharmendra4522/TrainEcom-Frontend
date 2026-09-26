@@ -25,6 +25,7 @@ export interface DashboardStatItem {
   value: string;
   icon: string;
   color: string;
+  route?: (string | number)[];
 }
 
 export type DashboardOrderRow = {

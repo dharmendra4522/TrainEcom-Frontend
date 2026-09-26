@@ -13,14 +13,14 @@
   </app-header>
 
   <!-- Product search/filter: only visible for guest/customer on home & product routes -->
-  <app-product-filter
+  <!-- <app-product-filter
     *ngIf="
       !(isManagementRole$ | async) &&
       !isAccountRoute &&
       !isDetailsOrFormRoute
     "
     class="d-block"
-  ></app-product-filter>
+  ></app-product-filter> -->
 
   <mat-sidenav-container
     class="main-container"

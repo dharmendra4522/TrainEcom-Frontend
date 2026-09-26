@@ -1,11 +1,13 @@
 .product-detail-container {
-  max-width: 1280px;
-  margin: 0 auto;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .main-image-wrapper {
   height: 420px;
-  width: 100%; 
+  width: 100%;
   background-color: #f8f9fa;
   padding: 10px;
 }
@@ -140,7 +142,7 @@
   .main-image-wrapper {
     height: 300px;
   }
-  
+
   .product-title {
     font-size: 1.4rem;
   }
