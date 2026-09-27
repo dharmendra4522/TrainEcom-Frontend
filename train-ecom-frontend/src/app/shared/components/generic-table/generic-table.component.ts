@@ -203,15 +203,12 @@ export class GenericTableComponent {
       : act.disabled === true;
   }
 
-  // handle scrolling events
   onTableScroll(event: Event): void {
     const element = event.target as HTMLElement;
     const threshold = 50;
-    const atBottom =
-      element.scrollHeight - element.scrollTop - element.clientHeight <=
-      threshold;
+    const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
 
-    if (atBottom && !this.isLoading && this.hasMoreData) {
+    if (atBottom && this.hasMoreData) {
       this.loadMore.emit();
     }
   }

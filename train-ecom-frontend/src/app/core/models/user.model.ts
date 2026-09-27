@@ -32,6 +32,10 @@ export interface ProfileVendorDetails {
   ifscCode?: string | null;
   categories?: string[] | null;
   documentUrls?: string[] | null;
+  documents?: Array<{
+    documentType: number | string;
+    documentUrl: string;
+  }> | null;
   approvalStatus?: ApprovalStatus | number | string | null;
   status?: ApprovalStatus | number | string | null;
   defaultAddress?: {

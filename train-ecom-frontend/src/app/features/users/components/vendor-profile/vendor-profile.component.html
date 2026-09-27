@@ -38,342 +38,127 @@
         <mat-tab label="General">
           <div class="p-4" *ngIf="!isEditMode">
             <div class="row gx-4 gy-3">
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Full Name</span
-                >
+              <div class="col-md-6 d-flex flex-column" *ngFor="let field of getTabFields('General')">
+                <span class="text-secondary small fw-semibold mb-1">{{ field.label }}</span>
                 <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ userProfileData.name || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Email Address</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ userProfileData.email || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Phone Number</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ userProfileData.phoneNumber || "N/A" }}
+                  {{ getFieldValue(field.key) || "N/A" }}
                 </div>
               </div>
             </div>
           </div>
           <div class="p-4" *ngIf="isEditMode">
-            <app-personal-details
-              [registerForm]="editForm"
-              [isStep1Valid]="isStep1Valid"
-              [isEditMode]="true"
-              [isPasswordChangeMode]="isPasswordChangeMode"
-              [isPasswordView]="hidePassword['password']"
-              [isConfirmPassView]="hidePassword['confirmPassword']"
-              [isOldPassView]="hidePassword['oldPassword']"
-              [isNewPassView]="hidePassword['newPassword']"
-              [isEditConfirmPassView]="hidePassword['editConfirmPassword']"
-              (togglePassword)="togglePassword('password')"
-              (toggleConfirmPassword)="togglePassword('confirmPassword')"
-              (togglePasswordChange)="togglePasswordChange()"
-              (toggleOldPassword)="togglePassword('oldPassword')"
-              (toggleNewPassword)="togglePassword('newPassword')"
-              (toggleEditConfirmPassword)="
-                togglePassword('editConfirmPassword')
-              "
-            ></app-personal-details>
-          </div>
+<app-personal-details [registerForm]="editForm" [isStep1Valid]="isStep1Valid" [isEditMode]="true"></app-personal-details>          </div>
         </mat-tab>
 
         <!-- Business Tab -->
         <mat-tab label="Business">
-          <div class="p-4" *ngIf="!isEditMode">
-            <div class="row gx-4 gy-3">
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Business Name</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.bussinessName || "N/A" }}
-                </div>
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column" *ngFor="let field of getTabFields('Business')">
+              <span class="text-secondary small fw-semibold mb-1">{{ field.label }}</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6" *ngIf="field.key !== 'categories'; else categoryList">
+                {{ getFieldValue(field.key) || "N/A" }}
               </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Display Name</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.storeName || "N/A" }}
-                </div>
-              </div>
-              <div class="col-12 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Business Description</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.bussinessDescription || "N/A" }}
-                </div>
-              </div>
-              <div class="col-12 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Categories</span
-                >
+              <ng-template #categoryList>
                 <div class="p-3 bg-light rounded border">
-                  <div
-                    *ngIf="
-                      vendorData &&
-                        vendorData.categories &&
-                        vendorData.categories.length;
-                      else noCategories
-                    "
-                    class="d-flex gap-2 flex-wrap"
-                  >
-                    <span
-                      *ngFor="let cat of vendorData && vendorData.categories"
-                      class="badge bg-light text-dark border px-3 py-2 fs-6 fw-normal"
-                    >
+                  <div *ngIf="vendorData?.categories?.length; else noCategories" class="d-flex gap-2 flex-wrap">
+                    <span *ngFor="let cat of vendorCategories" class="badge bg-light text-dark border px-3 py-2 fs-6 fw-normal">
                       {{ cat }}
                     </span>
                   </div>
-                  <ng-template #noCategories
-                    ><span class="text-muted">Not provided</span></ng-template
-                  >
+                  <ng-template #noCategories><span class="text-muted">Not provided</span></ng-template>
                 </div>
-              </div>
+              </ng-template>
             </div>
           </div>
-          <div class="p-4" *ngIf="isEditMode">
-            <app-business-details
-              [registerForm]="editForm"
-              [categories$]="categories$"
-              [isStep2Valid]="isStep2Valid"
-              [isEditMode]="true"
-            ></app-business-details>
-          </div>
-        </mat-tab>
+        </div>
+        <div class="p-4" *ngIf="isEditMode">
+          <app-business-details
+            [registerForm]="editForm"
+            [categories$]="categories$"
+            [isStep2Valid]="isStep2Valid"
+            [isEditMode]="true"
+          ></app-business-details>
+        </div>
+      </mat-tab>
 
         <!-- Address Tab -->
         <mat-tab label="Address">
-          <div class="p-4" *ngIf="!isEditMode">
-            <div class="row gx-4 gy-3">
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Address Line 1</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.addressLine1 || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Address Line 2</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.addressLine2 || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1">City</span>
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.city || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1">State</span>
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.state || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Country</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.country || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Postal Code</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.postalCode || "N/A" }}
-                </div>
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column" *ngFor="let field of getTabFields('Address')">
+              <span class="text-secondary small fw-semibold mb-1">{{ field.label }}</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                {{ getFieldValue(field.key) || "N/A" }}
               </div>
             </div>
           </div>
-          <div class="p-4" *ngIf="isEditMode">
-            <app-address-details
-              [registerForm]="editForm"
-              [countries]="countries"
-              [states]="states"
-              [cities]="cities"
-              [isStep3Valid]="isStep3Valid"
-              [isEditMode]="true"
-              (countryChange)="onCountryChange($event.value)"
-              (stateChange)="onStateChange($event.value)"
-            ></app-address-details>
-          </div>
-        </mat-tab>
+        </div>
+        <div class="p-4" *ngIf="isEditMode">
+          <app-address-details
+            [registerForm]="editForm"
+            [countries]="countries"
+            [states]="states"
+            [cities]="cities"
+            [isStep3Valid]="isStep3Valid"
+            [isEditMode]="true"
+            (countryChange)="onCountryChange($event.value)"
+            (stateChange)="onStateChange($event.value)"
+          ></app-address-details>
+        </div>
+      </mat-tab>
 
         <!-- Account & Tax Tab -->
         <mat-tab label="Account & Tax">
-          <div class="p-4" *ngIf="!isEditMode">
-            <div class="row gx-4 gy-3">
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1">GSTIN</span>
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.gstin || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >PAN Number</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.pan || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Account Holder Name</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.accountHolderName || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Bank Account Number</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.bankAccountNumber || "N/A" }}
-                </div>
-              </div>
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >IFSC Code</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  {{ vendorData?.ifscCode || "N/A" }}
-                </div>
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column" *ngFor="let field of getTabFields('Account & Tax')">
+              <span class="text-secondary small fw-semibold mb-1">{{ field.label }}</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                {{ getFieldValue(field.key) || "N/A" }}
               </div>
             </div>
           </div>
-          <div class="p-4" *ngIf="isEditMode">
-            <app-tax-bank-details
-              [registerForm]="editForm"
-              [isStep4Valid]="isStep4Valid"
-              [isEditMode]="true"
-            ></app-tax-bank-details>
-          </div>
-        </mat-tab>
+        </div>
+        <div class="p-4" *ngIf="isEditMode">
+          <app-tax-bank-details
+            [registerForm]="editForm"
+            [isStep4Valid]="isStep4Valid"
+            [isEditMode]="true"
+          ></app-tax-bank-details>
+        </div>
+      </mat-tab>
 
         <!-- Documents Tab -->
         <mat-tab label="Documents">
-          <div class="p-4" *ngIf="!isEditMode">
-            <div class="row gx-4 gy-3">
-              <!-- Business Registration Document -->
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Business Registration Document</span
+        <div class="p-4" *ngIf="!isEditMode">
+          <div class="row gx-4 gy-3">
+            <div class="col-md-6 d-flex flex-column" *ngFor="let field of getTabFields('Documents'); let i = index">
+              <span class="text-secondary small fw-semibold mb-1">{{ field.label }}</span>
+              <div class="p-3 bg-light rounded border text-dark fs-6">
+                <a
+                  *ngIf="getDocumentUrl(i + 1); else noDoc"
+                  [href]="getDocumentUrl(i + 1)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-decoration-underline text-primary"
                 >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  <a
-                    *ngIf="
-                      vendorData &&
-                        vendorData.documentUrls &&
-                        vendorData.documentUrls[0];
-                      else noDoc1
-                    "
-                    [href]="
-                      vendorData && vendorData.documentUrls
-                        ? vendorData.documentUrls[0]
-                        : null
-                    "
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-decoration-underline text-primary"
-                  >
-                    View Document
-                  </a>
-                  <ng-template #noDoc1
-                    ><span class="text-muted">Not provided</span></ng-template
-                  >
-                </div>
-              </div>
-
-              <!-- GST Document -->
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >GST Document</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  <a
-                    *ngIf="
-                      vendorData &&
-                        vendorData.documentUrls &&
-                        vendorData.documentUrls[1];
-                      else noDoc2
-                    "
-                    [href]="
-                      vendorData && vendorData.documentUrls
-                        ? vendorData.documentUrls[1]
-                        : null
-                    "
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-decoration-underline text-primary"
-                  >
-                    View Document
-                  </a>
-                  <ng-template #noDoc2
-                    ><span class="text-muted">Not provided</span></ng-template
-                  >
-                </div>
-              </div>
-
-              <!-- Business Logo / Additional Document -->
-              <div class="col-md-6 d-flex flex-column">
-                <span class="text-secondary small fw-semibold mb-1"
-                  >Business Logo / Other Document</span
-                >
-                <div class="p-3 bg-light rounded border text-dark fs-6">
-                  <a
-                    *ngIf="
-                      vendorData &&
-                        vendorData.documentUrls &&
-                        vendorData.documentUrls[2];
-                      else noDoc3
-                    "
-                    [href]="
-                      vendorData && vendorData.documentUrls
-                        ? vendorData.documentUrls[2]
-                        : null
-                    "
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-decoration-underline text-primary"
-                  >
-                    View Document
-                  </a>
-                  <ng-template #noDoc3
-                    ><span class="text-muted">Not provided</span></ng-template
-                  >
-                </div>
+                  View Document
+                </a>
+                <ng-template #noDoc><span class="text-muted">Not provided</span></ng-template>
               </div>
             </div>
           </div>
-          <div class="p-4" *ngIf="isEditMode">
-            <app-documents-details
-              [registerForm]="editForm"
-              [isLoading]="isSaving"
-              [isEditMode]="true"
-              (fileSelect)="onFileSelect($event.event, $event.controlName)"
-            ></app-documents-details>
-          </div>
-        </mat-tab>
+        </div>
+        <div class="p-4" *ngIf="isEditMode">
+          <app-documents-details
+            [registerForm]="editForm"
+            [isLoading]="isSaving"
+            [isEditMode]="true"
+            (fileSelect)="onFileSelect($event.event, $event.controlName)"
+          ></app-documents-details>
+        </div>
+      </mat-tab>
       </mat-tab-group>
 
       <!-- Save Changes Button -->
@@ -381,6 +166,12 @@
         class="d-flex justify-content-end gap-2 border-top mt-4 pt-3"
         *ngIf="isEditMode"
       >
+        <div
+          *ngIf="editForm.touched && invalidFieldLabels.length > 0"
+          class="text-danger small me-auto align-self-center"
+        >
+          Please fix: {{ invalidFieldLabels.join(', ') }}.
+        </div>
         <button mat-stroked-button type="button" (click)="toggleEditMode()">
           Cancel
         </button>
@@ -388,7 +179,7 @@
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="isSaving || editForm.invalid || editForm.pristine"
+          [disabled]="isSaving || editForm.pristine"
         >
           {{ isSaving ? "Saving..." : "Save Changes" }}
         </button>
