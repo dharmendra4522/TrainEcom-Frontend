@@ -44,27 +44,32 @@
     </div>
   </div>
 
-  <!-- select category -->
+ <!-- select category -->
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Select Business Category</mat-label>
     <mat-icon matIconPrefix class="me-2 text-secondary">category</mat-icon>
-    <!-- <app-searchable-dropdown
-      label="Select Business Category"
-      placeholder="Select Business category"
-      type="Category"
-      [items]="(categories$ | async) || []"
-      diasplayKey="name"
-      [valueKey]="'id'"
-      [control]="getCategoryControl()"
-      formControlName="businessCategory"
-      [multiple]="true"
-      [disabled]="isEditMode"
-      [showManage]="false"
-      errorMsg="Business Category is rerquired"
-    ></app-searchable-dropdown> -->
     <mat-select formControlName="businessCategory" multiple>
+      
+      <mat-option 
+        class="search-option-wrapper" 
+        (click)="$event.stopPropagation()" 
+        (keydown)="$event.stopPropagation()"
+      >
+        <mat-form-field appearance="outline" class="w-100 search-mat-field">
+          <input
+            matInput
+            [formControl]="categoryFilter"
+            placeholder="Search category..."
+            (click)="$event.stopPropagation()"
+            (keydown)="$event.stopPropagation()"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </mat-option>
+
+      <!-- Filtered Categories Loop -->
       <mat-option
-        *ngFor="let category of categories$ | async"
+        *ngFor="let category of filteredCategories"
         [value]="category.id"
       >
         {{ category.name }}

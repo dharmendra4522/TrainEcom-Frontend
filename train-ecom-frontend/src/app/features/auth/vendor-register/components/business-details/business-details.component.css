@@ -16,3 +16,38 @@ h4 {
     width: 95%;
   }
 }
+
+/* Search option ko sticky aur upar fix karne ke liye */
+::ng-deep .search-option-wrapper {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: #ffffff !important;
+  z-index: 1000 !important;
+  height: auto !important;
+  padding: 8px 12px !important;
+  cursor: default !important;
+}
+
+/* hide the select option from searh box. */
+::ng-deep .search-option-wrapper .mdc-checkbox,
+::ng-deep .search-option-wrapper .mat-mdc-option-pseudo-checkbox {
+  display: none !important;
+}
+
+::ng-deep .mat-mdc-select-panel {
+  padding-top: 0 !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-form-field-flex {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-text-field-wrapper {
+  padding: 0 12px !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}

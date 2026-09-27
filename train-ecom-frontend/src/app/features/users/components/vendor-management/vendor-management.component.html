@@ -1,5 +1,5 @@
 <div class="container-fluid mt-2 px-0">
-  <div class="sticky-top-section">
+  <div class="vendor-filter-section">
     <!-- Filter section -->
     <div class="row g-3 mb-4 align-items-center" [formGroup]="filterForm">
       <!-- Search Input -->
@@ -48,19 +48,16 @@
   </div>
 
   <!-- Users Table -->
-  <app-generic-table
+<app-generic-table
     [data]="vendors"
     [columns]="columns"
     [actions]="actions"
     [isLoading]="isLoading"
-    [showPaginator]="true"
+    [showPaginator]="false"
     [showInlineActions]="false"
     [totalRecords]="totalRecords"
-    [pageSize]="pageSize"
-    [pageIndex]="pageIndex"
-    [pageSizeOptions]="[5, 10, 20]"
     (rowClick)="onRowClick($event)"
-    (pageChange)="onPageChange($event)"
+    (loadMore)="onTableScroll()"
     (actionClick)="onActionClick($event)"
     emptyMessage="No vendors found."
   >

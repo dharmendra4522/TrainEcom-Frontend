@@ -1,37 +1,56 @@
 <div class="container-fluid mt-2 px-0">
-  <div class="sticky-top-section">
-    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
-      <div>
+  <div class="sticky-top-section mb-4">
+    <div class="row align-items-start g-3">
+      <!-- title section -->
+      <div class="col-12 col-lg-4">
         <h2 class="fs-4 fw-bold text-dark m-0">Brand Management</h2>
         <p class="text-muted small m-0">Create, edit, and organize brands used across products.</p>
       </div>
-      <button mat-raised-button color="primary" (click)="openBrandDialog()">
-        <mat-icon>add</mat-icon> Add New Brand
-      </button>
-    </div>
 
-    <div class="mb-4">
-      <div class="d-flex align-items-center gap-3">
-        <mat-form-field appearance="outline" class="w-50 mb-0 pb-0" subscriptSizing="dynamic">
-          <mat-label>Search brands</mat-label>
-          <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput [formControl]="searchControl" placeholder="Search by brand name or description...">
-        </mat-form-field>
+    <!-- search section -->
+      <div class="col-12 col-lg-6">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-sm">
+            <mat-form-field appearance="outline" class="w-100 mb-0 pb-0" subscriptSizing="dynamic">
+              <mat-label>Search brands</mat-label>
+              <mat-icon matPrefix class="text-secondary">search</mat-icon>
+              <input matInput [formControl]="searchControl" placeholder="Search by brand name or description...">
+            </mat-form-field>
+          </div>
 
-        <button mat-stroked-button color="warn" *ngIf="searchControl.value"
-          class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3" style="height: 48px;"
-          (click)="resetSearch()" title="Reset Search">
-          <mat-icon>clear</mat-icon> Reset
+          <div class="col-12 col-sm-auto">
+            <button mat-stroked-button color="warn" [disabled]="!searchControl.value"
+              class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100" style="height: 48px;"
+              (click)="resetSearch()" title="Reset Search">
+              <mat-icon>clear</mat-icon> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-2 text-lg-end">
+        <button mat-raised-button color="primary" (click)="openBrandDialog()" class="w-100" style="height: 48px;">
+          <mat-icon>add</mat-icon> Add New Brand
         </button>
       </div>
     </div>
+
+    <div class="mb-4">
+      
+    </div>
   </div>
 
-  <app-generic-table [data]="(paginatedBrands$ | async) || []" [isLoading]="(isLoading$ | async) || false"
-    [columns]="columns" [actions]="actions" [showInlineActions]="true" [showPaginator]="true"
-    [totalRecords]="(totalRecords$ | async) || 0" [pageSize]="(pageSize$ | async) || 10"
-    [pageIndex]="(pageIndex$ | async) || 0" [pageSizeOptions]="[5, 10, 20, 50]" (pageChange)="handlePageChange($event)"
-    emptyMessage="No brands found." (actionClick)="handleTableAction($event)">
+<app-generic-table 
+    [data]="(paginatedBrands$ | async) || []" 
+    [isLoading]="(isLoading$ | async) || false"
+    [columns]="columns" 
+    [actions]="actions" 
+    [showInlineActions]="true" 
+    [showPaginator]="false"
+    [totalRecords]="(totalRecords$ | async) || 0" 
+    emptyMessage="No brands found." 
+    (actionClick)="handleTableAction($event)"
+    (loadMore)="onTableScroll()">
   </app-generic-table>
 
 

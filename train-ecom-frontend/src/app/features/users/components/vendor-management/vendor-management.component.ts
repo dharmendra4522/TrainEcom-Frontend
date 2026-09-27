@@ -1,7 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import {
-  ApprovalStatus,
-} from '../../../../core/models/user.model';
+import { ApprovalStatus } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -21,7 +19,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
-import { approvalStatusToLabel, normalizeApprovalStatus } from '../../../../core/utils/role.utils';
+import {
+  approvalStatusToLabel,
+  normalizeApprovalStatus,
+} from '../../../../core/utils/role.utils';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
 
 @Component({
@@ -63,6 +64,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     { key: 'email', label: 'Email', truncate: true },
     { key: 'bussinessName', label: 'Business Name', truncate: true },
     { key: 'categoriesDisplay', label: 'Categories', truncate: true },
+    { key: 'gstinNumber', label: 'GSTIN No.', truncate: true },
+    { key: 'panNumber', label: 'PAN No.', truncate: true },
+    { key: 'productCount', label: 'Product Count', truncate: false },
+    { key: 'storeName', label: 'Store Name', truncate: true },
     {
       key: 'statusDisplay',
       label: 'Status',
@@ -118,7 +123,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
 
     const status = normalizeApprovalStatus(row.approvalStatus ?? row.status);
-    return status === ApprovalStatus.Approved || status === ApprovalStatus.Rejected;
+    return (
+      status === ApprovalStatus.Approved || status === ApprovalStatus.Rejected
+    );
   }
 
   private isVendorTableItem(row: unknown): row is VendorTableItem {
@@ -147,40 +154,52 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         this.selectedStatus === 'All'
           ? undefined
           : (this.selectedStatus as ApprovalStatus),
-      isBlocked: this.selectedIsBlocked === 'All' ? undefined : (this.selectedIsBlocked as boolean),
+      isBlocked:
+        this.selectedIsBlocked === 'All'
+          ? undefined
+          : (this.selectedIsBlocked as boolean),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
 
     this.vendorService.getVendors(filter).subscribe({
       next: (res) => {
-        this.vendors = res.items.map((vendor: VendorItem): VendorTableItem => {
-          const bName =
-            vendor.bussinessDetail?.bussinessName ||
-            vendor.bussinessName ||
-            'N/A';
-          const categories =
-            vendor.bussinessDetail?.bussinessCategories || vendor.categories;
-          const status =
-            normalizeApprovalStatus(vendor.approvalStatus ?? vendor.status) ??
-            ApprovalStatus.Pending;
+        const mappedVendors = res.items.map(
+          (vendor: VendorItem): VendorTableItem => {
+            const bName =
+              vendor.bussinessDetail?.bussinessName ||
+              vendor.bussinessName ||
+              'N/A';
+            const categories =
+              vendor.bussinessDetail?.bussinessCategories || vendor.categories;
+            const status =
+              normalizeApprovalStatus(vendor.approvalStatus ?? vendor.status) ??
+              ApprovalStatus.Pending;
 
-          return {
-            ...vendor,
-            id: Number(vendor.userId || vendor.vendorId),
-            name: vendor.name || bName || 'N/A',
-            categoriesDisplay:
-              Array.isArray(categories) && categories.length > 0
-                ? categories.join(', ')
-                : 'N/A',
-            statusDisplay: approvalStatusToLabel(status),
-            vendorStatusClass: this.getStatusBadgeClass(status),
-            isBlockedDisplay: vendor.isBlocked ? 'Blocked' : 'Active',
-            isBlockedClass: vendor.isBlocked
-              ? 'bg-danger-subtle text-danger border border-danger-subtle'
-              : 'bg-success-subtle text-success border border-success-subtle',
-          };
-        });
+            return {
+              ...vendor,
+              id: Number(vendor.userId || vendor.vendorId),
+              name: vendor.name || bName || 'N/A',
+              categoriesDisplay:
+                Array.isArray(categories) && categories.length > 0
+                  ? categories.join(', ')
+                  : 'N/A',
+              statusDisplay: approvalStatusToLabel(status),
+              vendorStatusClass: this.getStatusBadgeClass(status),
+              isBlockedDisplay: vendor.isBlocked ? 'Blocked' : 'Active',
+              isBlockedClass: vendor.isBlocked
+                ? 'bg-danger-subtle text-danger border border-danger-subtle'
+                : 'bg-success-subtle text-success border border-success-subtle',
+            };
+          },
+        );
+
+        if (this.pageIndex === 0) {
+          this.vendors = mappedVendors;
+        } else {
+          this.vendors = [...this.vendors, ...mappedVendors];
+        }
+
         this.totalRecords = res.totalRecords;
         this.isLoading = false;
       },
@@ -189,6 +208,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
     });
+  }
+
+  onTableScroll(): void {
+    if (!this.isLoading && this.vendors.length < this.totalRecords) {
+      this.pageIndex++;
+      this.loadVendors();
+    }
   }
 
   private getStatusBadgeClass(
@@ -280,8 +306,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     console.log('Edit vendor', vendorId);
   }
 
-
-  // handle delete vendor 
+  // handle delete vendor
   private handleDeleteVendor(vendorId: number, vendorName: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -311,9 +336,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-
   // handle verify status
- private handleStatusUpdate(
+  private handleStatusUpdate(
     vendorId: number,
     vendorName: string,
     targetStatus: ApprovalStatus,
@@ -364,7 +388,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               this.loadVendors();
             },
             error: (err: { error?: { message?: string } }) => {
-              this.notificationService.showError(err?.error?.message || 'Vendor Status Update Failed');
+              this.notificationService.showError(
+                err?.error?.message || 'Vendor Status Update Failed',
+              );
             },
           });
         }
@@ -378,59 +404,72 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         },
       });
 
-      dialogRef.afterClosed().subscribe((result: { confirmed: boolean; message: string; } | undefined) => {
-        if (result && result.confirmed) {
-          const payload = {
-            status: targetStatus,
-            rejectionReason: result.message, 
-          };
+      dialogRef
+        .afterClosed()
+        .subscribe(
+          (result: { confirmed: boolean; message: string } | undefined) => {
+            if (result && result.confirmed) {
+              const payload = {
+                status: targetStatus,
+                rejectionReason: result.message,
+              };
 
-          this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
-            next: (response: { message?: string }) => {
-              this.notificationService.showSuccess(
-                response.message || 'Vendor rejected successfully',
-              );
-              this.loadVendors();
-            },
-            error: (err: { error?: { message?: string } }) => {
-              this.notificationService.showError(err?.error?.message || 'Vendor Status Update Failed');
-            },
-          });
-        }
-      });
+              this.vendorService
+                .updateVendorStatus(vendorId, payload)
+                .subscribe({
+                  next: (response: { message?: string }) => {
+                    this.notificationService.showSuccess(
+                      response.message || 'Vendor rejected successfully',
+                    );
+                    this.loadVendors();
+                  },
+                  error: (err: { error?: { message?: string } }) => {
+                    this.notificationService.showError(
+                      err?.error?.message || 'Vendor Status Update Failed',
+                    );
+                  },
+                });
+            }
+          },
+        );
     }
   }
 
+  private handleToggleBlockVendor(vendor: VendorTableItem): void {
+    const vendorId = Number(vendor.userId || vendor.vendorId || vendor.id);
+    const vendorName = vendor.name || 'Vendor';
+    const newBlockStatus = !vendor.isBlocked;
+    const actionName = newBlockStatus ? 'block' : 'unblock';
 
-private handleToggleBlockVendor(vendor: VendorTableItem): void {
-  const vendorId = Number(vendor.userId || vendor.vendorId || vendor.id);
-  const vendorName = vendor.name || 'Vendor';
-  const newBlockStatus = !vendor.isBlocked;
-  const actionName = newBlockStatus ? 'block' : 'unblock';
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: `Kya aap sach mein ${vendorName} ko ${actionName} karna chahte hain?`,
+        yesLabel: newBlockStatus ? 'Block' : 'Unblock',
+        noLabel: 'Cancel',
+      },
+    });
 
-  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-    width: '400px',
-    data: {
-      message: `Kya aap sach mein ${vendorName} ko ${actionName} karna chahte hain?`,
-      yesLabel: newBlockStatus ? 'Block' : 'Unblock',
-      noLabel: 'Cancel',
-    },
-  });
-
-  dialogRef.afterClosed().subscribe((confirmed) => {
-    if (confirmed) {
-      this.userService.updateUserStatus(vendorId, { isBlocked: newBlockStatus }).subscribe({
-        next: () => {
-          this.notificationService.showSuccess(`Vendor ${actionName}ed successfully.`);
-          this.loadVendors();
-        },
-        error: (err) => {
-          this.notificationService.showError(err?.error?.message || `Failed to ${actionName} vendor.`);
-        },
-      });
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.userService
+          .updateUserStatus(vendorId, { isBlocked: newBlockStatus })
+          .subscribe({
+            next: () => {
+              this.notificationService.showSuccess(
+                `Vendor ${actionName}ed successfully.`,
+              );
+              this.loadVendors();
+            },
+            error: (err) => {
+              this.notificationService.showError(
+                err?.error?.message || `Failed to ${actionName} vendor.`,
+              );
+            },
+          });
+      }
+    });
+  }
 
   onRowClick(row: VendorTableItem | Record<string, unknown>): void {
     const vendor = row as VendorTableItem;

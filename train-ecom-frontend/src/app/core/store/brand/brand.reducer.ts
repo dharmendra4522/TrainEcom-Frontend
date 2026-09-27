@@ -56,7 +56,7 @@ export const brandReducer = createReducer(
         ...state,
         isLoading: false,
         error: null,
-        paginatedBrands: brands,
+        paginatedBrands: pageNumber === 1 ? brands : [...state.paginatedBrands, ...brands],
         pagesCache: {
             ...state.pagesCache,
             [cacheKey]: brands

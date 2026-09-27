@@ -102,12 +102,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
       color: 'primary',
       tooltip: 'Edit Product',
     },
-    {
-      actionKey: 'view',
-      icon: 'visibility',
-      color: 'accent',
-      tooltip: 'View Product',
-    },
   ];
 
   ngOnInit() {
