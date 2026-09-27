@@ -42,26 +42,32 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private confirmDialog = inject(ConfirmDialogServiceService);
   readonly portalRoutes = inject(PortalRouteService);
 
-  private destroy$ = new Subject<void>();
+  // Destroy Subject
+  private readonly destroy$ = new Subject<void>();
 
+  // selectors
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
   totalRecords$: Observable<number> = this.store.select(
     selectProductTotalRecords,
   );
+  brands$ = this.store.select(selectAllBrands);
+  categories$ = this.store.select(selectAllCategories);
 
-  ProductList: Product[] = [];
-
+  // form control
   searchControl = new FormControl('');
   categoryControl = new FormControl('');
   brandControl = new FormControl('');
 
-  brands$ = this.store.select(selectAllBrands);
-  categories$ = this.store.select(selectAllCategories);
-
+  // component state
+  ProductList: Product[] = [];
+  currentPage: number = 1;
   pageNumber: number = 1;
   pageSize: number = 10;
   totalRecords: number = 0;
+  hasMoreData: boolean = true;
+  portal: PortalKey = 'admin';
+  isLoadingValue: boolean = false;
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Name', type: 'string' },
@@ -75,7 +81,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
     { key: 'stockQuantity', label: 'Stock', type: 'number' },
     { key: 'categoryName', label: 'Category', type: 'string' },
     { key: 'brandName', label: 'Brand', type: 'string' },
-    { key: 'thumbnailUrl', label: 'Thumbnail', type: 'image', sortable: false },
+    {
+      key: 'thumbnailUrl',
+      label: 'Product Image',
+      type: 'image',
+      sortable: false,
+    },
   ];
 
   actions: TableAction[] = [
@@ -99,16 +110,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  portal: PortalKey = 'admin';
-
   ngOnInit() {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
     this.loadInitialMetadata();
+    this.initSubscriptions();
     this.setupSearchFilter();
   }
 
-  // Brands aur Categories 
+  // load initial data Brands aur Categories
   private loadInitialMetadata(): void {
     this.store
       .select(selectAllBrands)
@@ -129,9 +139,26 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  // initalize store state subscription
+  private initSubscriptions(): void {
+    this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      this.isLoadingValue = loading;
+    });
+
+    this.products$.pipe(takeUntil(this.destroy$)).subscribe((products) => {
+      if (this.pageNumber === 1) {
+        this.ProductList = [...products];
+      } else {
+        const existingIds = new Set(this.ProductList.map((p) => p.id));
+        const newProduct = products.filter((p) => !existingIds.has(p.id));
+        this.ProductList = [...this.ProductList, ...newProduct];
+      }
+      this.checkPaginationLimit();
+    });
+    this.totalRecords$.pipe(takeUntil(this.destroy$)).subscribe((total) => {
+      this.totalRecords = total;
+      this.checkPaginationLimit();
+    });
   }
 
   // setupSearchFilter method to handle search, category, and brand filtering
@@ -140,12 +167,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.searchControl.valueChanges.pipe(
         startWith(''),
         debounceTime(400),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       ),
-      this.categoryControl.valueChanges.pipe(startWith(''), distinctUntilChanged()),
+      this.categoryControl.valueChanges.pipe(
+        startWith(''),
+        distinctUntilChanged(),
+      ),
       this.brandControl.valueChanges.pipe(startWith('')),
     ])
-      .pipe(debounceTime(100),takeUntil(this.destroy$))
+      .pipe(debounceTime(100), takeUntil(this.destroy$))
       .subscribe(([search, category, brand]) => {
         this.pageNumber = 1; // Reset to first page on filter change
         this.store.dispatch(
@@ -161,37 +191,57 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  onRowClick(row: Record<string, unknown>): void {
-    const product = row as Product;
-    this.router.navigate(
-      this.portalRoutes.products(this.portal, 'view', product.id),
-    );
-  }
-
-  clearFilters() {
-    this.searchControl.setValue('', {emitEvent: false});
-    this.categoryControl.setValue('', {emitEvent: false});
-    this.brandControl.setValue('', {emitEvent: false});
-    this.fetchProducts();
-  }
-
-  fetchProducts() {
+  // dispatch fatehc sction to store
+  private fetchProducts(
+    search?: string,
+    categoryName?: string,
+    brandName?: string,
+  ): void {
     this.store.dispatch(
       ProductActions.loadProducts({
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
-        search: this.searchControl.value || undefined,
-        categoryName: this.categoryControl.value || undefined,
-        brandName: this.brandControl.value || undefined,
+        search,
+        categoryName,
+        brandName,
         portal: this.portal,
       }),
     );
   }
 
-  onPageChange(event: PageEvent) {
-    this.pageNumber = event.pageIndex + 1;
-    this.pageSize = event.pageSize;
+  // check if more recode exist for load
+  private checkPaginationLimit(): void {
+    if (this.totalRecords > 0 && this.ProductList.length >= this.totalRecords) {
+      this.hasMoreData = false;
+    } else {
+      this.hasMoreData = true;
+    }
+  }
+
+  // handle scrolling on table
+  onScrollLoad(): void {
+    if (this.isLoadingValue || !this.hasMoreData) return;
+    this.pageNumber++;
+    this.fetchProducts(
+      this.searchControl.value?.trim() || undefined,
+      this.categoryControl.value || undefined,
+      this.brandControl.value || undefined,
+    );
+  }
+
+  clearFilters(): void {
+    this.searchControl.setValue('', { emitEvent: false });
+    this.categoryControl.setValue('', { emitEvent: false });
+    this.brandControl.setValue('', { emitEvent: false });
+    this.pageNumber = 1;
     this.fetchProducts();
+  }
+
+  onRowClick(row: Record<string, unknown>): void {
+    const product = row as Product;
+    this.router.navigate(
+      this.portalRoutes.products(this.portal, 'view', product.id),
+    );
   }
 
   handleTableAction(event: TableActionEvent): void {
@@ -209,7 +259,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
   }
 
-  deleteProduct(productId: string) {
+  // delete product
+  private deleteProduct(productId: string) {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this product?',
@@ -223,5 +274,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
           );
         }
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -9,7 +9,7 @@ import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
 export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
   {
-    title: 'Total Revenue',
+    title: 'Revenue',
     value: '₹...',
     icon: 'currency_rupee',
     color: '#4caf50',
@@ -37,7 +37,6 @@ export function buildDashboardStats(
       value: `₹${data.totalRevenue}`,
       icon: 'currency_rupee',
       color: '#4caf50',
-      route: portalRoutes.orders(portal, 'manage'),
     },
     {
       title: 'Orders',
@@ -106,4 +105,37 @@ export function getPaymentStatusBadgeClass(paymentStatus: string): string {
     default:
       return 'bg-warning-subtle text-warning border border-warning-subtle';
   }
+}
+
+
+// charts dummy data
+export const userChartData = {
+  labels: ['Vendors', 'Customers'],
+  datasets:[
+   {
+      data: [ 15, 120],
+      backgroundColor: ['#2196f3', '#ff9800'], 
+    }]
+}
+
+export const brandProductData = {
+  labels: ['Adidas', 'Apple', 'Dell', 'HP', 'LG'], 
+  datasets: [
+    {
+      data: [12, 18, 15, 10, 20], 
+      label: 'Products by Brand', 
+      backgroundColor: '#9c27b0',
+    }
+  ],
+}
+
+export const categoryProductData ={
+  labels: ['Electronics', 'Clothing', 'Groceries', 'Home Appliances'], 
+  datasets: [
+    {
+      data: [45, 30, 60, 25], 
+      label: 'Products by Category', 
+      backgroundColor: '#3f51b5',
+    },
+  ],
 }

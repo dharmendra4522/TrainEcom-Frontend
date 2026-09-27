@@ -1,26 +1,28 @@
 <div class="container-fluid mt-2 px-0">
   <div class="sticky-top-section">
-    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
-      <div>
+    <div class="row align-items-center mb-4 g-3">
+      <div class="col-12 col-md-5">
         <h2 class="fs-4 fw-bold text-dark m-0">Product Management</h2>
         <p class="text-muted small m-0">View, search, and manage all products from one place.</p>
       </div>
-      <button mat-raised-button color="primary" [routerLink]="portalRoutes.products(portal, 'add')">
-        <mat-icon>add</mat-icon> Add New Product
-      </button>
-    </div>
-
-    <!-- Search & Filter Section -->
-    <div class="row g-3 align-items-center">
-      <div class="col-md-6">
+      <div class="col-12 col-md-5">
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Search products</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
           <input matInput [formControl]="searchControl" placeholder="Search by name or description...">
         </mat-form-field>
       </div>
+      <div class="col-12 col-md-2 text-md-end">
+        <button mat-raised-button color="primary" [routerLink]="portalRoutes.products(portal, 'add')" class="w-100 w-md-auto" style="height:50px">
+        <mat-icon>add</mat-icon> <span class="d-none d-md-inline">Add New Product</span><span class="d-inline d-lg-none">Add</span>
+      </button>
+      </div>
+    </div>
 
-      <div class="col-md-2">
+    <!-- Search & Filter Section -->
+    <div class="row g-3 align-items-center">
+
+      <div class="col-md-4">
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Category</mat-label>
           <mat-select [formControl]="categoryControl">
@@ -32,7 +34,7 @@
         </mat-form-field>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-4">
         <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
           <mat-label>Brand</mat-label>
           <mat-select [formControl]="brandControl">
@@ -44,7 +46,7 @@
         </mat-form-field>
       </div>
 
-      <div class="col-md-2 d-flex align-items-center" *ngIf="searchControl.value || categoryControl.value || brandControl.value">
+      <div class="col-12 col-md-4 d-flex align-items-center" *ngIf="searchControl.value || categoryControl.value || brandControl.value">
         <button mat-stroked-button color="warn" (click)="clearFilters()"
           class="w-100 d-flex align-items-center justify-content-center gap-1 rounded-3" style="height: 48px;">
           <mat-icon>clear</mat-icon> Clear
@@ -53,9 +55,9 @@
     </div>
   </div>
 
-  <app-generic-table [data]="(products$ | async) || []" [isLoading]="(isLoading$ | async) || false" [columns]="columns"
-    [actions]="actions" [showInlineActions]="true" [showPaginator]="true" [totalRecords]="(totalRecords$ | async) || 0" [pageSize]="pageSize"
-    [pageIndex]="pageNumber - 1" emptyMessage="No products found." (rowClick)="onRowClick($event)"
-    (actionClick)="handleTableAction($event)" (pageChange)="onPageChange($event)">
+  <app-generic-table [data]="(ProductList)" [isLoading]="(isLoading$ | async) || false" [columns]="columns"
+    [actions]="actions" [showInlineActions]="true" [hasMoreData]="hasMoreData" 
+    emptyMessage="No products found." (rowClick)="onRowClick($event)"
+    (actionClick)="handleTableAction($event)" (loadMore)="onScrollLoad()">
   </app-generic-table>
 </div>

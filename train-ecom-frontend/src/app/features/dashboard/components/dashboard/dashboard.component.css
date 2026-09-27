@@ -100,3 +100,25 @@
   background-color: #f3e5f5;
   color: #7b1fa2;
 }
+
+.bar-chart {
+  display: block;
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.stat-card.has-link {
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.stat-card.has-link:hover {
+  border-color: #1976d2 !important;
+}
+
+.stat-card.has-link:hover mat-card-content .stat-value {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}

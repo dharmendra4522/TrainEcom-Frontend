@@ -5,7 +5,11 @@
 <ng-container *ngIf="isApproved; else pendingMessage">
   <!-- Stats Cards -->
   <div class="stats-grid" *ngIf="stats && stats.length > 0">
-    <mat-card *ngFor="let stat of stats" class="stat-card" (click)="onStatCardClick(stat.route)" [style.cursor]="stat.route ? 'pointer' : 'default'">
+    <mat-card *ngFor="let stat of stats" 
+              class="stat-card" 
+              [class.has-link]="stat.route"
+              (click)="onStatCardClick(stat.route)" 
+              [style.cursor]="stat.route ? 'pointer' : 'default'">
       <mat-card-content>
         <div class="stat-info" [class.w-75]="isLoadingStats">
           <span class="stat-title">{{ stat.title }}</span>
@@ -34,6 +38,51 @@
         </ng-template>
       </mat-card-content>
     </mat-card>
+  </div>
+
+  <!-- cart section -->
+  <div class="row my-4">
+    <div class="col-md-6 mb-3">
+      <mat-card class="p-3 h-100">
+        <h5 class="card-title mb-3">User Distribution</h5>
+        <div class="bar-chart">
+          <canvas baseChart
+          [data]="userChartData"
+          [type]="userChartsType"
+          [options]="userChartOptions"
+          >
+
+          </canvas>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- product section -->
+     <div class="col-md-6 mb-3">
+      <mat-card class="p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 clas="card-title m-0">Product Analytics</h5>
+          <div class="btn-group btn-group-sm" role="group">
+            <button mat-flat-button [color]="isCategoryView ? 'primary' : ''"
+            (click)="toggleProductView('category')">
+              Category
+            </button>
+             <button mat-flat-button [color]="!isCategoryView ? 'primary' : ''"
+              (click)="toggleProductView('brand')">
+              Brand
+            </button>
+          </div>
+        </div>
+        <div class="bar-cart">
+          <canvas baseChart
+            [data]="productChartData"
+            [type]="productChartType"
+            [options]="productChartOptions">
+          </canvas>
+        </div>
+      </mat-card>
+     </div>
+
   </div>
 
   <!-- Recent Orders -->

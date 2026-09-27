@@ -29,6 +29,7 @@ import { ReviewRatingDialogComponent } from './components/review-rating-dialog/r
 import { NotificationCardComponent } from './components/notification-card/notification-card.component';
 import { StatusCardComponent } from './components/status-card/status-card.component';
 import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -57,14 +58,15 @@ import { VendorActionDialogComponent } from './components/vendor-action-dialog/v
     ReviewRatingDialogComponent,
     NotificationCardComponent,
     StatusCardComponent,
-    VendorActionDialogComponent
+    VendorActionDialogComponent,
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ScrollingModule,
   ],
   exports: [
     HeaderComponent,
@@ -87,7 +89,8 @@ import { VendorActionDialogComponent } from './components/vendor-action-dialog/v
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
     NotificationCardComponent,
-    StatusCardComponent
-  ]
+    StatusCardComponent,
+    ScrollingModule,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -6,6 +6,7 @@ import {
   ViewChild,
   SimpleChanges,
   OnChanges,
+  EmbeddedViewRef,
 } from '@angular/core';
 import {
   TableColumn,
@@ -41,8 +42,11 @@ export class GenericTableComponent {
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
 
   @Output() sortChange = new EventEmitter<Sort>();
-
   @ViewChild(MatSort) sort!: MatSort;
+
+  // for scroll-based lazy loading
+  @Output() loadMore = new EventEmitter<void>();
+  @Input() hasMoreData: boolean = true;
 
   originalData: Record<string, unknown>[] = [];
 
@@ -193,12 +197,22 @@ export class GenericTableComponent {
     return act.tooltip || act.actionKey;
   }
 
-  isActionDisabled(
-    act: TableAction,
-    row: Record<string, unknown>,
-  ): boolean {
+  isActionDisabled(act: TableAction, row: Record<string, unknown>): boolean {
     return typeof act.disabled === 'function'
       ? act.disabled(row)
       : act.disabled === true;
+  }
+
+  // handle scrolling events
+  onTableScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+    const threshold = 50;
+    const atBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight <=
+      threshold;
+
+    if (atBottom && !this.isLoading && this.hasMoreData) {
+      this.loadMore.emit();
+    }
   }
 }
