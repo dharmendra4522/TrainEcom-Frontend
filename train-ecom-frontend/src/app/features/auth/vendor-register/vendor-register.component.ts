@@ -128,7 +128,7 @@ export class VendorRegisterComponent implements OnInit {
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
-        country: ['', Validators.required],
+        country: ['India', Validators.required],
         state: ['', Validators.required],
         postalCode: [
           '',

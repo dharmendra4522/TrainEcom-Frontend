@@ -1,6 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { PageEvent } from '@angular/material/paginator';
 import { Brand } from '../../../../core/models/brand.model';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import {
@@ -21,7 +20,6 @@ import {
   distinctUntilChanged,
   debounceTime,
   takeUntil,
-  take,
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
@@ -31,7 +29,7 @@ import { ConfirmDialogServiceService } from '../../../../core/services/confirm-d
   templateUrl: './brand.component.html',
   styleUrl: './brand.component.css',
 })
-export class BrandComponent implements OnInit {
+export class BrandComponent implements OnInit, OnDestroy { 
   private matDialog = inject(MatDialog);
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
@@ -47,9 +45,13 @@ export class BrandComponent implements OnInit {
   searchControl = new FormControl('');
   private destroy$ = new Subject<void>();
 
-  filteredBrands$!: Observable<Brand[]>;
   private currentPage = 0;
   private pageSize = 10;
+  
+  // Local state tracking
+  private currentBrandsLength = 0;
+  private totalRecordsCount = 0;
+  private isLoadingValue = false;
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
@@ -73,8 +75,24 @@ export class BrandComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.initSubscriptions();
     this.loadBrand(this.currentPage, this.pageSize, '');
     this.setupSeachControl();
+  }
+
+  // Track store state locally
+  private initSubscriptions(): void {
+    this.paginatedBrands$.pipe(takeUntil(this.destroy$)).subscribe((brands) => {
+      this.currentBrandsLength = brands?.length || 0;
+    });
+
+    this.totalRecords$.pipe(takeUntil(this.destroy$)).subscribe((total) => {
+      this.totalRecordsCount = total || 0;
+    });
+
+    this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      this.isLoadingValue = loading;
+    });
   }
 
   private setupSeachControl(): void {
@@ -101,17 +119,11 @@ export class BrandComponent implements OnInit {
   }
 
   onTableScroll(): void {
-    this.paginatedBrands$.pipe(take(1)).subscribe((brands) => {
-      this.totalRecords$.pipe(take(1)).subscribe((total) => {
-        this.isLoading$.pipe(take(1)).subscribe((isLoading) => {
-          if (!isLoading && brands.length < total) {
-            this.currentPage++;
-            const currentSearch = this.searchControl.value || '';
-            this.loadBrand(this.currentPage, this.pageSize, currentSearch);
-          }
-        });
-      });
-    });
+    if (!this.isLoadingValue && this.currentBrandsLength < this.totalRecordsCount) {
+      this.currentPage++;
+      const currentSearch = this.searchControl.value || '';
+      this.loadBrand(this.currentPage, this.pageSize, currentSearch);
+    }
   }
 
   resetSearch(): void {

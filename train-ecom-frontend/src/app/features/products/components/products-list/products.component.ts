@@ -169,7 +169,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       ),
       this.brandControl.valueChanges.pipe(startWith('')),
     ])
-      .pipe(debounceTime(100), takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$))
       .subscribe(([search, category, brand]) => {
         this.pageNumber = 1; // Reset to first page on filter change
         this.store.dispatch(

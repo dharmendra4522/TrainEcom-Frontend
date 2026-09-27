@@ -35,6 +35,7 @@ export class GenericTableComponent {
   @Input() pageSize: number = 5;
   @Input() pageIndex: number = 0;
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
+  @Input() enableRowClick: boolean = true;
 
   @Output() actionClick = new EventEmitter<TableActionEvent>();
 
@@ -171,6 +172,7 @@ export class GenericTableComponent {
   }
 
   onRowClick(row: Record<string, unknown>, event: MouseEvent): void {
+    if (!this.enableRowClick) return;
     const target = event.target as HTMLElement;
     if (target.closest('.action-btn')) {
       return;
@@ -206,7 +208,9 @@ export class GenericTableComponent {
   onTableScroll(event: Event): void {
     const element = event.target as HTMLElement;
     const threshold = 50;
-    const atBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
+    const atBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight <=
+      threshold;
 
     if (atBottom && this.hasMoreData) {
       this.loadMore.emit();

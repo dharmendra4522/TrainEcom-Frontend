@@ -134,7 +134,7 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 text-center"
+          class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 text-end"
         >
           Actions
         </th>
@@ -194,11 +194,13 @@
         *matHeaderRowDef="displayedColumns; sticky: true"
         class="bg-light-subtle border-bottom"
       ></tr>
-      <tr
+<tr
         mat-row
         *matRowDef="let row; columns: displayedColumns"
         (click)="onRowClick(row, $event)"
-        class="table-row-hover transition-all cursor-pointer"
+        [class.table-row-hover]="enableRowClick"
+        [class.cursor-pointer]="enableRowClick"
+        [class.cursor-default]="!enableRowClick"
       ></tr>
     </table>
 
