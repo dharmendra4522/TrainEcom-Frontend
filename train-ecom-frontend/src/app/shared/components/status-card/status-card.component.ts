@@ -17,7 +17,6 @@ import { approvalStatusToLabel } from '../../../core/utils/role.utils';
 })
 export class StatusCardComponent {
   private store = inject(Store);
-  private route = inject(Router);
 
   submittedDate$: Observable<string | null> =
     this.store.select(selectSubmittedDate);
@@ -25,24 +24,8 @@ export class StatusCardComponent {
     this.store.select(selectRegistrationId);
   status$: Observable<string | null> = this.store.select(selectAuthStatus);
 
-  shortReg(regId: string | null): string {
-    if (!regId) return '';
-    if (regId.length > 8) {
-      regId = regId.substring(0, 8).toUpperCase();
-    }
-    return regId;
-  }
-
   getStatusLabel(status: string | number | null | undefined): string {
     return approvalStatusToLabel(status);
-  }
-
-  get localRegistrationId(): string | null {
-    return localStorage.getItem('registrationId');
-  }
-
-  get localSubmittedDate(): string | null {
-    return localStorage.getItem('submittedDate');
   }
 
   get localStatus(): string | null {

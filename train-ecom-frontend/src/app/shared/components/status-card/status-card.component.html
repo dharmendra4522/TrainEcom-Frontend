@@ -1,32 +1,50 @@
-<div class="container d-flex flex-column gap-3">
-  <div class="timer-section">
-    <div class="d-flex flex-column align-items-center gap-4">
-      <h3 class="text-center">
-        Your Application is Under Review! <br />Thank you for registration
-      </h3>
+<div class="container d-flex flex-column align-items-center justify-content-center py-5">
+
+  <div class="card border-0 shadow-lg rounded-4 p-4 text-center bg-white w-100 second-container">
+    
+    <div class="mb-3">
+      <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning rounded-circle p-3 shadow-sm icon-container">
+        <mat-icon class="fs-1 loading-icon">hourglass_top</mat-icon>
+      </div>
     </div>
-  </div>
-  <div class="d-flex flex-column gap-3">
-    <div
-      class="card-section border rounded d-flex flex-column align-items-start px-4 py-2"
-    >
-      <ng-container
-        *ngIf="(registrationId$ | async) || localRegistrationId as regId"
-      >
-        <h3>Application Reg: #{{ shortReg(regId) }}</h3>
+
+    <!-- Title & Subtitle -->
+    <h3 class="fw-bold text-dark mb-2">
+      Your Application is Under Review!
+    </h3>
+    <p class="text-muted small mb-4">
+      Thank you for registering with us. We are currently verifying your details.
+    </p>
+
+    <div class="bg-light rounded-4 p-3 text-start d-flex flex-column gap-2 mb-3">
+      
+      <ng-container *ngIf="(registrationId$ | async) as regId">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+          <span class="text-secondary small fw-medium">Application ID</span>
+          <span class="fw-bold text-dark font-monospace">#{{regId }}</span>
+        </div>
       </ng-container>
 
-      <p>
-        Submitted Date:
-        {{
-          (submittedDate$ | async) || localSubmittedDate
-            | date: "medium" : "Asia/Kolkata"
-        }}
-      </p>
+      <div class="d-flex justify-content-between align-items-center border-bottom pb-2 pt-1">
+        <span class="text-secondary small fw-medium">Submitted Date</span>
+        <span class="fw-medium text-dark small">
+          {{ (submittedDate$ | async) | date: "medium" : "Asia/Kolkata" }}
+        </span>
+      </div>
 
-      <p>
-        Current Status: {{ getStatusLabel((status$ | async) || localStatus) }}
-      </p>
+      <div class="d-flex justify-content-between align-items-center pt-1">
+        <span class="text-secondary small fw-medium">Current Status</span>
+        <span class="badge bg-warning-subtle text-warning fw-semibold px-3 py-2 rounded-pill">
+          {{ getStatusLabel((status$ | async) || localStatus) }}
+        </span>
+      </div>
+
     </div>
+
+    <!-- Help -->
+    <div class="text-muted extra-small mt-2">
+      <p class="mb-0"><mat-icon class="align-middle fs-6 me-1 help-icon">info</mat-icon> We will notify you via email once the review process is complete.</p>
+    </div>
+
   </div>
 </div>
