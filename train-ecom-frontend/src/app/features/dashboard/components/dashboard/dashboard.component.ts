@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit {
     {
       key: 'orderStatus',
       label: 'Order Status',
-      type: 'string',
+      type: 'badge',
       badgeClassKey: 'orderStatusClass',
     },
   ];

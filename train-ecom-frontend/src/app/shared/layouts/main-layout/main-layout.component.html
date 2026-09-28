@@ -12,16 +12,6 @@
   >
   </app-header>
 
-  <!-- Product search/filter: only visible for guest/customer on home & product routes -->
-  <!-- <app-product-filter
-    *ngIf="
-      !(isManagementRole$ | async) &&
-      !isAccountRoute &&
-      !isDetailsOrFormRoute
-    "
-    class="d-block"
-  ></app-product-filter> -->
-
   <mat-sidenav-container
     class="main-container"
     [class.account-container]="isAccountRoute"
@@ -47,13 +37,17 @@
       <div class="content-wrapper">
         <div
           class="page-padding flex-grow-area"
-          [class.admin-page-padding]="(isAdminRole$ | async) || (isVendorRole$ | async)"
+          [class.admin-page-padding]="
+            (isAdminRole$ | async) || (isVendorRole$ | async)
+          "
           [class.customer-page-padding]="isCustomerRole$ | async"
         >
           <router-outlet></router-outlet>
         </div>
         <!-- Footer: only for customers/guests on public routes (not on /admin, /vendor, /account) -->
-        <app-footer *ngIf="!(isManagementRole$ | async) && !isAccountRoute"></app-footer>
+        <app-footer
+          *ngIf="!(isManagementRole$ | async) && !isAccountRoute"
+        ></app-footer>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>

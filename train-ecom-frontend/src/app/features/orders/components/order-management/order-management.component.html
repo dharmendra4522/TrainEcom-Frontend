@@ -62,12 +62,12 @@
             [(ngModel)]="selectedPaymentStatus"
             (selectionChange)="onFilterChange()"
           >
-            <mat-option value="">All Payments</mat-option>
+            <mat-option value="undefined">All Payments</mat-option>
             <mat-option
               *ngFor="let payment of paymentStatusOptions"
-              [value]="payment"
+              [value]="payment.value"
             >
-              {{ payment }}
+              {{ payment.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>

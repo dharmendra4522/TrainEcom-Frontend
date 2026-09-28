@@ -1,16 +1,26 @@
-import { Component, inject, Input, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { AdminUser, UserStatusFilter } from '../../../../core/models/user.model';
+import {
+  AdminUser,
+  UserStatusFilter,
+} from '../../../../core/models/user.model';
 import { Role, ROLE_NAME_MAP } from '../../../../core/models/auth.model';
 import {
   TableAction,
   TableActionEvent,
   TableColumn,
 } from '../../../../core/models/table.model';
-import { PageEvent } from '@angular/material/paginator';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -21,6 +31,14 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class AllUsersComponent implements OnInit, OnDestroy {
   @Input() fixedRole: Role | number = Role.Customer;
+
+  @Input() set externalSearchQuery(value: string) {
+    if (this.filterForm.get('search')?.value !== value) {
+      this.filterForm.patchValue({ search: value }, { emitEvent: true });
+    }
+  }
+  @Output() searchReset = new EventEmitter<void>();
+
   private userService = inject(UserService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
@@ -45,7 +63,6 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   filterForm = new FormGroup({
     search: new FormControl(''),
     status: new FormControl<UserStatusFilter | 'All'>('All'),
-    role: new FormControl<Role | 'All'>('All'),
   });
 
   ngOnInit(): void {
@@ -55,7 +72,12 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   private loadRoleOptions(): void {
-    const allowedRoles = [Role.Customer, Role.Vendor, Role.Accounting, Role.OfficeAdmin];
+    const allowedRoles = [
+      Role.Customer,
+      Role.Vendor,
+      Role.Accounting,
+      Role.OfficeAdmin,
+    ];
     this.roleOptions = [
       { label: 'All Roles', value: 'All' },
       ...allowedRoles.map((role) => ({
@@ -107,32 +129,47 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const filter = {
       search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : (this.selectedStatus as UserStatusFilter),
-      role: this.fixedRole !== undefined ? this.fixedRole : (this.selectedRole === 'All' ? undefined : (this.selectedRole as Role)),
+      status:
+        this.selectedStatus === 'All'
+          ? undefined
+          : (this.selectedStatus as UserStatusFilter),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
     this.userService.getAllUsers(filter).subscribe({
       next: (response) => {
-        this.allUsers = response.items.map((user) => ({
-          ...user,
-          userId: Number(user.userId),
-          statusDisplay: user.isBlocked ? 'Blocked' : 'Active',
-          userStatusClass: user.isBlocked
-            ? 'bg-danger-subtle text-danger border border-danger-subtle'
-            : 'bg-success-subtle text-success border border-success-subtle',
-          actionLabel: user.isBlocked ? 'Unblock' : 'Block',
-          actionIcon: user.isBlocked ? 'lock_open' : 'block',
-          formattedAddress: user.address
-            ? `${user.address.city || ''}, ${user.address.state || ''}`.replace(
-                /^,\s*|,\s*$/g,
-                '',
-              )
-            : 'N/A',
-          description: user.address
-            ? `${user.address.addressLine1 || ''}${user.address.addressLine2 ? ', ' + user.address.addressLine2 : ''}, ${user.address.city || ''}, ${user.address.state || ''} - ${user.address.postalCode || ''}`
-            : 'N/A',
-        }));
+        const mappedUsers = response.items.map((user) => {
+          const isBlockedUser =
+            user.isBlocked === true ||
+            Number(user.status) === UserStatusFilter.Blocked;
+          return {
+            ...user,
+            userId: Number(user.userId),
+            statusDisplay: isBlockedUser ? 'Blocked' : 'Active',
+            userStatusClass: isBlockedUser
+              ? 'bg-danger-subtle text-danger border border-danger-subtle'
+              : 'bg-success-subtle text-success border border-success-subtle',
+            actionLabel: isBlockedUser ? 'Unblock' : 'Block',
+            actionIcon: isBlockedUser ? 'lock_open' : 'block',
+            isBlocked: isBlockedUser,
+            formattedAddress: user.address
+              ? `${user.address.city || ''}, ${user.address.state || ''}`.replace(
+                  /^,\s*|,\s*$/g,
+                  '',
+                )
+              : 'N/A',
+            description: user.address
+              ? `${user.address.addressLine1 || ''}${user.address.addressLine2 ? ', ' + user.address.addressLine2 : ''}, ${user.address.city || ''}, ${user.address.state || ''} - ${user.address.postalCode || ''}`
+              : 'N/A',
+          };
+        });
+
+        if (this.pageIndex === 0) {
+          this.allUsers = mappedUsers;
+        } else {
+          this.allUsers = [...this.allUsers, ...mappedUsers];
+        }
+
         this.totalRecords = response.totalRecords;
         this.isLoading = false;
       },
@@ -145,10 +182,11 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.loadUsers();
+  onTableScroll(): void {
+    if (!this.isLoading && this.allUsers.length < this.totalRecords) {
+      this.pageIndex++;
+      this.loadUsers();
+    }
   }
 
   toggleUserStatus(user: AdminUser): void {
@@ -191,7 +229,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
           this.toggleUserStatus(user);
         }
       });
-    } else if( event.action === 'delete'){
+    } else if (event.action === 'delete') {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
@@ -205,13 +243,17 @@ export class AllUsersComponent implements OnInit, OnDestroy {
         if (confirmed) {
           this.userService.deleteUser(Number(user.userId)).subscribe({
             next: (res) => {
-              this.notification.showSuccess(res.message || 'User Deleted Successfully.');
+              this.notification.showSuccess(
+                res.message || 'User Deleted Successfully.',
+              );
               this.loadUsers();
             },
             error: (err) => {
-              const errorMessage = err?.error?.message || 'User delete karne mein safalta nahi mili.';
+              const errorMessage =
+                err?.error?.message ||
+                'User delete karne mein safalta nahi mili.';
               this.notification.showError(errorMessage);
-            }
+            },
           });
         }
       });
@@ -230,8 +272,9 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
+    this.searchReset.emit();
     this.filterForm.setValue(
-      { search: '', status: 'All', role: 'All' },
+      { search: '', status: 'All' },
       { emitEvent: false },
     );
     this.pageIndex = 0;
@@ -243,4 +286,3 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

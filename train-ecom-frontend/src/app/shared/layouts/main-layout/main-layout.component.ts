@@ -65,7 +65,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
 
   isMobile$: Observable<boolean> = this.breakpointObserver
-    .observe(Breakpoints.Handset)
+    .observe('(max-width: 768px)')
     .pipe(
       map((result: { matches: boolean }) => result.matches),
       shareReplay(),
@@ -104,7 +104,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         }, 0);
       });
 
-    this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
+    this.breakpointObserver.observe('(max-width: 768px)').subscribe((result) => {
       this.isSidebarOpened = !result.matches;
     });
   }

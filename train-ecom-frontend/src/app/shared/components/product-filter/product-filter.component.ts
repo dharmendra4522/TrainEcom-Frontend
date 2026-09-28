@@ -37,7 +37,6 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
 
   @ViewChild('chipsContainer', { static: false }) chipsContainer!: ElementRef;
 
-  // brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
 
   searchControl = new FormControl('');
@@ -49,13 +48,7 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
     this.setupQueryAndSearchSubscription();
   }
 
-  // Load brands and categories if they are not already loaded in the store
   private loadFilterMetadata(): void {
-    // this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
-    //   if (!brands || brands.length === 0) {
-    //     this.store.dispatch(BrandActions.loadBrands());
-    //   }
-    // });
 
     this.store
       .select(selectAllCategories)

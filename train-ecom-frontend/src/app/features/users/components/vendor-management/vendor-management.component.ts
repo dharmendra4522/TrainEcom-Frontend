@@ -1,4 +1,12 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { ApprovalStatus } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
@@ -9,7 +17,13 @@ import {
 import { VendorService } from '../../../../core/services/vendor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  Subject,
+  takeUntil,
+  startWith,
+} from 'rxjs';
 import {
   VendorItem,
   VendorStatus,
@@ -27,6 +41,13 @@ import { VendorActionDialogComponent } from '../../../../shared/components/vendo
   styleUrl: './vendor-management.component.css',
 })
 export class VendorManagementComponent implements OnInit, OnDestroy {
+  @Input() set externalSearchQuery(value: string) {
+    if (this.filterForm.get('search')?.value !== value) {
+      this.filterForm.patchValue({ search: value }, { emitEvent: true });
+    }
+  }
+  @Output() searchReset = new EventEmitter<void>();
+
   private vendorService = inject(VendorService);
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);
@@ -70,7 +91,6 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       type: 'badge',
       badgeClassKey: 'vendorStatusClass',
     },
-
   ];
 
   actions: TableAction[] = [
@@ -122,12 +142,16 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.searchStream();
-    this.loadVendors();
   }
 
   private searchStream(): void {
     this.filterForm.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .pipe(
+        startWith(this.filterForm.value),
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
       .subscribe(() => {
         this.pageIndex = 0;
         this.loadVendors();
@@ -138,10 +162,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const filter = {
       search: this.searchQuery || undefined,
-      status:
-        this.selectedStatus === 'All'
-          ? undefined
-          : this.selectedStatus,
+      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -167,11 +188,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
                   ? categories.join(', ')
                   : 'N/A',
               productCount: vendor.productCount ?? 0,
-              storeName: vendor.storeName || vendor.bussinessDetail?.storeName || 'N/A',
-              gstinNumber: vendor.gstin || vendor.bussinessDetail?.gstin || 'N/A',
+              storeName:
+                vendor.storeName || vendor.bussinessDetail?.storeName || 'N/A',
+              gstinNumber:
+                vendor.gstin || vendor.bussinessDetail?.gstin || 'N/A',
               panNumber: vendor.pan || vendor.bussinessDetail?.pan || 'N/A',
               statusDisplay: this.getVendorStatusLabel(currentStatus),
               vendorStatusClass: this.getStatusBadgeClass(currentStatus),
+              rejectionReason: vendor.bussinessDetail?.rejectionReason || null,
             };
           },
         );
@@ -194,11 +218,16 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   private getVendorStatusLabel(status: number): string {
     switch (status) {
-      case VendorStatus.Active: return 'Active';
-      case VendorStatus.Pending: return 'Pending';
-      case VendorStatus.Rejected: return 'Rejected';
-      case VendorStatus.Blocked: return 'Blocked';
-      default: return 'Unknown';
+      case VendorStatus.Active:
+        return 'Active';
+      case VendorStatus.Pending:
+        return 'Pending';
+      case VendorStatus.Rejected:
+        return 'Rejected';
+      case VendorStatus.Blocked:
+        return 'Blocked';
+      default:
+        return 'Unknown';
     }
   }
 
@@ -216,7 +245,6 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-
   onTableScroll(): void {
     if (!this.isLoading && this.vendors.length < this.totalRecords) {
       this.pageIndex++;
@@ -231,6 +259,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   }
 
   resetFilter(): void {
+    this.searchReset.emit();
     this.filterForm.setValue(
       { search: '', status: 'All' },
       { emitEvent: false },
@@ -287,7 +316,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getApprovalStatus(status: VendorStatus | number | undefined): ApprovalStatus {
+  private getApprovalStatus(
+    status: VendorStatus | number | undefined,
+  ): ApprovalStatus {
     switch (Number(status)) {
       case VendorStatus.Active:
         return ApprovalStatus.Approved;

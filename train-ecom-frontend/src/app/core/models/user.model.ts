@@ -174,6 +174,7 @@ export interface VendorBusinessSummary {
   gstin?: string;
   pan?: string;
   city?: string;
+  rejectionReason?: string | null;
 }
 
 export interface AdminUserListResponse {

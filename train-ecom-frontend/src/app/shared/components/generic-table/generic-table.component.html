@@ -121,6 +121,8 @@
                 ? row[col.badgeClassKey]
                 : 'bg-primary-subtle text-primary'
             "
+            [matTooltip]="row['rejectionReason'] ? row['rejectionReason'] + '' : ''"
+            [matTooltipDisabled]="!row['rejectionReason']"
           >
             {{ row[col.key] || "General" }}
           </span>

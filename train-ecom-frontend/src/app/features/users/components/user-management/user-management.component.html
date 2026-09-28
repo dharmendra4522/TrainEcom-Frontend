@@ -17,7 +17,7 @@
         <mat-form-field appearance="outline" class="w-100 mb-0 pb-0" subscriptSizing="dynamic">
           <mat-label>Search users...</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput placeholder="Type to search...">
+          <input matInput placeholder="Type to search..." [formControl]="globalSearch">
         </mat-form-field>
       </div>
     </div>
@@ -32,8 +32,8 @@
   <!-- Content area -->
   <div class="tab-content-area row mt-3">
     <div class="col-12" >
-      <app-all-users *ngIf="activeTab === 'customers'"></app-all-users>
-      <app-vendor-management *ngIf="activeTab === 'vendors'"></app-vendor-management>
+      <app-all-users *ngIf="activeTab === 'customers'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-all-users>
+      <app-vendor-management *ngIf="activeTab === 'vendors'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-vendor-management>
     </div>
   </div>
 </div>

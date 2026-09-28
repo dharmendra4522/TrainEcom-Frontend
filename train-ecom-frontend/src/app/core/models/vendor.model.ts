@@ -1,14 +1,10 @@
-
-import type {
-  AdminUserFilterParams,
-  ApprovalStatus,
-} from './user.model';
+import type { AdminUserFilterParams, ApprovalStatus } from './user.model';
 
 export enum VendorStatus {
   Active = 1,
   Pending = 2,
   Rejected = 3,
-  Blocked = 4
+  Blocked = 4,
 }
 
 export interface VendorItem {
@@ -27,12 +23,14 @@ export interface VendorItem {
   categories?: string[];
   status?: VendorStatus | number;
   approvalStatus?: ApprovalStatus | number;
+  rejectionReason?: string | null;
   bussinessDetail?: {
     bussinessName?: string;
     bussinessCategories?: string[];
     storeName?: string;
     gstin?: string;
     pan?: string;
+    rejectionReason?: string | null;
   };
 }
 export interface VendorTableItem extends VendorItem {
@@ -104,8 +102,8 @@ export interface VendorProfileEditValues {
   bankAccountNumber: string | number;
   acountHolderName: string;
   ifscCode: string;
+  rejectionReason: string;
 }
-
 
 export interface VendorFilterParams extends AdminUserFilterParams {
   status?: VendorStatus | number | string;

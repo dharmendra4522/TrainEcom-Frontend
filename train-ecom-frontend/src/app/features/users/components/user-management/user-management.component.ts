@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
 import { Role } from '../../../../core/models/auth.model';
+
+import { FormControl } from '@angular/forms';
 
 export interface TabItem {
   label: string;
@@ -13,11 +15,13 @@ export interface TabItem {
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css'],
 })
-export class UserManagementComponent {
+export class UserManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   activeTab: 'customers' | 'vendors' = 'customers';
   selectedindex: number = 0;
+  globalSearch = new FormControl('');
+  searchQueryText: string = '';
 
   get roleNumber(): number {
     return this.activeTab === 'customers' ? Role.Customer : Role.Vendor;
@@ -36,8 +40,12 @@ export class UserManagementComponent {
         this.selectedindex = 1;
       } else if (roleParams === Role.Customer) {
         this.activeTab = 'customers';
-        this.selectedindex = 0
+        this.selectedindex = 0;
       }
+    });
+
+    this.globalSearch.valueChanges.subscribe((val) => {
+      this.searchQueryText = val || '';
     });
   }
 
@@ -46,7 +54,7 @@ export class UserManagementComponent {
     if (selectedTab) {
       this.activeTab = selectedTab.value;
       this.selectedindex = event.index;
+      this.globalSearch.setValue('');
     }
   }
 }
-
