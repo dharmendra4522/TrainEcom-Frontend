@@ -141,6 +141,7 @@ export interface AdminUser extends Record<string, unknown> {
   email: string;
   phoneNumber: string;
   role?: Role | number;
+  status?: number | null;
   approvalStatus?: ApprovalStatus | number | null;
   address: {
     addressLine1: string;
@@ -151,6 +152,10 @@ export interface AdminUser extends Record<string, unknown> {
     postalCode: string;
   };
   isBlocked: boolean;
+  productCount?: number;
+  storeName?: string;
+  gstin?: string;
+  pan?: string;
   isApproved?: ApprovalStatus | number | null;
   userStatusClass?: string;
   businessDetail?: VendorBusinessSummary | null;
@@ -165,6 +170,9 @@ export interface VendorBusinessSummary {
   businessName?: string;
   bussinessCategories?: string[];
   businessCategories?: string[];
+  storeName?: string;
+  gstin?: string;
+  pan?: string;
   city?: string;
 }
 

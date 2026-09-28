@@ -11,12 +11,13 @@ import {
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import {
-  brandProductData,
   buildDashboardStats,
   categoryProductData,
   getOrderStatusBadgeClass,
   getPaymentStatusBadgeClass,
   INITIAL_ADMIN_STATS,
+  orderStatusChartData,
+  revenueChartData,
   userChartData,
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
@@ -41,6 +42,14 @@ export class DashboardComponent implements OnInit {
   isLoadingStats: boolean = true;
   isHovered: boolean = false;
 
+  public totalUsers: number = 0;
+  public totalCustomers: number = 0;
+  public totalVendors: number = 0;
+  public totalOrders: number = 0;
+  public activeOrders: number = 0;
+  public deliveredOrders: number = 0;
+  public cancelOrders: number = 0
+
   tableColumns: TableColumn[] = [
     { key: 'orderId', label: 'Order ID', truncate: true, type: 'string' },
     { key: 'customerName', label: 'Customer Name', type: 'string' },
@@ -55,18 +64,41 @@ export class DashboardComponent implements OnInit {
   ];
 
   private portalRoutes = inject(PortalRouteService);
-  private portal: PortalKey = 'admin';
+  public portal: PortalKey = 'admin';
   public isVendor: boolean = false;
   public userChartsType: ChartType = 'pie';
   public userChartData: ChartData<'pie'> = userChartData;
 
   // product bar
   public productChartType: ChartType = 'bar';
-  public isCategoryView: boolean = true;
+  // public isCategoryView: boolean = true;
   public productChartData: ChartData<'bar'> = categoryProductData;
+
+  // revenue chart
+  public revenueChartType: ChartType = 'bar';
+  public revenueChartData: ChartData<'bar'> = revenueChartData;
+  public revenueChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  public orderChartType: ChartType = 'pie';
+  public orderChartData: ChartData<'pie'> = orderStatusChartData;
+  public orderChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+  };
+
 
   public userChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom',
@@ -76,6 +108,7 @@ export class DashboardComponent implements OnInit {
 
   public productChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       y: {
         beginAtZero: true,
@@ -86,7 +119,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     Chart.register(...registerables);
@@ -122,6 +155,31 @@ export class DashboardComponent implements OnInit {
       next: (data: DashboardData) => {
         this.updateStatsCards(data);
         this.updateRecentOrders(data.recentOrders);
+        this.totalUsers = data.totalUsers;
+        this.totalCustomers = data.totalCustomers;
+        this.totalVendors = data.totalVendors;
+        this.totalOrders = data.totalOrders;
+        this.activeOrders = data.activeOrders;
+        this.deliveredOrders = data.deliveredOrders;
+        this.cancelOrders = data.cancelOrders;
+        this.userChartData = {
+          labels: ['Customers', 'Vendors'],
+          datasets: [
+            {
+              data: [data.totalCustomers, data.totalVendors],
+              backgroundColor: ['#4caf50', '#2196f3'],
+            },
+          ],
+        }
+        this.orderChartData = {
+          labels: ['Active', 'Delivered', 'Cancelled'],
+          datasets: [
+            {
+              data: [data.activeOrders, data.deliveredOrders, data.cancelOrders],
+              backgroundColor: ['#2196f3', '#4caf50', '#f44336'],
+            },
+          ],
+        };
         this.isLoadingStats = false;
       },
       error: (err: Error) => {
@@ -182,34 +240,6 @@ export class DashboardComponent implements OnInit {
   onStatCardClick(route?: (string | number)[]): void {
     if (route && route.length > 0) {
       this.router.navigate(route);
-    }
-  }
-
-  toggleProductView(view: 'category' | 'brand'): void {
-    if (view === 'category') {
-      this.isCategoryView = true;
-      this.productChartData = {
-        labels: ['Electronics', 'Clothing', 'Groceries', 'Home Appliances'],
-        datasets: [
-          {
-            data: [45, 30, 60, 25],
-            label: 'Products by Category',
-            backgroundColor: '#3f51b5',
-          },
-        ],
-      };
-    } else {
-      this.isCategoryView = false;
-      this.productChartData = {
-        labels: ['Adidas', 'Apple', 'Dell', 'HP', 'LG'],
-        datasets: [
-          {
-            data: [12, 18, 15, 10, 20],
-            label: 'Products by Brand',
-            backgroundColor: '#9c27b0',
-          },
-        ],
-      };
     }
   }
 }

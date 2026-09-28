@@ -9,12 +9,15 @@ export interface RecentOrder {
 }
 
 export interface DashboardData {
-  totalUsers: number;
+  totalRevenue: number;
   totalProducts: number;
   totalOrders: number;
-  totalRevenue: number;
-  totalBrands: number;
-  totalCategories: number;
+  activeOrders: number;
+  deliveredOrders: number;
+  cancelOrders: number;
+  totalUsers: number;
+  totalCustomers: number;
+  totalVendors: number;
   recentOrders: RecentOrder[];
 }
 

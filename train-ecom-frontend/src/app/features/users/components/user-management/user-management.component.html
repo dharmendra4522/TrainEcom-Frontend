@@ -23,7 +23,7 @@
     </div>
 
     <!-- new navigation tab -->
-    <mat-tab-group (selectedTabChange)="onTabChange($event)" class="mb-2">
+    <mat-tab-group [selectedIndex]="selectedindex" (selectedTabChange)="onTabChange($event)" class="mb-2">
       <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
       </mat-tab>
     </mat-tab-group>
@@ -31,7 +31,7 @@
 
   <!-- Content area -->
   <div class="tab-content-area row mt-3">
-    <div class="col-12">
+    <div class="col-12" >
       <app-all-users *ngIf="activeTab === 'customers'"></app-all-users>
       <app-vendor-management *ngIf="activeTab === 'vendors'"></app-vendor-management>
     </div>

@@ -5,11 +5,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Role } from '../models/auth.model';
 import {
-  ApprovalStatus,
   AdminUserListResponse,
   AdminUser,
   AdminUserFilterParams,
-  UserStatusFilter,
 } from '../models/user.model';
 import {
   VendorDetails,
@@ -18,6 +16,7 @@ import {
   VendorVerifyRequest,
   VendorVerifyResponse,
   VendorFilterParams,
+  VendorStatus,
 } from '../models/vendor.model';
 import { UserService } from './user.service';
 
@@ -36,8 +35,7 @@ export class VendorService {
     const vendorFilter: AdminUserFilterParams = {
       Search: filter?.search,
       Role: Role.Vendor,
-      approvalStatus: filter?.status === 'All' ? undefined : filter?.status,
-      UserStatus: this.toUserStatus(filter?.isBlocked),
+      status: filter?.status === 'All' ? undefined : filter?.status,
       PageNumber: filter?.pageNumber,
       PageSize: filter?.pageSize,
     };
@@ -48,18 +46,6 @@ export class VendorService {
         items: response.items.map((item) => this.toVendorItem(item)),
       })),
     );
-  }
-
-  private toUserStatus(
-    status: VendorFilterParams['isBlocked'],
-  ): UserStatusFilter | undefined {
-    if (status === undefined || status === 'All') {
-      return undefined;
-    }
-    if (typeof status === 'boolean') {
-      return status ? UserStatusFilter.Blocked : UserStatusFilter.Active;
-    }
-    return typeof status === 'string' ? Number(status) : status;
   }
 
   private toVendorItem(item: AdminUser): VendorItem {
@@ -84,13 +70,21 @@ export class VendorService {
       email: item.email,
       phoneNumber: item.phoneNumber,
       city: business?.city || item.address?.city || '',
-      status: item.approvalStatus ?? ApprovalStatus.Pending,
+      productCount: item.productCount,
+      storeName: item.storeName || business?.storeName,
+      gstin: item.gstin || business?.gstin,
+      pan: item.pan || business?.pan,
+      status: item.status ?? VendorStatus.Pending,
+      approvalStatus: item.approvalStatus ?? undefined,
       isBlocked: item.isBlocked,
       categories,
       bussinessDetail: business
         ? {
             bussinessName: business.bussinessName || business.businessName,
             bussinessCategories: categories,
+            storeName: item.storeName || business.storeName,
+            gstin: item.gstin || business.gstin,
+            pan: item.pan || business.pan,
           }
         : undefined,
     };

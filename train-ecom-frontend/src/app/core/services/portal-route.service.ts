@@ -27,4 +27,10 @@ export class PortalRouteService {
     return ['/', portal, 'categories', ...segments];
   }
 
+  users(portal: PortalKey, ...segment:(string | number)[]): (string | number)[] {
+    return ['/', portal, 'users', ...segment]
+  }
+
+  
+
 }

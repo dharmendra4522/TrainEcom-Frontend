@@ -11,18 +11,14 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 import {
-  VendorDetails,
   VendorItem,
+  VendorStatus,
   VendorTableItem,
 } from '../../../../core/models/vendor.model';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
-import {
-  approvalStatusToLabel,
-  normalizeApprovalStatus,
-} from '../../../../core/utils/role.utils';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
 
 @Component({
@@ -39,11 +35,12 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   isLoading: boolean = false;
-  statusOptions: Array<{ label: string; value: ApprovalStatus | 'All' }> = [
+  statusOptions: Array<{ label: string; value: VendorStatus | 'All' }> = [
     { label: 'All Status', value: 'All' },
-    { label: 'Pending', value: ApprovalStatus.Pending },
-    { label: 'Approved', value: ApprovalStatus.Approved },
-    { label: 'Rejected', value: ApprovalStatus.Rejected },
+    { label: 'Active', value: VendorStatus.Active },
+    { label: 'Pending', value: VendorStatus.Pending },
+    { label: 'Rejected', value: VendorStatus.Rejected },
+    { label: 'Blocked', value: VendorStatus.Blocked },
   ];
 
   totalRecords: number = 0;
@@ -54,8 +51,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   filterForm = new FormGroup({
     search: new FormControl(''),
-    status: new FormControl<ApprovalStatus | 'All'>('All'),
-    isBlocked: new FormControl<'All' | boolean>('All'),
+    status: new FormControl<VendorStatus | 'All'>('All'),
   });
 
   columns: TableColumn[] = [
@@ -74,12 +70,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       type: 'badge',
       badgeClassKey: 'vendorStatusClass',
     },
-    {
-      key: 'isBlockedDisplay',
-      label: 'Active Status',
-      type: 'badge',
-      badgeClassKey: 'isBlockedClass',
-    },
+
   ];
 
   actions: TableAction[] = [
@@ -122,10 +113,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const status = normalizeApprovalStatus(row.approvalStatus ?? row.status);
-    return (
-      status === ApprovalStatus.Approved || status === ApprovalStatus.Rejected
-    );
+    return Number(row.status) !== VendorStatus.Pending;
   }
 
   private isVendorTableItem(row: unknown): row is VendorTableItem {
@@ -153,11 +141,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       status:
         this.selectedStatus === 'All'
           ? undefined
-          : (this.selectedStatus as ApprovalStatus),
-      isBlocked:
-        this.selectedIsBlocked === 'All'
-          ? undefined
-          : (this.selectedIsBlocked as boolean),
+          : this.selectedStatus,
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -172,9 +156,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               'N/A';
             const categories =
               vendor.bussinessDetail?.bussinessCategories || vendor.categories;
-            const status =
-              normalizeApprovalStatus(vendor.approvalStatus ?? vendor.status) ??
-              ApprovalStatus.Pending;
+            const currentStatus = Number(vendor.status ?? VendorStatus.Pending);
 
             return {
               ...vendor,
@@ -184,12 +166,12 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
                 Array.isArray(categories) && categories.length > 0
                   ? categories.join(', ')
                   : 'N/A',
-              statusDisplay: approvalStatusToLabel(status),
-              vendorStatusClass: this.getStatusBadgeClass(status),
-              isBlockedDisplay: vendor.isBlocked ? 'Blocked' : 'Active',
-              isBlockedClass: vendor.isBlocked
-                ? 'bg-danger-subtle text-danger border border-danger-subtle'
-                : 'bg-success-subtle text-success border border-success-subtle',
+              productCount: vendor.productCount ?? 0,
+              storeName: vendor.storeName || vendor.bussinessDetail?.storeName || 'N/A',
+              gstinNumber: vendor.gstin || vendor.bussinessDetail?.gstin || 'N/A',
+              panNumber: vendor.pan || vendor.bussinessDetail?.pan || 'N/A',
+              statusDisplay: this.getVendorStatusLabel(currentStatus),
+              vendorStatusClass: this.getStatusBadgeClass(currentStatus),
             };
           },
         );
@@ -210,26 +192,35 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  private getVendorStatusLabel(status: number): string {
+    switch (status) {
+      case VendorStatus.Active: return 'Active';
+      case VendorStatus.Pending: return 'Pending';
+      case VendorStatus.Rejected: return 'Rejected';
+      case VendorStatus.Blocked: return 'Blocked';
+      default: return 'Unknown';
+    }
+  }
+
+  private getStatusBadgeClass(status: number): string {
+    switch (status) {
+      case VendorStatus.Active:
+        return 'bg-success-subtle text-success border border-success-subtle';
+      case VendorStatus.Pending:
+        return 'bg-warning-subtle text-warning border border-warning-subtle';
+      case VendorStatus.Rejected:
+      case VendorStatus.Blocked:
+        return 'bg-danger-subtle text-danger border border-danger-subtle';
+      default:
+        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+    }
+  }
+
+
   onTableScroll(): void {
     if (!this.isLoading && this.vendors.length < this.totalRecords) {
       this.pageIndex++;
       this.loadVendors();
-    }
-  }
-
-  private getStatusBadgeClass(
-    status: string | number | ApprovalStatus,
-  ): string {
-    const numStatus = Number(status);
-    switch (numStatus) {
-      case ApprovalStatus.Approved:
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case ApprovalStatus.Pending:
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case ApprovalStatus.Rejected:
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
     }
   }
 
@@ -241,7 +232,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   resetFilter(): void {
     this.filterForm.setValue(
-      { search: '', status: 'All', isBlocked: 'All' },
+      { search: '', status: 'All' },
       { emitEvent: false },
     );
     this.pageIndex = 0;
@@ -251,11 +242,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
   }
-  get selectedStatus(): ApprovalStatus | 'All' {
+  get selectedStatus(): VendorStatus | 'All' {
     return this.filterForm.get('status')?.value || 'All';
-  }
-  get selectedIsBlocked(): 'All' | boolean {
-    return this.filterForm.get('isBlocked')?.value ?? 'All';
   }
 
   onActionClick(event: TableActionEvent): void {
@@ -267,9 +255,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       vendor.bussinessName ||
       vendor.name ||
       'Vendor') as string;
-    const currentStatus =
-      normalizeApprovalStatus(vendor.approvalStatus ?? vendor.status) ??
-      ApprovalStatus.Pending;
+    const currentStatus = this.getApprovalStatus(vendor.status);
 
     switch (event.action) {
       case 'edit':
@@ -298,6 +284,19 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
           currentStatus,
         );
         break;
+    }
+  }
+
+  private getApprovalStatus(status: VendorStatus | number | undefined): ApprovalStatus {
+    switch (Number(status)) {
+      case VendorStatus.Active:
+        return ApprovalStatus.Approved;
+      case VendorStatus.Rejected:
+        return ApprovalStatus.Rejected;
+      case VendorStatus.Pending:
+      case VendorStatus.Blocked:
+      default:
+        return ApprovalStatus.Pending;
     }
   }
 

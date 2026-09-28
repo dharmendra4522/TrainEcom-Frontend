@@ -2,8 +2,14 @@
 import type {
   AdminUserFilterParams,
   ApprovalStatus,
-  UserStatusFilter,
 } from './user.model';
+
+export enum VendorStatus {
+  Active = 1,
+  Pending = 2,
+  Rejected = 3,
+  Blocked = 4
+}
 
 export interface VendorItem {
   vendorId?: number;
@@ -13,24 +19,28 @@ export interface VendorItem {
   email: string;
   phoneNumber: string;
   city?: string;
+  gstin?: string;
+  pan?: string;
+  storeName?: string;
+  productCount?: number;
   isBlocked?: boolean;
   categories?: string[];
-  status?: ApprovalStatus | number;
+  status?: VendorStatus | number;
   approvalStatus?: ApprovalStatus | number;
   bussinessDetail?: {
     bussinessName?: string;
     bussinessCategories?: string[];
+    storeName?: string;
+    gstin?: string;
+    pan?: string;
   };
 }
-
 export interface VendorTableItem extends VendorItem {
   id: number;
   statusDisplay: string;
   vendorStatusClass: string;
-  isBlockedDisplay: string;
-  isBlockedClass: string;
   [key: string]: unknown;
-} 
+}
 
 export interface VendorListResponse {
   items: VendorItem[];
@@ -98,8 +108,7 @@ export interface VendorProfileEditValues {
 
 
 export interface VendorFilterParams extends AdminUserFilterParams {
-  status?: ApprovalStatus | number | string;
-  isBlocked?: UserStatusFilter | boolean | string | 'All';
+  status?: VendorStatus | number | string;
 }
 
 export type vendorFilterParams = VendorFilterParams;

@@ -10,9 +10,7 @@ import { OrderHistoryService } from '../../../../core/services/order-history.ser
 import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime } from 'rxjs/internal/operators/debounceTime';
 import { distinctUntilChanged, switchMap, takeUntil } from 'rxjs';
-import { PageEvent } from '@angular/material/paginator';
-import { Router } from '@angular/router';
-import { formatDate } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import {
@@ -20,6 +18,7 @@ import {
   normalizePaymentStatus,
 } from '../../../../core/utils/role.utils';
 import { FormControl, FormGroup } from '@angular/forms';
+
 
 @Component({
   selector: 'app-order-management',
@@ -30,6 +29,7 @@ export class OrderManagementComponent implements OnInit {
   private orderService = inject(OrderHistoryService);
   private router = inject(Router);
   private portalRoutes = inject(PortalRouteService);
+  private route = inject(ActivatedRoute);
 
   portal: PortalKey = 'admin';
 
@@ -46,23 +46,28 @@ export class OrderManagementComponent implements OnInit {
   pageIndex: number = 0;
 
   // Filter State
-  selectedStatus = '';
+  selectedStatus: number | undefined = undefined;
   selectedPaymentStatus = '';
   fromDate: Date | string | null = '';
   toDate: Date | string | null = '';
+  private appliedFromDate: Date | string | null = '';
+  private appliedToDate: Date | string | null = '';
 
   maxDate: Date = new Date();
 
   // Dropdown Options
-  orderStatusOptions = Object.values(OrderStatus).filter(
-    (val) => typeof val === 'string',
-  ) as string[];
+  orderStatusOptions = [
+    { value: OrderStatus.Pending, label: 'Pending' },
+    { value: OrderStatus.Processing, label: 'Processing' },
+    { value: OrderStatus.Shipped, label: 'Shipped' },
+    { value: OrderStatus.Delivered, label: 'Delivered' },
+    { value: OrderStatus.Cancelled, label: 'Cancelled' },
+  ];
 
   paymentStatusOptions = Object.values(PaymentStatus).filter(
     (val) => typeof val === 'string',
   ) as string[];
 
-  private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
 
   // Table Columns Setup
@@ -86,11 +91,45 @@ export class OrderManagementComponent implements OnInit {
     },
   ];
 
+
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    this.setupSearch();
-    this.loadOrders();
+    this.setupUrlAndSearchListeners();
   }
+
+  // handle URL query params and search input changes
+  private setupUrlAndSearchListeners(): void {
+    this.route.queryParams.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((params) => {
+      const statusParam = params['orderStatus'];
+      this.selectedStatus = statusParam ? Number(statusParam) : undefined;
+
+      const searchParam = params['search'];
+      if (searchParam !== undefined && searchParam !== this.filterForm.get('search')?.value) {
+        this.filterForm.patchValue({ search: searchParam }, { emitEvent: false });
+      }
+
+      this.pageIndex = 0;
+      this.loadOrders();
+    });
+
+    this.filterForm
+      .get('search')
+      ?.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((searchValue) => {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { search: searchValue || null },
+          queryParamsHandling: 'merge',
+        });
+      });
+  }
+
 
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
@@ -110,12 +149,14 @@ export class OrderManagementComponent implements OnInit {
     };
     return {
       search: this.searchQuery ? this.searchQuery.trim() : undefined,
-      orderStatus: this.selectedStatus ? this.selectedStatus : undefined,
+      orderStatus: this.selectedStatus !== undefined
+        ? this.selectedStatus.toString()
+        : undefined,
       paymentStatus: this.selectedPaymentStatus
         ? this.selectedPaymentStatus
         : undefined,
-      fromDate: formatToYyyyMmDd(this.fromDate),
-      toDate: formatToYyyyMmDd(this.toDate),
+      fromDate: formatToYyyyMmDd(this.appliedFromDate),
+      toDate: formatToYyyyMmDd(this.appliedToDate),
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -236,20 +277,31 @@ export class OrderManagementComponent implements OnInit {
 
   onFilterChange(): void {
     this.pageIndex = 0;
-    this.loadOrders();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        orderStatus: this.selectedStatus !== undefined ? this.selectedStatus : null,
+        paymentStatus: this.selectedPaymentStatus || null,
+      },
+      queryParamsHandling: 'merge',
+    })
   }
 
   applyDateFilter(): void {
+    this.appliedFromDate = this.fromDate;
+    this.appliedToDate = this.toDate;
     this.pageIndex = 0;
     this.loadOrders();
   }
 
   resetFilters(): void {
     this.filterForm.patchValue({ search: '' }, { emitEvent: false });
-    this.selectedStatus = '';
+    this.selectedStatus = undefined;
     this.selectedPaymentStatus = '';
     this.fromDate = '';
     this.toDate = '';
+    this.appliedFromDate = '';
+    this.appliedToDate = '';
     this.pageIndex = 0;
     this.loadOrders();
   }
