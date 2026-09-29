@@ -5,7 +5,7 @@ import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
 import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands, selectBrandPagesCache } from "./brand.selectors";
-import { exhaustMap, map, catchError, of, withLatestFrom } from "rxjs";
+import { exhaustMap, map, catchError, of, withLatestFrom, switchMap, timeout } from "rxjs";
 
 @Injectable()
 export class BrandEffects {
@@ -35,7 +35,7 @@ export class BrandEffects {
                 this.store.select(selectBrandPagesCache),
                 this.store.select(selectBrandTotalRecords),
             ),
-            exhaustMap(([action, pagesCache, totalRecords]) => {
+            switchMap(([action, pagesCache, totalRecords]) => {
                 const { pageNumber, pageSize, search } = action;
                 const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`; // dynamic cache key
 

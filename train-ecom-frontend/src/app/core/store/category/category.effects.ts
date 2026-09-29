@@ -5,7 +5,7 @@ import { NotificationService } from '../../services/notification.service';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from './category.action';
 import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories, selectCategoryPagesCache } from './category.selectors';
-import { withLatestFrom, map, catchError, of, exhaustMap } from 'rxjs';
+import { withLatestFrom, map, catchError, of, exhaustMap, switchMap, } from 'rxjs';
 
 @Injectable()
 export class CategoryEffects {
@@ -47,7 +47,7 @@ export class CategoryEffects {
         this.store.select(selectCategoryPagesCache),
         this.store.select(selectCategoryTotalRecords),
       ),
-      exhaustMap(([action, pagesCache, totalRecords]) => {
+      switchMap(([action, pagesCache, totalRecords]) => {
         const { pageNumber, pageSize, search } = action;
         const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
 

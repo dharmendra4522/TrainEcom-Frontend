@@ -4,11 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { VendorDetails } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  ApprovalStatus,
-} from '../../../../core/models/user.model';
+import { ApprovalStatus } from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-user-details',
@@ -20,6 +19,7 @@ export class UserDetailsComponent {
   private route = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private location = inject(Location);
 
   private vendorId: number = 0;
   vendorDetails: VendorDetails | null = null;
@@ -60,6 +60,14 @@ export class UserDetailsComponent {
 
   transformId(id: number | string): string {
     return String(id).substring(0, 6).concat('...');
+  }
+
+  getDocumentUrl(
+    document: string | { documentUrl?: string } | null | undefined,
+  ): string | null {
+    const documentUrl =
+      typeof document === 'string' ? document : document?.documentUrl;
+    return documentUrl?.trim() || null;
   }
 
   private updateStatus(status: ApprovalStatus): void {
@@ -122,5 +130,9 @@ export class UserDetailsComponent {
       currentStatus === ApprovalStatus.Approved ||
       currentStatus === ApprovalStatus.Rejected
     );
+  }
+
+  onBack(): void {
+    this.location.back();
   }
 }

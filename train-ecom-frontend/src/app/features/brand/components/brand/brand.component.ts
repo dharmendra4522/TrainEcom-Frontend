@@ -16,12 +16,12 @@ import {
 } from '../../../../core/store/brand/brand.selectors';
 import { Observable, Subject } from 'rxjs';
 import {
-  startWith,
   distinctUntilChanged,
   debounceTime,
   takeUntil,
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { map } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
@@ -42,7 +42,7 @@ export class BrandComponent implements OnInit, OnDestroy {
     selectBrandTotalRecords,
   );
 
-  searchControl = new FormControl('');
+  searchControl = new FormControl('', { nonNullable: true });
   private destroy$ = new Subject<void>();
 
   private currentPage = 0;
@@ -98,14 +98,14 @@ export class BrandComponent implements OnInit, OnDestroy {
   private setupSeachControl(): void {
     this.searchControl.valueChanges
       .pipe(
-        startWith(''),
-        debounceTime(300),
+        map((searchTerm) => searchTerm.trim()),
         distinctUntilChanged(),
+        debounceTime(300),
         takeUntil(this.destroy$),
       )
       .subscribe((searchTerm) => {
         this.currentPage = 0;
-        this.loadBrand(this.currentPage, this.pageSize, searchTerm || '');
+        this.loadBrand(this.currentPage, this.pageSize, searchTerm);
       });
   }
 
@@ -121,7 +121,7 @@ export class BrandComponent implements OnInit, OnDestroy {
   onTableScroll(): void {
     if (!this.isLoadingValue && this.currentBrandsLength < this.totalRecordsCount) {
       this.currentPage++;
-      const currentSearch = this.searchControl.value || '';
+      const currentSearch = this.searchControl.value.trim();
       this.loadBrand(this.currentPage, this.pageSize, currentSearch);
     }
   }

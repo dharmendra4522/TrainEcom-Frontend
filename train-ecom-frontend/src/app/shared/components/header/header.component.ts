@@ -24,6 +24,7 @@ import {
   interval,
   takeWhile,
   map,
+  startWith,
 } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
 import { Router } from '@angular/router';
@@ -54,7 +55,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   wishlistCount$ = this.store.select(selectWishlistCount);
   cartCount$ = this.store.select(selectCartTotalQuantity);
 
-  /** Computed role booleans — avoids string comparisons in template */
   isAdminRole$ = this.userRole$.pipe(
     map((role) => normalizeRole(role as string | number | null | undefined) === Role.Admin),
   );
@@ -64,12 +64,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isCustomerRole$ = this.userRole$.pipe(
     map((role) => normalizeRole(role as string | number | null | undefined) === Role.Customer),
   );
-  /** True for admin or vendor — hides customer-specific controls */
+  //  True for admin or vendor — hides customer-specific controls 
   isManagementRole$ = combineLatest([this.isAdminRole$, this.isVendorRole$]).pipe(
     map(([isAdmin, isVendor]) => isAdmin || isVendor),
   );
 
-  formattedTime: string = '05:00';
+  formattedTime: string = '00:00';
   private timerSubscribe?: Subscription;
 
   ngOnInit() {
@@ -103,6 +103,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private startCount(): void {
+    this.timerSubscribe?.unsubscribe();
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) return;
 
@@ -114,12 +115,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       this.timerSubscribe = interval(1000)
         .pipe(
-          map(() => {
-            const now: number = new Date().getTime();
-            const remainitMg: number = targetTime - now;
-            return Math.max(0, Math.floor(remainitMg / 1000));
-          }),
-          takeWhile((timeLeft: number) => timeLeft >= 0),
+          startWith(0),
+          map(() => Math.max(0, Math.ceil((targetTime - Date.now()) / 1000))),
+          takeWhile((timeLeft: number) => timeLeft > 0, true),
         )
         .subscribe({
           next: (timeLeft: number) => {

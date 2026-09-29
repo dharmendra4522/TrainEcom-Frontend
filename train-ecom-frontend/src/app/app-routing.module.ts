@@ -244,6 +244,14 @@ const routes: Routes = [
                 (m) => m.NotificationModule,
               ),
           },
+          {
+            path: 'settings',
+            canActivate: [adminGuard],
+            loadChildren: () =>
+              import('./features/settings/settings.module').then(
+                (m) => m.SettingsModule,
+              ),
+          },
         ],
       },
       {

@@ -19,11 +19,10 @@ import {
   selectPaginatedCategories,
 } from '../../../../core/store/category/category.selectors';
 
-import { BehaviorSubject, Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import {
   takeUntil,
   map,
-  startWith,
   distinctUntilChanged,
   debounceTime,
   take,
@@ -51,7 +50,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   );
 
   // Search control and filtered observable
-  searchControl = new FormControl('');
+  searchControl = new FormControl('', { nonNullable: true });
   filteredCategories$!: Observable<Category[]>;
   currentPage: number = 1;
   pageSize: number = 10;
@@ -86,14 +85,14 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private setupSearchFilter(): void {
     this.searchControl.valueChanges
       .pipe(
-        startWith(''),
-        debounceTime(300),
+        map((searchTerm) => searchTerm.trim()),
         distinctUntilChanged(),
+        debounceTime(300),
         takeUntil(this.destroy$),
       )
       .subscribe((searchTerm) => {
         this.currentPage = 1;
-        this.loadPage(1, this.pageSize, searchTerm || '');
+        this.loadPage(1, this.pageSize, searchTerm);
       });
   }
 
@@ -108,7 +107,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         this.isLoading$.pipe(take(1)).subscribe((isLoading) => {
           if (!isLoading && categories.length < total) {
             this.currentPage++;
-            const currntSearch = this.searchControl.value?.trim() || '';
+            const currntSearch = this.searchControl.value.trim();
             this.loadPage(this.currentPage, this.pageSize, currntSearch);
           }
         });

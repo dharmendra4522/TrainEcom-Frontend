@@ -37,7 +37,7 @@
 
     <span class="spacer"></span>
 
-    <!-- Nav links: only for guests and customers -->
+    <!-- Nav links  only for guests and customers -->
     <div
       class="nav-links d-none d-lg-flex align-items-center gap-1 me-4"
       *ngIf="!auth.isManagement"
@@ -216,12 +216,12 @@
           <ng-container *ngIf="auth.isAdmin">
             <a mat-menu-item routerLink="/admin/profile" class="py-2">
               <mat-icon class="text-primary me-2">person</mat-icon>
-              <span class="fw-medium">My Profile</span>
+              <span class="fw-medium">Profile</span>
             </a>
             <mat-divider></mat-divider>
-            <a mat-menu-item routerLink="/admin/aoolication-setings" class="py-2">
+            <a mat-menu-item routerLink="/admin/settings" class="py-2">
               <mat-icon class="text-primary me-2">settings</mat-icon>
-              <span class="fw-medium">App Settings</span>
+              <span class="fw-medium">Settings</span>
             </a>
             <mat-divider></mat-divider>
           </ng-container>
@@ -230,7 +230,7 @@
           <ng-container *ngIf="auth.isVendor">
             <a mat-menu-item routerLink="/vendor/profile" class="py-2">
               <mat-icon class="text-primary me-2">person</mat-icon>
-              <span class="fw-medium">My Profile</span>
+              <span class="fw-medium">Profile</span>
             </a>
             <mat-divider></mat-divider>
           </ng-container>

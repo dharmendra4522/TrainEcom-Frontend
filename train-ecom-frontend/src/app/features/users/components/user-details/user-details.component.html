@@ -12,11 +12,11 @@
       class="d-flex flex-md-row flex-column justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom"
     >
       <h3 class="fw-bold mb-0 text-nowrap fs-4">
-    Vendor ID: {{ vendorDetails?.vendorId }}
-  </h3>
+            Vendor ID: {{ vendorDetails?.vendorId }}
+      </h3>
 
       <div
-        class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 w-100 w-md-auto"
+        class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-md-between gap-3 w-100 w-md-auto flex-grow-1"
       >
         <div>
           <p
@@ -37,6 +37,11 @@
           </button>
           <button mat-flat-button color="warn" (click)="onReject()" [disabled]="isApproveDisabled">
             <mat-icon>cancel</mat-icon>Reject
+          </button>
+        </div>
+        <div class="ms-md-auto">
+          <button mat-stroked-button color="primary" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>Back
           </button>
         </div>
       </div>
@@ -201,18 +206,25 @@
 
             <div>
               <span class="text-muted small d-block mb-1">Documents</span>
-              <div *ngIf="vendorDetails?.documents?.length; else noDocs">
-                <ul class="list-unstyled m-0">
-                  <li
-                    *ngFor="let doc of vendorDetails?.documents"
-                    class="small text-truncate"
-                  >
-                    <a [href]="doc" target="_blank" class="text-decoration-none"
-                      >View Document</a
+              <ng-container *ngIf="vendorDetails as details; else noDocs">
+                <div *ngIf="details.documents.length; else noDocs">
+                  <ul class="list-unstyled m-0">
+                    <li
+                      *ngFor="let doc of details.documents"
+                      class="small text-truncate"
                     >
-                  </li>
-                </ul>
-              </div>
+                      <a
+                        *ngIf="getDocumentUrl(doc) as documentUrl"
+                        [href]="documentUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-decoration-none"
+                        >View Document</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </ng-container>
               <ng-template #noDocs>
                 <span class="text-muted small">No documents uploaded.</span>
               </ng-template>

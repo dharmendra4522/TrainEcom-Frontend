@@ -1,10 +1,23 @@
-import { CategoryWiseProductCount, RevenueData } from './../../../../core/models/dashboard.model';
+import {
+  CategoryWiseProductCount,
+  RevenueData,
+} from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
+import {
+  ChartConfiguration,
+  ChartData,
+  ChartType,
+  Chart,
+  registerables,
+} from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import { DashboardData } from '../../../../core/models/dashboard.model';
-import { categoryProductData, orderStatusChartData, revenueChartData } from '../dashboard/dashboard.utils';
+import {
+  categoryProductData,
+  orderStatusChartData,
+  revenueChartData,
+} from '../dashboard/dashboard.utils';
 import { MatDialog } from '@angular/material/dialog';
 import { FilterDialogComponent } from '../../../../shared/components/filter-dialog/filter-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -12,7 +25,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 @Component({
   selector: 'app-charts',
   templateUrl: './charts.component.html',
-  styleUrls: ['./charts.component.css']
+  styleUrls: ['./charts.component.css'],
 })
 export class ChartsComponent implements OnInit {
   private dialog = inject(MatDialog);
@@ -26,6 +39,7 @@ export class ChartsComponent implements OnInit {
   @Input() isLoading: boolean = true;
 
   public totalRevenue: number = 0;
+  public revenueFilterCount: number = 0;
 
   public userChartsType: ChartType = 'pie';
   public userChartData!: ChartData<'pie'>;
@@ -34,17 +48,20 @@ export class ChartsComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
-      padding: window.innerWidth < 768 ? {
-        top: 10,
-        bottom: 20,
-        left: 60,
-        right: 70
-      } : {
-        top: 20,
-        bottom: 10,
-        left: 10,
-        right: 10
-      }
+      padding:
+        window.innerWidth < 768
+          ? {
+              top: 10,
+              bottom: 20,
+              left: 60,
+              right: 70,
+            }
+          : {
+              top: 20,
+              bottom: 10,
+              left: 10,
+              right: 10,
+            },
     },
     plugins: {
       legend: {
@@ -65,7 +82,7 @@ export class ChartsComponent implements OnInit {
         backgroundColor: '#fff',
         borderWidth: 1,
         padding: 4,
-      }
+      },
     },
   };
 
@@ -77,12 +94,12 @@ export class ChartsComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      datalabels: { display: false }
+      datalabels: { display: false },
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 },
       },
       y: { beginAtZero: true },
     },
@@ -96,12 +113,12 @@ export class ChartsComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      datalabels: { display: false }
+      datalabels: { display: false },
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 },
       },
       y: { beginAtZero: true },
     },
@@ -114,7 +131,7 @@ export class ChartsComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      datalabels: { display: false }
+      datalabels: { display: false },
     },
     scales: {
       y: { beginAtZero: true },
@@ -126,11 +143,10 @@ export class ChartsComponent implements OnInit {
     this.initUserChart();
   }
 
-
   public ngOnChanges(): void {
     this.initUserChart();
-    this.fetchCategoryData()
-    this.fetchRevenueData()
+    this.fetchCategoryData();
+    this.fetchRevenueData();
   }
 
   // initialize user chart data based on the input values
@@ -150,21 +166,22 @@ export class ChartsComponent implements OnInit {
   private fetchCategoryData(): void {
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
       next: (data: CategoryWiseProductCount[]) => {
-        const labels = data.map(item => item.categoryName);
-        const counts = data.map(item => item.productCount);
+        const labels = data.map((item) => item.categoryName);
+        const counts = data.map((item) => item.productCount);
         this.productChartData = {
           labels: labels,
           datasets: [
             {
               data: counts,
               backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
-            }
-          ]
+            },
+          ],
         };
-      }, error: (err: Error) => {
+      },
+      error: (err: Error) => {
         console.error('Failed to fetch category data', err);
-      }
-    })
+      },
+    });
   }
 
   // fetch revenue data for charts
@@ -172,8 +189,8 @@ export class ChartsComponent implements OnInit {
     this.dashboardService.fetchRevenueData(year).subscribe({
       next: (data: RevenueData) => {
         this.totalRevenue = data.totalRevenue;
-        const labels = data.monthlyRevenue.map(item => item.monthName);
-        const revenues = data.monthlyRevenue.map(item => item.revenue);
+        const labels = data.monthlyRevenue.map((item) => item.monthName);
+        const revenues = data.monthlyRevenue.map((item) => item.revenue);
 
         this.revenueChartData = {
           labels: labels,
@@ -181,15 +198,15 @@ export class ChartsComponent implements OnInit {
             {
               data: revenues,
               backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
-            }
-          ]
+            },
+          ],
         };
-      }, error: (err: Error) => {
+      },
+      error: (err: Error) => {
         console.error('Failed to fetch revenue data', err);
-      }
-    })
+      },
+    });
   }
-
 
   // filter dialog for charts
   public onFilterDialog(): void {
@@ -197,14 +214,20 @@ export class ChartsComponent implements OnInit {
       width: '400px',
       disableClose: true,
     });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.fetchRevenueData(result);
-        this.notificationService.showSuccess(`Revenue data filtered for year ${result}`, 'Close');
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.year) {
+        this.fetchRevenueData(result.year);
+        this.revenueFilterCount = result.count;
+        this.notificationService.showSuccess(
+          `Revenue data filtered for year ${result.year}`,
+          'Close',
+        );
       } else {
-        this.notificationService.showInfo('Revenue data filter cancelled', 'Close');
+        this.notificationService.showInfo(
+          'Revenue data filter cancelled',
+          'Close',
+        );
       }
-    })
+    });
   }
-
 }

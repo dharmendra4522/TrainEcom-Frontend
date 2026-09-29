@@ -67,7 +67,10 @@ export class FilterDialogComponent {
   public applyFilter(): void {
     const selectedValue = this.filterForm.get('year')?.value;
     if (selectedValue) {
-      this.dialogRef.close(selectedValue);
+      this.dialogRef.close({
+        year: selectedValue,
+        count: 1
+      });
     }
   }
 
