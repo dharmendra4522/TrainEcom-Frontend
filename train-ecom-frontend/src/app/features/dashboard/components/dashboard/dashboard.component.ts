@@ -18,7 +18,6 @@ import {
   INITIAL_ADMIN_STATS,
   orderStatusChartData,
   revenueChartData,
-  userChartData,
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
 import {
@@ -26,8 +25,9 @@ import {
   normalizeOrderStatus,
 } from '../../../../core/utils/role.utils';
 import { OrderStatus } from '../../../../core/models/order.model';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { ChartConfiguration, ChartData, ChartType, Colors } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,15 +41,20 @@ export class DashboardComponent implements OnInit {
   dataSource = this.recentOrders;
   isLoadingStats: boolean = true;
   isHovered: boolean = false;
+  isLoadingChartData: boolean = true;
 
   public totalUsers: number = 0;
   public totalCustomers: number = 0;
+  public totalAdminUsers: number = 0;
   public totalVendors: number = 0;
   public totalOrders: number = 0;
   public activeOrders: number = 0;
   public deliveredOrders: number = 0;
+  public shippedOrders: number = 0;
   public cancelOrders: number = 0
+  public processingOrders: number = 0;
 
+  // order table columns
   tableColumns: TableColumn[] = [
     { key: 'orderId', label: 'Order ID', truncate: true, type: 'string' },
     { key: 'customerName', label: 'Customer Name', type: 'string' },
@@ -67,11 +72,50 @@ export class DashboardComponent implements OnInit {
   public portal: PortalKey = 'admin';
   public isVendor: boolean = false;
   public userChartsType: ChartType = 'pie';
-  public userChartData: ChartData<'pie'> = userChartData;
+  public userChartData!: ChartData<'pie'>;
+
+  // user chart configuration
+  public userChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: window.innerWidth < 768 ? {
+        top: 10,
+        bottom: 20,
+        left: 60,
+        right: 70
+      } : {
+        top: 20,
+        bottom: 10,
+        left: 10,
+        right: 10
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      datalabels: {
+        color: '#000',
+        formatter: (value, context) => {
+          const label = context.chart.data.labels?.[context.dataIndex];
+          return `${label}: ${value}`;
+        },
+        anchor: 'end',
+        align: 'end',
+        offset: 4,
+        display: true,
+        borderRadius: 4,
+        borderColor: '#ccc',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        padding: 4,
+      }
+    },
+  };
 
   // product bar
   public productChartType: ChartType = 'bar';
-  // public isCategoryView: boolean = true;
   public productChartData: ChartData<'bar'> = categoryProductData;
 
   // revenue chart
@@ -80,6 +124,12 @@ export class DashboardComponent implements OnInit {
   public revenueChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        display: false,
+      }
+    },
     scales: {
       y: {
         beginAtZero: true,
@@ -87,28 +137,37 @@ export class DashboardComponent implements OnInit {
     },
   };
 
-  public orderChartType: ChartType = 'pie';
-  public orderChartData: ChartData<'pie'> = orderStatusChartData;
+  // order chart configuration
+  public orderChartType: ChartType = 'bar';
+  public orderChartData: ChartData<'bar'> = orderStatusChartData;
   public orderChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' } },
-  };
-
-
-  public userChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: 'bottom',
+      datalabels: {
+        display: false,
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
       },
     },
   };
 
+
+
+
+  // category chart configuration
   public productChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        display: false,
+      }
+    },
     scales: {
       y: {
         beginAtZero: true,
@@ -122,7 +181,7 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    Chart.register(...registerables);
+    Chart.register(...registerables, ChartDataLabels);
 
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
@@ -158,37 +217,33 @@ export class DashboardComponent implements OnInit {
         this.totalUsers = data.totalUsers;
         this.totalCustomers = data.totalCustomers;
         this.totalVendors = data.totalVendors;
+        this.totalAdminUsers = data.totalAdminUsers;
+        this.shippedOrders = data.shippedOrders;
         this.totalOrders = data.totalOrders;
         this.activeOrders = data.activeOrders;
         this.deliveredOrders = data.deliveredOrders;
         this.cancelOrders = data.cancelOrders;
         this.userChartData = {
-          labels: ['Customers', 'Vendors'],
+          labels: ['Customers', 'Vendors', 'Admin Users'],
           datasets: [
             {
-              data: [data.totalCustomers, data.totalVendors],
-              backgroundColor: ['#4caf50', '#2196f3'],
+              data: [data.totalCustomers, data.totalVendors, data.totalAdminUsers],
+              backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
             },
           ],
         }
-        this.orderChartData = {
-          labels: ['Active', 'Delivered', 'Cancelled'],
-          datasets: [
-            {
-              data: [data.activeOrders, data.deliveredOrders, data.cancelOrders],
-              backgroundColor: ['#2196f3', '#4caf50', '#f44336'],
-            },
-          ],
-        };
+        this.isLoadingChartData = false;
         this.isLoadingStats = false;
       },
       error: (err: Error) => {
         console.error('Failed to fetch dashboard data', err);
         this.isLoadingStats = false;
+        this.isLoadingChartData = false;
       },
     });
   }
 
+  // Update the stats cards based on the fetched dashboard data
   private updateStatsCards(data: DashboardData): void {
     if (this.portal === 'vendor') {
       this.stats = [];
@@ -197,11 +252,13 @@ export class DashboardComponent implements OnInit {
     this.stats = buildDashboardStats(data, this.portalRoutes, this.portal);
   }
 
+  // Update the recent orders table based on the fetched dashboard data
   private updateRecentOrders(orders: RecentOrder[]): void {
     this.recentOrders = orders.map((order) => this.mapOrderToTableRow(order));
     this.dataSource = [...this.recentOrders];
   }
 
+  // Map a RecentOrder object to a DashboardOrderRow object for display in the table
   private mapOrderToTableRow(order: RecentOrder): DashboardOrderRow {
     return {
       orderId: order.orderId,
@@ -213,10 +270,12 @@ export class DashboardComponent implements OnInit {
     };
   }
 
+  // Get the CSS class for the order status badge based on the order status
   getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
     return getOrderStatusBadgeClass(orderStatus);
   }
 
+  // Navigate to the order details page when an order row is clicked
   onOrderClick(order: Record<string, unknown>): void {
     if (order && order['orderId']) {
       this.router.navigate(

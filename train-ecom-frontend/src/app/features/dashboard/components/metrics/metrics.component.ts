@@ -20,10 +20,12 @@ export class MetricsComponent {
   @Input() totalUsers: number = 0;
   @Input() totalCustomers: number = 0;
   @Input() totalVendors: number = 0;
+  @Input() totalAdminUsers: number = 0;
   @Input() totalOrders: number = 0;
   @Input() activeOrders: number = 0;
   @Input() deliveredOrders: number = 0;
   @Input() cancelOrders: number = 0;
+  @Input() shippedOrders: number = 0;
   @Input() portal: PortalKey = 'admin';
 
   @Output() statCardClick = new EventEmitter<(string | number)[] | undefined>();
