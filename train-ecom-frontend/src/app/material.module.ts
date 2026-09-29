@@ -28,6 +28,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   imports: [
@@ -60,6 +61,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatNativeDateModule,
     MatSortModule,
     MatTabsModule,
+    NgxMatSelectSearchModule
   ],
   exports: [
     MatButtonModule,
@@ -91,6 +93,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatNativeDateModule,
     MatSortModule,
     MatTabsModule,
+    NgxMatSelectSearchModule
   ],
 })
 export class MaterialModule {}

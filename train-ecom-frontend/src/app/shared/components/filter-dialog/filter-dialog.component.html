@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Select year</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="filterForm" class="mb-4 p-2">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Select a year</mat-label>
+      <mat-select formControlName="year" placeholder="Select a year">
+        
+        <mat-option>
+          <ngx-mat-select-search
+            [formControl]="yearFilterForm"
+            placeholderLabel="Search year..."
+            noEntriesFoundLabel="No matching years found"
+          >
+          </ngx-mat-select-search>
+        </mat-option>
+
+        <mat-option *ngFor="let year of filteredYear | async" [value]="year">
+          {{ year }}
+        </mat-option>
+
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="closeDialog()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="applyFilter()">
+    Apply
+  </button>
+</mat-dialog-actions>

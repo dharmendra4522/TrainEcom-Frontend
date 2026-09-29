@@ -30,6 +30,7 @@ import { NotificationCardComponent } from './components/notification-card/notifi
 import { StatusCardComponent } from './components/status-card/status-card.component';
 import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     NotificationCardComponent,
     StatusCardComponent,
     VendorActionDialogComponent,
+    FilterDialogComponent,
   ],
   imports: [
     CommonModule,

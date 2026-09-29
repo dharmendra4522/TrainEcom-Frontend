@@ -76,6 +76,7 @@ export const categoryProductData = {
     {
       data: [45, 30, 60, 25, 15, 20, 10, 5, 8, 12],
       backgroundColor: '#3f51b5',
+      maxBarThickness: 25,
     },
   ],
 }
@@ -86,6 +87,7 @@ export const revenueChartData = {
     {
       data: [20000, 15000, 18000, 20000, 22000, 25000, 28000, 30000, 32000, 35000, 38000, 40000],
       backgroundColor: '#4caf50',
+      maxBarThickness: 25,
     }
   ]
 }
