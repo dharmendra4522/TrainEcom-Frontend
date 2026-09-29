@@ -11,11 +11,9 @@ import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import {
-  AdminUser,
-  UserStatusFilter,
-} from '../../../../core/models/user.model';
+import { AdminUser } from '../../../../core/models/user.model';
 import { Role, ROLE_NAME_MAP } from '../../../../core/models/auth.model';
+import { VendorStatus } from '../../../../core/models/vendor.model';
 import {
   TableAction,
   TableActionEvent,
@@ -52,17 +50,17 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   pageSize: number = 10;
   pageIndex: number = 0;
 
-  statusOptions: Array<{ label: string; value: UserStatusFilter | 'All' }> = [
+  statusOptions: Array<{ label: string; value: VendorStatus | 'All' }> = [
     { label: 'All Status', value: 'All' },
-    { label: 'Active', value: UserStatusFilter.Active },
-    { label: 'Blocked', value: UserStatusFilter.Blocked },
+    { label: 'Active', value: VendorStatus.Active },
+    { label: 'Blocked', value: VendorStatus.Blocked },
   ];
 
   roleOptions: Array<{ label: string; value: Role | 'All' }> = [];
 
   filterForm = new FormGroup({
     search: new FormControl(''),
-    status: new FormControl<UserStatusFilter | 'All'>('All'),
+    status: new FormControl<VendorStatus | 'All'>('All'),
   });
 
   ngOnInit(): void {
@@ -129,10 +127,11 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const filter = {
       search: this.searchQuery || undefined,
+      role: this.fixedRole,
       status:
         this.selectedStatus === 'All'
           ? undefined
-          : (this.selectedStatus as UserStatusFilter),
+          : this.selectedStatus,
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
     };
@@ -141,7 +140,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
         const mappedUsers = response.items.map((user) => {
           const isBlockedUser =
             user.isBlocked === true ||
-            Number(user.status) === UserStatusFilter.Blocked;
+            Number(user.status) === VendorStatus.Blocked;
           return {
             ...user,
             userId: Number(user.userId),
@@ -263,7 +262,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
   }
-  get selectedStatus(): UserStatusFilter | 'All' {
+  get selectedStatus(): VendorStatus | 'All' {
     return this.filterForm.get('status')?.value || 'All';
   }
 

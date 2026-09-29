@@ -12,12 +12,9 @@ import { PortalRouteService } from '../../../../core/services/portal-route.servi
 import { PortalKey } from '../../../../core/config/management-access.config';
 import {
   buildDashboardStats,
-  categoryProductData,
   getOrderStatusBadgeClass,
   getPaymentStatusBadgeClass,
   INITIAL_ADMIN_STATS,
-  orderStatusChartData,
-  revenueChartData,
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
 import {
@@ -25,9 +22,6 @@ import {
   normalizeOrderStatus,
 } from '../../../../core/utils/role.utils';
 import { OrderStatus } from '../../../../core/models/order.model';
-import { ChartConfiguration, ChartData, ChartType, Colors } from 'chart.js';
-import { Chart, registerables } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 @Component({
   selector: 'app-dashboard',
@@ -106,7 +100,7 @@ export class DashboardComponent implements OnInit {
 
   private fetchDashboardData(): void {
     this.isLoadingStats = true;
-    this.dashboardService.getDashboardData().subscribe({
+    this.dashboardService.fetchDashboardMetricsData().subscribe({
       next: (data: DashboardData) => {
         this.updateStatsCards(data);
         this.updateRecentOrders(data.recentOrders);

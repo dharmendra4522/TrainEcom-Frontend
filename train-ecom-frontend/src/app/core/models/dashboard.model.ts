@@ -41,3 +41,21 @@ export type DashboardOrderRow = {
   orderStatus: string;
   orderStatusClass: string;
 };
+
+
+export interface CategoryWiseProductCount {
+  categoryId: number;
+  categoryName: string;
+  productCount: number;
+}
+
+export interface MonthlyRevenue {
+  month: number;
+  monthName: string;
+  revenue: number;
+}
+
+export interface RevenueData {
+  totalRevenue: number;
+  monthlyRevenue: MonthlyRevenue[];
+}

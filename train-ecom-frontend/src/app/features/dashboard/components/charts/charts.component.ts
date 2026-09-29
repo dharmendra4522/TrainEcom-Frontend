@@ -1,3 +1,4 @@
+import { CategoryWiseProductCount, RevenueData } from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType, Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -16,12 +17,16 @@ import { NotificationService } from '../../../../core/services/notification.serv
 export class ChartsComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);
+  private dashboardService = inject(DashboardService);
 
   @Input() totalUsers: number = 0;
   @Input() totalCustomers: number = 0;
   @Input() totalVendors: number = 0;
   @Input() totalAdminUsers: number = 0;
   @Input() isLoading: boolean = true;
+
+  public totalRevenue: number = 0;
+
   public userChartsType: ChartType = 'pie';
   public userChartData!: ChartData<'pie'>;
   // product chart configuration
@@ -123,9 +128,9 @@ export class ChartsComponent implements OnInit {
 
 
   public ngOnChanges(): void {
-    if (this.totalCustomers || this.totalVendors || this.totalAdminUsers) {
-      this.initUserChart();
-    }
+    this.initUserChart();
+    this.fetchCategoryData()
+    this.fetchRevenueData()
   }
 
   // initialize user chart data based on the input values
@@ -141,16 +146,65 @@ export class ChartsComponent implements OnInit {
     };
   }
 
+  // fetch category data for charts
+  private fetchCategoryData(): void {
+    this.dashboardService.fetchCategoryWiseProductCount().subscribe({
+      next: (data: CategoryWiseProductCount[]) => {
+        const labels = data.map(item => item.categoryName);
+        const counts = data.map(item => item.productCount);
+        this.productChartData = {
+          labels: labels,
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
+            }
+          ]
+        };
+      }, error: (err: Error) => {
+        console.error('Failed to fetch category data', err);
+      }
+    })
+  }
+
+  // fetch revenue data for charts
+  private fetchRevenueData(year?: number): void {
+    this.dashboardService.fetchRevenueData(year).subscribe({
+      next: (data: RevenueData) => {
+        this.totalRevenue = data.totalRevenue;
+        const labels = data.monthlyRevenue.map(item => item.monthName);
+        const revenues = data.monthlyRevenue.map(item => item.revenue);
+
+        this.revenueChartData = {
+          labels: labels,
+          datasets: [
+            {
+              data: revenues,
+              backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
+            }
+          ]
+        };
+      }, error: (err: Error) => {
+        console.error('Failed to fetch revenue data', err);
+      }
+    })
+  }
+
+
   // filter dialog for charts
-  public onFilterDialog(): void{
+  public onFilterDialog(): void {
     const dialogRef = this.dialog.open(FilterDialogComponent, {
       width: '400px',
       disableClose: true,
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.notificationService.showInfo('Filter functionality is not implemented yet.', 'Close');
+      if (result) {
+        this.fetchRevenueData(result);
+        this.notificationService.showSuccess(`Revenue data filtered for year ${result}`, 'Close');
+      } else {
+        this.notificationService.showInfo('Revenue data filter cancelled', 'Close');
+      }
     })
-    
   }
 
 }

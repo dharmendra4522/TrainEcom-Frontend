@@ -190,10 +190,11 @@ export interface AdminUserFilterParams {
   search?: string;
   Role?: Role | number;
   role?: Role | number | string;
+  Status?: number | string;
   ApprovalStatus?: ApprovalStatus | number;
   approvalStatus?: ApprovalStatus | number | string;
   UserStatus?: UserStatusFilter | number;
-  status?: UserStatusFilter | number | string;
+  status?: number | string;
   PageNumber?: number;
   pageNumber?: number;
   PageSize?: number;

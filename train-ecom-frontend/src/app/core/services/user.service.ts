@@ -7,12 +7,12 @@ import {
   AdminUserFilterParams,
   AdminUserListResponse,
   UpdateUserStatusPayload,
-  UserStatusFilter,
   ApprovalStatus,
 } from '../models/user.model';
 import { Observable, of, tap, map } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Role } from '../models/auth.model';
+import { VendorStatus } from '../models/vendor.model';
 
 @Injectable({
   providedIn: 'root',
@@ -103,8 +103,8 @@ export class UserService {
 
 
   // normalize the status, role, and approval status values to ensure they are in the correct format for API requests
-  public normalizeUserStatus(
-    status: UserStatusFilter | string | number | undefined,
+  public normalizeStatus(
+    status: string | number | undefined,
   ): number | undefined {
     if (status === undefined || status === null || status === '') {
       return undefined;
@@ -113,10 +113,18 @@ export class UserService {
       return status;
     }
     const value = status.trim().toLowerCase();
-    if (value === 'all') return UserStatusFilter.All;
-    if (value === 'active') return UserStatusFilter.Active;
-    if (value === 'blocked') return UserStatusFilter.Blocked;
-    return Number(status) || undefined;
+    const statusMap: Record<string, number> = {
+      active: VendorStatus.Active,
+      pending: VendorStatus.Pending,
+      rejected: VendorStatus.Rejected,
+      blocked: VendorStatus.Blocked,
+    };
+    if (value === 'all') return undefined;
+    const numericStatus = Number(value);
+    return (
+      statusMap[value] ??
+      (Number.isFinite(numericStatus) ? numericStatus : undefined)
+    );
   }
 
   private normalizeRole(
@@ -166,7 +174,7 @@ export class UserService {
       const searchValue = filter.Search ?? filter.search;
       const roleValue = filter.Role ?? filter.role;
       const approvalValue = filter.ApprovalStatus ?? filter.approvalStatus;
-      const statusValue = filter.UserStatus ?? filter.status;
+      const statusValue = filter.Status ?? filter.status ?? filter.UserStatus;
       const pageNumberValue = filter.PageNumber ?? filter.pageNumber;
       const pageSizeValue = filter.PageSize ?? filter.pageSize;
 
@@ -181,9 +189,9 @@ export class UserService {
       if (normalizedRole !== undefined) {
         params = params.set('Role', String(normalizedRole));
       }
-      const normalizedStatus = this.normalizeUserStatus(statusValue);
+      const normalizedStatus = this.normalizeStatus(statusValue);
       if (normalizedStatus !== undefined) {
-        params = params.set('UserStatus', String(normalizedStatus));
+        params = params.set('Status', String(normalizedStatus));
       }
       if (pageNumberValue !== undefined) {
         params = params.set('PageNumber', pageNumberValue.toString());

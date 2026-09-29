@@ -8,8 +8,10 @@
         </div>
       </ng-container>
       <ng-template #chartContent>
-        <h5 class="card-title mb-3 fw-bold">Total Users</h5>
-        <span class="fw-bold fs-5 text-dark">{{ totalUsers }}</span>
+        <div>
+          <h5 class="card-title m-0 fw-bold">Users</h5>
+          <span class="fw-bold fs-5 text-dark"> {{ totalUsers }}</span>
+        </div>
         <div class="bar-chart">
           <canvas
             baseChart
@@ -33,7 +35,12 @@
       <ng-template #orderContentLoaded>
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="card-title m-0 fw-bold">Order</h5>
-          <button mat-stroked-button color="primary" class="icon-btn" (click)="onFilterDialog()">
+          <button
+            mat-stroked-button
+            color="primary"
+            class="icon-btn"
+            (click)="onFilterDialog()"
+          >
             <mat-icon>filter_alt</mat-icon>
           </button>
         </div>
@@ -81,8 +88,18 @@
       </ng-container>
       <ng-template #revenueContentLoaded>
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="card-title m-0 fw-bold">Revenue</h5>
-          <button mat-stroked-button color="primary" class="icon-btn" (click)="onFilterDialog()">
+          <div>
+            <h5 class="card-title m-0 fw-bold">Total Revenue</h5>
+            <span class="fw-bold fs-5 text-dark">
+              {{ totalRevenue | currency: "INR" : true }}</span
+            >
+          </div>
+          <button
+            mat-stroked-button
+            color="primary"
+            class="icon-btn"
+            (click)="onFilterDialog()"
+          >
             <mat-icon>filter_alt</mat-icon>
           </button>
         </div>
