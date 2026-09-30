@@ -18,14 +18,19 @@ import { VendorService } from '../../../../core/services/vendor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import {
+  EMPTY,
+  catchError,
   debounceTime,
   distinctUntilChanged,
   Subject,
   takeUntil,
   startWith,
+  switchMap,
 } from 'rxjs';
 import {
+  VendorFilterParams,
   VendorItem,
+  VendorListResponse,
   VendorStatus,
   VendorTableItem,
 } from '../../../../core/models/vendor.model';
@@ -53,6 +58,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
+  private vendorLoadRequests$ = new Subject<void>();
   private router = inject(Router);
 
   isLoading: boolean = false;
@@ -89,8 +95,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       key: 'statusDisplay',
       label: 'Status',
       type: 'badge',
-      badgeClassKey: 'vendorStatusClass',
-    },
+      badgeClassKey: 'vendorStatusClass'
+    }
   ];
 
   actions: TableAction[] = [
@@ -98,33 +104,33 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Vendor',
+      tooltip: 'Edit Vendor'
     },
     {
       actionKey: 'toggleBlock',
       icon: 'block',
       color: 'warn',
-      tooltip: 'Block/Unblock ',
+      tooltip: 'Block/Unblock '
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Vendor',
+      tooltip: 'Delete Vendor'
     },
     {
       actionKey: 'verifyApprove',
       icon: 'check_circle',
       color: 'primary',
       tooltip: 'Approve Vendor',
-      disabled: (row: unknown) => this.isVerificationDisabled(row),
+      disabled: (row: unknown) => this.isVerificationDisabled(row)
     },
     {
       actionKey: 'verifyPending',
       icon: 'cancel',
       color: 'warn',
       tooltip: 'Reject Vendor',
-      disabled: (row: unknown) => this.isVerificationDisabled(row),
+      disabled: (row: unknown) => this.isVerificationDisabled(row)
     },
   ];
 
@@ -141,37 +147,28 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.setupVendorLoading();
     this.searchStream();
   }
 
-  private searchStream(): void {
-    this.filterForm.valueChanges
+  private setupVendorLoading(): void {
+    this.vendorLoadRequests$
       .pipe(
-        startWith(this.filterForm.value),
-        debounceTime(300),
-        distinctUntilChanged(),
+        switchMap(() =>
+          this.vendorService.getVendors(this.getFilterParams()).pipe(
+            catchError(() => {
+              this.notificationService.showError('Error fetching vendor list');
+              this.isLoading = false;
+              return EMPTY;
+            }),
+          ),
+        ),
         takeUntil(this.destroy$),
       )
-      .subscribe(() => {
-        this.pageIndex = 0;
-        this.loadVendors();
-      });
-  }
-
-  loadVendors(): void {
-    this.isLoading = true;
-    const filter = {
-      search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
-      pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize,
-    };
-
-    this.vendorService.getVendors(filter).subscribe({
-      next: (res) => {
-        const mappedVendors = res.items.map(
+      .subscribe((response: VendorListResponse) => {
+        const mappedVendors = response.items.map(
           (vendor: VendorItem): VendorTableItem => {
-            const bName =
+            const businessName =
               vendor.bussinessDetail?.bussinessName ||
               vendor.bussinessName ||
               'N/A';
@@ -182,7 +179,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
             return {
               ...vendor,
               id: Number(vendor.userId || vendor.vendorId),
-              name: vendor.name || bName || 'N/A',
+              name: vendor.name || businessName || 'N/A',
               categoriesDisplay:
                 Array.isArray(categories) && categories.length > 0
                   ? categories.join(', ')
@@ -195,7 +192,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               panNumber: vendor.pan || vendor.bussinessDetail?.pan || 'N/A',
               statusDisplay: this.getVendorStatusLabel(currentStatus),
               vendorStatusClass: this.getStatusBadgeClass(currentStatus),
-              rejectionReason: vendor.bussinessDetail?.rejectionReason || null,
+              rejectionReason: vendor.bussinessDetail?.rejectionReason || null
             };
           },
         );
@@ -206,14 +203,41 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
           this.vendors = [...this.vendors, ...mappedVendors];
         }
 
-        this.totalRecords = res.totalRecords;
+        this.totalRecords = response.totalRecords;
         this.isLoading = false;
-      },
-      error: () => {
-        this.notificationService.showError('Error fetching vendor list');
-        this.isLoading = false;
-      },
-    });
+      });
+  }
+
+  private searchStream(): void {
+    this.filterForm.valueChanges
+      .pipe(
+        startWith(this.filterForm.value),
+        debounceTime(300),
+        distinctUntilChanged(
+          (previous, current) =>
+            previous.search === current.search &&
+            previous.status === current.status
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.loadVendors();
+      });
+  }
+
+  private getFilterParams(): VendorFilterParams {
+    return {
+      search: this.searchQuery || undefined,
+      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
+    };
+  }
+
+  loadVendors(): void {
+    this.isLoading = true;
+    this.vendorLoadRequests$.next();
   }
 
   private getVendorStatusLabel(status: number): string {
@@ -301,7 +325,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
           vendorId,
           vendorName,
           ApprovalStatus.Approved,
-          currentStatus,
+          currentStatus
         );
         break;
       case 'verifyPending':
@@ -310,7 +334,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
           vendorId,
           vendorName,
           ApprovalStatus.Rejected,
-          currentStatus,
+          currentStatus
         );
         break;
     }
@@ -343,7 +367,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       data: {
         message: `Kya aap sach mein ${vendorName} ko delete karna chahte hain?`,
         yesLabel: 'Delete',
-        noLabel: 'Cancel',
+        noLabel: 'Cancel'
       },
     });
 
@@ -360,7 +384,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
             this.notificationService.showError(
               err?.error?.message || 'Vendor Delete Failed',
             );
-          },
+          }
         });
       }
     });
@@ -394,75 +418,82 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
 
     if (isApproving) {
-      // 1. Agar Approve karna ho toh simple confirm dialog khulega
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        width: '400px',
-        data: {
-          message: `Are you sure you want to approve ${vendorName}?`,
-          yesLabel: 'Approve',
-          noLabel: 'Cancel',
-        },
-      });
-
-      dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
-        if (confirmed) {
-          const payload = {
-            status: targetStatus,
-            rejectionReason: '',
-          };
-          this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
-            next: (response: { message?: string }) => {
-              this.notificationService.showSuccess(
-                response.message || 'Vendor approved successfully',
-              );
-              this.loadVendors();
-            },
-            error: (err: { error?: { message?: string } }) => {
-              this.notificationService.showError(
-                err?.error?.message || 'Vendor Status Update Failed',
-              );
-            },
-          });
-        }
-      });
-    } else {
-      const dialogRef = this.dialog.open(VendorActionDialogComponent, {
-        width: '450px',
-        data: {
-          vendorName: vendorName,
-          actionType: 'reject',
-        },
-      });
-
-      dialogRef
-        .afterClosed()
-        .subscribe(
-          (result: { confirmed: boolean; message: string } | undefined) => {
-            if (result && result.confirmed) {
-              const payload = {
-                status: targetStatus,
-                rejectionReason: result.message,
-              };
-
-              this.vendorService
-                .updateVendorStatus(vendorId, payload)
-                .subscribe({
-                  next: (response: { message?: string }) => {
-                    this.notificationService.showSuccess(
-                      response.message || 'Vendor rejected successfully',
-                    );
-                    this.loadVendors();
-                  },
-                  error: (err: { error?: { message?: string } }) => {
-                    this.notificationService.showError(
-                      err?.error?.message || 'Vendor Status Update Failed',
-                    );
-                  },
-                });
-            }
-          },
-        );
+      this.confirmVendorApproval(vendorId, vendorName, targetStatus);
+      return;
     }
+
+    this.confirmVendorRejection(vendorId, vendorName, targetStatus);
+  }
+
+  // handle vandor approve 
+  private confirmVendorApproval(
+    vendorId: number,
+    vendorName: string,
+    targetStatus: ApprovalStatus,
+  ): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: `Are you sure you want to approve ${vendorName}?`,
+        yesLabel: 'Approve',
+        noLabel: 'Cancel',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
+      if (!confirmed) return;
+
+      const payload = { status: targetStatus, rejectionReason: '' };
+      this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+        next: (response: { message?: string }) => {
+          this.notificationService.showSuccess(
+            response.message || 'Vendor approved successfully',
+          );
+          this.loadVendors();
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.notificationService.showError(
+            err?.error?.message || 'Vendor Status Update Failed',
+          );
+        },
+      });
+    });
+  }
+
+  // handle vendor rejection
+  private confirmVendorRejection(
+    vendorId: number,
+    vendorName: string,
+    targetStatus: ApprovalStatus,
+  ): void {
+    const dialogRef = this.dialog.open(VendorActionDialogComponent, {
+      width: '450px',
+      data: { vendorName, actionType: 'reject' },
+    });
+
+    dialogRef
+      .afterClosed()
+      .subscribe((result: { confirmed: boolean; message: string } | undefined) => {
+        if (!result?.confirmed) return;
+
+        const payload = {
+          status: targetStatus,
+          rejectionReason: result.message,
+        };
+        this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+          next: (response: { message?: string }) => {
+            this.notificationService.showSuccess(
+              response.message || 'Vendor rejected successfully',
+            );
+            this.loadVendors();
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.notificationService.showError(
+              err?.error?.message || 'Vendor Status Update Failed',
+            );
+          },
+        });
+      });
   }
 
   private handleToggleBlockVendor(vendor: VendorTableItem): void {

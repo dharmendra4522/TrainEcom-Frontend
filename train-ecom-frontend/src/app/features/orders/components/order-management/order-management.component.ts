@@ -7,9 +7,15 @@ import {
 } from '../../../../core/models/order.model';
 import { TableColumn } from '../../../../core/models/table.model';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
-import { Subject } from 'rxjs/internal/Subject';
-import { debounceTime } from 'rxjs/internal/operators/debounceTime';
-import { distinctUntilChanged, switchMap, takeUntil } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
@@ -70,6 +76,7 @@ export class OrderManagementComponent implements OnInit {
   ];
 
   private destroy$ = new Subject<void>();
+  private orderLoadRequests$ = new Subject<void>();
 
   // Table Columns Setup
   columns: TableColumn[] = [
@@ -94,7 +101,46 @@ export class OrderManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
+    this.setupOrderLoading();
     this.setupUrlAndSearchListeners();
+  }
+
+  private setupOrderLoading(): void {
+    this.orderLoadRequests$
+      .pipe(
+        switchMap(() => {
+          this.isLoading = true;
+          return this.orderService
+            .getManagedOrders(this.portal, this.getFilterParams())
+            .pipe(
+              catchError((error) => {
+                console.error('Failed to fetch orders:', error);
+                this.orders = [];
+                this.isLoading = false;
+                return EMPTY;
+              }),
+            );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((response) => {
+        const mappedOrders = (response.items || []).map((item) => ({
+          ...item,
+          orderStatus: normalizeOrderStatus(item.orderStatus),
+          paymentStatus: normalizePaymentStatus(item.paymentStatus),
+          orderStatusClass: this.getOrderStatusClass(item.orderStatus),
+          paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus),
+        }));
+
+        if (this.pageIndex === 0) {
+          this.orders = mappedOrders;
+        } else {
+          this.orders = [...this.orders, ...mappedOrders];
+        }
+
+        this.totalRecords = response.totalRecords || 0;
+        this.isLoading = false;
+      });
   }
 
   // handle URL query params and search input changes
@@ -174,75 +220,9 @@ export class OrderManagementComponent implements OnInit {
     };
   }
 
-  // setup search
-  private setupSearch(): void {
-    this.filterForm
-      .get('search')
-      ?.valueChanges.pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap(() => {
-          this.pageIndex = 0;
-          this.isLoading = true;
-          return this.orderService.getManagedOrders(
-            this.portal,
-            this.getFilterParams(),
-          );
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (response) => {
-          const mappedOrders = (response.items || []).map((item) => ({
-            ...item,
-            orderStatus: normalizeOrderStatus(item.orderStatus),
-            paymentStatus: normalizePaymentStatus(item.paymentStatus),
-            orderStatusClass: this.getOrderStatusClass(item.orderStatus),
-            paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus)
-          }));
-          this.orders = mappedOrders;
-          this.totalRecords = response.totalRecords || 0;
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('Failed to fetch orders:', err);
-          this.orders = [];
-          this.isLoading = false;
-        }
-      });
-  }
-
   // fetch orders
   loadOrders(): void {
-    this.isLoading = true;
-
-    this.orderService
-      .getManagedOrders(this.portal, this.getFilterParams())
-      .subscribe({
-        next: (response) => {
-          const mappedOrders = (response.items || []).map((item) => ({
-            ...item,
-            orderStatus: normalizeOrderStatus(item.orderStatus),
-            paymentStatus: normalizePaymentStatus(item.paymentStatus),
-            orderStatusClass: this.getOrderStatusClass(item.orderStatus),
-            paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus),
-          }));
-
-          if (this.pageIndex === 0) {
-            this.orders = mappedOrders;
-          } else {
-            this.orders = [...this.orders, ...mappedOrders];
-          }
-
-          this.totalRecords = response.totalRecords || 0;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Failed to fetch orders:', error);
-          this.orders = [];
-          this.isLoading = false;
-        },
-      });
+    this.orderLoadRequests$.next();
   }
 
   getOrderStatusClass(status: string): string {

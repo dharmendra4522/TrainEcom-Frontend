@@ -10,8 +10,20 @@ import {
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { AdminUser } from '../../../../core/models/user.model';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
+import {
+  AdminUser,
+  AdminUserFilterParams,
+  AdminUserListResponse,
+} from '../../../../core/models/user.model';
 import { Role, ROLE_NAME_MAP } from '../../../../core/models/auth.model';
 import { VendorStatus } from '../../../../core/models/vendor.model';
 import {
@@ -42,6 +54,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
 
   private destroy$ = new Subject<void>();
+  private userLoadRequests$ = new Subject<void>();
 
   allUsers: AdminUser[] = [];
   isLoading: boolean = false;
@@ -64,86 +77,35 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.setupUserLoading();
     this.setupSearchStream();
     this.loadRoleOptions();
     this.loadUsers();
   }
 
-  private loadRoleOptions(): void {
-    const allowedRoles = [
-      Role.Customer,
-      Role.Vendor,
-      Role.Accounting,
-      Role.OfficeAdmin,
-    ];
-    this.roleOptions = [
-      { label: 'All Roles', value: 'All' },
-      ...allowedRoles.map((role) => ({
-        label: ROLE_NAME_MAP[role] || `Role ${role}`,
-        value: role,
-      })),
-    ];
-  }
-
-  private setupSearchStream(): void {
-    this.filterForm.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.pageIndex = 0;
-        this.loadUsers();
-      });
-  }
-
-  columns: TableColumn[] = [
-    { key: 'name', label: 'Name', truncate: false },
-    { key: 'email', label: 'Email', truncate: true },
-    { key: 'phoneNumber', label: 'Phone' },
-    { key: 'formattedAddress', label: 'Location', truncate: true },
-    // { key: 'role', label: 'Role', truncate: false },
-    {
-      key: 'statusDisplay',
-      label: 'Status',
-      type: 'badge',
-      badgeClassKey: 'userStatusClass',
-    },
-  ];
-
-  actions: TableAction[] = [
-    {
-      actionKey: 'toggleBlock',
-      icon: 'block',
-      color: 'warn',
-      tooltip: 'Block / Unblock User',
-    },
-    {
-      actionKey: 'delete',
-      icon: 'delete',
-      color: 'warn',
-      tooltip: 'Delete User',
-    },
-  ];
-
-  loadUsers(): void {
-    this.isLoading = true;
-    const filter = {
-      search: this.searchQuery || undefined,
-      role: this.fixedRole,
-      status:
-        this.selectedStatus === 'All'
-          ? undefined
-          : this.selectedStatus,
-      pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize,
-    };
-    this.userService.getAllUsers(filter).subscribe({
-      next: (response) => {
+  private setupUserLoading(): void {
+    this.userLoadRequests$
+      .pipe(
+        switchMap(() =>
+          this.userService.getAllUsers(this.getFilterParams()).pipe(
+            catchError(() => {
+              this.notification.showError(
+                'Failed to fetch users. Please try again later.',
+              );
+              this.isLoading = false;
+              return EMPTY;
+            })
+          )
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((response: AdminUserListResponse) => {
         const mappedUsers = response.items.map((user) => {
           const isBlockedUser =
             user.isBlocked === true ||
             Number(user.status) === VendorStatus.Blocked;
           return {
             ...user,
-            userId: Number(user.userId),
             statusDisplay: isBlockedUser ? 'Blocked' : 'Active',
             userStatusClass: isBlockedUser
               ? 'bg-danger-subtle text-danger border border-danger-subtle'
@@ -171,14 +133,85 @@ export class AllUsersComponent implements OnInit, OnDestroy {
 
         this.totalRecords = response.totalRecords;
         this.isLoading = false;
-      },
-      error: () => {
-        this.notification.showError(
-          'Failed to fetch users. Please try again later.',
-        );
-        this.isLoading = false;
-      },
-    });
+      });
+  }
+
+  private loadRoleOptions(): void {
+    const allowedRoles = [
+      Role.Customer,
+      Role.Vendor,
+      Role.Accounting,
+      Role.OfficeAdmin
+    ];
+    this.roleOptions = [
+      { label: 'All Roles', value: 'All' },
+      ...allowedRoles.map((role) => ({
+        label: ROLE_NAME_MAP[role] || `Role ${role}`,
+        value: role,
+      })),
+    ];
+  }
+
+  private setupSearchStream(): void {
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (previous, current) =>
+            previous.search === current.search &&
+            previous.status === current.status,
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.loadUsers();
+      });
+  }
+
+  private getFilterParams(): AdminUserFilterParams {
+    return {
+      search: this.searchQuery || undefined,
+      role: this.fixedRole,
+      status:
+        this.selectedStatus === 'All' ? undefined : this.selectedStatus,
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
+    };
+  }
+
+  columns: TableColumn[] = [
+    { key: 'name', label: 'Name', truncate: false },
+    { key: 'email', label: 'Email', truncate: true },
+    { key: 'phoneNumber', label: 'Phone' },
+    { key: 'formattedAddress', label: 'Location', truncate: true },
+    // { key: 'role', label: 'Role', truncate: false },
+    {
+      key: 'statusDisplay',
+      label: 'Status',
+      type: 'badge',
+      badgeClassKey: 'userStatusClass',
+    },
+  ];
+
+  actions: TableAction[] = [
+    {
+      actionKey: 'toggleBlock',
+      icon: 'block',
+      color: 'warn',
+      tooltip: 'Block / Unblock User',
+    },
+    {
+      actionKey: 'delete',
+      icon: 'delete',
+      color: 'warn',
+      tooltip: 'Delete User'
+    }
+  ];
+
+  loadUsers(): void {
+    this.isLoading = true;
+    this.userLoadRequests$.next();
   }
 
   onTableScroll(): void {
@@ -203,7 +236,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
           const errBody = error['error'] as { message?: string } | undefined;
           const errorMessage = errBody?.message || 'An error occurred';
           this.notification.showError(
-            `Failed to ${action} user. ${errorMessage}`,
+            `Failed to ${action} user. ${errorMessage}`
           );
         },
       });
@@ -219,7 +252,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
         data: {
           message: `Are you sure you want to ${actionName} ${user.name}?`,
           yesLabel: user.isBlocked ? 'Unblock' : 'Block',
-          noLabel: 'Cancel',
+          noLabel: 'Cancel'
         },
       });
 
@@ -234,7 +267,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
         data: {
           message: `Kya aap sach mein ${user.name} ko delete karna chahte hain?`,
           yesLabel: 'Delete',
-          noLabel: 'Cancel',
+          noLabel: 'Cancel'
         },
       });
 

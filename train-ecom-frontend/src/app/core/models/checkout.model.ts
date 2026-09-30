@@ -4,23 +4,18 @@ export enum PaymentMethod {
   UPI = 3,
 }
 
-
 export enum OrderStatus {
-   Active=1,
-
-    Shipped =2,
-
-    Delivered=3,
-
-    Cancelled=4  
+  Active = 1,
+  Shipped = 2,
+  Delivered = 3,
+  Cancelled = 4,
 }
-
 
 export enum PaymentStatus {
   Pending = 1,
   Success = 2,
   Refunded = 3,
-  Cancelled = 4
+  Cancelled = 4,
 }
 
 export interface PaymentSimulationRequest {

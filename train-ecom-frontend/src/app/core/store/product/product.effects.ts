@@ -28,7 +28,7 @@ export class ProductEffects {
                 this.store.select(selectProductTotalPages),
                 this.store.select(selectProductTotalRecords)
             ),
-            mergeMap(([action, pagesCache, totalPages, totalRecords]) => {
+            switchMap(([action, pagesCache, totalPages, totalRecords]) => {
                 const pageNumber = action.pageNumber || 1;
                 const pageSize = action.pageSize || 10;
                 const brandName = action.brandName || '';
@@ -64,7 +64,7 @@ export class ProductEffects {
                     action.maxPrice,
                     action.sortBy,
                     action.minRating,
-                    portal,
+                    portal
                 ).pipe(
                     map((response) => {
                         // calculate total pages based on totalRecords and pageSize
