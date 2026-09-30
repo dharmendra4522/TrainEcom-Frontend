@@ -1,23 +1,125 @@
-.dialog-form {
+.main-container {
+  width: 100%;
+  height: 100%;
+}
+
+.form-body {
+  padding: 12px;
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.title {
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 13px;
+}
+
+.product-info-section {
+  grid-column: 1/3;
+}
+
+.price {
+  grid-column: 3/4;
+}
+
+.qty {
+  grid-column: 4/5;
+}
+
+.brand-field {
+  grid-column: 1/3;
+}
+.desc-section {
+  grid-column: 1/5;
+}
+
+.item4 {
+  grid-column: 3/5;
+}
+
+.submitBtn {
   display: flex;
-  flex-direction: column;
-  gap: 15px; 
-  min-width: 350px; 
-  padding-top: 10px;
+  justify-content: end;
 }
 
-mat-dialog-content {
-  overflow: visible !important;
+.image-preview {
+  margin-bottom: 12px;
 }
 
-.preview-card {
-  transition: transform 0.2s ease-in-out;
+.preview-label {
+  font-size: 12px;
+  color: green;
+  font-weight: 500;
+  margin-bottom: 6px;
 }
 
-.preview-card:hover {
-  transform: scale(1.04);
+.preview-image-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.shadow-xs {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+.thumb-box {
+  position: relative;
+  width: 75px;
+  height: 75px;
+  border-radius: 1px solid #ddd;
+  background: #f9f9f9;
+  padding: 4px;
+  overflow: visible;
+}
+
+.load-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.remove-btn {
+  position: absolute !important;
+  top: -8px;
+  right: -8px;
+  transform: scale(0.55);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.submitBtn button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.btn-spin {
+  display: inline-flex !important;
+  margin: 0 !important;
+}
+
+.img-input {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    grid-template-columns: 1fr;
+  }
+
+  .product-info-section,
+  .price,
+  .qty,
+  .brand-field,
+  .desc-section,
+  .category-field {
+    grid-column: 1 / 2;
+  }
 }

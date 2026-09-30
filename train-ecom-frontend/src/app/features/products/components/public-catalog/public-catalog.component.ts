@@ -1,12 +1,28 @@
-import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  HostListener,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
-import { map, take, takeUntil } from 'rxjs/operators';
+import {
+  map,
+  take,
+  takeUntil,
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs/operators';
 import { Product } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
 import { Category } from '../../../../core/models/category.model';
-import { selectAllProducts, selectProductsLoading, selectProductTotalPages } from '../../../../core/store/product/product.selectors';
+import {
+  selectAllProducts,
+  selectProductsLoading,
+  selectProductTotalPages,
+} from '../../../../core/store/product/product.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import { Location } from '@angular/common';
 
@@ -18,11 +34,10 @@ import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 // for virtual scrolling
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
-
 @Component({
   selector: 'app-public-catalog',
   templateUrl: './public-catalog.component.html',
-  styleUrl: './public-catalog.component.css'
+  styleUrl: './public-catalog.component.css',
 })
 export class PublicCatalogComponent implements OnInit, OnDestroy {
   private store = inject(Store);
@@ -31,12 +46,12 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private breakpointObserver = inject(BreakpointObserver);
 
-
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
   brands$: Observable<Brand[]> = this.store.select(selectAllBrands);
   private destroy$ = new Subject<void>();
+  private priceSubject$ = new Subject<number>();
 
   // Observer for Virtual DOM
   productRows$!: Observable<Product[][]>;
@@ -44,11 +59,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   itemsPerRow: number = 3; // default to 3 items per row for larger screens
 
-
-
   filteredProducts$!: Observable<Product[]>;
 
-  // filter and sort related BehaviorSubjects 
+  // filter and sort related BehaviorSubjects
   minPriceFilter$ = new BehaviorSubject<number | null>(null);
   maxPriceFilter$ = new BehaviorSubject<number | null>(null);
   ratingFilter$ = new BehaviorSubject<number | null>(null);
@@ -71,6 +84,19 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.initStoreData();
     this.setupQueryParamsSubscription();
     this.setupScrollListener();
+    this.setupPriceDebounce();
+  }
+
+  private setupPriceDebounce(): void {
+    this.priceSubject$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((value) => {
+        if (value >= 10000) {
+          this.setPriceRange(150, null);
+        } else {
+          this.setPriceRange(150, value);
+        }
+      });
   }
 
   /** Initialize filtered products stream */
@@ -90,9 +116,10 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
   /** Setup breakpoint observer for responsive items per row */
   private setupBreakpointObserver(): void {
-    this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+    this.breakpointObserver
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(result => {
+      .subscribe((result) => {
         this.itemsPerRow = result.matches ? 2 : 3;
       });
   }
@@ -100,7 +127,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   /** Create chunked product rows stream */
   private setupProductRowsStream(): void {
     this.productRows$ = this.filteredProducts$.pipe(
-      map(products => this.chunkArray(products, this.itemsPerRow))
+      map((products) => this.chunkArray(products, this.itemsPerRow)),
     );
   }
 
@@ -115,14 +142,20 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
           this.activeSort = urlSortBy;
         }
 
-        const urlMinRating = params['minRating'] ? Number(params['minRating']) : null;
+        const urlMinRating = params['minRating']
+          ? Number(params['minRating'])
+          : null;
         if (urlMinRating !== this.ratingFilter$.value) {
           this.ratingFilter$.next(urlMinRating);
           this.activeRating = urlMinRating;
         }
 
         this.currentPage = 1;
-        this.dispatchLoadWithCurrentParams({ pageNumber: 1, isAppend: false, sortBy: urlSortBy });
+        this.dispatchLoadWithCurrentParams({
+          pageNumber: 1,
+          isAppend: false,
+          sortBy: urlSortBy,
+        });
       });
   }
 
@@ -144,7 +177,11 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   onContainerScroll = (event: Event): void => {
     const target = event.target as HTMLElement;
     if (!target || !target.tagName) return;
-    if (target.tagName !== 'MAT-SIDENAV-CONTENT' && !target.classList?.contains('mat-drawer-content') && !target.classList?.contains('main-content')) {
+    if (
+      target.tagName !== 'MAT-SIDENAV-CONTENT' &&
+      !target.classList?.contains('mat-drawer-content') &&
+      !target.classList?.contains('main-content')
+    ) {
       return;
     }
 
@@ -162,17 +199,17 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         }
       });
     }
-  }
+  };
 
   /** Load initial categories and brands metadata into store */
   private initStoreData(): void {
-    this.categories$.pipe(take(1)).subscribe(categories => {
+    this.categories$.pipe(take(1)).subscribe((categories) => {
       if (!categories || categories.length === 0) {
         this.store.dispatch(CategoryActions.loadCategories());
       }
     });
 
-    this.brands$.pipe(take(1)).subscribe(brands => {
+    this.brands$.pipe(take(1)).subscribe((brands) => {
       if (!brands || brands.length === 0) {
         this.store.dispatch(BrandActions.loadBrands());
       }
@@ -184,7 +221,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { category: categoryName || null },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -193,7 +230,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { brand: brandName || null },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -214,47 +251,58 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
     const queryParams = this.route.snapshot.queryParamMap;
 
-    const brandName = overrides && 'brandName' in overrides
-      ? (overrides.brandName || undefined)
-      : (queryParams.get('brand') || undefined);
+    const brandName =
+      overrides && 'brandName' in overrides
+        ? overrides.brandName || undefined
+        : queryParams.get('brand') || undefined;
 
-    const categoryName = overrides && 'categoryName' in overrides
-      ? (overrides.categoryName || undefined)
-      : (queryParams.get('category') || undefined);
+    const categoryName =
+      overrides && 'categoryName' in overrides
+        ? overrides.categoryName || undefined
+        : queryParams.get('category') || undefined;
 
     const search = queryParams.get('search') || undefined;
 
-    const minPrice = overrides && 'minPrice' in overrides
-      ? (overrides.minPrice ?? undefined)
-      : (this.minPriceFilter$.value ?? undefined);
+    const minPrice =
+      overrides && 'minPrice' in overrides
+        ? (overrides.minPrice ?? undefined)
+        : (this.minPriceFilter$.value ?? undefined);
 
-    const maxPrice = overrides && 'maxPrice' in overrides
-      ? (overrides.maxPrice ?? undefined)
-      : (this.maxPriceFilter$.value ?? undefined);
+    const maxPrice =
+      overrides && 'maxPrice' in overrides
+        ? (overrides.maxPrice ?? undefined)
+        : (this.maxPriceFilter$.value ?? undefined);
 
-    const sortBy = overrides && 'sortBy' in overrides
-      ? (overrides.sortBy || undefined)
-      : (this.sortBy$.value || undefined);
+    const sortBy =
+      overrides && 'sortBy' in overrides
+        ? overrides.sortBy || undefined
+        : this.sortBy$.value || undefined;
 
-    const minRating = overrides && 'minRating' in overrides
-      ? (overrides.minRating ?? undefined)
-      : (this.ratingFilter$.value ?? (queryParams.get('minRating') ? Number(queryParams.get('minRating')) : undefined));
+    const minRating =
+      overrides && 'minRating' in overrides
+        ? (overrides.minRating ?? undefined)
+        : (this.ratingFilter$.value ??
+          (queryParams.get('minRating')
+            ? Number(queryParams.get('minRating'))
+            : undefined));
 
     const pageNumber = overrides?.pageNumber || this.currentPage;
     const isAppend = overrides?.isAppend || false;
 
-    this.store.dispatch(ProductActions.loadProducts({
-      pageNumber,
-      pageSize: 10,
-      isAppend,
-      brandName,
-      categoryName,
-      search,
-      minPrice,
-      maxPrice,
-      sortBy,
-      minRating
-    }));
+    this.store.dispatch(
+      ProductActions.loadProducts({
+        pageNumber,
+        pageSize: 10,
+        isAppend,
+        brandName,
+        categoryName,
+        search,
+        minPrice,
+        maxPrice,
+        sortBy,
+        minRating,
+      }),
+    );
   }
 
   /** Set price range filter values */
@@ -264,17 +312,18 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.activeMinPrice = min;
     this.activeMaxPrice = max;
     this.currentPage = 1;
-    this.dispatchLoadWithCurrentParams({ minPrice: min, maxPrice: max, isAppend: false, pageNumber: 1 });
+    this.dispatchLoadWithCurrentParams({
+      minPrice: min,
+      maxPrice: max,
+      isAppend: false,
+      pageNumber: 1,
+    });
   }
 
   /** Handle price slider input change */
   onPriceSliderChange(value: number): void {
     this.maxPriceSliderValue = value;
-    if (value >= 10000) {
-      this.setPriceRange(150, null);
-    } else {
-      this.setPriceRange(150, value);
-    }
+    this.priceSubject$.next(value);
   }
 
   /** Set minimum rating filter */
@@ -286,7 +335,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { minRating: rating || null },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -295,7 +344,11 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     this.sortBy$.next(sort);
     this.activeSort = sort;
     this.currentPage = 1;
-    this.dispatchLoadWithCurrentParams({ sortBy: sort || null, isAppend: false, pageNumber: 1 });
+    this.dispatchLoadWithCurrentParams({
+      sortBy: sort || null,
+      isAppend: false,
+      pageNumber: 1,
+    });
   }
 
   /** Reset all filters and clear query parameters */
@@ -313,8 +366,14 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { brand: null, category: null, minRating: null, sortBy: null, search: null },
-      queryParamsHandling: 'merge'
+      queryParams: {
+        brand: null,
+        category: null,
+        minRating: null,
+        sortBy: null,
+        search: null,
+      },
+      queryParamsHandling: 'merge',
     });
   }
 
