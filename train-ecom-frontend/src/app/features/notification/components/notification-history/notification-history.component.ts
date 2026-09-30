@@ -42,11 +42,11 @@ export class NotificationHistoryComponent {
         this.notifications = response.items;
         this.unreadCount = response.unreadCount;
         this.totalRecords = response.totalRecords;
-        this.loading = false;
+        this.loading = false
       },
       error: (error) => {
         console.error('Error fetching notifications:', error);
-        this.loading = false;
+        this.loading = false
       }
     });
   }

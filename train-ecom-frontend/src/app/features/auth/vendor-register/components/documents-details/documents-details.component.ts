@@ -18,11 +18,11 @@ export class DocumentsDetailsComponent {
   }>();
   @Output() prev = new EventEmitter<void>();
 
-  onFileSelect(event: Event, controlName: string) {
+  onFileSelect(event: Event, controlName: string): void {
     this.fileSelect.emit({ event, controlName });
   }
 
-  onPrev() {
+  onPrev(): void {
     this.prev.emit();
   }
 

@@ -87,7 +87,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // Currently selected delivery address.
   get selectedAddress(): Address | undefined {
     return this.addresses.find(
-      (address) => address.id === this.selectedAddressid,
+      (address) => address.id === this.selectedAddressid
     );
   }
 
@@ -101,7 +101,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           this.addresses = data || [];
           const selectedAddress =
             this.addresses.find(
-              (address) => String(address.id) === String(preferredAddressId),
+              (address) => String(address.id) === String(preferredAddressId)
             ) ||
             this.addresses.find((address) => address.isDefault) ||
             this.addresses[0];
@@ -110,7 +110,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error fetching addresses:', err);
-        },
+        }
       });
   }
 
@@ -181,7 +181,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           productName: item.productName,
           unitPrice: item.unitPrice,
           quantity: item.quantity,
-          thumbnailUrl: item.thumbnailUrl,
+          thumbnailUrl: item.thumbnailUrl
         }));
         this.subtotal = total || 0;
         this.calculateTotals();
@@ -214,7 +214,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       phone: String(formResult.phone),
       postalCode: String(formResult.postalCode),
       country: 'India',
-      isDefault: false,
+      isDefault: false
     };
 
     this.userService
@@ -238,7 +238,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .confirm(
         `Are you sure you want to remove "${item.productName || 'this item'}" from checkout?`,
         'Remove',
-        'Cancel',
+        'Cancel'
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((confirmed) => {
@@ -259,19 +259,19 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private performCheckoutItemRemoval(item: CheckoutItem): void {
     if (this.isDirectBuy) {
       this.checkoutItems = this.checkoutItems.filter(
-        (checkoutItem) => checkoutItem.productId !== item.productId,
+        (checkoutItem) => checkoutItem.productId !== item.productId
       );
       this.subtotal = this.checkoutItems.reduce(
         (total, checkoutItem) =>
           total + checkoutItem.unitPrice * checkoutItem.quantity,
-        0,
+        0
       );
       this.calculateTotals();
       return;
     }
 
     this.store.dispatch(
-      CartActions.deleteCartItem({ itemId: String(item.itemId ?? item.productId) }),
+      CartActions.deleteCartItem({ itemId: String(item.itemId ?? item.productId) })
     );
   }
 
@@ -304,7 +304,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private handleOnlinePaymentOrder(): void {
     const simulationPayload = {
       paymentMethod: this.paymentMethods,
-      amount: this.grandTotal,
+      amount: this.grandTotal
     };
 
     this.checkoutService
@@ -321,8 +321,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         error: (err) =>
           this.onOrderError(
             err?.error?.message ||
-            'Payment simulation or order placement failed',
-          ),
+            'Payment simulation or order placement failed'
+          )
       });
   }
 
@@ -333,7 +333,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: CreateOrderResponse) => this.onOrderSuccess(response),
         error: (err) =>
-          this.onOrderError(err?.error?.message || 'Order placement failed'),
+          this.onOrderError(err?.error?.message || 'Order placement failed')
       });
   }
 
@@ -354,7 +354,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       const cartOrderPayload: CreateOrderRequest = {
         addressId: this.selectedAddressid as string,
         paymentMethod: this.paymentMethods,
-        transactionId: transactionId,
+        transactionId: transactionId
       };
       return this.checkoutService.placeCartOrder(cartOrderPayload);
     }
@@ -379,7 +379,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.store.dispatch(
         CartActions.updateCartItem({
           itemId: String(item.itemId ?? item.productId),
-          quantity: newQuantity,
+          quantity: newQuantity
         })
       );
     }
@@ -395,7 +395,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.notification.showSuccess('Order placed successfully!');
     this.router.navigate(['/checkout/success'], {
       queryParams: { orderId: response.orderId },
-      replaceUrl: true,
+      replaceUrl: true
     });
   }
 
@@ -407,7 +407,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       phone: String(event.address.phone),
       postalCode: String(event.address.postalCode),
       country: 'India',
-      isDefault: false,
+      isDefault: false
     };
     this.userService
       .updateAddress(addressId, addressPayload)
@@ -469,7 +469,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           if (response && response.isValid === false) {
             const invalidItem: ValidateCheckoutItem | undefined = response.items?.find(
               (item: ValidateCheckoutItem) =>
-                !item.isAvailable || (item.message !== null && item.message !== undefined && item.message.trim() !== ''),
+                !item.isAvailable || (item.message !== null && item.message !== undefined && item.message.trim() !== '')
             );
 
             const errorMessage: string =
@@ -504,7 +504,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutBreadcrumbs = [
     { label: 'Home', url: '/' },
     { label: 'Cart', url: '/cart' },
-    { label: 'Checkout' },
+    { label: 'Checkout' }
   ];
 
   goBack(): void {

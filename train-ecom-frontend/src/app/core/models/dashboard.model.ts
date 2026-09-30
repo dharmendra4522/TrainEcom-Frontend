@@ -22,8 +22,6 @@ export interface DashboardData {
   recentOrders: RecentOrder[];
 }
 
-
-
 export interface DashboardStatItem {
   title: string;
   value: string;
@@ -42,7 +40,6 @@ export type DashboardOrderRow = {
   orderStatusClass: string;
 };
 
-
 export interface CategoryWiseProductCount {
   categoryId: number;
   categoryName: string;
@@ -58,4 +55,23 @@ export interface MonthlyRevenue {
 export interface RevenueData {
   totalRevenue: number;
   monthlyRevenue: MonthlyRevenue[];
+}
+
+export interface VendorItem {
+  vendorId: number;
+  vendorName: string;
+}
+
+export interface MonthlyOrderData {
+  month: number;
+  monthName: string;
+  activeOrders: number;
+  deliveredOrders: number;
+  cancelOrders: number;
+  shippedOrders: number;
+}
+
+export interface OrderSummaryResponse {
+  totalOrders: number;
+  monthlyData: MonthlyOrderData[];
 }

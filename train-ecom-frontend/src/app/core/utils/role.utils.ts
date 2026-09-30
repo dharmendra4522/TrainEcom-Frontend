@@ -94,9 +94,7 @@ export function approvalStatusToLabel(
 export function normalizeOrderStatus(status: OrderStatus | string | number): string {
   if (typeof status === 'number') {
     switch (status) {
-      case OrderStatus.Pending: return 'Pending';
-      case OrderStatus.Confirmed: return 'Confirmed';
-      case OrderStatus.Processing: return 'Processing';
+      case OrderStatus.Active: return 'Active';
       case OrderStatus.Shipped: return 'Shipped';
       case OrderStatus.Delivered: return 'Delivered';
       case OrderStatus.Cancelled: return 'Cancelled';

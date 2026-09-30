@@ -38,7 +38,6 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
   private matDialog = inject(MatDialog);
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private store = inject(Store);
   private actions$ = inject(Actions);
@@ -129,7 +128,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private waitForMasterDataAndLoadProduct(): void {
     combineLatest([
       this.store.select(selectAllBrands),
-      this.store.select(selectAllCategories),
+      this.store.select(selectAllCategories)
     ])
       .pipe(
         filter(
@@ -140,7 +139,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             categories.length > 0,
         ),
         takeUntil(this.destroy$),
-        take(1),
+        take(1)
       )
       .subscribe({
         next: ([brands, categories]: [Brand[], Category[]]) => {
@@ -149,7 +148,9 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           if (this.productId) {
             this.loadProductDetails(this.productId);
           }
-        },
+        }, error: (err) => {
+          console.error('Error loading brands or categories:', err);
+        }
       });
   }
 
@@ -183,7 +184,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       stockQuantity: product.stockQuantity ?? 0,
       brand: brandId,
       category: categoryId,
-      description: product.description || '',
+      description: product.description || ''
     });
 
     // check if brandId exists before setting the value to avoid null or undefined issues
@@ -201,7 +202,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     if (product.images) {
       this.existingImages = product.images.map((img: ProductImage) => ({
         id: img.id,
-        imageUrl: img.imageUrl,
+        imageUrl: img.imageUrl
       }));
     }
   }
@@ -300,7 +301,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
       this.store.dispatch(
         CategoryActions.createCategory({ category: payload as Category }),
-      );
+      )
     }
   }
 
@@ -349,7 +350,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private handleInvalidFileSize(fileName: string, input: HTMLInputElement, index: number): void {
     this.notification.showError(
       `File "${fileName}" exceeds 5MB. Please upload an image less than 5MB.`,
-      'Close',
+      'Close'
     );
     input.value = '';
     if (this.previewUrls[index]) {

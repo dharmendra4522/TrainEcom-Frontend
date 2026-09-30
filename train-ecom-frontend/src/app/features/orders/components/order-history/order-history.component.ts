@@ -70,7 +70,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
       fromDate: this.fromDate ? this.fromDate : undefined,
       toDate: this.toDate ? this.toDate : undefined,
       pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize,
+      pageSize: this.pageSize
     };
 
     this.orderHistoryService.getAllOrderHistory(filter).subscribe({

@@ -21,7 +21,7 @@ export class HeroComponent implements AfterViewInit {
       title: 'iPhone 15 Pro Max',
       description:
         'Experience the future of smartphones. Titan design, A17 Pro chip.',
-      ctaText: 'Shop Now',
+      ctaText: 'Shop Now'
     },
     {
       id: 2,
@@ -30,7 +30,7 @@ export class HeroComponent implements AfterViewInit {
       title: 'Premium Sound, Zero Noise',
       description:
         'Active noise cancelling over-ear headphones with 40-hour battery life.',
-      ctaText: 'Explore',
+      ctaText: 'Explore'
     },
     {
       id: 3,
@@ -39,7 +39,7 @@ export class HeroComponent implements AfterViewInit {
       title: 'Ultimate Gaming Setup',
       description:
         'Level up your gaming experience with high-performance accessories.',
-      ctaText: 'Shop Now',
+      ctaText: 'Shop Now'
     },
     {
       id: 4,
@@ -48,7 +48,7 @@ export class HeroComponent implements AfterViewInit {
       title: 'New Summer Fashion',
       description:
         'Get up to 40% off on all clothing, bags, and summer essentials.',
-      ctaText: 'Explore Collection',
+      ctaText: 'Explore Collection'
     },
     {
       id: 5,
@@ -56,7 +56,7 @@ export class HeroComponent implements AfterViewInit {
         'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=1200&q=80',
       title: 'Smart Fitness Wearables',
       description: 'Track your health, workouts, and stay connected on the go.',
-      ctaText: 'Shop Wearables',
+      ctaText: 'Shop Wearables'
     },
     {
       id: 6,
@@ -65,8 +65,8 @@ export class HeroComponent implements AfterViewInit {
       title: 'Next-Gen Tablets',
       description:
         'Powerful tablets designed for work, creativity, and entertainment.',
-      ctaText: 'Shop Tablets',
-    },
+      ctaText: 'Shop Tablets'
+    }
   ];
 
   ngAfterViewInit() {
@@ -75,7 +75,7 @@ export class HeroComponent implements AfterViewInit {
       new bootstrap.Carousel(carouselElement, {
         interval: 3000,
         ride: 'carousel',
-        pause: false,
+        pause: false
       });
     }
   }

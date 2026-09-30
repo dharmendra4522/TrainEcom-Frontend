@@ -167,7 +167,8 @@ export class OrderDetailsComponent {
       data: {
         orderId: this.orderDetail.orderId,
         currentStatus: this.orderDetail.orderStatus,
-        portal: this.portal,
+        portal: this.portal
+        
       }
     });
 

@@ -39,9 +39,7 @@ export class AdminOrderStatusDialogComponent {
   // helper method to check if the selected status is different from the current status
   isStatusDisabled(status: OrderStatus | string | number): boolean {
     const statusHierarchy: OrderStatus[] = [
-      OrderStatus.Pending,
-      OrderStatus.Confirmed,
-      OrderStatus.Processing,
+      OrderStatus.Active,
       OrderStatus.Shipped,
       OrderStatus.Delivered,
       OrderStatus.Cancelled
@@ -76,7 +74,7 @@ export class AdminOrderStatusDialogComponent {
       this.data.portal,
       this.data.orderId,
       newStatus,
-      remark,
+      remark
     ).subscribe({
       next: () => {
         this.notification.showSuccess('Order status updated successfully', 'Close');

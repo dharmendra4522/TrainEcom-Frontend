@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit {
   public activeOrders: number = 0;
   public deliveredOrders: number = 0;
   public shippedOrders: number = 0;
-  public cancelOrders: number = 0
+  public cancelOrders: number = 0;
   public processingOrders: number = 0;
 
   // order table columns
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit {
       key: 'orderStatus',
       label: 'Order Status',
       type: 'badge',
-      badgeClassKey: 'orderStatusClass',
+      badgeClassKey: 'orderStatusClass'
     },
   ];
 
@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private router: Router,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
     if (this.portal === 'vendor') {
-      // this.isVendor = false;
+      this.isVendor = true;
       this.isLoadingStats = false;
       this.stats = [];
       if (this.checkVendorPending()) {
@@ -113,7 +113,6 @@ export class DashboardComponent implements OnInit {
         this.activeOrders = data.activeOrders;
         this.deliveredOrders = data.deliveredOrders;
         this.cancelOrders = data.cancelOrders;
-       
         this.isLoadingStats = false;
       },
       error: (err: Error) => {
@@ -146,7 +145,7 @@ export class DashboardComponent implements OnInit {
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
       orderStatus: normalizeOrderStatus(order.orderStatus),
-      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus),
+      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus)
     };
   }
 
@@ -162,8 +161,8 @@ export class DashboardComponent implements OnInit {
         this.portalRoutes.orders(
           this.portal,
           'details',
-          String(order['orderId']),
-        ),
+          String(order['orderId'])
+        )
       );
     }
   }

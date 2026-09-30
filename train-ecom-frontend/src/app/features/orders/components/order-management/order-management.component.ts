@@ -56,18 +56,17 @@ export class OrderManagementComponent implements OnInit {
 
   // Dropdown Options
   orderStatusOptions = [
-    { value: OrderStatus.Pending, label: 'Pending' },
-    { value: OrderStatus.Processing, label: 'Processing' },
+    { value: OrderStatus.Active, label: 'Active' },
     { value: OrderStatus.Shipped, label: 'Shipped' },
     { value: OrderStatus.Delivered, label: 'Delivered' },
-    { value: OrderStatus.Cancelled, label: 'Cancelled' },
+    { value: OrderStatus.Cancelled, label: 'Cancelled' }
   ];
 
   paymentStatusOptions = [
     { value: PaymentStatus.Pending, label: 'Pending' },
     { value: PaymentStatus.Success, label: 'Success' },
     { value: PaymentStatus.Refunded, label: 'Refunded' },
-    { value: PaymentStatus.Cancelled, label: 'Cancelled' },
+    { value: PaymentStatus.Cancelled, label: 'Cancelled' }
   ];
 
   private destroy$ = new Subject<void>();
@@ -83,13 +82,13 @@ export class OrderManagementComponent implements OnInit {
       key: 'orderStatus',
       label: 'Status',
       type: 'badge',
-      badgeClassKey: 'orderStatusClass',
+      badgeClassKey: 'orderStatusClass'
     },
     {
       key: 'paymentStatus',
       label: 'Payment',
       type: 'badge',
-      badgeClassKey: 'paymentStatusClass',
+      badgeClassKey: 'paymentStatusClass'
     },
   ];
 
@@ -118,7 +117,7 @@ export class OrderManagementComponent implements OnInit {
         ) {
           this.filterForm.patchValue(
             { search: searchParam },
-            { emitEvent: false },
+            { emitEvent: false }
           );
         }
 
@@ -137,7 +136,7 @@ export class OrderManagementComponent implements OnInit {
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { search: searchValue || null },
-          queryParamsHandling: 'merge',
+          queryParamsHandling: 'merge'
         });
       });
   }
@@ -148,14 +147,14 @@ export class OrderManagementComponent implements OnInit {
 
   private getFilterParams(): AdminOrderFilterParams {
     const formatToYyyyMmDd = (
-      date: Date | string | null,
+      dateParam: Date | string | null
     ): string | undefined => {
-      if (!date) return undefined;
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return undefined;
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
+      if (!dateParam) return undefined;
+      const date = new Date(dateParam);
+      if (isNaN(date.getTime())) return undefined;
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     };
     return {
@@ -171,7 +170,7 @@ export class OrderManagementComponent implements OnInit {
       fromDate: formatToYyyyMmDd(this.appliedFromDate),
       toDate: formatToYyyyMmDd(this.appliedToDate),
       pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize,
+      pageSize: this.pageSize
     };
   }
 
@@ -199,7 +198,7 @@ export class OrderManagementComponent implements OnInit {
             orderStatus: normalizeOrderStatus(item.orderStatus),
             paymentStatus: normalizePaymentStatus(item.paymentStatus),
             orderStatusClass: this.getOrderStatusClass(item.orderStatus),
-            paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus),
+            paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus)
           }));
           this.orders = mappedOrders;
           this.totalRecords = response.totalRecords || 0;
@@ -209,7 +208,7 @@ export class OrderManagementComponent implements OnInit {
           console.error('Failed to fetch orders:', err);
           this.orders = [];
           this.isLoading = false;
-        },
+        }
       });
   }
 
@@ -295,7 +294,7 @@ export class OrderManagementComponent implements OnInit {
       queryParams: {
         orderStatus:
           this.selectedStatus !== undefined ? this.selectedStatus : null,
-        paymentStatus: this.selectedPaymentStatus !== undefined ? this.selectedPaymentStatus : null,
+        paymentStatus: this.selectedPaymentStatus !== undefined ? this.selectedPaymentStatus : null
       },
       queryParamsHandling: 'merge',
     });

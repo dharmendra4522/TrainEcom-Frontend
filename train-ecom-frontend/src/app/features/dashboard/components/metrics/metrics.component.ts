@@ -45,31 +45,31 @@ export class MetricsComponent {
 
   navigateToCustomers(): void {
     this.router.navigate(this.portalRoutes.users(this.portal, 'manage'), {
-      queryParams: { role: Role.Customer },
+      queryParams: { role: Role.Customer }
     });
   }
 
   navigateToVendors(): void {
     this.router.navigate(this.portalRoutes.users(this.portal, 'manage'), {
-      queryParams: { role: Role.Vendor },
+      queryParams: { role: Role.Vendor }
     });
   }
 
   navigateToActiveOrders(): void {
     this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'), {
-      queryParams: { orderStatus: OrderStatus.Processing },
+      queryParams: { orderStatus: OrderStatus.Active }
     });
   }
 
   navigateToDeliveredOrders(): void {
     this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'), {
-      queryParams: { orderStatus: OrderStatus.Delivered },
+      queryParams: { orderStatus: OrderStatus.Delivered }
     });
   }
 
   navigateToCancelledOrders(): void {
     this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'), {
-      queryParams: { orderStatus: OrderStatus.Cancelled },
+      queryParams: { orderStatus: OrderStatus.Cancelled }
     });
   }
 

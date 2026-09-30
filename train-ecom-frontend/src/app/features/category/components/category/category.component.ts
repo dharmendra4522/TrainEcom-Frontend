@@ -58,7 +58,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   columns: TableColumn[] = [
     { key: 'name', label: 'Category Name' },
     { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' },
+    { key: 'numberOfProducts', label: 'Total Products' }
   ];
 
   actions: TableAction[] = [
@@ -66,14 +66,14 @@ export class CategoryComponent implements OnInit, OnDestroy {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Category',
+      tooltip: 'Edit Category'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Category',
-    },
+      tooltip: 'Delete Category'
+    }
   ];
 
   ngOnInit() {
@@ -127,21 +127,21 @@ export class CategoryComponent implements OnInit, OnDestroy {
   private loadPage(
     pageNumber = this.currentPage,
     pageSize = this.pageSize,
-    search = this.searchControl.value || '',
+    search = this.searchControl.value || ''
   ): void {
     this.currentPage = pageNumber;
     this.store.dispatch(
       CategoryActions.loadPaginatedCategories({
         pageNumber,
         pageSize,
-        search: search.trim() !== '' ? search.trim() : undefined,
+        search: search.trim() !== '' ? search.trim() : undefined
       }),
     );
   }
 
   createCategory(payload: CreateCategoryRequest): void {
     this.store.dispatch(
-      CategoryActions.createCategory({ category: payload as Category }),
+      CategoryActions.createCategory({ category: payload as Category })
     );
   }
 
@@ -149,7 +149,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.store.dispatch(
       CategoryActions.updateCategory({
         categoryId: String(id),
-        category: payload as Category,
+        category: payload as Category
       }),
     );
   }
@@ -159,18 +159,18 @@ export class CategoryComponent implements OnInit, OnDestroy {
       .confirm(
         'Are you sure you want to delete this category?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .subscribe((confirmed) => {
         if (confirmed) {
           this.store.dispatch(
-            CategoryActions.deleteCategory({ categoryId: String(id) }),
+            CategoryActions.deleteCategory({ categoryId: String(id) })
           );
         }
       });
   }
 
-  openCategoryDialog(category?: Category) {
+  openCategoryDialog(category?: Category): void {
     const isEdit = !!category;
     const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
       width: '500px',
@@ -180,7 +180,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
         isEdit: isEdit,
         initialData: category
           ? { name: category.name, description: category.description }
-          : null,
+          : null
       },
     });
 

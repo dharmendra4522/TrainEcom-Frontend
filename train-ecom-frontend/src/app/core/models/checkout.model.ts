@@ -6,12 +6,13 @@ export enum PaymentMethod {
 
 
 export enum OrderStatus {
-  Pending = 1,
-  Confirmed = 2,
-  Processing = 3,
-  Shipped = 4,
-  Delivered = 5,
-  Cancelled = 6,
+   Active=1,
+
+    Shipped =2,
+
+    Delivered=3,
+
+    Cancelled=4  
 }
 
 

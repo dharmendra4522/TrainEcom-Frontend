@@ -108,7 +108,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private dispatchProductActions(id: string): void {
     this.store.dispatch(ProductActions.loadProductById({
       id,
-      portal: this.isManagementMode ? this.portal : undefined,
+      portal: this.isManagementMode ? this.portal : undefined
     }));
     if (!this.isManagementMode) {
       this.store.dispatch(ProductActions.loadRelatedProducts({ productId: id }));
@@ -171,13 +171,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       this.productBreadcrumbs = [
         { label: 'Dashboard', url: '/' },
         { label: 'Products List', url: `/${this.portal}/products/manage` },
-        { label: product.name },
+        { label: product.name }
       ];
     } else {
       this.productBreadcrumbs = [
         { label: 'Home', url: '/' },
         { label: 'Products', url: '/products' },
-        { label: product.name },
+        { label: product.name }
       ];
     }
   }
@@ -324,8 +324,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
           .pipe(ofType(ProductActions.deleteProductSuccess), takeUntil(this.destroy$), take(1))
           .subscribe(() => {
             this.router.navigate(this.portalRoutes.products(this.portal, 'manage'));
-          });
-      });
+          })
+      })
   }
 
   // --- Presentation Helpers ---

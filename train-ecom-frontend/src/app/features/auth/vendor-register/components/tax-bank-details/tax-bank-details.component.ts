@@ -15,10 +15,10 @@ export class TaxBankDetailsComponent {
   @Output() prev = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
 
-  onPrev() {
+  onPrev(): void {
     this.prev.emit();
   }
-  onNext() {
+  onNext(): void {
     this.next.emit();
   }
 

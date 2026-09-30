@@ -34,11 +34,18 @@
       </ng-container>
       <ng-template #orderContentLoaded>
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="card-title m-0 fw-bold">Order</h5>
+          <div>
+            <h5 class="card-title m-0 fw-bold">Order</h5>
+            <span class="fw-bold fs-5 text-dark"> {{ totalOrders }}</span>
+          </div>
           <button
             mat-stroked-button
             color="primary"
             class="icon-btn"
+            [matBadge]="orderFilterCount"
+            [matBadgeHidden]="orderFilterCount === 0"
+            matBadgeOverlap="true"
+            (click)="onOrderFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>
           </button>
@@ -89,7 +96,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 class="card-title m-0 fw-bold">Total Revenue</h5>
-            <span class="fw-bold fs-5 text-dark">
+            <span class="fw-bold fs-5 text-dark revenue-text">
               {{ totalRevenue | currency: "INR" : true }}</span
             >
           </div>
@@ -100,7 +107,7 @@
             [matBadge]="revenueFilterCount"
             [matBadgeHidden]="revenueFilterCount === 0"
             matBadgeOverlap="true"
-            (click)="onFilterDialog()"
+            (click)="onRevenueFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>
           </button>

@@ -40,3 +40,7 @@
 .icon-btn mat-icon {
   margin: 0 !important;
 }
+
+.revenue-text {
+  letter-spacing: 0.8px;
+}

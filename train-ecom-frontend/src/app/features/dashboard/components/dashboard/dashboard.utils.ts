@@ -22,8 +22,8 @@ export function buildDashboardStats(
       value: data.totalProducts.toString(),
       icon: 'inventory_2',
       color: '#f44336',
-      route: portalRoutes.products(portal, 'manage'),
-    },
+      route: portalRoutes.products(portal, 'manage')
+    }
   ];
 }
 
@@ -60,14 +60,14 @@ export function getPaymentStatusBadgeClass(paymentStatus: string): string {
 
 
 // charts dummy data
-// export const userChartData = {
-//   labels: ['Vendors', 'Customers', 'Admin Users'],
-//   datasets: [
-//     {
-//       data: [15, 120, 5]  ,
-//       backgroundColor: ['#2196f3', '#ff9800', '#9c27b0'],
-//     }]
-// }
+export const userChartData = {
+  labels: ['Vendors', 'Customers', 'Admin Users'],
+  datasets: [
+    {
+      data: [15, 120, 5],
+      backgroundColor: ['#2196f3', '#ff9800', '#9c27b0']
+    }]
+}
 
 
 export const categoryProductData = {
@@ -76,9 +76,9 @@ export const categoryProductData = {
     {
       data: [45, 30, 60, 25, 15, 20, 10, 5, 8, 12],
       backgroundColor: '#3f51b5',
-      maxBarThickness: 25,
-    },
-  ],
+      maxBarThickness: 25
+    }
+  ]
 }
 
 export const revenueChartData = {
@@ -87,7 +87,7 @@ export const revenueChartData = {
     {
       data: [20000, 15000, 18000, 20000, 22000, 25000, 28000, 30000, 32000, 35000, 38000, 40000],
       backgroundColor: '#4caf50',
-      maxBarThickness: 25,
+      maxBarThickness: 25
     }
   ]
 }
@@ -98,22 +98,22 @@ export const orderStatusChartData = {
     {
       data: [30, 25, 40, 35, 50, 45, 60, 55, 70, 65, 80, 75],
       label: 'Active',
-      backgroundColor: '#2196f3',
+      backgroundColor: '#2196f3'
     },
     {
       data: [15, 20, 10, 25, 30, 35, 20, 25, 15, 10, 5, 10],
       label: 'Processing',
-      backgroundColor: '#ffc107',
+      backgroundColor: '#ffc107'
     },
     {
       data: [50, 45, 60, 55, 70, 65, 80, 75, 90, 85, 100, 95],
       label: 'Delivered',
-      backgroundColor: '#4caf50',
+      backgroundColor: '#4caf50'
     },
     {
       data: [20, 15, 25, 30, 35, 40, 30, 25, 20, 15, 10, 5],
       label: 'Cancelled',
-      backgroundColor: '#f44336',
-    },
-  ],
+      backgroundColor: '#f44336'
+    }
+  ]
 };

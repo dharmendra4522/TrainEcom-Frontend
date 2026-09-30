@@ -103,8 +103,7 @@ export class OrderTrackingDialogComponent implements OnInit {
     return normalizeOrderStatus(status);
   }
 
-
-    closeDialog(): void {
-      this.dialogRef.close();
-    }
+  closeDialog(): void {
+    this.dialogRef.close();
   }
+}

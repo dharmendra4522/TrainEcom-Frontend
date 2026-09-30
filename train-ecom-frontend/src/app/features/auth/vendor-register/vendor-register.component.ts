@@ -92,7 +92,6 @@ export class VendorRegisterComponent implements OnInit {
           ],
         ],
         confirmPassword: ['', [Validators.required]],
-
         businessName: ['', [Validators.required, Validators.minLength(3)]],
         displayName: ['', [Validators.required, Validators.minLength(3)]],
         bussinessDescription: [
@@ -111,7 +110,6 @@ export class VendorRegisterComponent implements OnInit {
             ),
           ],
         ],
-
         gstin: [
           '',
           [
@@ -142,7 +140,7 @@ export class VendorRegisterComponent implements OnInit {
         ],
         ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
       },
-      { validators: [passwordMatchValidator, bankDetailsValidator()] },
+      { validators: [passwordMatchValidator, bankDetailsValidator()] }
     );
   }
 

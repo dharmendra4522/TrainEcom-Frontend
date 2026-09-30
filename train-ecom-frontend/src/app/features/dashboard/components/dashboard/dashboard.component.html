@@ -26,13 +26,14 @@
     [totalCustomers]="totalCustomers"
     [totalVendors]="totalVendors"
     [totalAdminUsers]="totalAdminUsers"
+    [isVendor]="isVendor"
     [isLoading]="isLoadingStats"
   ></app-charts>
 
   <!-- Recent Orders -->
   <div class="orders-table-container mat-elevation-z2">
     <div class="table-header d-flex justify-content-between align-items-center">
-      <h3>Recent Orders</h3>
+      <h3 class="fw-bold text-dark">Recent Orders</h3>
       <button mat-raised-button color="primary" (click)="navigateToOrders()">
         View All Orders
       </button>

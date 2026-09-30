@@ -1,30 +1,95 @@
-<h2 mat-dialog-title>Select year</h2>
+<h2 mat-dialog-title>Filters</h2>
 
 <mat-dialog-content>
   <form [formGroup]="filterForm" class="mb-4 p-2">
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Select a year</mat-label>
-      <mat-select formControlName="year" placeholder="Select a year">
-        
-        <mat-option>
-          <ngx-mat-select-search
-            [formControl]="yearFilterForm"
-            placeholderLabel="Search year..."
-            noEntriesFoundLabel="No matching years found"
+    <div class="d-flex flex-column align-items-start gap-2 w-100">
+      <div class="d-flex flex-column align-items-start w-100">
+          <label class="text-dark">Select Year</label>
+          <mat-form-field
+          appearance="outline"
+          class="year-select-field flex-grow-1 w-100"
+          subscriptSizing="dynamic"
+        >
+          <mat-select
+            formControlName="year"
+            placeholder="Select a year"
+            aria-label="Select a year"
           >
-          </ngx-mat-select-search>
-        </mat-option>
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="yearFilterForm"
+                placeholderLabel="Search year..."
+                noEntriesFoundLabel="No matching years found"
+              >
+              </ngx-mat-select-search>
+            </mat-option>
 
-        <mat-option *ngFor="let year of filteredYear | async" [value]="year">
-          {{ year }}
-        </mat-option>
+            <mat-option
+              *ngFor="let year of filteredYear | async"
+              [value]="year"
+            >
+              {{ year }}
+            </mat-option>
+          </mat-select>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear selected year"
+            (click)="clearYearSelection()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
 
-      </mat-select>
-    </mat-form-field>
+      <!-- vendor selection -->
+      <div class="d-flex flex-column align-items-start w-100">
+        <label class="text-dark">Select vendors</label>
+        <mat-form-field
+          appearance="outline"
+          class="year-select-field flex-grow-1 w-100"
+          subscriptSizing="dynamic"
+        >
+          <mat-select
+            formControlName="vendors"
+            placeholder="Select vendors"
+            aria-label="Select vendors"
+            multiple
+          >
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="vendorFilterForm"
+                placeholderLabel="Search vendors..."
+                noEntriesFoundLabel="No matching vendors found"
+              >
+              </ngx-mat-select-search>
+            </mat-option>
+
+            <mat-option
+              *ngFor="let vendor of filteredVendors | async"
+              [value]="vendor.id"
+            >
+              {{ vendor.name }}
+            </mat-option>
+          </mat-select>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear selected vendors"
+            (click)="clearVendorSelection()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+    </div>
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="clearFilter()">Clear All</button>
   <button mat-button (click)="closeDialog()">Cancel</button>
   <button mat-raised-button color="primary" (click)="applyFilter()">
     Apply
