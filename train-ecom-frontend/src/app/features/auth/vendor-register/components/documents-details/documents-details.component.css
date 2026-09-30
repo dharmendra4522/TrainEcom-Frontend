@@ -11,3 +11,13 @@ h4 {
   width: 100%;
   max-width: none;
 }
+
+.upload-field {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .upload-field {
+    width: 50%;
+  }
+}

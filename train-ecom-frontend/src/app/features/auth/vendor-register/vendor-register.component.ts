@@ -53,6 +53,12 @@ export class VendorRegisterComponent implements OnInit {
     this.initializeForm();
     this.fetchAllCategory();
     this.countries = Country.getAllCountries();
+    const selectedCountry = this.countries.find(
+      (country) => country.name === this.registerForm.get('country')?.value,
+    );
+    if (selectedCountry) {
+      this.states = State.getStatesOfCountry(selectedCountry.isoCode);
+    }
   }
 
   private initializeForm(): void {

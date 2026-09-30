@@ -55,7 +55,11 @@
         (click)="$event.stopPropagation()" 
         (keydown)="$event.stopPropagation()"
       >
-        <mat-form-field appearance="outline" class="w-100 search-mat-field">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 search-mat-field"
+          subscriptSizing="dynamic"
+        >
           <input
             matInput
             [formControl]="categoryFilter"
