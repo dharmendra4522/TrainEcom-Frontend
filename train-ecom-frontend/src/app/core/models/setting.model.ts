@@ -4,3 +4,21 @@ export interface Banner {
   description: string;
   bannerUrl: string;
 }
+
+
+export interface CreateBannerRequest {
+  title: string;
+  description?: string;
+  bannerImage: File;
+}
+
+export interface BannerResponse {
+  status: boolean;
+  message: string;
+}
+
+export interface UpdateBannerRequest {
+  title?: string;
+  description?: string;
+  bannerImage?: File;
+}

@@ -1,0 +1,14 @@
+.banner-header-copy {
+	min-width: 0;
+}
+
+@media (max-width: 767px) {
+	.banner-settings-header {
+		flex-direction: column;
+		align-items: stretch !important;
+	}
+
+	.banner-add-button {
+		width: 100%;
+	}
+}

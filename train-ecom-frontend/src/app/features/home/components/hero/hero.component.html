@@ -14,12 +14,11 @@
 
     <div class="carousel-inner">
         <div *ngFor="let banner of banners; let i = index" class="carousel-item" [class.active]="i === 0">
-            <img [src]="banner.imageUrl" class="d-block w-100 object-fit-cover hero-banner-img" alt="Banner {{ i + 1 }}">
+            <img [src]="banner.bannerUrl" class="d-block w-100 object-fit-cover hero-banner-img" alt="Banner {{ i + 1 }}">
 
             <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3 pb-3 px-4 mb-4">
                 <h2 class="fw-bold text-white fs-1 mb-0">{{ banner.title }}</h2>
                 <p class="fs-5 text-light mb-0">{{ banner.description }}</p>
-                <button class="btn btn-primary">{{ banner.ctaText }}</button>
             </div>
 
         </div>

@@ -1,0 +1,102 @@
+<div>
+  <mat-card>
+    <mat-card-header
+      class="d-flex justify-content-between align-items-center w-100 py-2"
+    >
+      <mat-card-title class="mb-0">{{isEditMode ? 'Update Banner' : 'Add Banner'}}</mat-card-title>
+      <button
+        mat-icon-button
+        color="warn"
+        aria-label="Close banner management"
+        (click)="onClose()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    <hr />
+    <!-- form for adding/updating banner -->
+    <form [formGroup]="bannerForm" (ngSubmit)="onSubmit()">
+      <div class="p-3 d-flex flex-column gap-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Banner Title</mat-label>
+          <input
+            matInput
+            formControlName="title"
+            required
+            (blur)="onBlurTrim('title')"
+          />
+          <mat-error> {{ getErrorMessage("title", "Title") }} </mat-error>
+        </mat-form-field>
+        <div>
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            (click)="fileInput.click()"
+            class="w-100 py-3"
+          >
+            <mat-icon>cloud_upload</mat-icon> Choose Banner Image
+          </button>
+          <input
+            #fileInput
+            type="file"
+            class="image-input"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onFileSelect($event)"
+          />
+          <div *ngIf="selectedFileName" class="small text-muted mt-2">
+            {{ selectedFileName }}
+          </div>
+          <div
+            *ngIf="
+              bannerForm.get('bannerImage')?.touched &&
+              bannerForm.get('bannerImage')?.errors
+            "
+            class="small text-danger mt-2"
+          >
+            {{ getErrorMessage("bannerImage", "Banner Image") }}
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Description</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            (blur)="onBlurTrim('description')"
+          ></textarea>
+          <mat-error>
+            {{ getErrorMessage("description", "Description") }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button
+            mat-button
+            color="warn"
+            type="button"
+            (click)="onClose()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            class="save-button"
+            type="submit"
+            [disabled]="bannerForm.invalid || isLoading"
+          >
+            <mat-spinner
+              diameter="20"
+              *ngIf="isLoading"
+              class="save-spinner"
+            ></mat-spinner>
+            <span *ngIf="!isLoading">{{isEditMode ? 'Update' : 'Add'}}</span>
+            <span *ngIf="isLoading">Saving..</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+</div>
