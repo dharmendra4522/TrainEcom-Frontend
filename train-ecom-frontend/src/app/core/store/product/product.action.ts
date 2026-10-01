@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { Product } from '../../../core/models/product.model';
+import { PortalKey } from '../../config/management-access.config';
 
 export const loadProducts = createAction(
   '[Product] Load Products',
@@ -14,6 +15,7 @@ export const loadProducts = createAction(
     sortBy?: string;
     minRating?: number;
     isAppend?: boolean;
+    portal?: PortalKey;
   }>(),
 );
 
@@ -36,7 +38,7 @@ export const loadProductsFailure = createAction(
 
 export const createProduct = createAction(
   '[Product] Create Product',
-  props<{ productData: Partial<Product>; files: File[] }>(),
+  props<{ productData: Partial<Product>; files: File[]; portal?: PortalKey }>(),
 );
 
 export const createProductSuccess = createAction(
@@ -56,7 +58,8 @@ export const updateProduct = createAction(
     id: string;
     productData: Partial<Product>;
     newFiles: File[];
-    deletedImageIds: string[];
+    deletedImageIds: Array<string | number>;
+    portal?: PortalKey;
   }>(),
 );
 
@@ -73,7 +76,7 @@ export const updateProductFailure = createAction(
 
 export const deleteProduct = createAction(
   '[Product] Delete Product',
-  props<{ productId: string }>(),
+  props<{ productId: string; portal?: PortalKey }>(),
 );
 
 export const deleteProductSuccess = createAction(
@@ -88,7 +91,7 @@ export const deleteProductFailure = createAction(
 
 export const loadProductById = createAction(
   '[Product] Load Product By Id',
-  props<{ id: string }>(),
+  props<{ id: string; portal?: PortalKey }>(),
 );
 
 export const loadProductByIdSuccess = createAction(

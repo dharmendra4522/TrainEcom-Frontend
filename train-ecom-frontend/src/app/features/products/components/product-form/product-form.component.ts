@@ -1,272 +1,491 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProductService } from '../../../../core/services/product.service';
-import { BrandService } from '../../../../core/services/brand.service';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormArray,
+  FormControl,
+} from '@angular/forms';
+
+import { Product, ProductImage } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
-import { CategoryService } from '../../../../core/services/category.service';
 import { Category } from '../../../../core/models/category.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Product } from '../../../../core/models/product.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import imageCompression from 'browser-image-compression';
+import { selectProductById, selectProductsLoading } from '../../../../core/store/product/product.selectors';
+import { Observable, combineLatest, Subject } from 'rxjs';
+import { startWith, map, filter, take, takeUntil } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
+import { ManageEntityDialogComponent } from '../../../../shared/components/manage-entity-dialog/manage-entity-dialog.component';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import * as ProductActions from '../../../../core/store/product/product.action';
+import * as BrandActions from '../../../../core/store/brand/brand.action';
+import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
+import * as CategoryActions from '../../../../core/store/category/category.action';
+import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import { Actions, ofType } from '@ngrx/effects';
+import { Location } from '@angular/common';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.css',
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private brandService = inject(BrandService);
-  private categoryService = inject(CategoryService);
-  private activatedRoute = inject(ActivatedRoute);
-  private productService = inject(ProductService);
-  private route = inject(Router);
-  private notificationService = inject(NotificationService);
+  private notification = inject(NotificationService);
+  private matDialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+  private store = inject(Store);
+  private actions$ = inject(Actions);
+  private destroy$ = new Subject<void>();
+  private location = inject(Location);
+  private portalRoutes = inject(PortalRouteService);
+
+  private portal: PortalKey = 'admin';
+
+  brandControl = new FormControl<string | number | null>('');
+  categoryControl = new FormControl<string | number | null>('');
+
+  isEditMode: boolean = false;
+  productId: string | null = null;
+  originalBrandId: string | number = '';
+  originalCategoryId: string | number = '';
+  originalBrandName: string = '';
+  originalCategoryName: string = '';
 
   productForm!: FormGroup;
-  fileName: string = '';
-  brandData: Brand[] = [];
-  categoryData: Category[] = [];
-  isEdit: boolean = false;
-  productId: string | null = null;
-  selectedFile: File[] = [];
-  imageUrl: string | null = null;
-  existingImages: { id: string; imageUrl: string; isPrimary: boolean }[] = [];
-  deletedImageId: string[] = [];
-  newImagePreview: string[] = [];
-  isLoading: boolean = false;
-  isOptimizing: boolean = false;
+  brands: Brand[] = [];
+  categories: Category[] = [];
+  selectFiles: File[] = [];
+  previewUrls: (string | null)[] = [];
+  existingImages: { id: string | number; imageUrl: string }[] = [];
+  deletedImageIds: Array<string | number> = [];
+  isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
 
+  // Lifecycle hook to initialize component data and setup subscriptions.
   ngOnInit(): void {
-    this.validateForm();
-    this.loadBrand();
-    this.loadCategory();
-    this.catchProductId();
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
+    this.initFormAndData();
+    this.checkRouteForEditMode();
+    this.setupPaginatedListeners();
   }
 
+  // Lifecycle hook to cleanup object URLs and destroy subjects.
+  ngOnDestroy(): void {
+    this.revokeAllPreviewUrls();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Initializes form controls and fetches initial master data.
+  private initFormAndData(): void {
+    this.validateForm();
+    this.fetchAllBrands();
+    this.fetchAllCategories();
+  }
+
+  // Sets up action listeners for paginated brand and category success events.
+  private setupPaginatedListeners(): void {
+    this.actions$
+      .pipe(
+        ofType(BrandActions.loadPaginatedBrandsSuccess),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ brands, pageNumber }: { brands: Brand[]; pageNumber: number }) => {
+        if (pageNumber === 1) {
+          this.brands = brands;
+        }
+      });
+
+    this.actions$
+      .pipe(
+        ofType(CategoryActions.loadPaginatedCategoriesSuccess),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(({ categories, pageNumber }: { categories: Category[]; pageNumber: number }) => {
+        if (pageNumber === 1) {
+          this.categories = categories;
+        }
+      });
+  }
+
+  /**
+   * Checks route parameters to determine if the component is in edit mode.
+   */
+  checkRouteForEditMode(): void {
+    this.productId = this.route.snapshot.paramMap.get('id');
+    if (this.productId) {
+      this.isEditMode = true;
+      this.waitForMasterDataAndLoadProduct();
+    }
+  }
+
+  // Waits for store brands and categories to load before fetching product details for editing.
+  private waitForMasterDataAndLoadProduct(): void {
+    combineLatest([
+      this.store.select(selectAllBrands),
+      this.store.select(selectAllCategories)
+    ])
+      .pipe(
+        filter(
+          ([brands, categories]: [Brand[], Category[]]) =>
+            brands &&
+            brands.length > 0 &&
+            categories &&
+            categories.length > 0,
+        ),
+        takeUntil(this.destroy$),
+        take(1)
+      )
+      .subscribe({
+        next: ([brands, categories]: [Brand[], Category[]]) => {
+          this.brands = brands;
+          this.categories = categories;
+          if (this.productId) {
+            this.loadProductDetails(this.productId);
+          }
+        }, error: (err) => {
+          console.error('Error loading brands or categories:', err);
+        }
+      });
+  }
+
+  // Dispatches action to load product details by ID and patches the form.
+  private loadProductDetails(productId: string): void {
+    this.store.dispatch(ProductActions.loadProductById({ id: productId, portal: this.portal }));
+
+    this.store
+      .select(selectProductById(productId))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((product: Product | undefined) => {
+        if (product) {
+          this.patchProductFormValues(product);
+        }
+      });
+  }
+
+  //  Patches form control values and metadata from loaded product object.
+  private patchProductFormValues(product: Product): void {
+    const brandId = product.brandId || '';
+    const categoryId = product.categoryId || '';
+
+    this.originalBrandId = brandId;
+    this.originalCategoryId = categoryId;
+    this.originalBrandName = product.brandName || '';
+    this.originalCategoryName = product.categoryName || '';
+
+    this.productForm.patchValue({
+      title: product.name || '',
+      price: product.price ?? 0,
+      stockQuantity: product.stockQuantity ?? 0,
+      brand: brandId,
+      category: categoryId,
+      description: product.description || ''
+    });
+
+    // check if brandId exists before setting the value to avoid null or undefined issues
+    if (brandId) {
+      this.brandControl.setValue(brandId);
+      this.productForm.get('brand')?.setValue(brandId);
+    }
+
+    // check if categoryId exists before setting the value to avoid null or undefined issues
+    if (categoryId) {
+      this.categoryControl.setValue(categoryId);
+      this.productForm.get('category')?.setValue(categoryId);
+    }
+
+    if (product.images) {
+      this.existingImages = product.images.map((img: ProductImage) => ({
+        id: img.id,
+        imageUrl: img.imageUrl
+      }));
+    }
+  }
+
+  //Removes an existing image from the list and marks it for deletion.
+  removeExistingImage(imageId: string | number, index: number): void {
+    this.deletedImageIds.push(imageId);
+    this.existingImages.splice(index, 1);
+  }
+
+  // Opens the manage entity dialog for adding/editing brands or categories.
+  openManageDialog(type: 'Brand' | 'Category'): void {
+    this.matDialog.open(ManageEntityDialogComponent, {
+      width: '600px',
+      data: { type },
+      disableClose: true
+    }).afterClosed().subscribe((newId: unknown) => {
+      if (newId && (typeof newId === 'string' || typeof newId === 'number')) {
+        this.handleManageDialogClose(type, newId);
+      }
+    });
+  }
+
+  // Handles state synchronization after manage entity dialog is closed.
+  private handleManageDialogClose(type: 'Brand' | 'Category', newId: string | number): void {
+    if (type === 'Brand') {
+      this.store.select(selectAllBrands).pipe(take(1)).subscribe((brands: Brand[]) => {
+        this.brands = brands;
+        this.productForm.get('brand')?.setValue(newId);
+        this.brandControl.setValue(newId);
+      });
+    } else {
+      this.store.select(selectAllCategories).pipe(take(1)).subscribe((categories: Category[]) => {
+        this.categories = categories;
+        this.productForm.get('category')?.setValue(newId);
+        this.categoryControl.setValue(newId);
+      });
+    }
+  }
+
+  //  Opens the quick add dialog for brands or categories.
+  openAddDialog(type: 'brand' | 'category'): void {
+    const formattedType = type.charAt(0).toUpperCase() + type.slice(1);
+    const title = `Add new ${formattedType}`;
+    this.matDialog
+      .open(BrandCategoryDialogComponent, {
+        width: '400px',
+        disableClose: true,
+        data: {
+          title,
+          type: formattedType,
+          isEdit: false
+        },
+      })
+      .afterClosed()
+      .subscribe((result: { name: string; description?: string } | undefined) => {
+        if (result) this.handleDialogSubmit(type, result);
+      });
+  }
+
+  // Dispatches create action for brand or category based on dialog result.
+  private handleDialogSubmit(
+    type: 'brand' | 'category',
+    result: { name: string; description?: string },
+  ): void {
+    const payload = {
+      name: result.name,
+      description: result.description ?? '',
+    };
+    if (type === 'brand') {
+      this.actions$
+        .pipe(
+          ofType(BrandActions.createBrandSuccess),
+          takeUntil(this.destroy$),
+          take(1),
+        )
+        .subscribe(({ brand }: { brand: Brand }) => {
+          this.productForm.patchValue({ brand: brand.id });
+          this.brandControl.setValue(brand.id);
+        });
+
+      this.store.dispatch(
+        BrandActions.createBrand({ brand: payload as Brand }),
+      );
+    } else {
+      this.actions$
+        .pipe(
+          ofType(CategoryActions.createCategorySuccess),
+          takeUntil(this.destroy$),
+          take(1),
+        )
+        .subscribe(({ category }: { category: Category }) => {
+          this.productForm.patchValue({ category: category.id });
+          this.categoryControl.setValue(category.id);
+        });
+
+      this.store.dispatch(
+        CategoryActions.createCategory({ category: payload as Category }),
+      )
+    }
+  }
+
+  // Initializes the reactive product form group with validations.
   private validateForm(): void {
     this.productForm = this.fb.group({
-      productName: ['', [Validators.required]],
-      price: [0, Validators.required],
-      quantity: [0, Validators.required],
+      title: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(0.01)]],
+      stockQuantity: [0, [Validators.min(0)]],
       brand: ['', Validators.required],
       category: ['', Validators.required],
       description: ['', Validators.required],
-      image: [''],
+      images: this.fb.array([this.fb.control('')]),
     });
   }
 
-  private loadBrand(): void {
-    this.brandService.getAllBrands().subscribe({
-      next: (response) => {
-        this.brandData = response;
-      },
-      error(err) {
-        console.log('Brands are not load from server', err);
-      },
-    });
+
+  // Getter for image form array controls.
+  get imageControls() {
+    return (this.productForm.get('images') as FormArray).controls;
   }
 
-  private loadCategory(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: (response) => {
-        this.categoryData = response;
-      },
-      error(err) {
-        console.log('Category are not load from server', err);
-      },
-    });
+  // Adds a new image input field to the form array.
+  addImageField(): void {
+    (this.productForm.get('images') as FormArray).push(this.fb.control(''));
+    this.previewUrls.push(null);
   }
 
-  private catchProductId(): void {
-    this.productId = this.activatedRoute.snapshot.paramMap.get('id');
-    if (this.productId) {
-      this.isEdit = true;
-      this.loadProductData(this.productId);
-    } else {
-      this.isEdit = false;
-    }
-  }
+  //Handles image file selection, validation size limits, and object URL generation.
+  onFileChange(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      const file = input.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024;
 
-  loadProductData(id: string): void {
-    this.productService.getProductById(id).subscribe({
-      next: (response) => {
-        this.productForm.patchValue({
-          productName: response.name,
-          price: response.price,
-          quantity: response.stockQuantity,
-          brand: response.brandId,
-          category: response.categoryId,
-          description: response.description,
-        });
-        if (response.images && response.images.length > 0) {
-          const primaryImg = response.images[0];
-          this.fileName = primaryImg.imageUrl;
-          this.imageUrl = primaryImg.imageUrl;
-          this.fileName = '';
-          this.existingImages = response.images;
-        }
-      },
-      error(err) {
-        console.log('Somthing is wrong to load product data', err);
-      },
-    });
-  }
-
-  onSubmit(): void {
-    if (this.productForm.invalid) {
-      this.notificationService.showWarning('Please fill all required field');
-      return;
-    }
-    this.isLoading = true;
-    const formData = this.productForm.value;
-    const productPayload = {
-      name: formData.productName,
-      description: formData.description,
-      price: formData.price,
-      stockQuantity: formData.quantity,
-      brandId: formData.brand,
-      categoryId: formData.category,
-    };
-
-    if (this.productId && this.isEdit) {
-      this.productService
-        .updateProduct(
-          this.productId,
-          productPayload,
-          this.selectedFile,
-          this.deletedImageId,
-        )
-        .subscribe({
-          next: (res) => {
-            this.notificationService.showSuccess(
-              'Product successfully updated',
-            );
-
-            this.isLoading = false;
-            this.route.navigate(['/admin/products']);
-          },
-          error: (err) => {
-            this.isLoading = false;
-            this.notificationService.showError('Error updating Prodct');
-            console.log('Error:', err);
-          },
-        });
-    } else {
-      this.productService
-        .createProduct(productPayload, this.selectedFile)
-        .subscribe({
-          next: (res) => {
-            this.isLoading = false;
-            this.notificationService.showSuccess('Product add successfully');
-            this.route.navigate(['/admin/products']);
-          },
-          error: (err) => {
-            this.isLoading = false;
-            this.notificationService.showError(
-              'Somthing went wrong in add product',
-            );
-            console.log('Error:', err);
-          },
-        });
-    }
-  }
-
-  removeExistingImage(imageId: string, idx: number): void {
-    this.deletedImageId.push(imageId);
-    this.existingImages.splice(idx, 1);
-  }
-
-  async onFileSelected(event: Event): Promise<void> {
-    const inputEle = event.target as HTMLInputElement;
-    const files = inputEle.files;
-
-    if (files && files.length > 0) {
-      const newFileArray = Array.from(files);
-      const allowTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-      const maxFileSize = 5 * 1024 * 1024;
-
-      for (const singleFile of newFileArray) {
-        if (!allowTypes.includes(singleFile.type)) {
-          this.notificationService.showError(
-            'Only JPEG, JPG, PNG and WEBP format is supported',
-          );
-          inputEle.value = '';
-          return;
-        }
+      if (file.size > maxSizeBytes) {
+        this.handleInvalidFileSize(file.name, input, index);
+        return;
       }
 
-      this.isOptimizing = true;
-      this.fileName = 'Optimizing image...';
+      this.processValidFile(file, index);
+    }
+  }
 
-      const options = {
-        maxSizeMB: 5,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
+  // Handles error state when uploaded file exceeds size limits.
+  private handleInvalidFileSize(fileName: string, input: HTMLInputElement, index: number): void {
+    this.notification.showError(
+      `File "${fileName}" exceeds 5MB. Please upload an image less than 5MB.`,
+      'Close'
+    );
+    input.value = '';
+    if (this.previewUrls[index]) {
+      URL.revokeObjectURL(this.previewUrls[index]!);
+      this.previewUrls[index] = null;
+    }
+    delete this.selectFiles[index];
+  }
+
+  // Processes a valid file selection by updating preview URLs and file lists.
+  private processValidFile(file: File, index: number): void {
+    if (this.previewUrls[index]) {
+      URL.revokeObjectURL(this.previewUrls[index]!);
+    }
+    this.selectFiles[index] = file;
+    this.previewUrls[index] = URL.createObjectURL(file);
+  }
+
+  //  Removes an image input field from the form array and cleans up associated resources.
+  removeImageField(index: number): void {
+    (this.productForm.get('images') as FormArray).removeAt(index);
+    if (this.previewUrls[index]) {
+      URL.revokeObjectURL(this.previewUrls[index]!);
+    }
+    this.previewUrls.splice(index, 1);
+    this.selectFiles.splice(index, 1);
+  }
+
+
+  // Revokes all object URLs created for image previews to free up memory.
+  private revokeAllPreviewUrls(): void {
+    this.previewUrls.forEach((url: string | null) => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    });
+  }
+
+  // Submits the product form, dispatching create or update actions based on mode.
+  onSubmit(): void {
+    if (this.productForm.valid) {
+      const formValue = this.productForm.value;
+      const cleanFiles = this.selectFiles.filter((f: File | undefined): f is File => !!f);
+
+      const productPayload: Partial<Product> = {
+        name: formValue.title,
+        description: formValue.description,
+        price: formValue.price,
+        stockQuantity:
+          formValue.stockQuantity !== null &&
+            formValue.stockQuantity !== undefined &&
+            formValue.stockQuantity !== ''
+            ? Number(formValue.stockQuantity)
+            : 0,
+        brandId: formValue.brand,
+        categoryId: formValue.category,
       };
 
-      this.notificationService.showSuccess('Optimizing image, please wait...');
-
-      try {
-        const compressedFiles: File[] = [];
-
-        for (const file of newFileArray) {
-          if (file.size > maxFileSize) {
-            const compressedFile = await imageCompression(file, options);
-            compressedFiles.push(compressedFile);
-          } else {
-            compressedFiles.push(file);
-          }
-        }
-
-        this.selectedFile = [...this.selectedFile, ...compressedFiles];
-        this.fileName = `${this.selectedFile.length} files selected`;
-
-        for (const file of compressedFiles) {
-          const reader = new FileReader();
-          reader.onload = (e: ProgressEvent<FileReader>) => {
-            if (e.target?.result) {
-              this.newImagePreview.push(e.target?.result as string);
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-
-        this.productForm.patchValue({
-          image: compressedFiles[0],
-        });
-        this.productForm.get('image')?.markAsTouched();
-      } catch (error) {
-        this.notificationService.showError('Failed to optimize image');
-        console.log('Error:', error);
-      } finally {
-        this.isOptimizing = false;
-        inputEle.value = '';
+      if (this.isEditMode && this.productId) {
+        this.store.dispatch(
+          ProductActions.updateProduct({
+            id: this.productId,
+            productData: productPayload,
+            newFiles: cleanFiles,
+            deletedImageIds: this.deletedImageIds,
+            portal: this.portal,
+          }),
+        );
+      } else {
+        this.store.dispatch(
+          ProductActions.createProduct({
+            productData: productPayload,
+            files: cleanFiles,
+            portal: this.portal,
+          }),
+        );
       }
-    }
-  }
-
-  removeNewImg(idx: number): void {
-    this.newImagePreview.splice(idx, 1);
-    this.selectedFile.splice(idx, 1);
-    if (this.newImagePreview.length === 0 && this.existingImages.length === 0) {
-      this.fileName = '';
-      this.productForm.patchValue({ image: '' });
     } else {
-      this.fileName = `${this.newImagePreview.length} new files selected`;
+      this.notification.showError('Please fill all required fields', 'Close');
     }
   }
 
-  get isbuttonDisabled(): boolean {
-    const isfieldInvalid =
-      this.productForm.invalid || this.isLoading || this.isOptimizing;
-    const isEditUnchanged =
-      this.isEdit &&
-      !this.productForm.dirty &&
-      this.selectedFile.length === 0 &&
-      this.deletedImageId.length === 0;
+  // Fetches all brands from store or dispatches load action if empty.
+  fetchAllBrands(): void {
+    this.store
+      .select(selectAllBrands)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Brand[]) => {
+          if (data && data.length > 0) {
+            this.brands = data;
+            if (this.brandControl.value) {
+              this.brandControl.setValue(this.brandControl.value);
+            }
+          } else {
+            this.store.dispatch(BrandActions.loadBrands());
+          }
+        },
+        error: (error: unknown) =>
+          console.error('Error fetching brands:', error),
+      });
+  }
 
-    return isfieldInvalid || isEditUnchanged;
+  // Fetches all categories from store or dispatches load action if empty.
+  fetchAllCategories(): void {
+    this.store
+      .select(selectAllCategories)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Category[]) => {
+          if (data && data.length > 0) {
+            this.categories = data;
+            if (this.categoryControl.value) {
+              this.categoryControl.setValue(this.categoryControl.value);
+            }
+          } else {
+            this.store.dispatch(CategoryActions.loadCategories());
+          }
+        },
+        error: (error: unknown) =>
+          console.error('Error fetching categories:', error),
+      });
+  }
+
+  onBack(): void {
+    this.location.back();
+  }
+
+  // Dispatches action to search/load paginated brands.
+  onBrandSearch(term: string): void {
+    this.store.dispatch(BrandActions.loadPaginatedBrands({ pageNumber: 1, pageSize: 10, search: term }));
+  }
+
+  // Dispatches action to search/load paginated categories.
+  onCategorySearch(term: string): void {
+    this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10, search: term }));
   }
 }

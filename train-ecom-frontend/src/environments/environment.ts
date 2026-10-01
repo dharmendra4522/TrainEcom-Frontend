@@ -1,5 +1,5 @@
 export const environment = {
-    production: false,
-    // apiBaseUrl: 'https://trainecomm-dgf3fjcdfhgkarhv.centralindia-01.azurewebsites.net/api'
-    apiBaseUrl: 'https://trainecom-dpejgedahqare3hg.centralindia-01.azurewebsites.net/api'
-}
+  production: false,
+  // apiBaseUrl: 'http://192.168.1.58:5001/api',
+  apiBaseUrl: 'https://ecomm-cddbdhgwe9feadgw.centralindia-01.azurewebsites.net/api'
+};

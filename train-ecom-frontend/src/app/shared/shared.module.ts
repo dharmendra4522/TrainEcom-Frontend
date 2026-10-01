@@ -27,6 +27,10 @@ import { SearchableDropdownComponent } from './components/searchable-dropdown/se
 import { ManageEntityDialogComponent } from './components/manage-entity-dialog/manage-entity-dialog.component';
 import { ReviewRatingDialogComponent } from './components/review-rating-dialog/review-rating-dialog.component';
 import { NotificationCardComponent } from './components/notification-card/notification-card.component';
+import { StatusCardComponent } from './components/status-card/status-card.component';
+import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
 
 @NgModule({
   declarations: [
@@ -53,14 +57,18 @@ import { NotificationCardComponent } from './components/notification-card/notifi
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
     ReviewRatingDialogComponent,
-    NotificationCardComponent
+    NotificationCardComponent,
+    StatusCardComponent,
+    VendorActionDialogComponent,
+    FilterDialogComponent,
   ],
   imports: [
     CommonModule,
     RouterModule,
     MaterialModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ScrollingModule,
   ],
   exports: [
     HeaderComponent,
@@ -82,7 +90,9 @@ import { NotificationCardComponent } from './components/notification-card/notifi
     BrandCategoryDialogComponent,
     SearchableDropdownComponent,
     ManageEntityDialogComponent,
-    NotificationCardComponent
-  ]
+    NotificationCardComponent,
+    StatusCardComponent,
+    ScrollingModule,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -57,7 +57,7 @@ export const categoryReducer = createReducer(
         ...state,
         isLoading: false,
         error: null,
-        paginatedCategories: categories,
+        paginatedCategories: pageNumber === 1 ? categories : [...state.paginatedCategories, ...categories],
         pagesCache: {
             ...state.pagesCache,
             [cacheKey]: categories

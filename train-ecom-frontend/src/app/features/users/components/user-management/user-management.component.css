@@ -1,0 +1,25 @@
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  background-color: #5389d9;
+}
+
+.sticky-top-section {
+  background-color: #ffffff;
+  padding-top: 15px;
+  padding-bottom: 10px;
+}
+
+.user-management-container {
+  overflow-x: clip;
+}
+
+.sticky-top-section ::ng-deep .mat-mdc-tab-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+}
+
+.tab-content-area {
+  margin-top: 20px;
+}

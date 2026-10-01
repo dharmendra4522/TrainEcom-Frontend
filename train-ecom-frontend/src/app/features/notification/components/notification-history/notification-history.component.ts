@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
 import { NotificationItem, NotificationType } from '../../../../core/models/notification.model';
 import { NotificationStreamService } from '../../../../core/services/notification-stream.service';
+import { Role } from '../../../../core/models/auth.model';
+import { normalizeRole } from '../../../../core/utils/role.utils';
 
 @Component({
   selector: 'app-notification-history',
@@ -18,7 +20,7 @@ export class NotificationHistoryComponent {
 
   private router = inject(Router);
 
-  userRole$: Observable<string | null> = this.store.select(selectUserRole);
+  userRole$: Observable<string | number | null> = this.store.select(selectUserRole);
   activeTab: 'all' | 'unread' | 'order' | 'system' | 'broadcast' = 'all';
   notifications: NotificationItem[] = [];
 
@@ -40,11 +42,11 @@ export class NotificationHistoryComponent {
         this.notifications = response.items;
         this.unreadCount = response.unreadCount;
         this.totalRecords = response.totalRecords;
-        this.loading = false;
+        this.loading = false
       },
       error: (error) => {
         console.error('Error fetching notifications:', error);
-        this.loading = false;
+        this.loading = false
       }
     });
   }
@@ -99,22 +101,23 @@ export class NotificationHistoryComponent {
     // 2. Dynamic Redirect logic based on referenceType
     if (notification.referenceType && notification.referenceId) {
       this.userRole$.pipe(take(1)).subscribe(role => {
-        const type = notification.referenceType as string; // e.g., 'Order', 'Product'
+        const type = notification.referenceType as string;
         const id = notification.referenceId;
-        
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
+
         // Define route mappings dynamically
         const customerRoutes: Record<string, string> = {
-          'Order': '/account/orders/details',
+          'Order': '/account/orders/customer-details',
           'Product': '/products',
         };
-        
+
         const adminRoutes: Record<string, string> = {
-          'Order': '/admin/orders/details-admin',
+          'Order': '/admin/orders/details',
           'Product': '/admin/products/view',
           'User': '/admin/users'
         };
 
-        const routeMap = role === 'Admin' ? adminRoutes : customerRoutes;
+        const routeMap = normalizedRole === Role.Admin ? adminRoutes : customerRoutes;
         const basePath = routeMap[type];
 
         if (basePath) {
@@ -148,7 +151,7 @@ export class NotificationHistoryComponent {
     });
   }
 
-  deleteNotification(id: string, event: MouseEvent): void {
+  deleteNotification(id: string | number, event: MouseEvent): void {
     event.stopPropagation();
     this.notifications = this.notifications.filter(n => n.id !== id);
   }

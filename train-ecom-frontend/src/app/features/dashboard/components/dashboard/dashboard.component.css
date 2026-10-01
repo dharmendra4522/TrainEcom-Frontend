@@ -1,8 +1,17 @@
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px;
   margin-bottom: 30px;
+}
+
+.stats-grid app-metrics,
+.stats-grid mat-card:nth-child(-n + 2) {
+  grid-column: span 1;
+}
+
+.stats-grid mat-card:nth-child(n + 3) {
+  grid-column: span 2;
 }
 
 .stat-card {
@@ -34,6 +43,12 @@
   opacity: 0.8;
 }
 
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 992px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -43,6 +58,15 @@
 @media (max-width: 600px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 320px) {
+  .stat-card {
+    flex-direction: column;
+  }
+  .stat-card mat-card-content {
+    flex-direction: column;
   }
 }
 
@@ -99,4 +123,47 @@
 .status-badge.processing {
   background-color: #f3e5f5;
   color: #7b1fa2;
+}
+
+.bar-chart {
+  display: block;
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.stat-card.has-link {
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.loading-stats {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+}
+
+.border-top {
+  margin-top: 6px !important;
+  padding-top: 4px !important;
+}
+
+.row.my-4 {
+  display: flex;
+  align-items: stretch;
+}
+
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;;
+}
+
+.chart-card ng-container + div, 
+.spinner-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

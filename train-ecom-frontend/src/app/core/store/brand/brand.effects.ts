@@ -5,7 +5,7 @@ import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
 import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands, selectBrandPagesCache } from "./brand.selectors";
-import { exhaustMap, map, catchError, of, withLatestFrom } from "rxjs";
+import { exhaustMap, map, catchError, of, withLatestFrom, switchMap, timeout } from "rxjs";
 
 @Injectable()
 export class BrandEffects {
@@ -35,7 +35,7 @@ export class BrandEffects {
                 this.store.select(selectBrandPagesCache),
                 this.store.select(selectBrandTotalRecords),
             ),
-            exhaustMap(([action, pagesCache, totalRecords]) => {
+            switchMap(([action, pagesCache, totalRecords]) => {
                 const { pageNumber, pageSize, search } = action;
                 const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`; // dynamic cache key
 
@@ -72,7 +72,7 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.loadSingleBrand),
             exhaustMap(({ brandId }) =>
-                this.brandService.getBrandById(brandId).pipe(
+                this.brandService.getBrandById(String(brandId)).pipe(
                     map((brand) => BrandActions.loadSingleBrandSuccess({ brand })),
                     catchError((error) =>
                         of(BrandActions.loadSingleBrandFailure({ error: error?.message || 'Failed to load brand' }))
@@ -104,7 +104,7 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.updateBrand),
             exhaustMap(({ brandId, brand }) =>
-                this.brandService.updateBrand(brandId, brand).pipe(
+                this.brandService.updateBrand(String(brandId), brand).pipe(
                     map((updatedBrand) => {
                         this.notification.showSuccess('Brand updated successfully!');
                         return BrandActions.updateBrandSuccess({ brand: updatedBrand });
@@ -122,10 +122,10 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.deleteBrand),
             exhaustMap(({ brandId }) =>
-                this.brandService.deleteBrand(brandId).pipe(
+                this.brandService.deleteBrand(String(brandId)).pipe(
                     map(() => {
                         this.notification.showSuccess('Brand deleted successfully.');
-                        return BrandActions.deleteBrandSuccess({ brandId });
+                        return BrandActions.deleteBrandSuccess({ brandId: String(brandId) });
                     }),
                     catchError((error) => {
                         this.notification.showError(error?.message || 'Failed to delete brand');

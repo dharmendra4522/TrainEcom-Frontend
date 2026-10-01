@@ -1,0 +1,218 @@
+<section
+  class="vendor-step d-flex flex-column gap-3"
+  [formGroup]="registerForm"
+>
+  <h4 class="fw-bold text-primary border-bottom pb-2">General Information</h4>
+
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>First Name</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">person</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="firstName"
+          placeholder="John Doe"
+          (blur)="onBlurTrim('firstName')"
+        />
+        <mat-error>{{ getErrorMessage("firstName", "First Name") }}</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Last Name</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">person</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="lastName"
+          placeholder="John Doe"
+          (blur)="onBlurTrim('lastName')"
+        />
+        <mat-error>
+          {{ getErrorMessage("lastName", "Last Name") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Email</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">email</mat-icon>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="Ex. user@example.com"
+          [disabled]="isEditMode"
+          (blur)="onBlurTrim('email')"
+        />
+        <mat-error>
+          {{ getErrorMessage("email", "Email") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Phone Number</mat-label>
+        <div matTextPrefix class="d-flex align-items-center me-2 text-secondary">
+          <mat-icon class="m-2">phone</mat-icon>
+          <!-- <span class="fw-semibold fs-7">+91</span> -->
+        </div>
+        <input
+          matInput
+          type="tel"
+          inputmode="numeric"
+          formControlName="phoneNumber"
+          placeholder="9876543210"
+          maxlength="10"
+        />
+        <mat-error>
+          {{ getErrorMessage("phoneNumber", "Phone Number") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between" *ngIf="!isEditMode">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="isPasswordView ? 'text' : 'password'"
+          formControlName="password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matIconSuffix
+          (click)="onTogglePassword()"
+        >
+          <mat-icon>{{
+            isPasswordView ? "visibility" : "visibility_off"
+          }}</mat-icon>
+        </button>
+        <mat-error>
+          {{ getErrorMessage("password", "Password") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Confirm Password</mat-label>
+        <input
+          matInput
+          [type]="isConfirmPassView ? 'text' : 'password'"
+          formControlName="confirmPassword"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matIconSuffix
+          (click)="onToggleConfirmPassword()"
+        >
+          <mat-icon>{{
+            isConfirmPassView ? "visibility" : "visibility_off"
+          }}</mat-icon>
+        </button>
+        <mat-error>
+          {{ getErrorMessage("confirmPassword", "Confirm Password") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="password-toggle my-2" *ngIf="isEditMode">
+    <button mat-stroked-button color="primary" type="button" (click)="onTogglePasswordChange()">
+      {{ isPasswordChangeMode ? 'Cancel Password Change' : 'Change Password?' }}
+    </button>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between" *ngIf="isEditMode && isPasswordChangeMode">
+    <!-- Old Password -->
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Old Password</mat-label>
+        <input 
+          matInput 
+          [type]="isOldPassView ? 'text' : 'password'" 
+          formControlName="oldPassword" 
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matIconSuffix
+          (click)="onToggleOldPassword()"
+        >
+          <mat-icon>{{ isOldPassView ? "visibility" : "visibility_off" }}</mat-icon>
+        </button>
+        <mat-error>{{ getErrorMessage("oldPassword", "Old Password") }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- New Password -->
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>New Password</mat-label>
+        <input 
+          matInput 
+          [type]="isNewPassView ? 'text' : 'password'" 
+          formControlName="newPassword" 
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matIconSuffix
+          (click)="onToggleNewPassword()"
+        >
+          <mat-icon>{{ isNewPassView ? "visibility" : "visibility_off" }}</mat-icon>
+        </button>
+        <mat-error>{{ getErrorMessage("newPassword", "New Password") }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="col-md-4 d-flex justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Confirm Password</mat-label>
+        <input 
+          matInput 
+          [type]="isEditConfirmPassView ? 'text' : 'password'" 
+          formControlName="confirmPassword" 
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matIconSuffix
+          (click)="onToggleEditConfirmPassword()"
+        >
+          <mat-icon>{{ isEditConfirmPassView ? "visibility" : "visibility_off" }}</mat-icon>
+        </button>
+        <mat-error>{{ getErrorMessage("confirmPassword", "Confirm Password") }}</mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end mt-3">
+    <button *ngIf="!isEditMode"
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="px-5 py-2"
+      [disabled]="!isStep1Valid"
+      (click)="onNext()"
+    >
+      Next
+    </button>
+  </div>
+</section>

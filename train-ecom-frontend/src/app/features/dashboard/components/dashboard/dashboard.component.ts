@@ -1,24 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import {
-  OrderListItem,
-  OrderStatus,
-  PaymentMethod,
-  PaymentStatus,
-} from '../../../../core/models/order.model';
+import { Component, inject, OnInit } from '@angular/core';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import { Router } from '@angular/router';
 import { TableColumn } from '../../../../core/models/table.model';
-import { DashboardData } from '../../../../core/models/dashboard.model';
-
-type DashboardOrderRow = {
-  [key: string]: unknown;
-  orderId: string;
-  customerName: string;
-  orderDate: string;
-  totalAmount: number;
-  orderStatus: OrderStatus;
-  orderStatusClass: string;
-};
+import {
+  DashboardData,
+  RecentOrder,
+  DashboardOrderRow,
+  DashboardStatItem,
+} from '../../../../core/models/dashboard.model';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
+import {
+  buildDashboardStats,
+  getOrderStatusBadgeClass,
+  getPaymentStatusBadgeClass,
+  INITIAL_ADMIN_STATS,
+} from './dashboard.utils';
+import { ApprovalStatus } from '../../../../core/models/user.model';
+import {
+  normalizeApprovalStatus,
+  normalizeOrderStatus,
+} from '../../../../core/utils/role.utils';
+import { OrderStatus } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,117 +29,155 @@ type DashboardOrderRow = {
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
-  stats = [
-    { title: 'Total Revenue', value: '₹...', icon: 'attach_money', color: '#4caf50' },
-    { title: 'Orders', value: '...', icon: 'shopping_cart', color: '#2196f3' },
-    { title: 'Customers', value: '...', icon: 'people', color: '#ff9800' },
-    { title: 'Products', value: '...', icon: 'inventory_2', color: '#f44336' },
-    { title: 'Brands', value: '...', icon: 'branding_watermark', color: '#9c27b0' },
-    { title: 'Categories', value: '...', icon: 'category', color: '#3f51b5' },
-  ];
-
+  isApproved: boolean = true;
+  stats: DashboardStatItem[] = INITIAL_ADMIN_STATS;
   recentOrders: DashboardOrderRow[] = [];
-
-  tableColumns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', truncate: true },
-    { key: 'customerName', label: 'Customer Name' },
-    { key: 'orderDate', label: 'Date', type: 'date' },  
-    { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
-    { key: 'orderStatus', label: 'Order Status', type: 'badge', badgeClassKey: 'orderStatusClass' },
-  ];
   dataSource = this.recentOrders;
-  isLoadingStats = true;
+  isLoadingStats: boolean = true;
+  isHovered: boolean = false;
 
-  constructor(private dashboardService: DashboardService, private router: Router) { }
+  public totalUsers: number = 0;
+  public totalCustomers: number = 0;
+  public totalAdminUsers: number = 0;
+  public totalVendors: number = 0;
+  public totalOrders: number = 0;
+  public activeOrders: number = 0;
+  public deliveredOrders: number = 0;
+  public shippedOrders: number = 0;
+  public cancelOrders: number = 0;
+  public processingOrders: number = 0;
+
+  // order table columns
+  tableColumns: TableColumn[] = [
+    { key: 'orderId', label: 'Order ID', truncate: true, type: 'string' },
+    { key: 'customerName', label: 'Customer Name', type: 'string' },
+    { key: 'orderDate', label: 'Date', type: 'date' },
+    { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
+    {
+      key: 'orderStatus',
+      label: 'Order Status',
+      type: 'badge',
+      badgeClassKey: 'orderStatusClass'
+    },
+  ];
+
+  private portalRoutes = inject(PortalRouteService);
+  public portal: PortalKey = 'admin';
+  public isVendor: boolean = false;
+
+
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.fetchDashboardData();
+
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
+
+    if (this.portal === 'vendor') {
+      this.isVendor = true;
+      this.isLoadingStats = false;
+      this.stats = [];
+      if (this.checkVendorPending()) {
+        this.isApproved = false;
+        this.isLoadingStats = false;
+        return;
+      }
+
+    } else {
+      // for Admin
+      this.isApproved = true;
+      this.fetchDashboardData();
+    }
+  }
+
+  private checkVendorPending(): boolean {
+    const vendorStatus = localStorage.getItem('vendorStatus');
+    const status = normalizeApprovalStatus(vendorStatus);
+    return status !== ApprovalStatus.Approved;
   }
 
   private fetchDashboardData(): void {
     this.isLoadingStats = true;
-    this.dashboardService.getDashboardData().subscribe({
+    this.dashboardService.fetchDashboardMetricsData().subscribe({
       next: (data: DashboardData) => {
         this.updateStatsCards(data);
         this.updateRecentOrders(data.recentOrders);
+        this.totalUsers = data.totalUsers;
+        this.totalCustomers = data.totalCustomers;
+        this.totalVendors = data.totalVendors;
+        this.totalAdminUsers = data.totalAdminUsers;
+        this.shippedOrders = data.shippedOrders;
+        this.totalOrders = data.totalOrders;
+        this.activeOrders = data.activeOrders;
+        this.deliveredOrders = data.deliveredOrders;
+        this.cancelOrders = data.cancelOrders;
         this.isLoadingStats = false;
       },
       error: (err: Error) => {
         console.error('Failed to fetch dashboard data', err);
         this.isLoadingStats = false;
-      }
+      },
     });
   }
 
+  // Update the stats cards based on the fetched dashboard data
   private updateStatsCards(data: DashboardData): void {
-    this.stats = [
-      { title: 'Total Revenue', value: `₹${data.totalRevenue}`, icon: 'attach_money', color: '#4caf50' },
-      { title: 'Orders', value: data.totalOrders.toString(), icon: 'shopping_cart', color: '#2196f3' },
-      { title: 'Customers', value: data.totalUsers.toString(), icon: 'people', color: '#ff9800' },
-      { title: 'Products', value: data.totalProducts.toString(), icon: 'inventory_2', color: '#f44336' },
-      { title: 'Brands', value: data.totalBrands.toString(), icon: 'branding_watermark', color: '#9c27b0' },
-      { title: 'Categories', value: data.totalCategories.toString(), icon: 'category', color: '#3f51b5' },
-    ];
+    if (this.portal === 'vendor') {
+      this.stats = [];
+      return;
+    }
+    this.stats = buildDashboardStats(data, this.portalRoutes, this.portal);
   }
 
-  private updateRecentOrders(orders: any[]): void {
-    this.recentOrders = orders.map(order => this.mapOrderToTableRow(order));
+  // Update the recent orders table based on the fetched dashboard data
+  private updateRecentOrders(orders: RecentOrder[]): void {
+    this.recentOrders = orders.map((order) => this.mapOrderToTableRow(order));
     this.dataSource = [...this.recentOrders];
   }
 
-  private mapOrderToTableRow(order: any): DashboardOrderRow {
+  // Map a RecentOrder object to a DashboardOrderRow object for display in the table
+  private mapOrderToTableRow(order: RecentOrder): DashboardOrderRow {
     return {
       orderId: order.orderId,
       customerName: order.customerName,
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
-      orderStatus: order.orderStatus as OrderStatus,
-      orderStatusClass: this.getOrderStatusClass(order.orderStatus),
+      orderStatus: normalizeOrderStatus(order.orderStatus),
+      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus)
     };
   }
 
-  getOrderStatusClass(orderStatus: string): string {
-    switch (orderStatus?.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-primary-subtle text-primary border border-primary-subtle';
-      case 'processing':
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'shipped':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'delivered':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'cancelled':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    }
+  // Get the CSS class for the order status badge based on the order status
+  getOrderStatusClass(orderStatus: OrderStatus | number | string): string {
+    return getOrderStatusBadgeClass(orderStatus);
   }
 
+  // Navigate to the order details page when an order row is clicked
   onOrderClick(order: Record<string, unknown>): void {
     if (order && order['orderId']) {
-      this.router.navigate(['/admin/orders/details-admin', order['orderId']]);
+      this.router.navigate(
+        this.portalRoutes.orders(
+          this.portal,
+          'details',
+          String(order['orderId'])
+        )
+      );
     }
   }
 
   getPaymentStatusClass(paymentStatus: string): string {
-    switch (paymentStatus?.toLowerCase()) {
-      case 'success':
-      case 'paid':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'failed':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
-      default:
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-    }
+    return getPaymentStatusBadgeClass(paymentStatus);
   }
 
   navigateToOrders(): void {
-    this.router.navigate(['/admin/orders']);
+    this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'));
   }
 
-
-  
-
-
+  onStatCardClick(route?: (string | number)[]): void {
+    if (route && route.length > 0) {
+      this.router.navigate(route);
+    }
+  }
 }

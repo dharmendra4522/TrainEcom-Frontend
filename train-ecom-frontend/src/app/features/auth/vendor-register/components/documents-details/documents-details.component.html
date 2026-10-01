@@ -1,0 +1,89 @@
+<section
+  class="vendor-step d-flex flex-column gap-3"
+  [formGroup]="registerForm"
+>
+  <h4 class="fw-bold text-primary border-bottom pb-2">
+    Verification Documents
+  </h4>
+
+  <div class="d-flex flex-column align-items-center w-100">
+    <div class="custom-field-width">
+      <!-- Business Logo -->
+      <div class="upload-field mb-3">
+        <label class="form-label fw-semibold text-secondary small mb-1">
+          Business Logo <span class="text-muted fw-normal">(Optional)</span>
+        </label>
+        <input
+          type="file"
+          class="form-control"
+          accept="image/*"
+          (change)="onFileSelect($event, 'businessLogo')"
+        />
+        <mat-error class="text-danger small mt-1">
+          {{ getErrorMessage("businessLogo", "Business Logo") }}
+        </mat-error>
+      </div>
+
+      <!-- GST Document -->
+      <div class="upload-field mb-3">
+        <label class="form-label fw-semibold text-secondary small mb-1">
+          GST Document <span class="text-muted fw-normal">(PDF, Optional)</span>
+        </label>
+        <input
+          type="file"
+          class="form-control"
+          accept=".pdf"
+          (change)="onFileSelect($event, 'gstDocument')"
+        />
+        <mat-error class="text-danger small mt-1">
+          {{ getErrorMessage("gstDocument", "GST Document") }}
+        </mat-error>
+      </div>
+
+      <!-- Registration Paper -->
+      <div class="upload-field mb-3">
+        <label class="form-label fw-semibold text-secondary small mb-1">
+          Registration Paper
+          <span class="text-muted fw-normal">(PDF, Optional)</span>
+        </label>
+        <input
+          type="file"
+          class="form-control"
+          accept=".pdf"
+          (change)="onFileSelect($event, 'businessDocument')"
+        />
+        <mat-error class="text-danger small mt-1">
+          {{ getErrorMessage("businessDocument", "Registration Paper") }}
+        </mat-error>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation (Final Submit) -->
+  <div
+    class="d-flex justify-content-end gap-2 align-items-center mt-4 pt-3 border-top"
+    *ngIf="!isEditMode"
+  >
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      class="px-4 py-2"
+      (click)="onPrev()"
+    >
+      Back
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="px-5 py-2"
+      [disabled]="registerForm.invalid || isLoading"
+    >
+      <span class="d-inline-flex align-items-center justify-content-center gap-2">
+        <mat-spinner *ngIf="isLoading" diameter="18" color="accent"></mat-spinner>
+        <span>{{ isLoading ? "Submitting..." : "Submit" }}</span>
+      </span>
+    </button>
+  </div>
+</section>

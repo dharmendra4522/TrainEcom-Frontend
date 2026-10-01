@@ -23,3 +23,19 @@ export const selectAuthError = createSelector(
     selectAuthState,
     (state: AuthState) => state.error
 );
+
+
+export const selectSubmittedDate = createSelector(
+    selectAuthState,
+    (state: AuthState) => state.submittedDate
+);
+
+export const selectRegistrationId = createSelector(
+    selectAuthState,
+    (state: AuthState) => state.registrationId
+);
+
+export const selectAuthStatus = createSelector(
+    selectAuthState,
+    (state: AuthState) => state.status
+);

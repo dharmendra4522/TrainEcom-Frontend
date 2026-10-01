@@ -1,40 +1,41 @@
-import { Directive, inject, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, inject, Input, TemplateRef, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/internal/Subscription';
+import { Subscription } from 'rxjs';
 import { selectUserRole } from '../../core/store/auth/auth.selectors';
+import { Role } from '../../core/models/auth.model';
+import { normalizeRole } from '../../core/utils/role.utils';
 
 @Directive({
   selector: '[appRole]'
 })
-export class RoleDirective {
-
+export class RoleDirective implements OnInit, OnDestroy {
   private templateRef = inject(TemplateRef<unknown>);
   private viewContainer = inject(ViewContainerRef);
   private store = inject(Store);
 
-  private requiredRole: string = '';
-  private currentUserRole: string | null = null;
+  private requiredRole: Array<Role | number | string> = [];
+  private currentUserRole: Role | number | string | null = null;
   private roleSubscription!: Subscription;
 
-  constructor() { }
-
-  // here we are using the @Input decorator to bind the required role to the directive. When the role is set, we call the updateView method to check if the current user's role matches the required role and update the view accordingly.
-  @Input() set appRole(role: string) {
-    this.requiredRole = role;
+  @Input() set appRole(role: Role | number | string | Array<Role | number | string>) {
+    this.requiredRole = Array.isArray(role) ? role : [role];
     this.updateView();
   }
 
   ngOnInit() {
-      this.roleSubscription = this.store.select(selectUserRole).subscribe(role => {
-        this.currentUserRole = role;
-        this.updateView();
-      });
+    this.roleSubscription = this.store.select(selectUserRole).subscribe(role => {
+      this.currentUserRole = role;
+      this.updateView();
+    });
   }
 
   private updateView() {
     this.viewContainer.clear();
 
-    if (this.currentUserRole && this.currentUserRole === this.requiredRole) {
+    const current = normalizeRole(this.currentUserRole);
+    const requiredRoles = this.requiredRole.map((role) => normalizeRole(role));
+
+    if (current !== null && requiredRoles.includes(current)) {
       this.viewContainer.createEmbeddedView(this.templateRef);
     }
   }
@@ -44,5 +45,5 @@ export class RoleDirective {
       this.roleSubscription.unsubscribe();
     }
   }
-
 }
+

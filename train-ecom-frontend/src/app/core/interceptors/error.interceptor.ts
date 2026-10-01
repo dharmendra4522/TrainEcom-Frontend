@@ -24,7 +24,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
 
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 401) {
         const errorMessage = extractBackendMessage(error);
         localStorage.removeItem('accessToken');
         store.dispatch(AuthActions.logout());

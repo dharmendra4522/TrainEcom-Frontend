@@ -5,7 +5,7 @@ import { NotificationService } from '../../services/notification.service';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from './category.action';
 import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories, selectCategoryPagesCache } from './category.selectors';
-import { withLatestFrom, map, catchError, of, exhaustMap } from 'rxjs';
+import { withLatestFrom, map, catchError, of, exhaustMap, switchMap, } from 'rxjs';
 
 @Injectable()
 export class CategoryEffects {
@@ -47,7 +47,7 @@ export class CategoryEffects {
         this.store.select(selectCategoryPagesCache),
         this.store.select(selectCategoryTotalRecords),
       ),
-      exhaustMap(([action, pagesCache, totalRecords]) => {
+      switchMap(([action, pagesCache, totalRecords]) => {
         const { pageNumber, pageSize, search } = action;
         const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
 
@@ -83,7 +83,7 @@ export class CategoryEffects {
     return this.actions$.pipe(
       ofType(CategoryActions.loadSingleCategory),
       exhaustMap(({ categoryId }) =>
-        this.categoryService.getCategoryById(categoryId).pipe(
+        this.categoryService.getCategoryById(String(categoryId)).pipe(
           map((category) =>
             CategoryActions.loadSingleCategorySuccess({ category }),
           ),
@@ -121,7 +121,7 @@ export class CategoryEffects {
     return this.actions$.pipe(
       ofType(CategoryActions.updateCategory),
       exhaustMap(({ categoryId, category }) =>
-        this.categoryService.updateCategory(categoryId, category).pipe(
+        this.categoryService.updateCategory(String(categoryId), category).pipe(
           map((updatedCategory) => {
             this.notification.showSuccess('Category updated successfully!');
             return CategoryActions.updateCategorySuccess({ category: updatedCategory });
@@ -139,10 +139,10 @@ export class CategoryEffects {
     return this.actions$.pipe(
       ofType(CategoryActions.deleteCategory),
       exhaustMap(({ categoryId }) =>
-        this.categoryService.deleteCategory(categoryId).pipe(
+        this.categoryService.deleteCategory(String(categoryId)).pipe(
           map(() => {
             this.notification.showSuccess('Category deleted successfully.');
-            return CategoryActions.deleteCategorySuccess({ categoryId });
+            return CategoryActions.deleteCategorySuccess({ categoryId: String(categoryId) });
           }),
           catchError((error) => {
             this.notification.showError(error?.message || 'Failed to delete category');

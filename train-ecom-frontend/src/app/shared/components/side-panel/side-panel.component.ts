@@ -27,10 +27,12 @@ import * as ProductActions from '../../../core/store/product/product.action';
 import { Subject, combineLatest } from 'rxjs';
 import { ConfirmDialogServiceService } from '../../../core/services/confirm-dialog.service';
 import { NotificationStreamService } from '../../../core/services/notification-stream.service';
+import { Role } from '../../../core/models/auth.model';
+import { normalizeRole } from '../../../core/utils/role.utils';
 
 export interface SidePanelItem {
-  id: string;
-  productId?: string;
+  id: string | number;
+  productId?: string | number;
   productName?: string;
   name: string;
   unitPrice?: number;
@@ -44,7 +46,7 @@ export interface SidePanelItem {
   message?: string;
   timestamp?: string;
   isRead?: boolean;
-  referenceId?: string;
+  referenceId?: string | number;
   referenceType?: string;
 }
 @Component({
@@ -139,19 +141,20 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         this.close();
         const type = item.referenceType as string;
         const id = item.referenceId;
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
 
         const customerRoutes: Record<string, string> = {
-          'Order': '/account/orders/details',
+          'Order': '/account/orders/customer-details',
           'Product': '/products',
         };
 
         const adminRoutes: Record<string, string> = {
-          'Order': '/admin/orders/details-admin',
+          'Order': '/admin/orders/details',
           'Product': '/products',
           'User': '/admin/users'
         };
 
-        const routeMap = role === 'Admin' ? adminRoutes : customerRoutes;
+        const routeMap = normalizedRole === Role.Admin ? adminRoutes : customerRoutes;
         const basePath = routeMap[type];
 
         if (basePath) {
@@ -186,8 +189,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       this.store.select(selectUserRole),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([isLoggedIn, role]: [boolean, string | null]) => {
-        if (isLoggedIn && role === 'Admin') {
+      .subscribe(([isLoggedIn, role]: [boolean, string | number | null]) => {
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
+        if (isLoggedIn && normalizedRole === Role.Admin) {
           this.items = [];
           this.cdr.detectChanges();
           return;
@@ -224,8 +228,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       this.store.select(selectUserRole),
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([isLoggedIn, role]: [boolean, string | null]) => {
-        if (isLoggedIn && role === 'Admin') {
+      .subscribe(([isLoggedIn, role]: [boolean, string | number | null]) => {
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
+        if (isLoggedIn && normalizedRole === Role.Admin) {
           this.items = [];
           this.cdr.detectChanges();
           return;
@@ -330,7 +335,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleRemove(itemId: string): void {
+  handleRemove(itemId: string | number): void {
     if (this.type === 'Cart') {
       this.confirmDialog
         .confirm(
@@ -356,12 +361,12 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private removeCartItem(itemId: string): void {
-    this.store.dispatch(CartActions.deleteCartItem({ itemId }));
+  private removeCartItem(itemId: string | number): void {
+    this.store.dispatch(CartActions.deleteCartItem({ itemId: String(itemId) }));
   }
 
-  private removeWishlistItem(productId: string): void {
-    this.store.dispatch(WishlistActions.removeFromWishlist({ productId }));
+  private removeWishlistItem(productId: string | number): void {
+    this.store.dispatch(WishlistActions.removeFromWishlist({ productId: String(productId) }));
   }
 
   handleQuantity(event: {
@@ -388,7 +393,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private confirmAndRemoveItem(itemId: string): void {
+  private confirmAndRemoveItem(itemId: string | number): void {
     this.confirmDialog
       .confirm(
         'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
@@ -435,9 +440,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCartItemQuantity(itemId: string, newQty: number): void {
+  private updateCartItemQuantity(itemId: string | number, newQty: number): void {
     this.store.dispatch(
-      CartActions.updateCartItem({ itemId, quantity: newQty }),
+      CartActions.updateCartItem({ itemId: String(itemId), quantity: newQty }),
     );
   }
 
@@ -489,7 +494,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeNotification(id: string): void {
+  removeNotification(id: string | number): void {
     if (this.type !== 'Notification') return;
     this.items = this.items.filter(item => item.id !== id);
     this.cdr.detectChanges();

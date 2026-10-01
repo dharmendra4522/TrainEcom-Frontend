@@ -1,33 +1,50 @@
 <div class="container-fluid mt-2 px-0">
   <div class="sticky-top-section">
     <!-- Page Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-      <div>
+    <div class="row align-items-center justify-content-between mb-4 g-3">
+      <div class="col-12 col-md-6">
         <h2 class="fs-4 fw-bold text-dark m-0">Order Management</h2>
         <p class="text-muted small m-0">View and manage all customer orders.</p>
+      </div>
+
+      <!-- Search Section -->
+      <div class="col-12 col-md-4" [formGroup]="filterForm">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 mb-0"
+          subscriptSizing="dynamic"
+        >
+          <mat-label>Search Order / Customer</mat-label>
+          <mat-icon matPrefix class="text-secondary">search</mat-icon>
+          <input
+            matInput
+            formControlName="search"
+            placeholder="Search name or ID..."
+          />
+        </mat-form-field>
       </div>
     </div>
 
     <!-- Filters Section -->
     <div class="row g-3 mb-4 align-items-center">
-      <!-- Search Input -->
-      <div class="col-12 col-md-3">
-        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
-          <mat-label>Search Order / Customer</mat-label>
-          <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput [(ngModel)]="searchQuery" (input)="onSearchInput($event)"
-            placeholder="Search name or ID..." />
-        </mat-form-field>
-      </div>
-
       <!-- Order Status Filter -->
       <div class="col-12 col-sm-6 col-md-2">
-        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 mb-0"
+          subscriptSizing="dynamic"
+        >
           <mat-label>Order Status</mat-label>
-          <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFilterChange()">
-            <mat-option value="">All Status</mat-option>
-            <mat-option *ngFor="let status of orderStatusOptions" [value]="status">
-              {{ status }}
+          <mat-select
+            [(ngModel)]="selectedStatus"
+            (selectionChange)="onFilterChange()"
+          >
+            <mat-option value="undefined">All Status</mat-option>
+            <mat-option
+              *ngFor="let status of orderStatusOptions"
+              [value]="status.value"
+            >
+              {{ status.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -35,12 +52,22 @@
 
       <!-- Payment Status Filter -->
       <div class="col-12 col-sm-6 col-md-2">
-        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 mb-0"
+          subscriptSizing="dynamic"
+        >
           <mat-label>Payment Status</mat-label>
-          <mat-select [(ngModel)]="selectedPaymentStatus" (selectionChange)="onFilterChange()">
-            <mat-option value="">All Payments</mat-option>
-            <mat-option *ngFor="let payment of paymentStatusOptions" [value]="payment">
-              {{ payment }}
+          <mat-select
+            [(ngModel)]="selectedPaymentStatus"
+            (selectionChange)="onFilterChange()"
+          >
+            <mat-option value="undefined">All Payments</mat-option>
+            <mat-option
+              *ngFor="let payment of paymentStatusOptions"
+              [value]="payment.value"
+            >
+              {{ payment.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -48,32 +75,87 @@
 
       <!-- From Date -->
       <div class="col-6 col-sm-4 col-md-2">
-        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 mb-0"
+          subscriptSizing="dynamic"
+        >
           <mat-label>From Date</mat-label>
-          <input matInput [matDatepicker]="fromPicker" [(ngModel)]="fromDate" (dateChange)="onFilterChange()"
-            placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
-          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [(ngModel)]="fromDate"
+            placeholder="DD-MM-YYYY"
+            [max]="maxDate"
+            readonly
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="fromPicker"
+          ></mat-datepicker-toggle>
           <mat-datepicker #fromPicker></mat-datepicker>
         </mat-form-field>
       </div>
 
       <!-- To Date -->
       <div class="col-6 col-sm-4 col-md-2">
-        <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+        <mat-form-field
+          appearance="outline"
+          class="w-100 mb-0"
+          subscriptSizing="dynamic"
+        >
           <mat-label>To Date</mat-label>
-          <input matInput [matDatepicker]="toPicker" [(ngModel)]="toDate" (dateChange)="onFilterChange()"
-            placeholder="DD-MM-YYYY" [max]="maxDate" readonly />
-          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <input
+            matInput
+            [matDatepicker]="toPicker"
+            [(ngModel)]="toDate"
+            placeholder="DD-MM-YYYY"
+            [max]="maxDate"
+            readonly
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="toPicker"
+          ></mat-datepicker-toggle>
           <mat-datepicker #toPicker></mat-datepicker>
         </mat-form-field>
       </div>
 
+      <!-- Apply Date Filter Button -->
+      <div
+        class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
+        *ngIf="fromDate || toDate"
+      >
+        <button
+          mat-flat-button
+          color="primary"
+          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
+          style="height: 48px"
+          (click)="applyDateFilter()"
+        >
+          <mat-icon>filter_alt</mat-icon> Apply
+        </button>
+      </div>
+
       <!-- Reset Button -->
-      <div class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
-        *ngIf="searchQuery || selectedStatus || selectedPaymentStatus || fromDate || toDate">
-        <button mat-stroked-button color="warn"
-          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3" style="height: 48px;"
-          (click)="resetFilters()" title="Reset Filters">
+      <div
+        class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
+        *ngIf="
+          searchQuery ||
+          selectedStatus ||
+          selectedPaymentStatus ||
+          fromDate ||
+          toDate
+        "
+      >
+        <button
+          mat-stroked-button
+          color="warn"
+          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
+          style="height: 48px"
+          (click)="resetFilters()"
+          title="Reset Filters"
+        >
           <mat-icon>clear</mat-icon> Reset
         </button>
       </div>
@@ -81,8 +163,15 @@
   </div>
 
   <!-- Orders Table -->
-  <app-generic-table [data]="orders" [columns]="columns" [isLoading]="isLoading" [showPaginator]="true"
-    [totalRecords]="totalRecords" [pageSize]="pageSize" [pageIndex]="pageIndex" (pageChange)="onPageChange($event)"
-    emptyMessage="No orders found matching the filter criteria." (rowClick)="navigateToOrderDetails($event)">
+  <app-generic-table
+    [data]="orders"
+    [columns]="columns"
+    [isLoading]="isLoading"
+    [showPaginator]="false"
+    [totalRecords]="totalRecords"
+    (loadMore)="onTableScroll()"
+    emptyMessage="No orders found matching the filter criteria."
+    (rowClick)="navigateToOrderDetails($event)"
+  >
   </app-generic-table>
 </div>

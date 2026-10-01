@@ -175,9 +175,9 @@ export class AddressComponent implements OnInit, OnDestroy {
     this.openAddressDialog(address);
   }
 
-  markAsDefault(id: string): void {
+  markAsDefault(id: string | number): void {
     this.userService
-      .setDefaultAddress(id)
+      .setDefaultAddress(Number(id))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -190,7 +190,7 @@ export class AddressComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteAddress(id: string): void {
+  deleteAddress(id: string | number): void {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this address?',
@@ -201,7 +201,7 @@ export class AddressComponent implements OnInit, OnDestroy {
       .subscribe((confirmed) => {
         if (confirmed) {
           this.userService
-            .deleteAddress(id)
+            .deleteAddress(Number(id))
             .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: () => {

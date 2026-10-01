@@ -2,13 +2,7 @@
   class="generic-table-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white position-relative"
 >
   <div
-    style="
-      height: 3px;
-      width: 100%;
-      background: transparent;
-      z-index: 1050;
-      position: relative;
-    "
+    class="progress-bar"
   >
     <mat-progress-bar
       *ngIf="isLoading"
@@ -19,13 +13,20 @@
 
   <div
     class="table-scroll-container position-relative"
-    style="max-height: calc(100vh - 300px); overflow-y: auto"
+    style="max-height: 550px; overflow-y: auto"
+    (scroll)="onTableScroll($event)"
   >
-    <table mat-table [dataSource]="data" class="custom-mat-table w-100" matSort (matSortChange)="onSortData($event)">
+    <table
+      mat-table
+      [dataSource]="data"
+      class="custom-mat-table w-100"
+      matSort
+      (matSortChange)="onSortData($event)"
+    >
       <ng-container matColumnDef="sno" *ngIf="showIndex">
         <th
           mat-header-cell
-          mat-sort-header
+          mat-sort-header="sno"
           sortActionDescription
           *matHeaderCellDef
           class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7"
@@ -35,24 +36,35 @@
         <td
           mat-cell
           *matCellDef="let row; let i = index"
-          class="px-4 py-3 text-secondary font-monospace"
+          class="px-4 py-3  fw-bold text-secondary font-monospace"
         >
-          {{ i + 1 }}
+          {{ row['sno'] }}
         </td>
       </ng-container>
 
       <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
         <th
           mat-header-cell
-          mat-sort-header
+          [mat-sort-header]="col.key"
+          [disabled]="col.sortable === false"
           *matHeaderCellDef
           class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7"
         >
           {{ col.label }}
         </th>
-        <td id="table-data" mat-cell *matCellDef="let row" class="px-4 py-3 text-dark">
+        <td
+          id="table-data"
+          mat-cell
+          *matCellDef="let row"
+          class="px-4 py-3 text-dark"
+        >
           <div
-            *ngIf="!col.type || col.type === 'text' || col.type === 'string' || col.type === 'number'"
+            *ngIf="
+              !col.type ||
+              col.type === 'text' ||
+              col.type === 'string' ||
+              col.type === 'number'
+            "
             class="fw-medium"
             [class.text-truncate-clamp]="
               col.truncate ||
@@ -109,6 +121,8 @@
                 ? row[col.badgeClassKey]
                 : 'bg-primary-subtle text-primary'
             "
+            [matTooltip]="row['rejectionReason'] ? row['rejectionReason'] + '' : ''"
+            [matTooltipDisabled]="!row['rejectionReason']"
           >
             {{ row[col.key] || "General" }}
           </span>
@@ -135,6 +149,7 @@
                 *ngFor="let act of actions"
                 mat-icon-button
                 [color]="getActionColor(act, row)"
+                [disabled]="isActionDisabled(act, row)"
                 class="action-btn"
                 [matTooltip]="getActionLabel(act, row) | titlecase"
                 (click)="onActionClick(act.actionKey, row)"
@@ -156,12 +171,19 @@
                 <button
                   *ngFor="let act of actions"
                   mat-menu-item
+                  [disabled]="isActionDisabled(act, row)"
                   (click)="onActionClick(act.actionKey, row)"
                 >
-                  <mat-icon *ngIf="act.icon">{{
-                    getActionIcon(act, row)
-                  }}</mat-icon>
-                  <span>{{ getActionLabel(act, row) | titlecase }}</span>
+                 <mat-icon *ngIf="act.icon" [ngClass]="{
+                    'text-danger': act.color === 'warn',
+                    'text-primary': act.color === 'primary',
+                    'text-accent': act.color === 'accent'
+                  }">{{ getActionIcon(act, row) }}</mat-icon>
+                  <span [ngClass]="{
+                    'text-danger': act.color === 'warn',
+                    'text-primary': act.color === 'primary',
+                    'text-accent': act.color === 'accent'
+                  }">{{ getActionLabel(act, row) | titlecase }}</span>
                 </button>
               </mat-menu>
             </ng-template>
@@ -174,11 +196,13 @@
         *matHeaderRowDef="displayedColumns; sticky: true"
         class="bg-light-subtle border-bottom"
       ></tr>
-      <tr
+<tr
         mat-row
         *matRowDef="let row; columns: displayedColumns"
         (click)="onRowClick(row, $event)"
-        class="table-row-hover transition-all cursor-pointer"
+        [class.table-row-hover]="enableRowClick"
+        [class.cursor-pointer]="enableRowClick"
+        [class.cursor-default]="!enableRowClick"
       ></tr>
     </table>
 

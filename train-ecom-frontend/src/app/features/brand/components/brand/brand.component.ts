@@ -1,6 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { PageEvent } from '@angular/material/paginator';
 import { Brand } from '../../../../core/models/brand.model';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import {
@@ -15,9 +14,14 @@ import {
   selectBrandTotalRecords,
   selectPaginatedBrands,
 } from '../../../../core/store/brand/brand.selectors';
-import { Observable, BehaviorSubject, Subject } from 'rxjs';
-import { startWith, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import {
+  distinctUntilChanged,
+  debounceTime,
+  takeUntil,
+} from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { map } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
@@ -25,22 +29,29 @@ import { ConfirmDialogServiceService } from '../../../../core/services/confirm-d
   templateUrl: './brand.component.html',
   styleUrl: './brand.component.css',
 })
-export class BrandComponent implements OnInit {
+export class BrandComponent implements OnInit, OnDestroy { 
   private matDialog = inject(MatDialog);
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
 
-  paginatedBrands$: Observable<Brand[]> = this.store.select(selectPaginatedBrands);
+  paginatedBrands$: Observable<Brand[]> = this.store.select(
+    selectPaginatedBrands,
+  );
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
-  totalRecords$: Observable<number> = this.store.select(selectBrandTotalRecords);
+  totalRecords$: Observable<number> = this.store.select(
+    selectBrandTotalRecords,
+  );
 
-  searchControl = new FormControl('');
-  pageIndex$ = new BehaviorSubject<number>(0);
-  pageSize$ = new BehaviorSubject<number>(10);
-
+  searchControl = new FormControl('', { nonNullable: true });
   private destroy$ = new Subject<void>();
 
-  filteredBrands$!: Observable<Brand[]>;
+  private currentPage = 0;
+  private pageSize = 10;
+  
+  // Local state tracking
+  private currentBrandsLength = 0;
+  private totalRecordsCount = 0;
+  private isLoadingValue = false;
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name' },
@@ -63,6 +74,41 @@ export class BrandComponent implements OnInit {
     },
   ];
 
+  ngOnInit(): void {
+    this.initSubscriptions();
+    this.loadBrand(this.currentPage, this.pageSize, '');
+    this.setupSeachControl();
+  }
+
+  // Track store state locally
+  private initSubscriptions(): void {
+    this.paginatedBrands$.pipe(takeUntil(this.destroy$)).subscribe((brands) => {
+      this.currentBrandsLength = brands?.length || 0;
+    });
+
+    this.totalRecords$.pipe(takeUntil(this.destroy$)).subscribe((total) => {
+      this.totalRecordsCount = total || 0;
+    });
+
+    this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      this.isLoadingValue = loading;
+    });
+  }
+
+  private setupSeachControl(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        map((searchTerm) => searchTerm.trim()),
+        distinctUntilChanged(),
+        debounceTime(300),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((searchTerm) => {
+        this.currentPage = 0;
+        this.loadBrand(this.currentPage, this.pageSize, searchTerm);
+      });
+  }
+
   handleTableAction(event: TableActionEvent): void {
     const brand = event.row as Brand;
     if (event.action === 'edit') {
@@ -72,36 +118,26 @@ export class BrandComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    this.loadPage();
-
-    this.searchControl.valueChanges.pipe(
-      startWith(''),
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe((searchTerm) => {
-      this.pageIndex$.next(0);
-      this.loadPage(0, this.pageSize$.value, searchTerm || '');
-    });
-
+  onTableScroll(): void {
+    if (!this.isLoadingValue && this.currentBrandsLength < this.totalRecordsCount) {
+      this.currentPage++;
+      const currentSearch = this.searchControl.value.trim();
+      this.loadBrand(this.currentPage, this.pageSize, currentSearch);
+    }
   }
 
-  handlePageChange(event: PageEvent): void {
-    this.pageIndex$.next(event.pageIndex);
-    this.pageSize$.next(event.pageSize);
-    const currentSearch = this.searchControl.value || '';
-    this.loadPage(event.pageIndex, event.pageSize, currentSearch);
+  resetSearch(): void {
+    this.searchControl.setValue('');
   }
 
-  private loadPage(pageIndex = this.pageIndex$.value,
-    pageSize = this.pageSize$.value,
-    search = this.searchControl.value || ''): void {
-    this.store.dispatch(BrandActions.loadPaginatedBrands({
-      pageNumber: pageIndex + 1,
-      pageSize,
-      search: search.trim() !== '' ? search.trim() : undefined
-    }));
+  private loadBrand(pageIndex: number, pageSize: number, search: string): void {
+    this.store.dispatch(
+      BrandActions.loadPaginatedBrands({
+        pageNumber: pageIndex + 1,
+        pageSize,
+        search: search.trim() !== '' ? search.trim() : undefined,
+      }),
+    );
   }
 
   openBrandDialog(brand?: Brand): void {
@@ -112,7 +148,9 @@ export class BrandComponent implements OnInit {
         title: isEdit ? 'Edit Brand' : 'Add Brand',
         type: 'Brand',
         isEdit: isEdit,
-        initialData: brand ? { name: brand.name, description: brand.description } : null
+        initialData: brand
+          ? { name: brand.name, description: brand.description }
+          : null,
       },
     });
 
@@ -127,37 +165,40 @@ export class BrandComponent implements OnInit {
     });
   }
 
-
-
   createBrand(payload: { name: string; description: string }): void {
     this.store.dispatch(BrandActions.createBrand({ brand: payload as Brand }));
   }
 
   updateBrand(
-    id: string,
-    payload: { name: string; description: string }
+    id: string | number,
+    payload: { name: string; description: string },
   ): void {
     this.store.dispatch(
-      BrandActions.updateBrand({ brandId: id, brand: payload as Brand })
+      BrandActions.updateBrand({
+        brandId: String(id),
+        brand: payload as Brand,
+      }),
     );
   }
 
-  deleteBrand(brandId: string): void {
-    this.confirmDialog.confirm('Are you sure you want to delete this brand?', 'Delete', 'Cancel').subscribe((confirmed) => {
-      debugger;
-      if (confirmed) {
-        this.store.dispatch(BrandActions.deleteBrand({ brandId: brandId }));
-      }
-    });
-  }
-
-  resetSearch(): void {
-    this.searchControl.setValue('');
+  deleteBrand(brandId: string | number): void {
+    this.confirmDialog
+      .confirm(
+        'Are you sure you want to delete this brand?',
+        'Delete',
+        'Cancel',
+      )
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.store.dispatch(
+            BrandActions.deleteBrand({ brandId: String(brandId) }),
+          );
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

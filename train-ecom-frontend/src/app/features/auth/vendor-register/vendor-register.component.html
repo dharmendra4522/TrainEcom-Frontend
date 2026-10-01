@@ -1,0 +1,134 @@
+<div
+  class="bg-image-container container-fluid d-flex justify-content-center align-items-center min-vh-100 py-4"
+>
+  <div class="d-flex flex-column align-items-center gap-4 w-100">
+    <!-- header section -->
+    <div class="header px-4 text-center">
+      <h2 class="fw-bold text-body mb-1">TrainCom Vendor Registration</h2>
+      <p class="text-secondary mb-0">
+        Please provide your personal, business, and payout details.
+      </p>
+    </div>
+
+    <!-- Main card Header -->
+    <div class="rounded-4 shadow p-4 form-wrapper w-100">
+      <ul class="nav nav-tabs nav-fill mb-4 fw-semibold">
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            type="button"
+            [class.active]="currentStep === 1"
+            (click)="goToStep(1)"
+          >
+            General
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            type="button"
+            [class.active]="currentStep === 2"
+            [disabled]="!canAccessStep2 && currentStep < 2"
+            (click)="goToStep(2)"
+          >
+            Business
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            type="button"
+            [class.active]="currentStep === 3"
+            [disabled]="!canAccessStep3 && currentStep < 3"
+            (click)="goToStep(3)"
+          >
+            Address
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            type="button"
+            [class.active]="currentStep === 4"
+            [disabled]="!canAccessStep4 && currentStep < 4"
+            (click)="goToStep(4)"
+          >
+            Account & Tax
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            type="button"
+            [class.active]="currentStep === 5"
+            [disabled]="!canAccessStep5 && currentStep < 5"
+            (click)="goToStep(5)"
+          >
+            Documents
+          </button>
+        </li>
+      </ul>
+
+      <!-- form Cards -->
+      <form
+        class="d-flex flex-column gap-3"
+        [formGroup]="registerForm"
+        (ngSubmit)="onSubmit()"
+      >
+        <app-personal-details
+          *ngIf="currentStep === 1"
+          [registerForm]="registerForm"
+          [isStep1Valid]="isStep1Valid"
+          [isPasswordView]="isPasswordView"
+          [isConfirmPassView]="isConfirmPassView"
+          (togglePassword)="viewPassord()"
+          (toggleConfirmPassword)="viewConfirmPassword()"
+          (next)="nextStep()"
+        >
+        </app-personal-details>
+
+        <app-business-details
+          *ngIf="currentStep === 2"
+          [registerForm]="registerForm"
+          [categories$]="categories$"
+          [isStep2Valid]="isStep2Valid"
+          (prev)="prevStep()"
+          (next)="nextStep()"
+        >
+        </app-business-details>
+
+        <app-address-details
+          *ngIf="currentStep === 3"
+          [registerForm]="registerForm"
+          [countries]="countries"
+          [states]="states"
+          [cities]="cities"
+          [isStep3Valid]="isStep3Valid"
+          (countryChange)="onCountryChange($event)"
+          (stateChange)="onStateChange($event)"
+          (prev)="prevStep()"
+          (next)="nextStep()"
+        >
+        </app-address-details>
+
+        <app-tax-bank-details
+          *ngIf="currentStep === 4"
+          [registerForm]="registerForm"
+          [isStep4Valid]="isStep4Valid"
+          (prev)="prevStep()"
+          (next)="nextStep()"
+        >
+        </app-tax-bank-details>
+
+        <app-documents-details
+          *ngIf="currentStep === 5"
+          [registerForm]="registerForm"
+          [isLoading]="isLoading"
+          (fileSelect)="onFileSelect($event.event, $event.controlName)"
+          (prev)="prevStep()"
+        >
+        </app-documents-details>
+      </form>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@ export class NotificationCardComponent {
   @Input() item!: SidePanelItem;
 
   @Output() notificationClick = new EventEmitter<SidePanelItem>();
-  @Output() removeNotification = new EventEmitter<string>();
+  @Output() removeNotification = new EventEmitter<string | number>();
 
   onClick(): void {
     this.notificationClick.emit(this.item);

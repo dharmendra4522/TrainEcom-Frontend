@@ -5,6 +5,8 @@ import { take } from 'rxjs/internal/operators/take';
 import { selectIsLoggedIn, selectUserRole } from '../store/auth/auth.selectors';
 import { withLatestFrom } from 'rxjs/internal/operators/withLatestFrom';
 import { map } from 'rxjs/internal/operators/map';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const customerGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);
@@ -15,11 +17,15 @@ export const customerGuard: CanActivateFn = (route, state) => {
     take(1),
     withLatestFrom(store.select(selectUserRole)),
     map(([isLoggedIn, role]) => {
-      if (isLoggedIn && role === 'Customer') {
+      const normalizedRole = normalizeRole(role as string | number | null | undefined);
+      if (isLoggedIn && normalizedRole === Role.Customer) {
         return true;
-      } 
-      if(isLoggedIn && role === 'Admin') {
+      }
+      if (isLoggedIn && normalizedRole === Role.Admin) {
         return router.createUrlTree(['/admin/dashboard']);
+      }
+      if (isLoggedIn && normalizedRole === Role.Vendor) {
+        return router.createUrlTree(['/vendor/dashboard']);
       }
 
       return router.createUrlTree(['/login'], {

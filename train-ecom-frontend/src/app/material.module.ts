@@ -26,7 +26,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import {MatSort, MatSortModule} from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   imports: [
@@ -58,7 +60,8 @@ import {MatSort, MatSortModule} from '@angular/material/sort';
     MatDatepickerModule,
     MatNativeDateModule,
     MatSortModule,
-
+    MatTabsModule,
+    NgxMatSelectSearchModule
   ],
   exports: [
     MatButtonModule,
@@ -88,7 +91,9 @@ import {MatSort, MatSortModule} from '@angular/material/sort';
     MatProgressBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSortModule
+    MatSortModule,
+    MatTabsModule,
+    NgxMatSelectSearchModule
   ],
 })
-export class MaterialModule { }
+export class MaterialModule {}

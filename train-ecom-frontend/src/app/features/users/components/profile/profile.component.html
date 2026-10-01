@@ -1,133 +1,100 @@
-<app-breadcrumb [items]="profileBreadcrumbs" *appRole="'Customer'"></app-breadcrumb>
-<ng-container *ngIf="{loading: isLoading$ | async, error: error$ | async } as state">
+<app-breadcrumb
+  [items]="profileBreadcrumbs"
+  *appRole="roleEnum.Customer"
+></app-breadcrumb>
+
+<ng-container *appRole="[roleEnum.Customer, roleEnum.Admin]">
+  <ng-container
+    *ngIf="{ loading: isLoading$ | async, error: error$ | async } as state"
+  >
     <div class="profile-content">
 
-        <div *ngIf="state.loading" class="loading">Loading profile...</div>
+      <div *ngIf="state.loading" class="loading">
+        <mat-spinner diameter="30"></mat-spinner>
+        Loading profile...</div>
 
-        <div *ngIf="!state.loading && !state.error && userProfile" class="content-card">
-
-            <div class="header-action">
-                <h2>{{ isEditMode ? 'Edit Profile' : 'My Profile' }}</h2>
-                <button class="edit-btn" (click)="toggleEditMode()">
-                    {{ isEditMode ? 'Cancel' : 'Edit Profile' }}
-                </button>
-            </div>
-
-            <div *ngIf="!isEditMode" class="view-mode">
-                <div class="detail-row">
-                    <span class="label">Name:</span>
-                    <span class="value text-break">{{ userProfile.name }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Email:</span>
-                    <span class="value text-break">{{ userProfile.email }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Phone:</span>
-                    <span class="value text-break">{{ (userProfile.phoneNumber && !userProfile.phoneNumber.startsWith('+91')) ?
-                        '+91 ' : '' }}{{ userProfile.phoneNumber }}</span>
-                </div>
-
-                <ng-container *appRole="'Customer'">
-                    <div class="address-section" *ngIf="userProfile.defaultAddress">
-                        <div class="detail-row">
-                            <span class="label">Address:</span>
-                            <span class="value text-break">
-                                {{ userProfile.defaultAddress.addressLine1 }},
-                                {{ userProfile.defaultAddress.addressLine2 ? userProfile.defaultAddress.addressLine2 +
-                                ', ' : '' }}
-                                {{ userProfile.defaultAddress.city }},
-                                {{ userProfile.defaultAddress.state }} -
-                                {{ userProfile.defaultAddress.postalCode }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="address-section" *ngIf="!userProfile.defaultAddress">
-                        <p>No default address set.</p>
-                    </div>
-                </ng-container>
-            </div>
-
-            <form *ngIf="isEditMode" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="edit-mode">
-
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" formControlName="name" class="form-control">
-                    <div class="error-text"
-                        *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched">
-                        <small *ngIf="profileForm.get('name')?.errors?.['required']">Name is required.</small>
-                        <small *ngIf="profileForm.get('name')?.errors?.['pattern']">Only alphabets and spaces are
-                            allowed.</small>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Email <small>(Cannot be changed)</small></label>
-                    <input type="email" formControlName="email" class="form-control disabled-input">
-                </div>
-
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-secondary fw-semibold border">+91</span>
-                        <input type="text" formControlName="phoneNumber" class="form-control" maxlength="10"
-                            placeholder="Enter 10-digit number">
-                    </div>
-                    <div class="error-text"
-                        *ngIf="profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched">
-                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['required']">Phone number is
-                            required.</small>
-                        <small *ngIf="profileForm.get('phoneNumber')?.errors?.['pattern']">Only numbers are allowed,
-                            must be exactly 10 digits.</small>
-                    </div>
-                </div>
-
-                <div class="password-toggle" style="margin: 15px 0 20px 0;">
-                    <button type="button" (click)="togglePasswordFields()"
-                        style="background: none; border: none; color: #db4444; font-weight: 600; cursor: pointer; padding: 0; font-size: 14px;">
-                        {{ isChangingPassword ? '- Cancel Password Change' : '+ Change Password?' }}
-                    </button>
-                </div>
-
-                <div *ngIf="isChangingPassword" class="password-section"
-                    style="padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-
-                    <div class="form-group">
-                        <label>Old Password</label>
-                        <input type="password" formControlName="oldPassword" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password" formControlName="newPassword" class="form-control">
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>Confirm Password</label>
-                        <input type="password" formControlName="confirmPassword" class="form-control">
-                        <div class="error-text"
-                            *ngIf="profileForm.get('confirmPassword')?.touched && profileForm.get('confirmPassword')?.hasError('passwordMismatch')">
-                            <small>New Password and Confirm Password do not match.</small>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" (click)="toggleEditMode()">Cancel</button>
-                    <button type="submit" class="btn-save" [disabled]="profileForm.invalid">Save Changes</button>
-                </div>
-
-            </form>
-
+      <div
+        *ngIf="!state.loading && !state.error && userProfile"
+        class="content-card"
+      >
+        <div class="header-action" *ngIf="!isVendorPending()">
+          <h2>{{ isEditMode ? "Edit Profile" : "My Profile" }}</h2>
+          <button class="edit-btn" (click)="toggleEditMode()">
+            {{ isEditMode ? "Cancel" : "Edit Profile" }}
+          </button>
         </div>
 
-        <div *ngIf="!state.loading && state.error" class="empty-state">
-            <h3 style="color: #db4444; font-size: 20px; font-weight: 600;">Oops! Could not load profile.</h3>
-            <p style="color: #7d8184; margin: 10px 0;">{{ state.error }}</p>
-            <button class="btn-save" style="margin-top: 15px;" (click)="fetchUserProfile()">Retry</button>
+        <div *ngIf="!isEditMode" class="view-mode">
+          <div class="detail-row">
+            <span class="label">Name:</span>
+            <span class="value text-break">{{ userProfile.name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email:</span>
+            <span class="value text-break">{{ userProfile.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Phone:</span>
+            <span class="value text-break"
+              >{{
+                userProfile.phoneNumber &&
+                !userProfile.phoneNumber.startsWith("+91")
+                  ? "+91 "
+                  : ""
+              }}{{ userProfile.phoneNumber }}</span
+            >
+          </div>
+
+          <!-- Customer Address Section -->
+          <ng-container *appRole="roleEnum.Customer">
+            <div class="address-section" *ngIf="userProfile.defaultAddress">
+              <div class="detail-row">
+                <span class="label">Address:</span>
+                <span class="value text-break">
+                  {{ userProfile.defaultAddress.addressLine1 }},
+                  {{
+                    userProfile.defaultAddress.addressLine2
+                      ? userProfile.defaultAddress.addressLine2 + ", "
+                      : ""
+                  }}
+                  {{ userProfile.defaultAddress.city }},
+                  {{ userProfile.defaultAddress.state }} -
+                  {{ userProfile.defaultAddress.postalCode }}
+                </span>
+              </div>
+            </div>
+
+            <div class="address-section" *ngIf="!userProfile.defaultAddress">
+              <p>No default address set.</p>
+            </div>
+          </ng-container>
         </div>
 
+        <app-profile-edit
+          *ngIf="isEditMode"
+          [userProfile]="userProfile"
+          (isCancleEdit)="toggleEditMode()"
+          (profileUpdated)="onProfileUpdated()"
+        ></app-profile-edit>
+      </div>
+
+      <div *ngIf="!state.loading && state.error" class="empty-state">
+        <h3 class="not-load">
+          Oops! Could not load profile.
+        </h3>
+        <p class="state-error">{{ state.error }}</p>
+        <button
+          class="btn-save"
+          style="margin-top: 15px"
+          (click)="fetchUserProfile()"
+        >
+          Retry
+        </button>
+      </div>
     </div>
+  </ng-container>
+</ng-container>
+
+<ng-container *appRole="roleEnum.Vendor">
+  <app-vendor-profile></app-vendor-profile>
 </ng-container>

@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.custom-field-width {
+  width: 100%;
+}
+
+h4 {
+  color: #1e293b !important;
+  font-size: 1.25rem !important;
+}
+
+@media (min-width: 768px) {
+  .custom-field-width {
+    width: 95%;
+  }
+}
+
+::ng-deep .search-option-wrapper {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: #ffffff !important;
+  z-index: 1000 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 4px 12px !important;
+  cursor: default !important;
+}
+
+::ng-deep .search-option-wrapper .mdc-list-item__primary-text {
+  width: 100% !important;
+}
+
+::ng-deep .search-option-wrapper .mdc-checkbox,
+::ng-deep .search-option-wrapper .mat-mdc-option-pseudo-checkbox {
+  display: none !important;
+}
+
+::ng-deep .mat-mdc-select-panel {
+  padding-top: 0 !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-form-field-flex {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+::ng-deep .search-mat-field {
+  margin: 0 !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-text-field-wrapper {
+  padding: 0 12px !important;
+}
+
+::ng-deep .search-mat-field .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}

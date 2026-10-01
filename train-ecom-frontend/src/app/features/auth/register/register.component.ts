@@ -1,21 +1,21 @@
 import { Component, inject } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
-
-export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const password = control.get('password')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-
-  return password === confirmPassword ? null : { passwordMismatch: true };
-};
-
+import { getFieldError, noSpaceAllow, passwordMatchValidator, trimControlValue } from '../register.utils';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
   registerForm!: FormGroup;
@@ -27,28 +27,44 @@ export class RegisterComponent {
   isPasswordVisible: boolean = false;
   isConfirmPasswordVisible: boolean = false;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
-    this.validateForm();
+    this.initializeForm();
   }
 
-  private validateForm() {
-    this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^[a-zA-Z\s]+$/)]],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [
-        Validators.required, 
-        Validators.minLength(6),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/)
-      ]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: passwordMatchValidator }
+  private initializeForm() {
+    this.registerForm = this.fb.group(
+      {
+        name: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(3),
+            noSpaceAllow(),
+            Validators.pattern(/^[a-zA-Z\s]+$/),
+          ],
+        ],
+        phoneNumber: [
+          '',
+          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)],
+        ],
+        email: ['', [Validators.required, Validators.email]],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.pattern(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            ),
+          ],
+        ],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: passwordMatchValidator },
     );
   }
-
-
 
   onSubmit() {
     if (this.registerForm.invalid) {
@@ -70,12 +86,31 @@ export class RegisterComponent {
     this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
   }
 
-  allowOnlyNumbers(event: any): boolean {
-    const charCode = (event.which) ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+  allowOnlyNumbers(event: KeyboardEvent): boolean {
+    const isControlKey = [
+      'Backspace',
+      'Tab',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
+    ].includes(event.key);
+    if (isControlKey) {
+      return true;
+    }
+    if (!/^\d$/.test(event.key)) {
       event.preventDefault();
       return false;
     }
     return true;
+  }
+
+  getErrorMessage(controlName: string, label: string): string {
+    const control = this.registerForm.get(controlName);
+    return getFieldError(control, label);
+  }
+
+  onBlurTrim(contronName: string): void {
+    const control = this.registerForm.get(contronName);
+    trimControlValue(control);
   }
 }

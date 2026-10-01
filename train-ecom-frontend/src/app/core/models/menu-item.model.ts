@@ -5,4 +5,5 @@ export interface MenuItem {
   icon: string;
   route: string;
   role?: Role;
+  disabled?: boolean;
 }

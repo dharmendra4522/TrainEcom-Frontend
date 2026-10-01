@@ -4,11 +4,14 @@ import { Store } from '@ngrx/store';
 import { selectUserRole } from '../../../core/store/auth/auth.selectors';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, takeUntil, shareReplay, map } from 'rxjs/operators';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, combineLatest } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { SidePanelComponent } from '../../components/side-panel/side-panel.component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { getRoleMenuItems } from '../../../core/config/role-permission.config';
+import { Role } from '../../../core/models/auth.model';
+import { normalizeRole } from '../../../core/utils/role.utils';
 @Component({
   selector: 'app-main-layout',
   templateUrl: './main-layout.component.html',
@@ -23,11 +26,28 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   sidebarTitle: string = '';
 
-  userRole$: Observable<string | null> = this.store.select(selectUserRole);
+  userRole$: Observable<string | number | null> = this.store.select(selectUserRole);
+
+  // Computed boolean role observables — used in template instead of string comparisons 
+  isAdminRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Admin),
+  );
+  isVendorRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Vendor),
+  );
+  isCustomerRole$: Observable<boolean> = this.userRole$.pipe(
+    map((role) => normalizeRole(role as string | number | null | undefined) === Role.Customer),
+  );
+  // True when user is Admin or Vendor — hides footer & search bar 
+  isManagementRole$: Observable<boolean> = combineLatest([this.isAdminRole$, this.isVendorRole$]).pipe(
+    map(([isAdmin, isVendor]) => isAdmin || isVendor),
+  );
+
   isAccountRoute: boolean = false;
+  isVendorRoute: boolean = false;
+  isAdminRoute: boolean = false;
   isDetailsOrFormRoute: boolean = false;
   isCheckoutRoute: boolean = false;
-  currentMenuItems: MenuItem[] = [];
 
   @ViewChild('drawer') drawer!: MatSidenav;
   isSidebarOpened: boolean = true;
@@ -36,28 +56,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   @ViewChild('cartPanel') cartPanel!: SidePanelComponent;
   @ViewChild('notificationPanel') notificationPanel!: SidePanelComponent;
 
-  adminMenuItems: MenuItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/admin/dashboard' },
-    { label: 'Products', icon: 'inventory_2', route: '/admin/products' },
-    { label: 'Brands', icon: 'branding_watermark', route: '/admin/brands' },
-    { label: 'Categories', icon: 'category', route: '/admin/categories' },
-    { label: 'Manage Users', icon: 'people', route: '/admin/users' },
-    { label: 'Manage Orders', icon: 'shopping_cart', route: '/admin/orders' },
-    { label: 'Platform Analytics', icon: 'bar_chart', route: '/admin/reports' },
-    { label: 'Notifications', icon: 'notifications', route: '/admin/notifications-history' },
-  ];
+  menuItems$: Observable<MenuItem[]> = combineLatest([this.userRole$]).pipe(
+    map(([role]) => {
+      const vendorStatus = localStorage.getItem('vendorStatus') || 'Pending';
+      return getRoleMenuItems(role as Role | null, vendorStatus);
+    }),
+  );
 
-  consumerMenuItems: MenuItem[] = [
-    { label: 'My Profile', icon: 'person', route: '/account/profile' },
-    { label: 'My Addresses', icon: 'location_on', route: '/account/address' },
-    { label: 'My Wishlists', icon: 'favorite', route: '/account/wishlist' },
-    { label: 'My Cart', icon: 'shopping_cart', route: '/account/cart' },
-    { label: 'My Orders', icon: 'shopping_bag', route: '/account/orders' },
-    { label: 'My Notifications', icon: 'notifications', route: '/account/notifications-history' },
-  ];
 
   isMobile$: Observable<boolean> = this.breakpointObserver
-    .observe(Breakpoints.Handset)
+    .observe('(max-width: 1024px)')
     .pipe(
       map((result: { matches: boolean }) => result.matches),
       shareReplay(),
@@ -75,41 +83,61 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     // Router events ko track karo
     this.router.events
       .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd,
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((event: NavigationEnd) => {
         this.checkAccountRoute(event.urlAfterRedirects);
         this.checkDetailsRoute(event.urlAfterRedirects);
         this.checkCheckoutRoute(event.urlAfterRedirects);
-        
+
         setTimeout(() => {
-          const scrollContainers = document.querySelectorAll('mat-sidenav-content, .mat-mdc-sidenav-content, .mat-drawer-content');
-          scrollContainers.forEach(container => {
+          const scrollContainers = document.querySelectorAll(
+            'mat-sidenav-content, .mat-mdc-sidenav-content, .mat-drawer-content',
+          );
+          scrollContainers.forEach((container) => {
             container.scrollTo({ top: 0, behavior: 'instant' });
           });
           window.scrollTo({ top: 0, behavior: 'instant' });
         }, 0);
       });
 
-    this.breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
+    this.breakpointObserver.observe('(max-width: 1024px)').subscribe((result) => {
       this.isSidebarOpened = !result.matches;
     });
   }
 
-  // Private methods to check the current route
-  private checkAccountRoute(url: string): void {
-    this.isAccountRoute = url.includes('/account') || 
-                          url.includes('/cart') || 
-                          url.includes('/checkout') || 
-                          url.includes('/orders');
+  private checkRouteTypes(url: string): void {
+    this.isAdminRoute = url.includes('/admin');
+    this.isVendorRoute = url.includes('/vendor');
+    this.isAccountRoute =
+      url.includes('/account') ||
+      url.includes('/cart') ||
+      url.includes('/checkout') ||
+      url.includes('/orders');
+    this.isCheckoutRoute = url.includes('/checkout');
+
+    const basePath = url.split('?')[0];
+    this.isDetailsOrFormRoute =
+      basePath.includes('/products/') && basePath !== '/products';
   }
 
+  // Private methods to check the current route
+  private checkAccountRoute(url: string): void {
+    this.isAccountRoute =
+      url.includes('/account') ||
+      url.includes('/cart') ||
+      url.includes('/checkout') ||
+      url.includes('/orders');
+  }
 
   // Private method to check if the current route is a product details or form route
   private checkDetailsRoute(url: string): void {
     const basePath = url.split('?')[0];
-    this.isDetailsOrFormRoute = basePath.includes('/products/') && basePath !== '/products';
+    this.isDetailsOrFormRoute =
+      basePath.includes('/products/') && basePath !== '/products';
   }
 
   // Private method to check if the current route is a checkout route
@@ -119,11 +147,20 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
 
   // Method to determine if the sidebar should be shown based on the user's role and current route
-  shouldShowSidebar(role: string | null): boolean {
+  shouldShowSidebar(role: string | number | null): boolean {
+    const normalizedRole = normalizeRole(role as string | number | null | undefined);
     if (this.isCheckoutRoute) return false;
-    if (role === 'Admin') return true;
-    if (role === 'Customer' && this.isAccountRoute) return true;
+    if (normalizedRole === Role.Admin) return true;
+    if (normalizedRole === Role.Vendor) return true;
+    if (normalizedRole === Role.Customer && this.isAccountRoute) return true;
     return false;
+  }
+
+  getSidebarType(role: string | number | null): string {
+    const normalizedRole = normalizeRole(role as string | number | null | undefined);
+    if (normalizedRole === Role.Admin) return 'admin';
+    if (normalizedRole === Role.Vendor) return 'vendor';
+    return 'customer';
   }
 
   ngOnDestroy(): void {

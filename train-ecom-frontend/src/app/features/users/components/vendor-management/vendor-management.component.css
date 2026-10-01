@@ -1,0 +1,7 @@
+.vendor-filter-section {
+	position: sticky;
+	top: 49px;
+	z-index: 900;
+	padding: 15px 0 10px;
+	background-color: #ffffff;
+}

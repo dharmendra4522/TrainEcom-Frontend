@@ -1,5 +1,5 @@
 export interface Brand extends Record<string, unknown> {
-  id: string;
+  id: number | string;
   name: string;
   description: string;
   productCount?: number;

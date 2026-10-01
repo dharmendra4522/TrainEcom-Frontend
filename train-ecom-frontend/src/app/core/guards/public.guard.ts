@@ -1,8 +1,14 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { selectIsLoggedIn, selectUserRole } from '../store/auth/auth.selectors';
+import {
+  selectAuthStatus,
+  selectIsLoggedIn,
+  selectUserRole,
+} from '../store/auth/auth.selectors';
 import { map, take, withLatestFrom } from 'rxjs/operators';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);
@@ -10,12 +16,22 @@ export const publicGuard: CanActivateFn = (route, state) => {
 
   return store.select(selectIsLoggedIn).pipe(
     take(1),
-    withLatestFrom(store.select(selectUserRole)),
+    withLatestFrom(
+      store.select(selectUserRole),
+      store.select(selectAuthStatus),
+    ),
     map(([isLoggedIn, role]) => {
       if (isLoggedIn && role) {
-        return role === 'Admin'
-          ? router.createUrlTree(['/admin/dashboard'])
-          : router.createUrlTree(['/']);
+        const normalizedRole = normalizeRole(role as string | number | null | undefined);
+
+        if (normalizedRole === Role.Admin) {
+          return router.createUrlTree(['/admin/dashboard']);
+        }
+
+        if (normalizedRole === Role.Vendor) {
+          return router.createUrlTree(['/vendor/dashboard']);
+        }
+        return router.createUrlTree(['/']);
       }
       return true;
     }),

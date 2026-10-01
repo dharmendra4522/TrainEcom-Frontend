@@ -1,0 +1,121 @@
+<section
+  class="vendor-step d-flex flex-column gap-3"
+  [formGroup]="registerForm"
+>
+  <h4 class="fw-bold text-primary border-bottom pb-2">
+    Business and Store Details
+  </h4>
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Business Name</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">business</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="businessName"
+          placeholder="Business Name"
+          [disabled]="isEditMode"
+          (blur)="onBlurTrim('businessName')"
+        />
+        <mat-error>
+          {{ getErrorMessage("businessName", "Business Name") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Display Name</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">storefront</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="displayName"
+          placeholder="Ex.-TraniEcom Private Limited"
+          (blur)="onBlurTrim('displayName')"
+        />
+        <mat-error>
+          {{ getErrorMessage("displayName", "Display Name") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+ <!-- select category -->
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Select Business Category</mat-label>
+    <mat-icon matIconPrefix class="me-2 text-secondary">category</mat-icon>
+    <mat-select formControlName="businessCategory" multiple>
+      
+      <mat-option 
+        class="search-option-wrapper" 
+        (click)="$event.stopPropagation()" 
+        (keydown)="$event.stopPropagation()"
+      >
+        <mat-form-field
+          appearance="outline"
+          class="w-100 search-mat-field"
+          subscriptSizing="dynamic"
+        >
+          <input
+            matInput
+            [formControl]="categoryFilter"
+            placeholder="Search category..."
+            (click)="$event.stopPropagation()"
+            (keydown)="$event.stopPropagation()"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </mat-option>
+
+      <!-- Filtered Categories Loop -->
+      <mat-option
+        *ngFor="let category of filteredCategories"
+        [value]="category.id"
+      >
+        {{ category.name }}
+      </mat-option>
+    </mat-select>
+    <mat-error>
+      {{ getErrorMessage("businessCategory", "Business Category") }}
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Business Description</mat-label>
+    <textarea
+      matInput
+      formControlName="bussinessDescription"
+      placeholder="Ex. About Your Shop and Quality....."
+      (blur)="onBlurTrim('bussinessDescription')"
+    ></textarea>
+    <mat-error>
+      {{ getErrorMessage("bussinessDescription", "Business Description") }}
+    </mat-error>
+  </mat-form-field>
+
+  <div class="d-flex justify-content-end align-items-center gap-2 mt-3" *ngIf="!isEditMode">
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      class="px-4 py-2"
+      (click)="onPrev()"
+    >
+      Back
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="px-5 py-2"
+      [disabled]="!isStep2Valid"
+      (click)="onNext()"
+    >
+      Next
+    </button>
+  </div>
+</section>

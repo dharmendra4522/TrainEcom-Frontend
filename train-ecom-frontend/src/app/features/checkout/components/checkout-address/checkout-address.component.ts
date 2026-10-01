@@ -22,21 +22,21 @@ export class CheckoutAddressComponent {
 
   // take addresses list  and selectedAddressId as input from parent component
   @Input() addresses: Address[] = [];
-  @Input() selectedAddressId: string | null = null;
+  @Input() selectedAddressId: string | number | null = null;
 
   //  Events to notify the parent component of an action
-  @Output() selectAddress = new EventEmitter<string>();
+  @Output() selectAddress = new EventEmitter<string | number>();
   @Output() addAddress = new EventEmitter<AddressFormResult>();
   @Output() updateAddress = new EventEmitter<{
-    id: string;
+    id: string | number;
     address: AddressFormResult;
   }>();
-  @Output() removeAddress = new EventEmitter<string>();
+  @Output() removeAddress = new EventEmitter<string | number>();
 
   //Returns the currently selected address object for display in the UI.
   get selectedAddress(): Address | undefined {
     return this.addresses.find(
-      (address) => address.id === this.selectedAddressId,
+      (address) => address.id === this.selectedAddressId
     );
   }
 
@@ -47,7 +47,7 @@ export class CheckoutAddressComponent {
         label: 'Full Name',
         type: 'text',
         value: address?.fullName || '',
-        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]
       },
       {
         key: 'phone',
@@ -55,34 +55,34 @@ export class CheckoutAddressComponent {
         type: 'text',
         value: address?.phone || '',
         validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
-        maxLength: 10,
+        maxLength: 10
       },
       {
         key: 'addressLine1',
         label: 'Address Line 1',
         type: 'text',
         value: address?.addressLine1 || '',
-        validation: [Validators.required],
+        validation: [Validators.required]
       },
       {
         key: 'addressLine2',
         label: 'Address Line 2 (Optional)',
         type: 'text',
-        value: address?.addressLine2 || '',
+        value: address?.addressLine2 || ''
       },
       {
         key: 'city',
         label: 'City',
         type: 'text',
         value: address?.city || '',
-        validation: [Validators.required],
+        validation: [Validators.required]
       },
       {
         key: 'state',
         label: 'State',
         type: 'text',
         value: address?.state || '',
-        validation: [Validators.required],
+        validation: [Validators.required]
       },
       {
         key: 'postalCode',
@@ -90,8 +90,8 @@ export class CheckoutAddressComponent {
         type: 'text',
         value: address?.postalCode || '',
         maxLength: 6,
-        validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
-      },
+        validation: [Validators.required, Validators.pattern(/^\d{6}$/)]
+      }
     ];
   }
 
@@ -100,7 +100,7 @@ export class CheckoutAddressComponent {
     return {
       title: isEdit ? 'Update Address' : 'Add New Address',
       submitButtonText: isEdit ? 'Update Address' : 'Save Address',
-      fields: this.getAddressFields(address),
+      fields: this.getAddressFields(address)
     };
   }
 
@@ -110,7 +110,7 @@ export class CheckoutAddressComponent {
       items: this.addresses,
       selectedId: this.selectedAddressId || '',
       displayKey: 'fullName',
-      addButtonLabel: 'Add New Address',
+      addButtonLabel: 'Add New Address'
     };
     this.dialog
       .open<
@@ -123,24 +123,24 @@ export class CheckoutAddressComponent {
       })
       .afterClosed()
       .pipe(take(1))
-      .subscribe((result: any) => {
+      .subscribe((result: 'add' | { action?: string; item?: Address; id?: number } | null | undefined) => {
         if (!result) return;
 
         setTimeout(() => {
           if (result === 'add') {
             this.onAddNewAddress();
-          } else if (result.action === 'edit') {
+          } else if (typeof result === 'object' && result.action === 'edit' && result.item) {
             this.onAddNewAddress(result.item); // Edit dialog open
-          } else if (result.action === 'delete') {
+          } else if (typeof result === 'object' && result.action === 'delete' && result.item) {
             this.deleteAddress(result.item.id); // Delete method call
-          } else if (result.id) {
+          } else if (typeof result === 'object' && result.id !== undefined) {
             this.selectAddress.emit(result.id);
           }
         }, 50);
       });
   }
 
-  deleteAddress(id: string): void {
+  deleteAddress(id: string | number): void {
     this.removeAddress.emit(id);
   }
 
@@ -149,7 +149,7 @@ export class CheckoutAddressComponent {
     this.dialog
       .open(GenericDialogComponent, {
         width: '550px',
-        data: dialogConfig,
+        data: dialogConfig
       })
       .afterClosed()
       .pipe(take(1))

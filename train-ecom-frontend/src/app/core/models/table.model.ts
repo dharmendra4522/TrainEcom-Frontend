@@ -1,9 +1,12 @@
 import { AdminUser } from '../models/user.model';
+import { Role } from './auth.model';
 export interface TableColumn {
   key: string;
   label: string;
   type?: 'text' | 'image' | 'badge' | 'currency' | 'date' | number | string;
   truncate?: boolean;
+  sortable?: boolean;
+  role?: Role;
   badgeClassKey?: string;
 }
 
@@ -11,6 +14,7 @@ export interface TableAction<T = unknown> {
   actionKey: string;
   icon: string | ((row: T) => string);
   color: 'primary' | 'warn' | 'accent' | ((row: T) => string);
+  disabled?: boolean | ((row: T) => boolean);
   tooltip?: string;
   label?: string | ((row: T) => string);
 }
@@ -23,3 +27,4 @@ export interface BreadcrumbItem {
   label: string;
   url?: string;
 }
+

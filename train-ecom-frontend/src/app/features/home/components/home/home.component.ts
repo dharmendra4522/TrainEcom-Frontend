@@ -1,10 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Product } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
 import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
-import * as ProductActions from '../../../../core/store/product/product.action';
-import { selectAllProducts, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import { map, Observable, take, switchMap, forkJoin, of, catchError } from 'rxjs';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
@@ -71,22 +68,25 @@ export class HomeComponent implements OnInit {
     })
   );
 
-  ngOnInit() {
+ngOnInit() {
+  this.initStoreData();
+}
 
-    this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
-      if (!brands || brands.length === 0) {
-        this.store.dispatch(BrandActions.loadBrands());
-      }
-    });
+private initStoreData(): void {
+  this.store.select(selectAllBrands).pipe(take(1)).subscribe(brands => {
+    if (!brands || brands.length === 0) {
+      this.store.dispatch(BrandActions.loadBrands());
+    }
+  });
 
-    this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
-      if (!categories || categories.length === 0) {
-        this.store.dispatch(CategoryActions.loadCategories());
-      }
-    });
-  }
+  this.store.select(selectAllCategories).pipe(take(1)).subscribe(categories => {
+    if (!categories || categories.length === 0) {
+      this.store.dispatch(CategoryActions.loadCategories());
+    }
+  });
+}
 
-  onBannerBuyNow() {
+  onBannerBuyNow(): void {
     console.log('Buy Now button clicked from banner');
   }
 }

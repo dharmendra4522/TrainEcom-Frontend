@@ -47,7 +47,7 @@ export const createBrandFailure = createAction(
 
 export const updateBrand = createAction(
   `[Brand] Update Brand`,
-  props<{ brandId: string; brand: Brand }>(),
+  props<{ brandId: string | number; brand: Brand }>(),
 )
 
 
@@ -64,12 +64,12 @@ export const updateBrandFailure = createAction(
 
 export const deleteBrand = createAction(
   `[Brand] Delete Brand`,
-  props<{ brandId: string }>(),
+  props<{ brandId: string | number }>(),
 );
 
 export const deleteBrandSuccess = createAction(
   `[Brand] Delete Brand Success`,
-  props<{ brandId: string }>(),
+  props<{ brandId: string | number }>(),
 );
 
 export const deleteBrandFailure = createAction(

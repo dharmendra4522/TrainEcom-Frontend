@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order.model';
+import { OrderDetailsResponse, OrderStatus, PaymentMethod, PaymentStatus } from '../../../../core/models/order.model';
 import { BreadcrumbItem } from '../../../../core/models/table.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
@@ -13,6 +13,10 @@ import { ReviewRatingDialogComponent } from '../../../../shared/components/revie
 import { ReviewService } from '../../../../core/services/review.service';
 import { Review } from '../../../../core/models/review.model';
 import { Location } from '@angular/common';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
+import { normalizeOrderStatus, normalizePaymentMethod, normalizePaymentStatus } from '../../../../core/utils/role.utils';
+
 
 @Component({
   selector: 'app-order-details',
@@ -24,22 +28,23 @@ export class OrderDetailsComponent {
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  private router = inject(Router);
   private reviewService = inject(ReviewService);
   private location = inject(Location);
+  private portalRoutes = inject(PortalRouteService);
 
 
   orderDetail: OrderDetailsResponse | null = null;
   isCancelling: boolean = false;
-  isAdmin: boolean = false;
+  isManagementMode: boolean = false;
+  portal: PortalKey = 'admin';
 
   get breadcrumbs(): BreadcrumbItem[] {
-    const parentRoute = this.isAdmin
-      ? { label: 'Manage Orders', url: '/admin/orders' }
+    const parentRoute = this.isManagementMode
+      ? { label: 'Manage Orders', url: `/${this.portal}/orders/manage` }
       : { label: 'My Orders', url: '/account/orders/history' };
 
     const orderIdLabel = this.orderDetail?.orderId
-      ? `Order #${this.orderDetail.orderId.slice(0, 8)}`
+      ? `Order #${String(this.orderDetail.orderId).slice(0, 8)}`
       : 'Order Details';
 
     return [
@@ -59,12 +64,15 @@ export class OrderDetailsComponent {
 
   // check routes for admin or customer
   private setRouteContext(): void {
-    // Snapshot ensures isAdmin is set before deciding which endpoint to call.
-    this.isAdmin = !!this.route.snapshot.data['isAdmin'];
+    this.isManagementMode = this.route.snapshot.data['pageMode'] === 'management';
+    this.portal = this.portalRoutes.currentPortal() ?? 'admin';
   }
 
-  private loadOrderDetails(orderId: string): void {
-    const orderObservable = this.isAdmin ? this.orderService.getAdminOrderDetails(orderId) : this.orderService.getOrderDetails(orderId);
+  private loadOrderDetails(orderId: string | number): void {
+    const normalizedOrderId = String(orderId);
+    const orderObservable = this.isManagementMode
+      ? this.orderService.getManagedOrderDetails(this.portal, normalizedOrderId)
+      : this.orderService.getOrderDetails(normalizedOrderId);
     orderObservable.subscribe({
       next: (response) => {
         if (response && response.orderDate && !response.orderDate.includes('+')) {
@@ -81,8 +89,9 @@ export class OrderDetailsComponent {
     });
   }
 
-  getStatusClass(orderStatus: string): string {
-    switch (orderStatus?.toLowerCase()) {
+  getStatusClass(orderStatus: OrderStatus | string | number): string {
+    const statusStr = normalizeOrderStatus(orderStatus).toLowerCase();
+    switch (statusStr?.toLowerCase()) {
       case 'confirmed':
         return 'bg-primary-subtle text-primary border border-primary-subtle';
       case 'processing':
@@ -104,7 +113,7 @@ export class OrderDetailsComponent {
     this.location.back();
   }
 
-  onCancelOrder(orderId: string): void {
+  onCancelOrder(orderId: string | number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -116,13 +125,13 @@ export class OrderDetailsComponent {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.isCancelling = true;
-        this.orderService.cancelOrder(orderId).subscribe({
+        this.orderService.cancelOrder(String(orderId)).subscribe({
           next: () => {
             this.isCancelling = false;
             this.notification.showSuccess('Order cancelled successfully.');
             if (this.orderDetail) {
               this.orderDetail.orderStatus = OrderStatus.Cancelled;
-              this.loadOrderDetails(orderId);
+              this.loadOrderDetails(String(orderId));
             }
           },
           error: (error) => {
@@ -155,7 +164,12 @@ export class OrderDetailsComponent {
       width: 'min(92vw, 460px)',
       maxWidth: '95vw',
       height: '500px',
-      data: { orderId: this.orderDetail.orderId, currentStatus: this.orderDetail.orderStatus }
+      data: {
+        orderId: this.orderDetail.orderId,
+        currentStatus: this.orderDetail.orderStatus,
+        portal: this.portal
+        
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -166,9 +180,9 @@ export class OrderDetailsComponent {
   }
 
   // Open dialog for user to add/edit review or admin to view review details
-  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string; rating: number; review: string }): void {
+  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string | number; rating: number; review: string }): void {
     if (reviewSummary?.reviewId) {
-      this.reviewService.getReviewById(reviewSummary.reviewId).subscribe({
+      this.reviewService.getReviewById(String(reviewSummary.reviewId)).subscribe({
         next: (reviewData: Review) => {
           this.showDialog(productId, productName, reviewData.rating, reviewData.review, true, reviewSummary.reviewId);
         }, error: (error) => {
@@ -188,7 +202,7 @@ export class OrderDetailsComponent {
     existingRating?: number,
     existingReview?: string,
     isEdit: boolean = false,
-    reviewId?: string): void {
+    reviewId?: string | number): void {
     const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
       width: '420px',
       data: { productId, productName, existingRating, existingReview, isEdit, reviewId }
@@ -205,12 +219,12 @@ export class OrderDetailsComponent {
     productId: string | number,
     result: { rating: number; review: string },
     isEdit: boolean,
-    reviewId?: string
+    reviewId?: string | number
   ): void {
     const pauload = { rating: result.rating, review: result.review };
 
     if (isEdit && reviewId) {
-      this.reviewService.updateReview(reviewId, pauload).subscribe({
+      this.reviewService.updateReview(String(reviewId), pauload).subscribe({
         next: (response) => {
           this.notification.showSuccess(response.Message || 'Review updated successfully');
           this.reloadDetails();
@@ -272,5 +286,25 @@ export class OrderDetailsComponent {
         });
       }
     });
+  }
+
+  // getter to check if the order is delivered
+  get isDelivered(): boolean {
+    return this.orderDetail?.orderStatus === OrderStatus.Delivered;
+  }
+  
+  // normalize the payment method for display
+  getNormalizePaymentMathod(status: PaymentMethod): string {
+    return normalizePaymentMethod(status);
+  }
+
+  // normalize payment status for display
+  getNormalizePaymentStatus(status: PaymentStatus): string {
+    return normalizePaymentStatus(status);
+  }
+
+
+  get formattedOrderStatus(): string {
+    return this.orderDetail ? normalizeOrderStatus(this.orderDetail.orderStatus) : '';
   }
 }

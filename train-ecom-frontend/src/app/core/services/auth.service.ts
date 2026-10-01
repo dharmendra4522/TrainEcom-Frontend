@@ -3,11 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   ApiBasicResponse,
-  loginRequest,
-  loginResponse,
-  registerRequest,
-  registerResponse,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
   ResetPasswordRequest,
+  VendorRegisterResponse,
+  RegistrationRole,
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 import { HttpContext } from '@angular/common/http';
@@ -21,27 +23,47 @@ export class AuthService {
   private registerAPI = `${environment.apiBaseUrl}/auth/register`;
   private forgotPasswordAPI = `${environment.apiBaseUrl}/auth/forgot-password`;
   private resetPasswordAPI = `${environment.apiBaseUrl}/auth/reset-password`;
+  private vendorRegistrationAPI = `${environment.apiBaseUrl}/auth/register`;
 
   private http = inject(HttpClient);
 
-  login(credentials: loginRequest): Observable<loginResponse> {
-    return this.http.post<loginResponse>(this.loginAPI, credentials, {
-      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(this.loginAPI, credentials, {
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
     });
   }
 
-  register(userData: registerRequest): Observable<registerResponse> {
-    return this.http.post<registerResponse>(this.registerAPI, userData, {
-      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
+  register(userData: RegisterRequest): Observable<RegisterResponse> {
+    const payload = new FormData();
+    payload.append('Name', userData.name ?? '');
+    payload.append('Email', userData.email ?? '');
+    payload.append('Password', userData.password ?? '');
+    payload.append('ConfirmPassword', userData.confirmPassword ?? '');
+    payload.append('PhoneNumber', userData.phoneNumber ?? '');
+    payload.append('Role', String(RegistrationRole.Customer));
+
+    return this.http.post<RegisterResponse>(this.registerAPI, payload, {
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
     });
   }
 
-  sendForgotPasswordOtp(email: string): Observable<ApiBasicResponse>{
+  sendForgotPasswordOtp(email: string): Observable<ApiBasicResponse> {
     return this.http.post<ApiBasicResponse>(this.forgotPasswordAPI, { email });
   }
 
-  resetPasswordWithOtp(payload: ResetPasswordRequest): Observable<ApiBasicResponse>{
+  resetPasswordWithOtp(
+    payload: ResetPasswordRequest,
+  ): Observable<ApiBasicResponse> {
     return this.http.post<ApiBasicResponse>(this.resetPasswordAPI, payload);
   }
 
+  vendorRegister(formData: FormData): Observable<VendorRegisterResponse> {
+    return this.http.post<VendorRegisterResponse>(
+      this.vendorRegistrationAPI,
+      formData,
+      {
+        context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
+      },
+    );
+  }
 }

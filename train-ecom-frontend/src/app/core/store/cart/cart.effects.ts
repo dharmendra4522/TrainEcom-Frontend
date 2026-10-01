@@ -17,12 +17,15 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs';
+import { CartResponse, CartWarning } from '../../models/cart.model';
+import { Role } from '../../models/auth.model';
 import {
   selectCartLoaded,
   selectCartItems,
   selectCartTotalQuantity,
   selectCartTotalAmount,
 } from './cart.selectors';
+import { normalizeRole } from '../../utils/role.utils';
 
 @Injectable()
 export class CartEffects {
@@ -35,9 +38,10 @@ export class CartEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        filter(
-          ({ payload }) => payload.role?.toString().toLowerCase() !== 'admin',
-        ),
+        filter(({ payload }) => {
+          const role = normalizeRole(payload.role);
+          return role !== Role.Admin && role !== Role.Vendor;
+        }),
         tap(() => this.cartService.loadCart()),
       ),
     { dispatch: false },
@@ -89,7 +93,7 @@ export class CartEffects {
       ofType(CartActions.addToCart),
       mergeMap((action) => {
         return this.cartService
-          .addToCart(action.productId, action.quantity, action.productDetails)
+          .addToCart(String(action.productId), action.quantity, action.productDetails)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -123,7 +127,7 @@ export class CartEffects {
       ofType(CartActions.updateCartItem),
       concatMap((action) => {
         return this.cartService
-          .updateCartItem(action.itemId, action.quantity)
+          .updateCartItem(String(action.itemId), action.quantity)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -160,7 +164,7 @@ export class CartEffects {
     return this.actions$.pipe(
       ofType(CartActions.deleteCartItem),
       mergeMap((action) => {
-        return this.cartService.deleteCartItem(action.itemId).pipe(
+        return this.cartService.deleteCartItem(String(action.itemId)).pipe(
           switchMap((response) => {
             return this.cartService.getCartItems().pipe(
               map((cartResponse) => {
@@ -226,9 +230,9 @@ export class CartEffects {
       ofType(CartActions.mergeCart),
       exhaustMap((action) => {
         return this.cartService.mergeCart(action.cartItems).pipe(
-          switchMap((response: any) => {
+          switchMap((response: CartResponse) => {
             if (response && response.warnings && response.warnings.length > 0) {
-              response.warnings.forEach((warning: any) => {
+              response.warnings.forEach((warning: CartWarning) => {
                 this.notification.showWarning(
                   warning.message || `Stock issue with ${warning.productName}`,
                   'Close',
@@ -259,3 +263,4 @@ export class CartEffects {
     );
   });
 }
+

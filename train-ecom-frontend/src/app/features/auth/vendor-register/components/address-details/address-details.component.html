@@ -1,0 +1,141 @@
+<section
+  class="vendor-step d-flex flex-column gap-3"
+  [formGroup]="registerForm"
+>
+  <h4 class="fw-bold text-primary border-bottom pb-2">Business Address</h4>
+
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Address Line 1</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">home</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="addressLine1"
+          (blur)="onBlurTrim('addressLine1')"
+        />
+        <mat-error>
+          {{ getErrorMessage("addressLine1", "Address Line 1") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Address Line 2 (Optional)</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">home</mat-icon>
+        <input
+          matInput
+          type="text"
+          formControlName="addressLine2"
+          (blur)="onBlurTrim('addressLine2')"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Country</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">public</mat-icon>
+        <mat-select
+          formControlName="country"
+          (selectionChange)="onCountryChange($event)"
+        >
+          <mat-option
+            *ngFor="let country of countries"
+            [value]="country.name"
+            >{{ country.name }}</mat-option
+          >
+        </mat-select>
+        <mat-error>
+          {{ getErrorMessage("country", "Country") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>State</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">map</mat-icon>
+        <mat-select
+          formControlName="state"
+          (selectionChange)="onStateChange($event)"
+        >
+          <mat-option *ngFor="let state of states" [value]="state.name">{{
+            state.name
+          }}</mat-option>
+        </mat-select>
+        <mat-error>
+          {{ getErrorMessage("state", "State") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="row gx-4 gy-3 justify-content-between">
+    <div
+      class="col-md-6 d-flex justify-content-md-start justify-content-center"
+    >
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>City</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary">location_city</mat-icon>
+        <mat-select formControlName="city">
+          <mat-option *ngFor="let city of cities" [value]="city.name">{{
+            city.name
+          }}</mat-option>
+        </mat-select>
+        <mat-error>
+          {{ getErrorMessage("city", "City") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
+      <mat-form-field appearance="outline" class="custom-field-width">
+        <mat-label>Postal Code</mat-label>
+        <mat-icon matIconPrefix class="me-2 text-secondary"
+          >markunread_mailbox</mat-icon
+        >
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          formControlName="postalCode"
+          placeholder="Ex. 123456"
+          maxlength="6"
+        />
+        <mat-error>
+          {{ getErrorMessage("postalCode", "Postal Code") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="d-flex justify-content-end gap-2 align-items-center mt-3" *ngIf="!isEditMode">
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      class="px-4 py-2"
+      (click)="onPrev()"
+    >
+      Back
+    </button>
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="px-5 py-2"
+      [disabled]="!isStep3Valid"
+      (click)="onNext()"
+    >
+      Next
+    </button>
+  </div>
+</section>

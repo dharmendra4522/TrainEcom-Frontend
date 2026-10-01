@@ -110,7 +110,6 @@
   }
 }
 
-
 .text-truncate-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -153,12 +152,28 @@ tr.cursor-pointer {
   }
 }
 
-/* Hide scrollbar for the table container but keep it scrollable */
 .table-scroll-container {
-  -ms-overflow-style: none;  
-  scrollbar-width: none; 
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .table-scroll-container::-webkit-scrollbar {
-  display: none; 
+  display: none;
+}
+
+.progress-bar {
+  height: 3px;
+  width: 100%;
+  background: transparent;
+  z-index: 1050;
+  position: relative;
+}
+
+.table-row-hover:hover {
+  background-color: #f8fafc !important;
+}
+
+.table-row-hover:hover .font-monospace {
+  color: #0d6efd !important;
+  text-decoration: underline !important;
 }

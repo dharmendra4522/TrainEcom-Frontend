@@ -4,6 +4,8 @@ import { Store } from '@ngrx/store';
 import { take } from 'rxjs/internal/operators/take';
 import { selectUserRole } from '../store/auth/auth.selectors';
 import { map } from 'rxjs/internal/operators/map';
+import { Role } from '../models/auth.model';
+import { normalizeRole } from '../utils/role.utils';
 
 export const adminGuard: CanActivateFn = (route, state) => {
   const store = inject(Store);
@@ -12,7 +14,8 @@ export const adminGuard: CanActivateFn = (route, state) => {
   return store.select(selectUserRole).pipe(
     take(1),
     map((role) => {
-      if (role === 'Admin') {
+      const normalizedRole = normalizeRole(role as string | number | null | undefined);
+      if (normalizedRole === Role.Admin) {
         return true;
       }
       router.navigate(['/']);

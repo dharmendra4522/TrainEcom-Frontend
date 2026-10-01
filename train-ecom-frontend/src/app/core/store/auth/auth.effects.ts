@@ -1,19 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Store } from '@ngrx/store'; // 🔹 Store import kiya
+import { Store } from '@ngrx/store';
 import { AuthService } from '../../services/auth.service';
 import * as AuthActions from './auth.actions';
-import * as UserActions from '../user/user.actions'; // User Actions import kiya
+import * as UserActions from '../user/user.actions';
 import { catchError, map, exhaustMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
-import { Role } from '../../models/auth.model';
-import { BackendError, UserSessionPayload } from '../../models/auth.model';
+import { LoginResponse, Role } from '../../models/auth.model';
+import { UserSessionPayload } from '../../models/auth.model';
 import { NotificationService } from '../../services/notification.service';
 import { UserService } from '../../services/user.service';
 
 import { extractBackendMessage } from '../../utils/error.utils';
+import { ApprovalStatus } from '../../models/user.model';
+import { normalizeApprovalStatus, normalizeRole } from '../../utils/role.utils';
 
 @Injectable()
 export class AuthEffects {
@@ -21,11 +23,10 @@ export class AuthEffects {
   private authService = inject(AuthService);
   private router = inject(Router);
   private notification = inject(NotificationService);
-  private store = inject(Store); 
+  private store = inject(Store);
   private userService = inject(UserService);
 
-
-  private getErrorMessage(err: any, isLogin: boolean = true): string {
+  private getErrorMessage(err: unknown, isLogin: boolean = true): string {
     return extractBackendMessage(err, 'An error occurred');
   }
 
@@ -34,13 +35,39 @@ export class AuthEffects {
       ofType(AuthActions.loginReq),
       exhaustMap((action) =>
         this.authService.login(action.request).pipe(
-          map((res) => {
-            const roleString = this.decodeRole(res.accessToken);
-            const role = roleString as Role | null;
+          map((res: LoginResponse) => {
+            const role = this.decodeRole(res.accessToken) ?? (normalizeRole(res.role) || null);
+            const vendorStatus =
+              role === Role.Vendor
+                ? ((res.status ?? res.approvalStatus) as ApprovalStatus) || null
+                : null;
+
+            const TIMER_DURATION = 5 * 60 * 1000;
+            const calculatedExpireTime = (
+              new Date().getTime() + TIMER_DURATION
+            ).toString();
 
             localStorage.setItem('accessToken', res.accessToken);
+
+            if (vendorStatus) {
+              localStorage.setItem('vendorStatus', String(vendorStatus));
+            } else {
+              localStorage.removeItem('vendorStatus');
+            }
+            if (res.registrationId)
+              localStorage.setItem('registrationId', res.registrationId);
+            if (res.submittedDate)
+              localStorage.setItem('submittedDate', res.submittedDate);
+            localStorage.setItem('vendor_session_expiry', calculatedExpireTime);
             return AuthActions.loginSuccess({
-              payload: { token: res.accessToken, role },
+              payload: {
+                token: res.accessToken,
+                role,
+                approvalStatus: vendorStatus ?? undefined,
+                submittedDate: res.submittedDate,
+                registrationId: res.registrationId,
+                status: normalizeApprovalStatus(res.status) ?? undefined,
+              },
             });
           }),
           catchError((err) => {
@@ -56,21 +83,24 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(({ payload, isRefresh }: { payload: UserSessionPayload; isRefresh?: boolean }) => {
-          // Session restoration only rehydrates state; it must not redirect or
-          // duplicate the profile request. Cart hydration is handled by CartEffects.
-          if (isRefresh) {
-            return;
-          }
+        tap(
+          ({
+            payload,
+            isRefresh,
+          }: {
+            payload: UserSessionPayload;
+            isRefresh?: boolean;
+          }) => {
+            if (isRefresh) {
+              return;
+            }
 
-          this.store.dispatch(UserActions.loadProfileReq());
+            this.store.dispatch(UserActions.loadProfileReq());
 
-          const role = payload.role
-            ? payload.role.toString().toLowerCase()
-            : '';
-
-          this.router.navigateByUrl(this.getPostLoginRoute(role));
-        }),
+            const role = normalizeRole(payload.role);
+            this.router.navigateByUrl(this.getPostLoginRoute(role));
+          },
+        ),
       ),
     { dispatch: false },
   );
@@ -92,6 +122,10 @@ export class AuthEffects {
         ofType(AuthActions.logout),
         tap(() => {
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('vendorStatus');
+          localStorage.removeItem('vendor_session_expiry');
+          localStorage.removeItem('registrationId');
+          localStorage.removeItem('submittedDate');
           this.userService.clearCache();
           this.router.navigate(['/login']);
         }),
@@ -125,26 +159,39 @@ export class AuthEffects {
       const roleKey =
         'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
-      const rawRole = decoded[roleKey];
+      const rawRole = decoded[roleKey] ?? decoded['role'] ?? decoded['Role'];
       const role = Array.isArray(rawRole) ? rawRole[0] : rawRole;
-      console.log('Decoded Raw Role:', role);
-      return typeof role === 'string' ? (role as Role) : null;
+      return normalizeRole(role as string | number | null | undefined);
     } catch (error) {
       console.error('Token decoding failed:', error);
       return null;
     }
   }
 
-  private getPostLoginRoute(role: string): string {
-    const fallbackRoute = role === 'admin' ? '/admin/dashboard' : '/';
-    const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+  private getPostLoginRoute(role: Role | null): string {
+    let fallbackRoute = '/';
+    if (role === Role.Admin) {
+      fallbackRoute = '/admin/dashboard';
+    } else if (role === Role.Vendor) {
+      fallbackRoute = '/vendor/dashboard';
+    }
+    const returnUrl = this.router.parseUrl(this.router.url).queryParams[
+      'returnUrl'
+    ];
 
-    if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+    if (
+      typeof returnUrl !== 'string' ||
+      !returnUrl.startsWith('/') ||
+      returnUrl.startsWith('//')
+    ) {
       return fallbackRoute;
     }
 
-    if (role === 'admin') {
+    if (role === Role.Admin) {
       return returnUrl.startsWith('/admin') ? returnUrl : fallbackRoute;
+    }
+    if (role === Role.Vendor) {
+      return returnUrl.startsWith('/vendor') ? returnUrl : fallbackRoute;
     }
 
     return returnUrl.startsWith('/admin') ? fallbackRoute : returnUrl;
@@ -160,3 +207,4 @@ export class AuthEffects {
     }
   }
 }
+

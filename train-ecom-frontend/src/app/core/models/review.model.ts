@@ -1,6 +1,6 @@
 export interface Review {
-    reviewId: string;
-    productId: string | number;
+    reviewId: number | string;
+    productId: number | string;
     userName: string;
     rating: number;
     review: string;
@@ -9,7 +9,7 @@ export interface Review {
 }
 
 export interface ProductReviewsResponse {
-    productId: string;
+    productId: number | string;
     averageRating: number;
     totalReviews: number;
     reviews: Review[];
@@ -39,4 +39,6 @@ export interface UpdateReviewResponse {
     Message: string;
 }
 
-export type OrderItemReviewSummary = Pick<Review, 'reviewId' | 'review' | 'rating' >;
+export type OrderItemReviewSummary = Pick<Review, 'reviewId' | 'review' | 'rating'> & {
+    reviewId: string | number;
+};

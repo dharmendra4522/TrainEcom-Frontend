@@ -27,7 +27,7 @@ export const selectProductTotalRecords = createSelector(
 
 export const selectProductById = (productId: string) => createSelector(
   selectProductState,
-  (state: ProductState) => state.products.find(product => product.id === productId)
+  (state: ProductState) => state.products.find(product => product.id?.toString() === productId.toString())
 );
 export const selectProductError = createSelector(
   selectProductState,

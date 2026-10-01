@@ -24,11 +24,22 @@ export class CheckoutService {
   }
 
   placeCartOrder(payload: CreateOrderRequest): Observable<CreateOrderResponse> {
-    return this.http.post<CreateOrderResponse>(`${this.baseAPI}/cart-checkout`, payload);
+    const requestPayload = {
+      ...payload,
+      addressId: Number(payload.addressId),
+      paymentMethod: Number(payload.paymentMethod)
+    };
+    return this.http.post<CreateOrderResponse>(`${this.baseAPI}/cart-checkout`, requestPayload);
   }
 
   placeDirectOrder(payload: BuyNowRequest): Observable<CreateOrderResponse> {
-    return this.http.post<CreateOrderResponse>(`${this.baseAPI}/buy-now`, payload);
+    const requestPayload = {
+      ...payload,
+      addressId: Number(payload.addressId),
+      productId: Number(payload.productId),
+      paymentMethod: Number(payload.paymentMethod)
+    };
+    return this.http.post<CreateOrderResponse>(`${this.baseAPI}/buy-now`, requestPayload);
   }
 
   validateCheckout(): Observable<ValidateCheckoutResponse> {

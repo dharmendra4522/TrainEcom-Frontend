@@ -1,23 +1,21 @@
 export enum PaymentMethod {
-  CashOnDelivery = 'CashOnDelivery',
-  Card = 'Card',
-  UPI = 'UPI',
+  CashOnDelivery = 1,
+  Card = 2,
+  UPI = 3,
 }
 
 export enum OrderStatus {
-  Pending = 'Pending',
-  Confirmed = 'Confirmed',
-  Processing = 'Processing',
-  Shipped = 'Shipped',
-  Delivered = 'Delivered',
-  Cancelled = 'Cancelled',
+  Active = 1,
+  Shipped = 2,
+  Delivered = 3,
+  Cancelled = 4,
 }
 
 export enum PaymentStatus {
-  Pending = 'Pending',
-  Success = 'Success',
-  Cancelled = 'Cancelled',
-  Refunded = 'Refunded',
+  Pending = 1,
+  Success = 2,
+  Refunded = 3,
+  Cancelled = 4,
 }
 
 export interface PaymentSimulationRequest {
@@ -34,29 +32,29 @@ export interface PaymentSimulationResponse {
 }
 
 export interface CreateOrderRequest {
-  addressId: string;
+  addressId: number | string;
   paymentMethod: PaymentMethod;
   transactionId?: string;
 }
 
 export interface BuyNowRequest {
-  addressId: string;
-  productId: string;
+  addressId: number | string;
+  productId: number | string;
   quantity: number;
   paymentMethod: PaymentMethod;
   transactionId?: string;
 }
 
 export interface CreateOrderResponse {
-  orderId: string;
+  orderId: number | string;
   orderStatus: OrderStatus;
   totalAmount: number;
   paymentStatus: PaymentStatus;
 }
 
 export interface CheckoutItem {
-  itemId?: string;
-  productId: string;
+  itemId?: number | string;
+  productId: number | string;
   productName: string;
   unitPrice: number;
   quantity: number;
@@ -64,7 +62,7 @@ export interface CheckoutItem {
 }
 
 export interface ValidateCheckoutItem {
-  productId: string;
+  productId: number | string;
   productName: string;
   cartQuantity: number;
   availableStock: number;

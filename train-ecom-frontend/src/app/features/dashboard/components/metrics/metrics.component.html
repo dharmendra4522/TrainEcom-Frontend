@@ -1,0 +1,139 @@
+<div class="stats-grid" *ngIf="stats && stats.length > 0">
+  <mat-card
+    *ngFor="let stat of stats"
+    class="stat-card"
+    [class.has-link]="stat.route"
+    (click)="onCardClick(stat.route)"
+    [style.cursor]="stat.route ? 'pointer' : 'default'"
+  >
+    <mat-card-content>
+      <div class="stat-info" [class.w-75]="isLoadingStats">
+        <span class="stat-title fw-bold">{{ stat.title }}</span>
+
+        <h2 class="stat-value fw-bold" *ngIf="!isLoadingStats; else valueLoader">
+          {{ stat.value }}
+        </h2>
+        <ng-template #valueLoader>
+          <div class="placeholder-glow mt-1">
+            <span class="placeholder col-6 rounded"></span>
+          </div>
+        </ng-template>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Users -->
+  <mat-card class="stat-card has-link">
+    <mat-card-content>
+      <div class="stat-info px-3">
+        <span class="stat-title fw-bold">Users</span>
+        <h2 class="stat-value fw-bold " *ngIf="!isLoadingStats; else valueLoader">
+          {{ totalUsers }}
+        </h2>
+        <ng-template #valueLoader>
+          <div class="placeholder-glow mt-1">
+            <span class="placeholder col-6 rounded"></span>
+          </div>
+        </ng-template>
+      </div>
+      <!-- subcontent -->
+      <div class="mt-2 pt-2 w-100 w-md-75" *ngIf="!isLoadingStats">
+        <div class="row g-0">
+          <div
+            class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
+          
+          >
+            <span class="d-block text-dark fs-5 fw-bold">{{
+              totalAdminUsers
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-success" />
+            <span class="text-muted fs-6 fw-bold">Admin User</span>
+          </div>
+          <div
+            class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
+            (click)="navigateToCustomers()"
+          >
+            <span class="d-block text-dark fs-5 fw-bold">{{
+              totalCustomers
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-warning" />
+            <span class="text-muted fs-6 fw-bold">Customers</span>
+          </div>
+
+          <div
+            class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
+            (click)="navigateToVendors()"
+          >
+            <span class="d-block text-dark fs-5 fw-bold">{{
+              totalVendors
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 text-primary" />
+            <span class="text-muted fs-6 fw-bold">Vendors</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Orders -->
+  <mat-card class="stat-card has-link">
+    <mat-card-content>
+      <div class="stat-info px-3">
+        <span class="stat-title fw-bold">Orders</span>
+        <h2 class="stat-value fw-bold" *ngIf="!isLoadingStats; else valueLoader">
+          {{ totalOrders }}
+        </h2>
+        <ng-template #valueLoader>
+          <div class="placeholder-glow mt-1">
+            <span class="placeholder col-6 rounded"></span>
+          </div>
+        </ng-template>
+      </div>
+      <!-- subcontent -->
+      <div class="mt-2 pt-2 w-100 w-md-75" *ngIf="!isLoadingStats">
+        <div class="row g-0">
+          <div
+            class="col-6 col-md-3 d-flex flex-column align-items-start px-2"
+            (click)="navigateToActiveOrders()"
+          >
+            <span class="d-block text-dark fs-6 fw-bold">{{
+              activeOrders
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-primary" />
+            <span class="text-muted fs-6 fw-bold">Active</span>
+          </div>
+          <div
+            class="col-6 col-md-3 d-flex flex-column align-items-start px-2"
+            (click)="navigateToDeliveredOrders()"
+          >
+            <span class="d-block text-dark fs-6 fw-bold">{{
+              shippedOrders
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-warning" />
+            <span class="text-muted fs-6 fw-bold">Shipped</span>
+          </div>
+          <div
+            class="col-6 col-md-3 d-flex flex-column align-items-start px-2"
+            (click)="navigateToDeliveredOrders()"
+          >
+            <span class="d-block text-dark fs-6 fw-bold">{{
+              deliveredOrders
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-success" />
+            <span class="text-muted fs-6 fw-bold">Delivered</span>
+          </div>
+          <div
+            class="col-6 col-md-3 d-flex flex-column align-items-start px-2"
+            (click)="navigateToCancelledOrders()"
+          >
+            <span class="d-block text-dark fs-6 fw-bold">{{
+              cancelOrders
+            }}</span>
+            <hr class="my-0 w-100 w-md-75 mx-auto text-danger" />
+            <span class="text-muted fs-6 fw-bold">Cancelled</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

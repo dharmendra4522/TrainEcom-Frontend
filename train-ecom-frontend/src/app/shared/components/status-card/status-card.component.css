@@ -1,0 +1,20 @@
+.second-container {
+  max-width: 550px;
+}
+
+.icon-container {
+  width: 70px;
+  height: 70px;
+}
+
+.loading-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.help-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}

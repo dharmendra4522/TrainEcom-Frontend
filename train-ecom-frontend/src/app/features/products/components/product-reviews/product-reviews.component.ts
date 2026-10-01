@@ -24,7 +24,7 @@ export class ProductReviewsComponent {
 
   destroy$ = new Subject<void>();
 
-  isAdmin: boolean = false;
+  isManagementMode: boolean = false;
   reviews: Review[] = [];
   averageRating: number = 0;
   totalReviews: number = 0;
@@ -47,10 +47,10 @@ export class ProductReviewsComponent {
     this.setupRouteDataListener();
   }
 
-  // Setup a listener to check if the user is an admin based on route data
+  // Management routes expose moderation actions; public routes do not.
   setupRouteDataListener(): void {
     this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.isAdmin = !!data['isAdmin'];
+      this.isManagementMode = data['pageMode'] === 'management';
     });
   }
 
@@ -91,11 +91,11 @@ export class ProductReviewsComponent {
   }
 
   // Method to handle review deletion with confirmation dialog by admin only
-  onDeleteReview(reviewId: string): void {
+  onDeleteReview(reviewId: string | number): void {
     const dialogRef = this.confirmDialog.confirm('Are you sure you want to delete this review?', 'Yes', 'No');
     dialogRef.subscribe((confirmed) => {
       if (confirmed) {
-        this.reviewService.deleteReview(reviewId).subscribe({
+        this.reviewService.deleteReview(String(reviewId)).subscribe({
           next: () => {
             this.notificationService.showSuccess('Review deleted successfully.');
             this.reviews = this.reviews.filter(review => review.reviewId !== reviewId);

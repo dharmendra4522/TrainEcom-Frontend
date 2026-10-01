@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ReportService } from '../../../../core/services/report.service';
-import { topProducts } from '../../../../core/models/report.model';
+import { TopProducts } from '../../../../core/models/report.model';
 import { TableColumn } from '../../../../core/models/table.model';
 import { Router } from '@angular/router';
 
@@ -29,7 +29,7 @@ export class SalesReportComponent {
   maxDate: Date = new Date();
   isLoading: boolean = false;
   isTableLoading: boolean = false;
-  topProducts: Record<string, unknown>[] = [];
+  TopProducts: Record<string, unknown>[] = [];
 
   // helper function to convert date in backend format to a more readable format
   private formatDate(dateString: string): string {
@@ -95,7 +95,7 @@ export class SalesReportComponent {
 
     this.reportService.getTopSellingProducts(fromDate, toDate, limit).subscribe({
       next: (products) => {
-        this.topProducts = products as unknown as Record<string, unknown>[];
+        this.TopProducts = products as unknown as Record<string, unknown>[];
         this.isTableLoading = false;
 
       },

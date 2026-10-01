@@ -6,6 +6,7 @@ import {
   ViewChild,
   SimpleChanges,
   OnChanges,
+  EmbeddedViewRef,
 } from '@angular/core';
 import {
   TableColumn,
@@ -34,73 +35,113 @@ export class GenericTableComponent {
   @Input() pageSize: number = 5;
   @Input() pageIndex: number = 0;
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
+  @Input() enableRowClick: boolean = true;
 
   @Output() actionClick = new EventEmitter<TableActionEvent>();
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
 
-  @Output() sortChnage = new EventEmitter<Sort>();
-
+  @Output() sortChange = new EventEmitter<Sort>();
   @ViewChild(MatSort) sort!: MatSort;
+
+  // for scroll-based lazy loading
+  @Output() loadMore = new EventEmitter<void>();
+  @Input() hasMoreData: boolean = true;
 
   originalData: Record<string, unknown>[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
-      this.originalData = [...this.data];
+      this.originalData = this.data.map((row, index) => ({
+        ...row,
+        sno: index + 1,
+      }));
+
+      this.data = [...this.originalData];
     }
   }
 
   onSortData(sort: Sort): void {
-    if (!sort.active || sort.direction === '') {
+    this.sortChange.emit(sort);
+
+    if (!sort.active || !sort.direction) {
       this.data = [...this.originalData];
       return;
     }
 
-    const isAsc = sort.direction === 'asc';
+    if (sort.active === 'sno') {
+      this.data =
+        sort.direction === 'asc'
+          ? [...this.originalData]
+          : [...this.originalData].reverse();
 
-    const activeColumn = this.columns.find((col) => col.key === sort.active);
+      return;
+    }
 
-    const columnType = activeColumn?.type || 'text';
-    const copyData = [...this.originalData];
+    const column = this.columns.find((item) => item.key === sort.active);
 
-    this.data = copyData.sort((a, b) => {
-      let valueA = a[sort.active];
-      let valueB = b[sort.active];
-      if (columnType === 'number') {
-        valueA = Number(valueA);
-        valueB = Number(valueB);
-      } else if (columnType === 'string') {
-        valueA = String(valueA);
-        valueB = String(valueB);
-      }
-      return this.compareData(
-        valueA as string | number,
-        valueB as string | number,
-        isAsc,
-      );
+    // actions, or unknown column sorting avoid
+    if (!column || column.sortable === false) {
+      return;
+    }
+
+    const direction = sort.direction === 'asc' ? 1 : -1;
+
+    this.data = [...this.originalData].sort((rowA, rowB) => {
+      const valueA = rowA[sort.active];
+      const valueB = rowB[sort.active];
+
+      return this.compareValues(valueA, valueB, column.type) * direction;
     });
   }
 
-  private compareData(
-    a: number | string | boolean,
-    b: number | string | boolean,
-    isAsc: boolean,
+  private compareValues(
+    valueA: unknown,
+    valueB: unknown,
+    type: TableColumn['type'] = 'text',
   ): number {
-    if (isAsc === true) {
-      if (a < b) {
-        return -1;
-      } else {
-        return 1;
-      }
-    } else {
-      if (a > b) {
-        return 1;
-      } else {
-        return -1;
-      }
+    const isEmptyA = valueA === null || valueA === undefined || valueA === '';
+    const isEmptyB = valueB === null || valueB === undefined || valueB === '';
+
+    // Empty/null values hamesha last
+    if (isEmptyA && isEmptyB) return 0;
+    if (isEmptyA) return 1;
+    if (isEmptyB) return -1;
+
+    if (type === 'number' || type === 'currency') {
+      const numberA = Number(valueA);
+      const numberB = Number(valueB);
+
+      const isInvalidA = Number.isNaN(numberA);
+      const isInvalidB = Number.isNaN(numberB);
+
+      if (isInvalidA && isInvalidB) return 0;
+      if (isInvalidA) return 1;
+      if (isInvalidB) return -1;
+
+      return numberA - numberB;
     }
+
+    if (type === 'date') {
+      const dateA = new Date(String(valueA)).getTime();
+      const dateB = new Date(String(valueB)).getTime();
+
+      const isInvalidA = Number.isNaN(dateA);
+      const isInvalidB = Number.isNaN(dateB);
+
+      if (isInvalidA && isInvalidB) return 0;
+      if (isInvalidA) return 1;
+      if (isInvalidB) return -1;
+
+      return dateA - dateB;
+    }
+
+    // text, string, badge: alphabetical + case-insensitive + natural numeric
+    return String(valueA).localeCompare(String(valueB), undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    });
   }
 
   // get displayed columns for the table safely
@@ -131,6 +172,7 @@ export class GenericTableComponent {
   }
 
   onRowClick(row: Record<string, unknown>, event: MouseEvent): void {
+    if (!this.enableRowClick) return;
     const target = event.target as HTMLElement;
     if (target.closest('.action-btn')) {
       return;
@@ -155,5 +197,23 @@ export class GenericTableComponent {
       return typeof act.label === 'function' ? act.label(row) : act.label;
     }
     return act.tooltip || act.actionKey;
+  }
+
+  isActionDisabled(act: TableAction, row: Record<string, unknown>): boolean {
+    return typeof act.disabled === 'function'
+      ? act.disabled(row)
+      : act.disabled === true;
+  }
+
+  onTableScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+    const threshold = 50;
+    const atBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight <=
+      threshold;
+
+    if (atBottom && this.hasMoreData) {
+      this.loadMore.emit();
+    }
   }
 }

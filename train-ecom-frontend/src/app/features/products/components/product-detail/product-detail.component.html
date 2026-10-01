@@ -48,14 +48,14 @@
         <h1 class="product-title fw-bold text-dark mb-2">{{ product.name }}</h1>
 
         <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3 mb-3"
-          >
-          <div class="d-flex align-items-center text-warning gap-1" *ngIf="product.averageRating !== undefined && product.averageRating > 0">
-            <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating || 0)">{{ star }}</mat-icon>
+          *ngIf="product.averageRating !== undefined">
+          <div class="d-flex align-items-center text-warning gap-1" *ngIf="product.averageRating !== 0">
+            <mat-icon class="fs-5" *ngFor="let star of getStarArray(product.averageRating)">{{ star }}</mat-icon>
             <span class="text-dark fw-bold ms-1">{{ product.averageRating | number:'1.1-1' }}</span>
             <span class="text-muted fs-7">({{ product.reviewCount || 0 }} reviews)</span>
-            <span class="vr d-none d-sm-inline"></span>
           </div>
 
+          <span class="vr d-none d-sm-inline" *ngIf="product.averageRating !== 0"></span>
 
           <div>
             <span *ngIf="product.stockQuantity && product.stockQuantity > 0"
@@ -78,22 +78,28 @@
           <small class="text-muted d-block mt-1">Inclusive of all taxes & free shipping</small>
         </div>
 
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap" *ngIf="!isAdmin">
+        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap" *ngIf="!isManagementMode">
           <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
             Only {{ product.stockQuantity }} left! Hurry up before it's gone.
           </span>
         </div>
 
-        <div class="description-section mb-4">
+        <div class="description-section mb-2">
           <h6 class="fw-bold text-dark mb-2">Description</h6>
           <p class="text-secondary leading-relaxed mb-0">
             {{ product.description }}
           </p>
         </div>
+         <div class="description-section mb-4">
+          <h6 class="fw-semibold text-dark mb-2">Store Name</h6>
+          <span class="text-secondary leading-relaxed mb-0">
+            {{ product.storeName }}
+          </span>
+        </div>
 
         <mat-divider class="my-4"></mat-divider>
 
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *ngIf="!isManagementMode">
           <div class="actions-section mb-4">
             <div class="d-flex align-items-center gap-3 flex-wrap">
 
@@ -147,7 +153,7 @@
             </ng-template>
           </div>
         </ng-container>
-        <ng-container *ngIf="isAdmin && !isReadOnly">
+        <ng-container *ngIf="isManagementMode && !isReadOnly">
           <div class="d-flex gap-3 mb-4 flex-wrap">
             <button mat-raised-button color="primary"
               class="btn-lg flex-grow-1 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2"
@@ -166,7 +172,7 @@
         </ng-container>
 
 
-        <ng-container *ngIf="!isAdmin">
+        <ng-container *ngIf="!isManagementMode">
           <div class="row g-2 border-top pt-3 text-secondary text-center">
             <div class="col-4" *ngFor="let feature of productFeatures">
               <div class="p-2" [class.border-start]="feature.hasBorder" [class.border-end]="feature.hasBorder">
@@ -182,7 +188,7 @@
   </div>
 
   <div class="related-products-section mt-5 pt-4 border-top"
-    *ngIf="!isAdmin && relatedProducts && relatedProducts.length > 0">
+    *ngIf="!isManagementMode && relatedProducts && relatedProducts.length > 0">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
         <h3 class="fw-bold text-dark m-0">Similar Products</h3>

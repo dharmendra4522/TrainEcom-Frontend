@@ -5,7 +5,7 @@
     <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0 rounded-3"
       (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
-      <span class="d-none d-sm-inline">{{ isAdmin ? 'Back to Order Management' : 'Back to Orders' }}</span>
+      <span class="d-none d-sm-inline">{{ isManagementMode ? 'Back to Order Management' : 'Back to Orders' }}</span>
       <span class="d-inline d-sm-none">Back</span>
     </button>
   </div>
@@ -21,7 +21,7 @@
           <div>
             <span class="badge px-3 py-2 rounded-pill fw-bold fs-6 mb-2 d-inline-block"
               [ngClass]="getStatusClass(orderDetail.orderStatus)">
-              {{ orderDetail.orderStatus }}
+              {{ formattedOrderStatus }}
             </span>
             <div class="text-secondary small">
               Ordered on: <span class="fw-semibold text-dark">{{ orderDetail.orderDate | date:'medium':'+0530' }}</span>
@@ -33,14 +33,14 @@
           <div class="d-flex flex-column align-items-stretch align-items-sm-end gap-2 w-100 w-sm-auto">
             <div class="d-flex align-items-center gap-2 flex-wrap justify-content-sm-end">
               <!-- Customer button to track order -->
-              <button *ngIf="!isAdmin" mat-flat-button color="primary"
+              <button *ngIf="!isManagementMode" mat-flat-button color="primary"
                 class="d-flex align-items-center justify-content-center gap-1 py-2 px-3 rounded-3 flex-grow-1 flex-sm-grow-0"
                 (click)="openTrackingDialog()">
                 <mat-icon>local_shipping</mat-icon> Track Order
               </button>
 
               <!-- Admin button to update order status -->
-              <button *ngIf="isAdmin" mat-flat-button color="accent"
+              <button *ngIf="isManagementMode" mat-flat-button color="accent"
                 class="d-flex align-items-center justify-content-center gap-1 py-2 px-3 rounded-3 flex-grow-1 flex-sm-grow-0"
                 (click)="openUpdateStatusDialog()">
                 <mat-icon>edit</mat-icon> Update Status
@@ -54,7 +54,7 @@
       </mat-card>
 
       <!-- Customer Details Card (Only for Admin) -->
-      <mat-card *ngIf="isAdmin && orderDetail.customerDetail"
+      <mat-card *ngIf="isManagementMode && orderDetail.customerDetail"
         class="customer-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
         <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
           <mat-icon class="text-primary">person</mat-icon>
@@ -111,7 +111,7 @@
             </div>
 
             <div class="d-flex align-items-center justify-content-start justify-content-sm-end gap-2 mt-1 mt-sm-0 pt-0"
-              *ngIf="!isAdmin && orderDetail.orderStatus === 'Delivered'">
+             *ngIf="!isManagementMode && isDelivered">
 
               <!-- Rate Product Button (Borderless Text Button) -->
               <button mat-button color="primary"
@@ -169,11 +169,11 @@
         </h5>
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Method:</span>
-          <span class="fw-semibold text-dark">{{ orderDetail.payment.paymentMethod }}</span>
+          <span class="fw-semibold text-dark">{{ getNormalizePaymentMathod(orderDetail.payment.paymentMethod) }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Status:</span>
-          <span class="fw-semibold text-success">{{ orderDetail.payment.paymentStatus }}</span>
+          <span class="fw-semibold text-success">{{ getNormalizePaymentStatus(orderDetail.payment.paymentStatus) }}</span>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small" *ngIf="orderDetail.payment.paidAt">
           <span class="text-secondary">Paid At:</span>
@@ -208,7 +208,7 @@
         </div>
 
         <button mat-flat-button color="warn" class="w-100 py-3 rounded-3 fw-bold cancel-btn"
-          *ngIf="!isAdmin && orderDetail.canCancel" [disabled]="isCancelling"
+          *ngIf="!isManagementMode && orderDetail.canCancel" [disabled]="isCancelling"
           (click)="onCancelOrder(orderDetail.orderId)">
           <span class="d-flex align-items-center justify-content-center gap-2 w-100">
             <mat-spinner *ngIf="isCancelling" diameter="20" class="custom-spinner"></mat-spinner>
