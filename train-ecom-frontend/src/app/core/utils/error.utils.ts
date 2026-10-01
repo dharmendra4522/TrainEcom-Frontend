@@ -20,27 +20,27 @@ export function extractBackendMessage(error: unknown, fallbackMessage: string = 
 
   // 4. Object body
   if (typeof body === 'object' && body !== null) {
-    const b = body as Record<string, unknown>;
+    const errorBdy = body as Record<string, unknown>;
     // Check Message (Capital M)
-    if (b['Message'] && typeof b['Message'] === 'string' && (b['Message'] as string).trim()) {
-      return b['Message'] as string;
+    if (errorBdy['Message'] && typeof errorBdy['Message'] === 'string' && (errorBdy['Message'] as string).trim()) {
+      return errorBdy['Message'] as string;
     }
     // Check message (lowercase m)
-    if (b['message'] && typeof b['message'] === 'string' && (b['message'] as string).trim()) {
-      return b['message'] as string;
+    if (errorBdy['message'] && typeof errorBdy['message'] === 'string' && (errorBdy['message'] as string).trim()) {
+      return errorBdy['message'] as string;
     }
     // Check detail
-    if (b['detail'] && typeof b['detail'] === 'string' && (b['detail'] as string).trim()) {
-      return b['detail'] as string;
+    if (errorBdy['detail'] && typeof errorBdy['detail'] === 'string' && (errorBdy['detail'] as string).trim()) {
+      return errorBdy['detail'] as string;
     }
     // Check title
-    if (b['title'] && typeof b['title'] === 'string' && (b['title'] as string).trim()) {
-      return b['title'] as string;
+    if (errorBdy['title'] && typeof errorBdy['title'] === 'string' && (errorBdy['title'] as string).trim()) {
+      return errorBdy['title'] as string;
     }
     // Check errors dictionary
-    if (b['errors'] && typeof b['errors'] === 'object') {
+    if (errorBdy['errors'] && typeof errorBdy['errors'] === 'object') {
       const messages: string[] = [];
-      const errorsDict = b['errors'] as Record<string, unknown>;
+      const errorsDict = errorBdy['errors'] as Record<string, unknown>;
       for (const key of Object.keys(errorsDict)) {
         const val = errorsDict[key];
         if (Array.isArray(val)) {
