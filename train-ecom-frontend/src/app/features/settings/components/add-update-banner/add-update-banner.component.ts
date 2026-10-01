@@ -32,7 +32,7 @@ export class AddUpdateBannerComponent {
   // form Initialize
   private initializeForm(): void {
     this.bannerForm = this.fb.group({
-      title: [this.data?.title || '', [Validators.required, Validators.maxLength(100), Validators.minLength(3),Validators.pattern(/^[a-zA-Z0-9\s\-_,&%!.]+$/), noSpaceAllow()]],
+      title: [this.data?.title || '', [Validators.required, Validators.maxLength(100), Validators.minLength(3), Validators.pattern(/^[a-zA-Z0-9\s\-_,&%!.]+$/), noSpaceAllow()]],
       bannerImage: [null, [
         ...(this.isEditMode ? [] : [Validators.required]),
         fileValidator(['image/jpeg', 'image/png', 'image/png', 'image/webp'], 5)
@@ -62,10 +62,17 @@ export class AddUpdateBannerComponent {
     const file = fileInput.files?.[0] ?? null;
     const control = this.bannerForm.get('bannerImage');
 
+    if (!file) {
+      this.selectedFileName = null;
+      control?.setValue(null);
+      return;
+    }
     this.selectedFileName = file?.name ?? null;
-    control?.setValue(file);
-    control?.markAsTouched();
-    control?.updateValueAndValidity();
+    this.resizeImage(file, (optimizedFile: File) => {
+      control?.setValue(optimizedFile);
+      control?.markAsTouched();
+      control?.updateValueAndValidity();
+    })
   }
 
 
@@ -88,7 +95,6 @@ export class AddUpdateBannerComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error saving banner:', error);
         this.dialogRef.close(false);
       }
     })
@@ -96,5 +102,51 @@ export class AddUpdateBannerComponent {
 
   onClose(): void {
     this.dialogRef.close();
+  }
+
+  // Image Optimization
+  private resizeImage(file: File, callback: (resizedFile: File) => void): void {
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const targetWidth = 1920;
+        const targetHeight = 1080;
+        let width = img.width;
+        let height = img.height;
+
+        // check aspect ratio and resize accordingly
+        if (width > height) {
+          if (width > targetWidth) {
+            height = Math.round((height * targetWidth) / width);
+            width = targetWidth;
+          }
+        } else {
+          if (height > targetHeight) {
+            width = Math.round((width * targetHeight) / height);
+            height = targetHeight;
+          }
+        }
+        canvas.width = width; 
+        canvas.height = height;
+        // draw the resized image onto the canvas
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob: Blob | null) => {
+          if (blob) {
+            const optimizeFile = new File([blob], file.name, { type: file.type });
+            callback(optimizeFile);
+          }
+        }, file.type, 0.8); // 0.8 is the quality parameter 
+      };
+
+    };
+    reader.readAsDataURL(file);
   }
 }

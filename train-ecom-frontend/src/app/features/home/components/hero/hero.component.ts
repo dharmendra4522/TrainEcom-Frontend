@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, inject } from '@angular/core';
+import { Component, AfterViewInit, inject, OnInit } from '@angular/core';
 import { BannerService } from '../../../../core/services/banner.service';
 import { Banner } from '../../../../core/models/setting.model';
 
@@ -14,9 +14,8 @@ declare const bootstrap: {
   templateUrl: './hero.component.html',
   styleUrl: './hero.component.css',
 })
-export class HeroComponent implements AfterViewInit {
+export class HeroComponent implements OnInit {
   private bannerService = inject(BannerService);
-
   banners: Banner[] = [];
 
   ngOnInit(): void {
@@ -28,18 +27,20 @@ export class HeroComponent implements AfterViewInit {
     this.bannerService.getAllBanners().subscribe({
       next: (response) => {
         this.banners = response;
+        setTimeout(() => {
+          const carouselElement = document.getElementById('homeHeroCarousel');
+          if (carouselElement) {
+            new bootstrap.Carousel(carouselElement, {
+              interval: 3000,
+              ride: 'carousel',
+              pause: false
+            });
+          }
+        }, 0)
+      }, error: (err) => {
+        console.error('Error fetching banners:', err);
       }
     })
   }
 
-  ngAfterViewInit() {
-    const carouselElement = document.getElementById('homeHeroCarousel');
-    if (carouselElement) {
-      new bootstrap.Carousel(carouselElement, {
-        interval: 3000,
-        ride: 'carousel',
-        pause: false
-      });
-    }
-  }
 }
