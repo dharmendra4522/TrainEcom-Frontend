@@ -15,6 +15,7 @@ export interface TableAction<T = unknown> {
   icon: string | ((row: T) => string);
   color: 'primary' | 'warn' | 'accent' | ((row: T) => string);
   disabled?: boolean | ((row: T) => boolean);
+  hideWhenDisabled?: boolean;
   tooltip?: string;
   label?: string | ((row: T) => string);
 }

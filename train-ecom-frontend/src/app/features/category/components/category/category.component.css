@@ -1,0 +1,25 @@
+:host ::ng-deep .category-search-field .mat-mdc-text-field-wrapper,
+:host ::ng-deep .category-search-field .mat-mdc-form-field-flex {
+	height: 48px;
+	min-height: 48px;
+}
+
+:host ::ng-deep .category-search-field .mat-mdc-text-field-wrapper {
+	padding: 0 12px;
+}
+
+:host ::ng-deep .category-search-field .mat-mdc-form-field-infix {
+	min-height: 48px;
+	padding-top: 0;
+	padding-bottom: 0;
+	display: flex;
+	align-items: center;
+}
+
+:host ::ng-deep .category-search-field .mat-mdc-notch-piece {
+	height: 48px;
+}
+
+.category-toolbar-button {
+	height: 48px;
+}

@@ -93,9 +93,16 @@
               mat-flat-button
               color="primary"
               class="w-100 py-3 mt-2 fs-6 fw-bold rounded-3 shadow-sm"
-              [disabled]="loginForm.invalid"
+              [disabled]="loginForm.invalid || isLoading"
             >
-              Log In
+              <span class="d-inline-flex align-items-center justify-content-center gap-2">
+                <mat-spinner
+                  *ngIf="isLoading"
+                  diameter="20"
+                  color="accent"
+                ></mat-spinner>
+                <span>{{ isLoading ? "Logging in..." : "Log In" }}</span>
+              </span>
             </button>
 
             <p class="text-center mt-4 text-secondary">
