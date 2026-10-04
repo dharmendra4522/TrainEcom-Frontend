@@ -111,7 +111,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       actionKey: 'toggleBlock',
       icon: 'block',
       color: 'warn',
-      tooltip: 'Block/Unblock '
+      tooltip: 'Block/Unblock ',
+      disabled: (row: unknown) => this.isBlockedHide(row),
+      hideWhenDisabled: true
     },
     {
       actionKey: 'delete',
@@ -143,6 +145,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
 
     return row.status !== VendorStatus.Pending;
+  }
+
+  private isBlockedHide(row: unknown): boolean {
+    if (!this.isVendorTableItem(row)) {
+      return false;
+    }
+    return row.status === VendorStatus.Rejected;
   }
 
   private isVendorTableItem(row: unknown): row is VendorTableItem {
@@ -421,7 +430,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     this.confirmVendorRejection(vendorId, vendorName, targetStatus);
   }
 
-  // handle vandor approve 
+  // handle vandor approve
   private confirmVendorApproval(
     vendorId: number,
     vendorName: string,
@@ -469,26 +478,27 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
     dialogRef
       .afterClosed()
-      .subscribe((result: { confirmed: boolean; message: string } | undefined) => {
-        if (!result?.confirmed) return;
+      .subscribe(
+        (result: { confirmed: boolean; message: string } | undefined) => {
+          if (!result?.confirmed) return;
 
-        const payload = {
-          status: targetStatus,
-          rejectionReason: result.message,
-        };
-        this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
-          next: (response: { message?: string }) => {
-            this.notificationService.showSuccess(
-              response.message || 'Vendor rejected successfully',
-            );
-            this.loadVendors();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.notificationService.showError(
-              err?.error?.message || 'Vendor Status Update Failed',
-            );
-          },
-        });
+          const payload = {
+            status: targetStatus,
+            rejectionReason: result.message,
+          };
+          this.vendorService.updateVendorStatus(vendorId, payload).subscribe({
+            next: (response: { message?: string }) => {
+              this.notificationService.showSuccess(
+                response.message || 'Vendor rejected successfully',
+              );
+              this.loadVendors();
+            },
+            error: (err: { error?: { message?: string } }) => {
+              this.notificationService.showError(
+                err?.error?.message || 'Vendor Status Update Failed',
+              );
+            },
+          });
       });
   }
 
@@ -496,8 +506,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     const vendorId = vendor.userId ?? vendor.vendorId ?? vendor.id;
     const vendorName = vendor.name || 'Vendor';
     const isCurrentlyBlocked =
-      vendor.isBlocked === true ||
-      vendor.status === VendorStatus.Blocked;
+      vendor.isBlocked === true || vendor.status === VendorStatus.Blocked;
     const newBlockStatus = !isCurrentlyBlocked;
     const actionName = newBlockStatus ? 'block' : 'unblock';
 
