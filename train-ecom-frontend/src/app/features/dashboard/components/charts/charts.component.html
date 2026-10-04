@@ -10,7 +10,7 @@
       <ng-template #chartContent>
         <div>
           <h5 class="card-title m-0 fw-bold">Users</h5>
-          <span class="fw-bold fs-5 text-dark"> {{ totalUsers }}</span>
+          <span class="fw-bold fs-5 text-dark" *ngIf="totalUsers > 0"> {{ totalUsers }}</span>
         </div>
         <div class="bar-chart">
           <canvas
@@ -36,7 +36,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 class="card-title m-0 fw-bold">Order</h5>
-            <span class="fw-bold fs-5 text-dark"> {{ totalOrders }}</span>
+            <span class="fw-bold fs-5 text-dark"  *ngIf="totalOrders > 0"> {{ totalOrders }}</span>
           </div>
           <button
             mat-stroked-button
@@ -45,6 +45,7 @@
             [matBadge]="orderFilterCount"
             [matBadgeHidden]="orderFilterCount === 0"
             matBadgeOverlap="true"
+            [disabled]="isVendor"
             (click)="onOrderFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>
@@ -71,7 +72,10 @@
         </div>
       </ng-container>
       <ng-template #categoryContentLoaded>
-        <h5 class="card-title mb-4 fw-bold">Category</h5>
+        <div>
+            <h5 class="card-title m-0 fw-bold">Category</h5>
+            <span class="fw-bold fs-5 text-dark"  *ngIf="totalCategories > 0"> {{ totalCategories }}</span>
+          </div>
         <div class="bar-chart">
           <canvas
             baseChart
@@ -96,7 +100,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h5 class="card-title m-0 fw-bold">Total Revenue</h5>
-            <span class="fw-bold fs-5 text-dark revenue-text">
+            <span class="fw-bold fs-5 text-dark revenue-text"  *ngIf="totalRevenue > 0">
               {{ totalRevenue | currency: "INR" : true }}</span
             >
           </div>
@@ -107,6 +111,7 @@
             [matBadge]="revenueFilterCount"
             [matBadgeHidden]="revenueFilterCount === 0"
             matBadgeOverlap="true"
+            [disabled]="isVendor"
             (click)="onRevenueFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>
