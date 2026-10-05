@@ -1,5 +1,7 @@
 {
     "editor.inlineSuggest.suppressSuggestions": true,
     "editor.inlineSuggest.experimental.showOnSuggestConflict": "always",
-    "github.copilot.chat.languageContext.typescript7.enabled": true
+    "github.copilot.chat.languageContext.typescript7.enabled": true,
+    "github.copilot.chat.anthropic.tools.websearch.enabled": true,
+    "github.copilot.chat.gemini3GetChangedFilesTool.enabled": true
 }

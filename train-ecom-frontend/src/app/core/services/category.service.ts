@@ -1,23 +1,34 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Category, CreateCategoryRequest, PaginatedCategoryResponse, UpdateCategoryRequest } from '../models/category.model';
+import {
+  Category,
+  CreateCategoryRequest,
+  PaginatedCategoryResponse,
+  PaginatedSubCategoryResponse,
+  SubCategoryList,
+  UpdateCategoryRequest,
+} from '../models/category.model';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
   private baseApi = `${environment.apiBaseUrl}/categories`;
   private http = inject(HttpClient);
 
-  constructor() { }
+  constructor() {}
 
   getAllCategories(): Observable<Category[]> {
-    return this.http.get<Category[] | PaginatedCategoryResponse>(`${this.baseApi}/all`).pipe(
-      map((response) => Array.isArray(response) ? response : response?.items || []),
-    );
+    return this.http
+      .get<Category[] | PaginatedCategoryResponse>(`${this.baseApi}/all`)
+      .pipe(
+        map((response) =>
+          Array.isArray(response) ? response : response?.items || [],
+        ),
+      );
   }
 
   getPaginatedCategories(
@@ -33,27 +44,32 @@ export class CategoryService {
       params = params.set('search', search.trim());
     }
 
-    return this.http.get<PaginatedCategoryResponse | Category[]>(`${this.baseApi}/all`, { params }).pipe(
-      map((response) => {
-        if (Array.isArray(response)) {
-          return {
-            items: response,
-            pageNumber: 1,
-            pageSize: response.length,
-            totalRecords: response.length,
-            totalPages: 1,
-          };
-        }
+    return this.http
+      .get<
+        PaginatedCategoryResponse | Category[]
+      >(`${this.baseApi}/all`, { params })
+      .pipe(
+        map((response) => {
+          if (Array.isArray(response)) {
+            return {
+              items: response,
+              pageNumber: 1,
+              pageSize: response.length,
+              totalRecords: response.length,
+              totalPages: 1,
+            };
+          }
 
-        return {
-          items: response?.items || [],
-          pageNumber: response?.pageNumber || pageNumber,
-          pageSize: response?.pageSize || pageSize,
-          totalRecords: response?.totalRecords ?? response?.items?.length ?? 0,
-          totalPages: response?.totalPages || 1,
-        };
-      }),
-    );
+          return {
+            items: response?.items || [],
+            pageNumber: response?.pageNumber || pageNumber,
+            pageSize: response?.pageSize || pageSize,
+            totalRecords:
+              response?.totalRecords ?? response?.items?.length ?? 0,
+            totalPages: response?.totalPages || 1,
+          };
+        }),
+      );
   }
 
   getCategoryById(id: string | number): Observable<Category> {
@@ -64,12 +80,68 @@ export class CategoryService {
     return this.http.post<Category>(`${this.baseApi}/create`, payload);
   }
 
-  updateCategory(id: string | number, payload: UpdateCategoryRequest): Observable<Category> {
-    return this.http.put<Category>(`${this.baseApi}/update/${String(id)}`, payload);
+  updateCategory(
+    id: string | number,
+    payload: UpdateCategoryRequest,
+  ): Observable<Category> {
+    return this.http.put<Category>(
+      `${this.baseApi}/update/${String(id)}`,
+      payload,
+    );
   }
 
   deleteCategory(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.baseApi}/delete/${String(id)}`);
   }
 
+  // fetch sub-categories with optional search and parent category filter
+  fetchSubCategories(
+    pageNumber: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    parentCategoryId?: number | string,
+  ): Observable<PaginatedSubCategoryResponse> {
+    let params = new HttpParams()
+      .set('PageNumber', pageNumber.toString())
+      .set('PageSize', pageSize.toString());
+
+    if (search && search.trim() !== '') {
+      params = params.set('Search', search.trim());
+    }
+
+    if (
+      parentCategoryId !== undefined &&
+      parentCategoryId !== null &&
+      parentCategoryId !== ''
+    ) {
+      params = params.set('ParentCategoryId', parentCategoryId.toString());
+    }
+
+    return this.http
+      .get<
+        PaginatedSubCategoryResponse | SubCategoryList[]
+      >(`${this.baseApi}/subCategories/all`, { params })
+      .pipe(
+        map((response) => {
+          if (Array.isArray(response)) {
+            return {
+              items: response,
+              pageNumber: 1,
+              pageSize: response.length,
+              totalRecords: response.length,
+              totalPages: 1,
+            };
+          }
+
+          return {
+            items: response?.items || [],
+            pageNumber: response?.pageNumber || pageNumber,
+            pageSize: response?.pageSize || pageSize,
+            totalRecords:
+              response?.totalRecords ?? response?.items?.length ?? 0,
+            totalPages: response?.totalPages || 1,
+          };
+        }),
+      );
+  }
 }

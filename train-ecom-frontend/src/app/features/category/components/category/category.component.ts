@@ -1,186 +1,46 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { PageEvent } from '@angular/material/paginator';
-import {
-  Category,
-  CreateCategoryRequest,
-} from '../../../../core/models/category.model';
-import { MatDialog } from '@angular/material/dialog';
-import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
-import {
-  TableColumn,
-  TableAction,
-  TableActionEvent,
-} from '../../../../core/models/table.model';
-import { Store } from '@ngrx/store';
-import * as CategoryActions from '../../../../core/store/category/category.action';
-import {
-  selectCategoryLoading,
-  selectCategoryTotalRecords,
-  selectPaginatedCategories,
-} from '../../../../core/store/category/category.selectors';
-
-import { Observable, Subject } from 'rxjs';
-import {
-  takeUntil,
-  map,
-  distinctUntilChanged,
-  debounceTime,
-  take,
-} from 'rxjs/operators';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { Category } from '../../../../core/models/category.model';
+import * as CategoryActions from '../../../../core/store/category/category.action';
+import { Store } from '@ngrx/store';
+import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 
 @Component({
   selector: 'app-category',
   templateUrl: './category.component.html',
   styleUrl: './category.component.css',
 })
-export class CategoryComponent implements OnInit, OnDestroy {
+export class CategoryComponent implements OnDestroy {
   private dialog = inject(MatDialog);
   private store = inject(Store);
-  private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
 
-  paginatedCategories$: Observable<Category[]> = this.store.select(
-    selectPaginatedCategories,
-  );
-  isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
-  totalRecords$: Observable<number> = this.store.select(
-    selectCategoryTotalRecords,
-  );
+  activeTabIndex = 0;
+  categorySearchControl = new FormControl('', { nonNullable: true });
+  subCategorySearchControl = new FormControl('', { nonNullable: true });
 
-  // Search control and filtered observable
-  searchControl = new FormControl('', { nonNullable: true });
-  filteredCategories$!: Observable<Category[]>;
-  currentPage: number = 1;
-  pageSize: number = 10;
-
-  columns: TableColumn[] = [
-    { key: 'name', label: 'Category Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' }
-  ];
-
-  actions: TableAction[] = [
-    {
-      actionKey: 'edit',
-      icon: 'edit',
-      color: 'primary',
-      tooltip: 'Edit Category'
-    },
-    {
-      actionKey: 'delete',
-      icon: 'delete',
-      color: 'warn',
-      tooltip: 'Delete Category'
-    }
-  ];
-
-  ngOnInit() {
-    this.currentPage = 1;
-    this.loadPage(1, this.pageSize);
-    this.setupSearchFilter();
+  get activeSearchControl(): FormControl<string> {
+    return this.activeTabIndex === 1
+      ? this.subCategorySearchControl
+      : this.categorySearchControl;
   }
 
-  private setupSearchFilter(): void {
-    this.searchControl.valueChanges
-      .pipe(
-        map((searchTerm) => searchTerm.trim()),
-        distinctUntilChanged(),
-        debounceTime(300),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((searchTerm) => {
-        this.currentPage = 1;
-        this.loadPage(1, this.pageSize, searchTerm);
-      });
+  onTabChange(index: number): void {
+    this.activeTabIndex = index;
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  onTableScroll(): void {
-    this.paginatedCategories$.pipe(take(1)).subscribe((categories) => {
-      this.totalRecords$.pipe(take(1)).subscribe((total) => {
-        this.isLoading$.pipe(take(1)).subscribe((isLoading) => {
-          if (!isLoading && categories.length < total) {
-            this.currentPage++;
-            const currntSearch = this.searchControl.value.trim();
-            this.loadPage(this.currentPage, this.pageSize, currntSearch);
-          }
-        });
-      });
-    });
-  }
-
-  handleTableAction(event: TableActionEvent): void {
-    const category = event.row as Category;
-    if (event.action === 'edit') {
-      this.openCategoryDialog(category);
-    } else if (event.action === 'delete') {
-      this.deleteCategory(category.id);
-    }
-  }
-
-  private loadPage(
-    pageNumber = this.currentPage,
-    pageSize = this.pageSize,
-    search = this.searchControl.value || ''
-  ): void {
-    this.currentPage = pageNumber;
-    this.store.dispatch(
-      CategoryActions.loadPaginatedCategories({
-        pageNumber,
-        pageSize,
-        search: search.trim() !== '' ? search.trim() : undefined
-      }),
-    );
-  }
-
-  createCategory(payload: CreateCategoryRequest): void {
-    this.store.dispatch(
-      CategoryActions.createCategory({ category: payload as Category })
-    );
-  }
-
-  updateCategory(id: string | number, payload: CreateCategoryRequest): void {
-    this.store.dispatch(
-      CategoryActions.updateCategory({
-        categoryId: String(id),
-        category: payload as Category
-      }),
-    );
-  }
-
-  deleteCategory(id: string | number): void {
-    this.confirmDialog
-      .confirm(
-        'Are you sure you want to delete this category?',
-        'Delete',
-        'Cancel'
-      )
-      .subscribe((confirmed) => {
-        if (confirmed) {
-          this.store.dispatch(
-            CategoryActions.deleteCategory({ categoryId: String(id) })
-          );
-        }
-      });
-  }
-
-  openCategoryDialog(category?: Category): void {
-    const isEdit = !!category;
+  openCategoryDialog(): void {
+    const isSubCategoryTab = this.activeTabIndex === 1;
     const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
       width: '500px',
       data: {
-        title: isEdit ? 'Edit Category' : 'Create Category',
-        type: 'Category',
-        isEdit: isEdit,
-        initialData: category
-          ? { name: category.name, description: category.description }
-          : null
+        title: isSubCategoryTab ? 'Create Sub-Category' : 'Create Category',
+        type: isSubCategoryTab ? 'Sub-Category' : 'Category',
+        isEdit: false,
+        initialData: null,
       },
     });
 
@@ -188,17 +48,36 @@ export class CategoryComponent implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((result) => {
-        if (result) {
-          if (isEdit && category?.id) {
-            this.updateCategory(category.id, result);
-          } else {
-            this.createCategory(result);
-          }
+        if (!result) {
+          return;
         }
+
+        const payload =
+          isSubCategoryTab && result.parentCategoryId !== undefined
+            ? {
+                name: result.name,
+                description: result.description,
+                parentCategoryId: result.parentCategoryId || null,
+              }
+            : {
+                name: result.name,
+                description: result.description,
+              };
+
+        this.store.dispatch(
+          CategoryActions.createCategory({
+            category: payload as Category,
+          }),
+        );
       });
   }
 
   resetSearch(): void {
-    this.searchControl.setValue('');
+    this.activeSearchControl.setValue('');
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

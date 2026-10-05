@@ -1,0 +1,13 @@
+<app-generic-table
+	[data]="(paginatedCategories$ | async) || []"
+	[isLoading]="(isLoading$ | async) || false"
+	[columns]="columns"
+	[actions]="actions"
+	[enableRowClick]="false"
+	[showInlineActions]="false"
+	[showPaginator]="false"
+	[totalRecords]="(totalRecords$ | async) || 0"
+	emptyMessage="No categories found."
+	(actionClick)="handleTableAction($event)"
+	(loadMore)="onTableScroll()"
+></app-generic-table>

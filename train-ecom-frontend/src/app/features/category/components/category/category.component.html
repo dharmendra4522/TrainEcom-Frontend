@@ -12,16 +12,26 @@
         <div class="row g-2 align-items-center">
           <div class="col-12 col-sm">
             <mat-form-field appearance="outline" class="w-100 mb-0 pb-0" subscriptSizing="dynamic">
-              <mat-label>Search categories</mat-label>
+              <mat-label>{{ activeTabIndex === 1 ? 'Search sub-categories' : 'Search categories' }}</mat-label>
               <mat-icon matPrefix class="text-secondary">search</mat-icon>
-              <input matInput [formControl]="searchControl" placeholder="Search by category name or description...">
+              <input
+                matInput
+                [formControl]="activeSearchControl"
+                [placeholder]="activeTabIndex === 1 ? 'Search by sub-category name or parent category...' : 'Search by category name or description...'"
+              >
             </mat-form-field>
           </div>
 
           <div class="col-12 col-sm-auto">
-            <button mat-stroked-button color="warn" [disabled]="!searchControl.value"
-              class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100" style="height: 48px;"
-              (click)="resetSearch()" title="Reset Search">
+            <button
+              mat-stroked-button
+              color="warn"
+              [disabled]="!activeSearchControl.value"
+              class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
+              style="height: 48px;"
+              (click)="resetSearch()"
+              title="Reset Search"
+            >
               <mat-icon>clear</mat-icon> Reset
             </button>
           </div>
@@ -37,17 +47,12 @@
     </div>
   </div>
 
-  <app-generic-table 
-    [data]="(paginatedCategories$ | async) || []" 
-    [isLoading]="(isLoading$ | async) || false"
-    [columns]="columns" 
-    [actions]="actions" 
-    [enableRowClick]="false"
-    [showInlineActions]="false" 
-    [showPaginator]="false"
-    [totalRecords]="(totalRecords$ | async) || 0" 
-    emptyMessage="No categories found." 
-    (actionClick)="handleTableAction($event)"
-    (loadMore)="onTableScroll()">
-  </app-generic-table>
+  <mat-tab-group class="category-tabs mt-3" [selectedIndex]="activeTabIndex" (selectedTabChange)="onTabChange($event.index)">
+    <mat-tab label="Category">
+      <app-parent-category [searchControl]="categorySearchControl"></app-parent-category>
+    </mat-tab>
+    <mat-tab label="Sub-category">
+      <app-sub-category [searchControl]="subCategorySearchControl"></app-sub-category>
+    </mat-tab>
+  </mat-tab-group>
 </div>

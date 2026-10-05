@@ -1,0 +1,13 @@
+<app-generic-table 
+    [data]="subCategories" 
+    [isLoading]="isLoading"
+    [columns]="columns" 
+    [actions]="actions" 
+    [enableRowClick]="false"
+    [showInlineActions]="false" 
+    [showPaginator]="false"
+    [totalRecords]="totalRecords" 
+    emptyMessage="No sub-categories found." 
+    (actionClick)="handleSubCategoryAction($event)"
+    (loadMore)="onTableScroll()">
+  </app-generic-table>

@@ -5,11 +5,39 @@
   <form [formGroup]="form" class="d-flex flex-column gap-3 pt-3">
     <mat-form-field appearance="outline" class="w-100 mb-1">
       <mat-label>{{ data.type }} Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter {{ data.type | lowercase }} name" />
+      <input matInput formControlName="name" [placeholder]="'Enter ' + (data.type | lowercase) + ' name'" />
       <mat-error *ngIf="form.get('name')?.hasError('required')">
         {{ data.type }} name is required
       </mat-error>
     </mat-form-field>
+
+    <ng-container *ngIf="data.type === 'Sub-Category'">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Select Parent Category</mat-label>
+        <mat-select formControlName="parentCategoryId" panelClass="parent-category-select-panel">
+          <div class="px-2 py-2 border-bottom" (click)="$event.stopPropagation()">
+            <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+              <mat-label>Search parent category</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput [formControl]="parentCategorySearchControl" placeholder="Search parent category" />
+            </mat-form-field>
+          </div>
+
+          <mat-option
+            *ngFor="let category of filteredParentCategories"
+            [value]="category.id"
+          >
+            {{ category.name }}
+          </mat-option>
+          <mat-option *ngIf="filteredParentCategories.length === 0" [disabled]="true">
+            No parent categories found
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('parentCategoryId')?.hasError('required')">
+          Parent category is required
+        </mat-error>
+      </mat-form-field>
+    </ng-container>
 
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Description</mat-label>
