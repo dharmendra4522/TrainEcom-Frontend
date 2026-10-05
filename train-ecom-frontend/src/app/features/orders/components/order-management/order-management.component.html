@@ -11,8 +11,9 @@
       <div class="col-12 col-md-4" [formGroup]="filterForm">
         <mat-form-field
           appearance="outline"
-          class="w-100 mb-0"
+          class="compact-order-field w-100 mb-0"
           subscriptSizing="dynamic"
+          floatLabel="always"
         >
           <mat-label>Search Order / Customer</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
@@ -31,15 +32,16 @@
       <div class="col-12 col-sm-6 col-md-2">
         <mat-form-field
           appearance="outline"
-          class="w-100 mb-0"
+          class="compact-order-field w-100 mb-0"
           subscriptSizing="dynamic"
+          floatLabel="always"
         >
           <mat-label>Order Status</mat-label>
           <mat-select
             [(ngModel)]="selectedStatus"
             (selectionChange)="onFilterChange()"
+            placeholder="Select Status"
           >
-            <mat-option value="undefined">All Status</mat-option>
             <mat-option
               *ngFor="let status of orderStatusOptions"
               [value]="status.value"
@@ -54,15 +56,16 @@
       <div class="col-12 col-sm-6 col-md-2">
         <mat-form-field
           appearance="outline"
-          class="w-100 mb-0"
+          class="compact-order-field w-100 mb-0"
           subscriptSizing="dynamic"
+          floatLabel="always"
         >
           <mat-label>Payment Status</mat-label>
           <mat-select
             [(ngModel)]="selectedPaymentStatus"
             (selectionChange)="onFilterChange()"
+            placeholder="Select Status"
           >
-            <mat-option value="undefined">All Payments</mat-option>
             <mat-option
               *ngFor="let payment of paymentStatusOptions"
               [value]="payment.value"
@@ -77,8 +80,9 @@
       <div class="col-6 col-sm-4 col-md-2">
         <mat-form-field
           appearance="outline"
-          class="w-100 mb-0"
+          class="compact-order-field w-100 mb-0"
           subscriptSizing="dynamic"
+          floatLabel="always"
         >
           <mat-label>From Date</mat-label>
           <input
@@ -101,8 +105,9 @@
       <div class="col-6 col-sm-4 col-md-2">
         <mat-form-field
           appearance="outline"
-          class="w-100 mb-0"
+          class="compact-order-field w-100 mb-0"
           subscriptSizing="dynamic"
+          floatLabel="always"
         >
           <mat-label>To Date</mat-label>
           <input
@@ -129,8 +134,7 @@
         <button
           mat-flat-button
           color="primary"
-          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
-          style="height: 48px"
+          class="compact-order-button w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
           (click)="applyDateFilter()"
         >
           <mat-icon>filter_alt</mat-icon> Apply
@@ -151,8 +155,7 @@
         <button
           mat-stroked-button
           color="warn"
-          class="w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
-          style="height: 48px"
+          class="compact-order-button w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
           (click)="resetFilters()"
           title="Reset Filters"
         >

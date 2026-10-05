@@ -158,18 +158,15 @@ export interface AdminUser extends Record<string, unknown> {
   pan?: string;
   isApproved?: ApprovalStatus | number | null;
   userStatusClass?: string;
-  businessDetail?: VendorBusinessSummary | null;
-  bussinessDetail?: VendorBusinessSummary | null;
+  bussinessDetail?: AdminVendorBusinessDetail | null;
   bussinessName?: string;
   categories?: string[];
   bussinessCategories?: string[];
 }
 
-export interface VendorBusinessSummary {
+export interface AdminVendorBusinessDetail {
   bussinessName?: string;
-  businessName?: string;
   bussinessCategories?: string[];
-  businessCategories?: string[];
   storeName?: string;
   gstin?: string;
   pan?: string;

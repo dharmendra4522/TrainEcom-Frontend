@@ -155,6 +155,8 @@ tr.cursor-pointer {
 .table-scroll-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  max-height: 550px;
+  overflow-y: auto;
 }
 
 .table-scroll-container::-webkit-scrollbar {
@@ -176,4 +178,8 @@ tr.cursor-pointer {
 .table-row-hover:hover .font-monospace {
   color: #0d6efd !important;
   text-decoration: underline !important;
+}
+
+.progress-bar {
+  height: 3px;
 }

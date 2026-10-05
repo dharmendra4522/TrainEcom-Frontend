@@ -1,27 +1,46 @@
-<div id="homeHeroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
-    
-    <!-- Story-style Progress Indicators -->
-    <div class="carousel-indicators custom-story-indicators">
-        <button type="button" *ngFor="let banner of banners; let i = index" 
-                data-bs-target="#homeHeroCarousel" 
-                [attr.data-bs-slide-to]="i" 
-                [class.active]="i === 0" 
-                [attr.aria-current]="i === 0 ? 'true' : null" 
-                [attr.aria-label]="'Slide ' + (i + 1)">
-            <div class="story-progress-fill"></div>
-        </button>
+<div
+  id="homeHeroCarousel"
+  class="carousel slide"
+  data-bs-ride="carousel"
+  data-bs-interval="3000"
+  data-bs-pause="false"
+>
+  <!-- Story-style Progress Indicators -->
+  <div class="carousel-indicators custom-story-indicators">
+    <button
+      type="button"
+      *ngFor="let banner of banners; let i = index"
+      data-bs-target="#homeHeroCarousel"
+      [attr.data-bs-slide-to]="i"
+      [class.active]="i === 0"
+      [attr.aria-current]="i === 0 ? 'true' : null"
+      [attr.aria-label]="'Slide ' + (i + 1)"
+    >
+      <div class="story-progress-fill"></div>
+    </button>
+  </div>
+
+  <div class="carousel-inner">
+    <div
+      *ngFor="let banner of banners; let i = index"
+      class="carousel-item"
+      [class.active]="i === 0"
+    >
+      <img
+        [ngSrc]="banner.bannerUrl"
+        width="1920"
+        height="1080"
+        [priority]="i === 0"
+        class="d-block w-100 object-fit-cover hero-banner-img"
+        alt="Banner {{ i + 1 }}"
+      />
+
+      <div
+        class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3 pb-3 px-4 mb-4"
+      >
+        <h2 class="fw-bold text-white fs-1 mb-0">{{ banner.title }}</h2>
+        <p class="fs-5 text-light mb-0">{{ banner.description }}</p>
+      </div>
     </div>
-
-    <div class="carousel-inner">
-        <div *ngFor="let banner of banners; let i = index" class="carousel-item" [class.active]="i === 0">
-            <img [src]="banner.imageUrl" class="d-block w-100 object-fit-cover hero-banner-img" alt="Banner {{ i + 1 }}">
-
-            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3 pb-3 px-4 mb-4">
-                <h2 class="fw-bold text-white fs-1 mb-0">{{ banner.title }}</h2>
-                <p class="fs-5 text-light mb-0">{{ banner.description }}</p>
-                <button class="btn btn-primary">{{ banner.ctaText }}</button>
-            </div>
-
-        </div>
-    </div>
+  </div>
 </div>

@@ -5,7 +5,7 @@ import {
   TableAction,
   TableActionEvent,
 } from '../../../../core/models/table.model';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
@@ -41,6 +41,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
   readonly portalRoutes = inject(PortalRouteService);
+  private route = inject(ActivatedRoute);
 
   // Destroy Subject
   private readonly destroy$ = new Subject<void>();
@@ -106,10 +107,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
+    const initialCategory = this.route.snapshot.queryParamMap.get('categoryName');
+    if (initialCategory) {
+      this.categoryControl.setValue(initialCategory, { emitEvent: false });
+    }
 
     this.loadInitialMetadata();
     this.initSubscriptions();
     this.setupSearchFilter();
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const categoryName = params.get('categoryName') ?? '';
+      if (this.categoryControl.value !== categoryName) {
+        this.categoryControl.setValue(categoryName);
+      }
+    });
   }
 
   // load initial data Brands aur Categories
@@ -164,7 +175,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
       ),
       this.categoryControl.valueChanges.pipe(
-        startWith(''),
+        startWith(this.categoryControl.value),
         distinctUntilChanged(),
       ),
       this.brandControl.valueChanges.pipe(startWith('')),

@@ -65,26 +65,23 @@ export class DashboardComponent implements OnInit {
   public portal: PortalKey = 'admin';
   public isVendor: boolean = false;
 
-
   constructor(
     private dashboardService: DashboardService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
     if (this.portal === 'vendor') {
       this.isVendor = true;
       this.isLoadingStats = false;
-      this.stats = [];
+      this.stats = INITIAL_ADMIN_STATS;
       if (this.checkVendorPending()) {
         this.isApproved = false;
         this.isLoadingStats = false;
         return;
       }
-
     } else {
       // for Admin
       this.isApproved = true;
@@ -145,7 +142,7 @@ export class DashboardComponent implements OnInit {
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
       orderStatus: normalizeOrderStatus(order.orderStatus),
-      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus)
+      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus),
     };
   }
 

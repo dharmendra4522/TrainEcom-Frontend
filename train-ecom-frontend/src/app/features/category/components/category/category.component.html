@@ -4,21 +4,35 @@
       <!-- Title section -->
       <div class="col-12 col-lg-6">
         <h2 class="fs-4 fw-bold text-dark m-0">Category Management</h2>
-        <p class="text-muted small m-0">Add, update, and review categories shown in the storefront.</p>
+        <p class="text-muted small m-0">
+          Add, update, and review categories shown in the storefront.
+        </p>
       </div>
 
       <!-- search section -->
       <div class="col-12 col-lg-5">
         <div class="row g-2 align-items-center">
           <div class="col-12 col-sm">
-            <mat-form-field appearance="outline" class="w-100 mb-0 pb-0" subscriptSizing="dynamic">
-              <mat-label>{{ activeTabIndex === 1 ? 'Search sub-categories' : 'Search categories' }}</mat-label>
+            <mat-form-field
+              appearance="outline"
+              class="category-search-field w-100 mb-0 pb-0"
+              subscriptSizing="dynamic"
+            >
+              <mat-label>{{
+                activeTabIndex === 1
+                  ? "Search sub-categories"
+                  : "Search categories"
+              }}</mat-label>
               <mat-icon matPrefix class="text-secondary">search</mat-icon>
               <input
                 matInput
                 [formControl]="activeSearchControl"
-                [placeholder]="activeTabIndex === 1 ? 'Search by sub-category name or parent category...' : 'Search by category name or description...'"
-              >
+                [placeholder]="
+                  activeTabIndex === 1
+                    ? 'Search by sub-category name or parent category...'
+                    : 'Search by category name or description...'
+                "
+              />
             </mat-form-field>
           </div>
 
@@ -27,8 +41,7 @@
               mat-stroked-button
               color="warn"
               [disabled]="!activeSearchControl.value"
-              class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
-              style="height: 48px;"
+              class="category-toolbar-button d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
               (click)="resetSearch()"
               title="Reset Search"
             >
@@ -40,19 +53,32 @@
 
       <!-- Add button -->
       <div class="col-12 col-lg-1 text-lg-end">
-        <button mat-raised-button color="primary" (click)="openCategoryDialog()" class="w-100" style="height: 48px;">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="openCategoryDialog()"
+          class="category-toolbar-button w-100"
+        >
           <mat-icon>add</mat-icon> Add
         </button>
       </div>
     </div>
   </div>
 
-  <mat-tab-group class="category-tabs mt-3" [selectedIndex]="activeTabIndex" (selectedTabChange)="onTabChange($event.index)">
+  <mat-tab-group
+    class="category-tabs mt-3"
+    [selectedIndex]="activeTabIndex"
+    (selectedTabChange)="onTabChange($event.index)"
+  >
     <mat-tab label="Category">
-      <app-parent-category [searchControl]="categorySearchControl"></app-parent-category>
+      <app-parent-category
+        [searchControl]="categorySearchControl"
+      ></app-parent-category>
     </mat-tab>
     <mat-tab label="Sub-category">
-      <app-sub-category [searchControl]="subCategorySearchControl"></app-sub-category>
+      <app-sub-category
+        [searchControl]="subCategorySearchControl"
+      ></app-sub-category>
     </mat-tab>
   </mat-tab-group>
 </div>

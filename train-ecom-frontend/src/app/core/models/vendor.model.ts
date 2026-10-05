@@ -8,10 +8,10 @@ export enum VendorStatus {
 }
 
 export interface VendorItem {
-  vendorId?: number;
-  userId?: number;
+  vendorId: number;
+  userId: number;
   name?: string;
-  bussinessName?: string;
+  businessName?: string;
   email: string;
   phoneNumber: string;
   city?: string;
@@ -24,12 +24,13 @@ export interface VendorItem {
   status?: VendorStatus | number;
   approvalStatus?: ApprovalStatus | number;
   rejectionReason?: string | null;
-  bussinessDetail?: {
-    bussinessName?: string;
-    bussinessCategories?: string[];
+  businessDetail?: {
+    businessName?: string;
+    categories?: string[];
     storeName?: string;
     gstin?: string;
     pan?: string;
+    city?: string;
     rejectionReason?: string | null;
   };
 }

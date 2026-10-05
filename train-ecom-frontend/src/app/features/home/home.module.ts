@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './components/home/home.component';
@@ -16,7 +16,7 @@ import { HeroComponent } from './components/hero/hero.component';
     CommonModule,
     HomeRoutingModule,
     SharedModule,
-    
-  ]
+    NgOptimizedImage
+]
 })
 export class HomeModule { }

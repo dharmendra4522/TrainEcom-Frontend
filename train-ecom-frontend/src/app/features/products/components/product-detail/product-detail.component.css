@@ -151,3 +151,9 @@
 .product-info-card .text-warning {
   flex-wrap: wrap;
 }
+
+.badge-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
