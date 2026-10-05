@@ -220,7 +220,18 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   onCategoryChange(categoryName: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { category: categoryName || null },
+      queryParams: {
+        category: categoryName || null,
+        subCategory: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onSubCategoryChange(subCategoryName: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { subCategory: subCategoryName || null },
       queryParamsHandling: 'merge',
     });
   }
@@ -240,6 +251,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     isAppend?: boolean;
     brandName?: string | null;
     categoryName?: string | null;
+    subCategoryName?: string | null;
     minPrice?: number | null;
     maxPrice?: number | null;
     sortBy?: string | null;
@@ -260,6 +272,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       overrides && 'categoryName' in overrides
         ? overrides.categoryName || undefined
         : queryParams.get('category') || undefined;
+
+    const subCategoryName = overrides && 'subCategoryName' in overrides ? overrides.subCategoryName || undefined : queryParams.get('subCategory') || undefined
 
     const search = queryParams.get('search') || undefined;
 
@@ -296,6 +310,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         isAppend,
         brandName,
         categoryName,
+        subCategoryName,
         search,
         minPrice,
         maxPrice,
@@ -369,6 +384,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       queryParams: {
         brand: null,
         category: null,
+        subCategory: null,
         minRating: null,
         sortBy: null,
         search: null,

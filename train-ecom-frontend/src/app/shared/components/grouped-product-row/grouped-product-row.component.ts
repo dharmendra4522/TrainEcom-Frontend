@@ -43,7 +43,7 @@ export class GroupedProductRowComponent implements OnInit {
         map(res => res.items)
       );
     } else if (this.filterType === 'newest') {
-      fetch$ = this.productService.getPaginatedProducts(1, 10, undefined, undefined, undefined, undefined, undefined, 'Newest').pipe(
+      fetch$ = this.productService.getPaginatedProducts(1, 10, undefined, undefined, undefined, undefined, undefined, undefined, 'Newest').pipe(
         map(res => res.items)
       );
     }

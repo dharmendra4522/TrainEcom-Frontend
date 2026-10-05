@@ -92,6 +92,7 @@ export class ProductService {
     pageSize: number = 10,
     brandName?: string,
     categoryName?: string,
+    subCategoryName?: string,
     search?: string,
     minPrice?: number,
     maxPrice?: number,
@@ -108,6 +109,9 @@ export class ProductService {
     }
     if (categoryName) {
       params = params.set('CategoryName', categoryName);
+    }
+    if (subCategoryName) {
+      params = params.set('SubCategoryName', subCategoryName);
     }
     if (search) {
       params = params.set('Search', search);
