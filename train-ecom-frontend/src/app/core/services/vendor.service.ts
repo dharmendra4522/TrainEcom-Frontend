@@ -49,42 +49,36 @@ export class VendorService {
   }
 
   private toVendorItem(item: AdminUser): VendorItem {
-    const business = item.businessDetail || item.bussinessDetail;
-    const categories =
-      business?.bussinessCategories ||
-      business?.businessCategories ||
-      item.categories ||
-      item.bussinessCategories ||
-      [];
+    const business = item.bussinessDetail;
+    const categories = business?.bussinessCategories ?? [];
 
     return {
       vendorId: item.userId,
       userId: item.userId,
       name: item.name,
-      bussinessName:
-        business?.bussinessName ||
-        business?.businessName ||
-        item.bussinessName ||
-        item.name ||
-        'N/A',
+      businessName: business?.bussinessName ?? item.name ?? 'N/A',
       email: item.email,
       phoneNumber: item.phoneNumber,
-      city: business?.city || item.address?.city || '',
+      city: business?.city ?? '',
       productCount: item.productCount,
-      storeName: item.storeName || business?.storeName,
-      gstin: item.gstin || business?.gstin,
-      pan: item.pan || business?.pan,
+      storeName: business?.storeName,
+      gstin: business?.gstin,
+      pan: business?.pan,
       status: item.status ?? VendorStatus.Pending,
       approvalStatus: item.approvalStatus ?? undefined,
-      isBlocked: item.isBlocked,
+      isBlocked:
+        item.isBlocked === true || item.status === VendorStatus.Blocked,
+      rejectionReason: business?.rejectionReason ?? null,
       categories,
-      bussinessDetail: business
+      businessDetail: business
         ? {
-            bussinessName: business.bussinessName || business.businessName,
-            bussinessCategories: categories,
-            storeName: item.storeName || business.storeName,
-            gstin: item.gstin || business.gstin,
-            pan: item.pan || business.pan,
+            businessName: business.bussinessName,
+            categories,
+            storeName: business.storeName,
+            gstin: business.gstin,
+            pan: business.pan,
+            city: business.city,
+            rejectionReason: business.rejectionReason ?? null,
           }
         : undefined,
     };

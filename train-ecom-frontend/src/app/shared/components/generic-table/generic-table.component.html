@@ -7,13 +7,12 @@
     <mat-progress-bar
       *ngIf="isLoading"
       mode="indeterminate"
-      style="height: 3px"
+      class="progress-bar"
     ></mat-progress-bar>
   </div>
 
   <div
     class="table-scroll-container position-relative"
-    style="max-height: 550px; overflow-y: auto"
     (scroll)="onTableScroll($event)"
   >
     <table
@@ -145,17 +144,19 @@
             class="d-inline-flex justify-content-end align-items-center gap-1"
           >
             <ng-container *ngIf="showInlineActions; else actionMenu">
-              <button
-                *ngFor="let act of actions"
-                mat-icon-button
-                [color]="getActionColor(act, row)"
-                [disabled]="isActionDisabled(act, row)"
-                class="action-btn"
-                [matTooltip]="getActionLabel(act, row) | titlecase"
-                (click)="onActionClick(act.actionKey, row)"
-              >
-                <mat-icon>{{ getActionIcon(act, row) }}</mat-icon>
-              </button>
+              <ng-container *ngFor="let act of actions">
+                <button
+                  *ngIf="!act.hideWhenDisabled || !isActionDisabled(act, row)"
+                  mat-icon-button
+                  [color]="getActionColor(act, row)"
+                  [disabled]="isActionDisabled(act, row)"
+                  class="action-btn"
+                  [matTooltip]="getActionLabel(act, row) | titlecase"
+                  (click)="onActionClick(act.actionKey, row)"
+                >
+                  <mat-icon>{{ getActionIcon(act, row) }}</mat-icon>
+                </button>
+              </ng-container>
             </ng-container>
 
             <ng-template #actionMenu>
@@ -168,23 +169,25 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #tableActionMenu="matMenu" xPosition="before">
-                <button
-                  *ngFor="let act of actions"
-                  mat-menu-item
-                  [disabled]="isActionDisabled(act, row)"
-                  (click)="onActionClick(act.actionKey, row)"
-                >
-                 <mat-icon *ngIf="act.icon" [ngClass]="{
-                    'text-danger': act.color === 'warn',
-                    'text-primary': act.color === 'primary',
-                    'text-accent': act.color === 'accent'
-                  }">{{ getActionIcon(act, row) }}</mat-icon>
-                  <span [ngClass]="{
-                    'text-danger': act.color === 'warn',
-                    'text-primary': act.color === 'primary',
-                    'text-accent': act.color === 'accent'
-                  }">{{ getActionLabel(act, row) | titlecase }}</span>
-                </button>
+                <ng-container *ngFor="let act of actions">
+                  <button
+                    *ngIf="!act.hideWhenDisabled || !isActionDisabled(act, row)"
+                    mat-menu-item
+                    [disabled]="isActionDisabled(act, row)"
+                    (click)="onActionClick(act.actionKey, row)"
+                  >
+                    <mat-icon *ngIf="act.icon" [ngClass]="{
+                      'text-danger': act.color === 'warn',
+                      'text-primary': act.color === 'primary',
+                      'text-accent': act.color === 'accent'
+                    }">{{ getActionIcon(act, row) }}</mat-icon>
+                    <span [ngClass]="{
+                      'text-danger': act.color === 'warn',
+                      'text-primary': act.color === 'primary',
+                      'text-accent': act.color === 'accent'
+                    }">{{ getActionLabel(act, row) | titlecase }}</span>
+                  </button>
+                </ng-container>
               </mat-menu>
             </ng-template>
           </div>

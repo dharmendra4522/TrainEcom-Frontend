@@ -11,7 +11,7 @@
       <div class="col-12 col-lg-5">
         <div class="row g-2 align-items-center">
           <div class="col-12 col-sm">
-            <mat-form-field appearance="outline" class="w-100 mb-0 pb-0" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" class="category-search-field w-100 mb-0 pb-0" subscriptSizing="dynamic" floatLabel="always">
               <mat-label>Search categories</mat-label>
               <mat-icon matPrefix class="text-secondary">search</mat-icon>
               <input matInput [formControl]="searchControl" placeholder="Search by category name or description...">
@@ -20,7 +20,7 @@
 
           <div class="col-12 col-sm-auto">
             <button mat-stroked-button color="warn" [disabled]="!searchControl.value"
-              class="d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100" style="height: 48px;"
+              class="category-toolbar-button d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
               (click)="resetSearch()" title="Reset Search">
               <mat-icon>clear</mat-icon> Reset
             </button>
@@ -30,7 +30,7 @@
 
       <!-- Add button -->
       <div class="col-12 col-lg-1 text-lg-end">
-        <button mat-raised-button color="primary" (click)="openCategoryDialog()" class="w-100" style="height: 48px;">
+        <button mat-raised-button color="primary" (click)="openCategoryDialog()" class="category-toolbar-button w-100">
           <mat-icon>add</mat-icon> Add
         </button>
       </div>

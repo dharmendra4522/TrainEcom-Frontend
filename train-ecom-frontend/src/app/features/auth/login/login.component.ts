@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Actions, ofType } from '@ngrx/effects';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,11 +11,11 @@ import { Store } from '@ngrx/store';
 import { selectAuthError } from '../../../core/store/auth/auth.selectors';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 import { map } from 'rxjs/internal/operators/map';
-import { BackendError } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { extractBackendMessage } from '../../../core/utils/error.utils';
 import { passwordMatchValidator } from '../register.utils';
+import { Subject, takeUntil } from 'rxjs';
 
 type AuthStep = 'LOGIN' | 'FORGOT_EMAIL' | 'FORGOT_RESET_PASSWORD';
 
@@ -32,9 +33,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   resetPasswordForm!: FormGroup;
 
   private store = inject(Store);
+  private actions$ = inject(Actions);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   // Login variables
   isShowingPassword = false;
@@ -55,6 +58,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   );
   ngOnInit() {
     this.validateForm();
+    this.actions$
+      .pipe(
+        ofType(AuthActions.loginSuccess, AuthActions.loginFailure),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.isLoading = false;
+      });
   }
 
   private validateForm() {
@@ -89,9 +100,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.loginForm.invalid) {
+    if (this.loginForm.invalid || this.isLoading) {
       return;
     }
+    this.isLoading = true;
     this.store.dispatch(
       AuthActions.loginReq({ request: this.loginForm.value }),
     );
@@ -209,6 +221,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }

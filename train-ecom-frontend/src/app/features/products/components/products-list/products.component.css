@@ -7,6 +7,31 @@
     margin-bottom: 20px;
 }
 
+:host ::ng-deep .product-filter-field .mat-mdc-text-field-wrapper,
+:host ::ng-deep .product-filter-field .mat-mdc-form-field-flex {
+    height: 44px;
+    min-height: 44px;
+}
+
+:host ::ng-deep .product-filter-field .mat-mdc-text-field-wrapper {
+    padding: 0 12px;
+}
+
+:host ::ng-deep .product-filter-field .mat-mdc-form-field-infix {
+    min-height: 44px;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.product-toolbar-button {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    box-sizing: border-box;
+}
+
 .page-header{
     display: flex;
     justify-content: space-between;

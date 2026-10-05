@@ -13,7 +13,7 @@
   </div>
 
   <div *ngIf="!isLoading && product" class="row g-4 mb-5">
-    <div class="col-lg-6">
+    <div class="col-lg-5">
       <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
         <!-- main image -->
         <div class="main-image-wrapper rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3">
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-7">
       <div class="product-info-card p-2 p-md-3">
         <div class="d-flex align-items-center gap-2 mb-2">
           <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill"
@@ -60,12 +60,12 @@
           <div>
             <span *ngIf="product.stockQuantity && product.stockQuantity > 0"
               class="badge bg-success-subtle text-success fw-bold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center">
-              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">check_circle</mat-icon>
+              <mat-icon class="fs-6 me-1 badge-icon">check_circle</mat-icon>
               In Stock ({{ product.stockQuantity }} available)
             </span>
             <span *ngIf="!product.stockQuantity || product.stockQuantity <= 0"
               class="badge bg-danger-subtle text-danger fw-bold px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center">
-              <mat-icon class="fs-6 me-1" style="width: 16px; height: 16px; font-size: 16px;">cancel</mat-icon> Out of
+              <mat-icon class="fs-6 me-1 badge-icon">cancel</mat-icon> Out of
               Stock
             </span>
           </div>
