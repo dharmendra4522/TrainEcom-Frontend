@@ -4,13 +4,7 @@ import {
   RevenueData,
 } from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import {
-  ChartConfiguration,
-  ChartData,
-  ChartType,
-  Chart,
-  registerables,
-} from 'chart.js';
+import { ChartData, ChartType, Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
@@ -19,6 +13,12 @@ import {
   revenueChartData,
   userChartData,
 } from '../dashboard/dashboard.utils';
+import {
+  getProductChartOptions,
+  getUserChartOptions,
+  orderChartOptions as orderChartConfiguration,
+  revenueChartOptions as revenueChartConfiguration,
+} from './charts.config';
 import { MatDialog } from '@angular/material/dialog';
 import {
   FilterDialogComponent,
@@ -26,6 +26,9 @@ import {
   FilterDialogResult,
 } from '../../../../shared/components/filter-dialog/filter-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { Router } from '@angular/router';
+import { PortalRouteService } from '../../../../core/services/portal-route.service';
+import { PortalKey } from '../../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-charts',
@@ -36,6 +39,8 @@ export class ChartsComponent implements OnInit {
   private dialog = inject(MatDialog);
   private notificationService = inject(NotificationService);
   private dashboardService = inject(DashboardService);
+  private router = inject(Router);
+  private portalRoutes = inject(PortalRouteService);
 
   @Input() totalUsers: number = 0;
   @Input() totalCustomers: number = 0;
@@ -43,10 +48,12 @@ export class ChartsComponent implements OnInit {
   @Input() totalAdminUsers: number = 0;
   @Input() isVendor: boolean = false;
   @Input() isLoading: boolean = true;
+  @Input() portal: PortalKey = 'admin';
 
   // State variables update karein
   public totalRevenue: number = 0;
   public totalOrders: number = 0;
+  public totalCategories: number = 0;
 
   // Revenue Filter States
   public revenueFilterCount: number = 0;
@@ -60,107 +67,36 @@ export class ChartsComponent implements OnInit {
 
   public userChartsType: ChartType = 'pie';
   public userChartData!: ChartData<'pie'>;
-  // product chart configuration
-  public userChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: {
-      padding:
-        window.innerWidth < 768
-          ? {
-            top: 10,
-            bottom: 20,
-            left: 60,
-            right: 70
-          }
-          : {
-            top: 20,
-            bottom: 10,
-            left: 10,
-            right: 10
-          }
-    },
-    plugins: {
-      legend: {
-        position: 'bottom'
-      },
-      datalabels: {
-        color: '#000',
-        formatter: (value, context) => {
-          const label = context.chart.data.labels?.[context.dataIndex];
-          return `${label}: ${value}`;
-        },
-        anchor: 'end',
-        align: 'end',
-        offset: 4,
-        display: true,
-        borderRadius: 4,
-        borderColor: '#ccc',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        padding: 4
-      }
-    }
-  };
 
-  // product chart configuration
+  public userChartOptions = getUserChartOptions(
+    this.router,
+    this.portalRoutes,
+    this.portal
+  );
+
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = categoryProductData;
-  public productChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      datalabels: { display: false }
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
-      },
-      y: { beginAtZero: true }
-    },
-  };
+  public productChartOptions = getProductChartOptions(
+    this.router,
+    this.portalRoutes
+  );
 
   // revenue chart configuration
   public revenueChartType: ChartType = 'bar';
   public revenueChartData: ChartData<'bar'> = revenueChartData;
-  public revenueChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      datalabels: { display: false }
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
-      },
-      y: { beginAtZero: true }
-    },
-  };
+  public revenueChartOptions = revenueChartConfiguration;
 
   // order chart configuration
   public orderChartType: ChartType = 'bar';
   public orderChartData: ChartData<'bar'> = orderStatusChartData;
-  public orderChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      datalabels: { display: false }
-    },
-    scales: {
-      y: { beginAtZero: true }
-    },
-  };
+  public orderChartOptions = orderChartConfiguration;
 
   ngOnInit(): void {
     Chart.register(...registerables, ChartDataLabels);
     this.initUserChart();
     this.fetchCategoryData();
     this.fetchRevenueData();
-    this.fetchorderSummaryData();
+    this.fetchOrderSummaryData();
   }
 
   public ngOnChanges(): void {
@@ -180,8 +116,8 @@ export class ChartsComponent implements OnInit {
         {
           data: [this.totalCustomers, this.totalVendors, this.totalAdminUsers],
           backgroundColor: ['#4caf50', '#2196f3', '#ff9800']
-        },
-      ],
+        }
+      ]
     };
   }
 
@@ -190,9 +126,9 @@ export class ChartsComponent implements OnInit {
     if (this.isVendor) {
       return;
     }
-
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
       next: (data: CategoryWiseProductCount[]) => {
+        this.totalCategories = 6;
         const labels = data.map((item) => item.categoryName);
         const counts = data.map((item) => item.productCount);
         this.productChartData = {
@@ -200,7 +136,7 @@ export class ChartsComponent implements OnInit {
           datasets: [
             {
               data: counts,
-              backgroundColor: ['#2196f3']
+              backgroundColor: ['#2196f3'],
             }
           ]
         };
@@ -216,14 +152,14 @@ export class ChartsComponent implements OnInit {
     if (this.isVendor) {
       return;
     }
-
     this.dashboardService.fetchRevenueData(year, vendorIds).subscribe({
       next: (data: RevenueData) => {
         this.totalRevenue = data.totalRevenue;
         const labels = [...revenueChartData.labels];
-        const revenues = labels.map((_, monthIndex) =>
-          data.monthlyRevenue.find((item) => item.month === monthIndex + 1)
-            ?.revenue ?? 0
+        const revenues = labels.map(
+          (_, monthIndex) =>
+            data.monthlyRevenue.find((item) => item.month === monthIndex + 1)
+              ?.revenue ?? 0
         );
 
         this.revenueChartData = {
@@ -231,7 +167,7 @@ export class ChartsComponent implements OnInit {
           datasets: [
             {
               data: revenues,
-              backgroundColor: ['#4caf50']
+              backgroundColor: ['#4caf50'],
             }
           ]
         };
@@ -243,7 +179,7 @@ export class ChartsComponent implements OnInit {
   }
 
   // fetch order summary data for charts
-  private fetchorderSummaryData(year?: number, vendorIds?: number[]): void {
+  private fetchOrderSummaryData(year?: number, vendorIds?: number[]): void {
     if (this.isVendor) {
       return;
     }
@@ -253,109 +189,129 @@ export class ChartsComponent implements OnInit {
         const labels = [...orderStatusChartData.labels];
 
         // map the order summary data to the chart data
-        const activeOrders = labels.map((_, monthIndex) =>
-          data.monthlyData.find((item) => item.month === monthIndex + 1)
-            ?.activeOrders ?? 0,
+        const activeOrders = labels.map(
+          (_, monthIndex) =>
+            data.monthlyData.find((item) => item.month === monthIndex + 1)
+              ?.activeOrders ?? 0
         );
-        const deliveredOrders = labels.map((_, monthIndex) =>
-          data.monthlyData.find((item) => item.month === monthIndex + 1)
-            ?.deliveredOrders ?? 0,
+        const deliveredOrders = labels.map(
+          (_, monthIndex) =>
+            data.monthlyData.find((item) => item.month === monthIndex + 1)
+              ?.deliveredOrders ?? 0
         );
-        const cancelOrders = labels.map((_, monthIndex) =>
-          data.monthlyData.find((item) => item.month === monthIndex + 1)
-            ?.cancelOrders ?? 0
+        const cancelOrders = labels.map(
+          (_, monthIndex) =>
+            data.monthlyData.find((item) => item.month === monthIndex + 1)
+              ?.cancelOrders ?? 0
         );
-        const shippedOrders = labels.map((_, monthIndex) =>
-          data.monthlyData.find((item) => item.month === monthIndex + 1)
-            ?.shippedOrders ?? 0
+        const shippedOrders = labels.map(
+          (_, monthIndex) =>
+            data.monthlyData.find((item) => item.month === monthIndex + 1)
+              ?.shippedOrders ?? 0
         );
 
         this.orderChartData = {
           labels: labels,
           datasets: [
-            { data: activeOrders, label: 'Active Orders', backgroundColor: '#4caf50' },
-            { data: deliveredOrders, label: 'Delivered Orders', backgroundColor: '#2196f3' },
-            { data: cancelOrders, label: 'Cancelled Orders', backgroundColor: '#f44336' },
-            { data: shippedOrders, label: 'Shipped Orders', backgroundColor: '#ff9800' }
+            {
+              data: activeOrders,
+              label: 'Active Orders',
+              backgroundColor: '#2196f3'
+            },
+            {
+              data: deliveredOrders,
+              label: 'Delivered Orders',
+              backgroundColor: '#4caf50'
+            },
+            {
+              data: cancelOrders,
+              label: 'Cancelled Orders',
+              backgroundColor: '#f44336'
+            },
+            {
+              data: shippedOrders,
+              label: 'Shipped Orders',
+              backgroundColor: '#ff9800'
+            }
           ]
-        }
+        };
       },
       error: (err: Error) => {
         console.error('Failed to fetch order summary data', err);
-      },
-    })
+      }
+    });
+  }
+
+  // Comman dialog function
+  private openFilterDialog(
+    currentYear: number | null,
+    currentVendors: number[],
+    onApply: (year: number | null, vendors: number[], count: number) => void,
+    onClear: () => void,
+    successMessage: string
+  ): void {
+    const dialogRef = this.dialog.open<
+      FilterDialogComponent,
+      FilterDialogData,
+      FilterDialogResult
+    >(FilterDialogComponent, {
+      width: '400px',
+      disableClose: true,
+      data: { year: currentYear, vendors: currentVendors }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.cleared) {
+        onClear();
+        return;
+      }
+      if (result) {
+        onApply(result.year, result.vendors, result.count);
+        this.notificationService.showSuccess(successMessage, 'close');
+      }
+    });
   }
 
   // Revenue Chart Filter Dialog
   public onRevenueFilterDialog(): void {
-    const dialogRef = this.dialog.open<
-      FilterDialogComponent,
-      FilterDialogData,
-      FilterDialogResult
-    >(FilterDialogComponent, {
-      width: '400px',
-      disableClose: true,
-      data: {
-        year: this.selectedRevenueYear,
-        vendors: this.selectedRevenueVendorIds
+    this.openFilterDialog(
+      this.selectedRevenueYear,
+      this.selectedRevenueVendorIds,
+      (year, vendors, count) => {
+        this.selectedRevenueYear = year;
+        this.selectedRevenueVendorIds = vendors;
+        this.revenueFilterCount = count;
+        this.fetchRevenueData(year ?? undefined, vendors);
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.cleared) {
+      () => {
         this.selectedRevenueYear = null;
         this.selectedRevenueVendorIds = [];
         this.revenueFilterCount = 0;
-        this.fetchRevenueData(undefined, this.selectedRevenueVendorIds);
-        this.notificationService.showInfo('Revenue filters cleared', 'Close');
-        return;
-      }
-
-      if (result) {
-        this.selectedRevenueYear = result.year;
-        this.selectedRevenueVendorIds = result.vendors;
-        this.revenueFilterCount = result.count;
-
-        this.fetchRevenueData(result.year ?? undefined, this.selectedRevenueVendorIds);
-        this.notificationService.showSuccess('Revenue data filtered successfully', 'Close');
-      }
-    });
+        this.fetchRevenueData(undefined, []);
+        this.notificationService.showInfo('Revenue filter cleard', 'Close');
+      },
+      'Revenue data filter successfully '
+    );
   }
 
-  //  Order Chart Filter Dialog
+  // Order Chart Filter Dialog
   public onOrderFilterDialog(): void {
-    const dialogRef = this.dialog.open<
-      FilterDialogComponent,
-      FilterDialogData,
-      FilterDialogResult
-    >(FilterDialogComponent, {
-      width: '400px',
-      disableClose: true,
-      data: {
-        year: this.selectedOrderYear,
-        vendors: this.selectedOrderVendorIds,
+    this.openFilterDialog(
+      this.selectedOrderYear,
+      this.selectedOrderVendorIds,
+      (year, vendors, count) => {
+        this.selectedOrderYear = year;
+        this.selectedOrderVendorIds = vendors;
+        this.orderFilterCount = count;
+        this.fetchOrderSummaryData(year ?? undefined, vendors);
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.cleared) {
+      () => {
         this.selectedOrderYear = null;
         this.selectedOrderVendorIds = [];
         this.orderFilterCount = 0;
-        this.fetchorderSummaryData(undefined, this.selectedOrderVendorIds);
+        this.fetchOrderSummaryData(undefined, []);
         this.notificationService.showInfo('Order filters cleared', 'Close');
-        return;
-      }
-
-      if (result) {
-        this.selectedOrderYear = result.year;
-        this.selectedOrderVendorIds = result.vendors;
-        this.orderFilterCount = result.count;
-
-        this.fetchorderSummaryData(result.year ?? undefined, this.selectedOrderVendorIds);
-        this.notificationService.showSuccess('Order summary filtered successfully', 'Close')
-      }
-    });
+      },
+      'Order summary filtered successfully'
+    );
   }
-
 }
