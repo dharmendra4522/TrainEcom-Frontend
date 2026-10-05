@@ -131,7 +131,7 @@
     </div>
   </div>
 
-  <div class="search-wrapper flex-shrink-0">
+ <div class="search-wrapper flex-shrink-0">
     <div class="search-box d-flex align-items-center rounded-pill px-3 border">
       <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
       <input
@@ -140,6 +140,14 @@
         placeholder="Search products..."
         class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7"
       />
+      <button
+        *ngIf="searchControl.value"
+        type="button"
+        class="clear-btn border-0 bg-transparent p-0 d-flex align-items-center justify-content-center text-secondary"
+        (click)="clearSearch()"
+      >
+        <mat-icon class="fs-5 w-auto h-auto">close</mat-icon>
+      </button>
     </div>
   </div>
 </div>

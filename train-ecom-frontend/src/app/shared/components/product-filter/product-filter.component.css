@@ -258,3 +258,7 @@
   }
 }
 
+.clear-btn {
+  cursor: pointer;
+  min-width: 20px;
+}

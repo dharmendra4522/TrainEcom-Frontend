@@ -28,26 +28,18 @@
               <input
                 matInput
                 [formControl]="activeSearchControl"
-                [placeholder]="
-                  activeTabIndex === 1
-                    ? 'Search by name or id...'
-                    : 'Search by category name or id...'
-                "
+                placeholder="Search..."
               />
+              <button
+                  matSuffix
+                  mat-icon-button
+                  aria-label="Clear"
+                  *ngIf="activeSearchControl.value"
+                  (click)="resetSearch()"
+              >
+                    <mat-icon>close</mat-icon>
+              </button>
             </mat-form-field>
-          </div>
-
-          <div class="col-12 col-sm-auto">
-            <button
-              mat-stroked-button
-              color="warn"
-              [disabled]="!activeSearchControl.value"
-              class="category-toolbar-button d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
-              (click)="resetSearch()"
-              title="Reset Search"
-            >
-              <mat-icon>clear</mat-icon> Reset
-            </button>
           </div>
         </div>
       </div>
