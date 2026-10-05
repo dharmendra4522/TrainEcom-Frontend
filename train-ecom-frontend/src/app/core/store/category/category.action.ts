@@ -1,5 +1,9 @@
 import { createAction, props } from '@ngrx/store';
-import { Category, UpdateCategoryRequest } from '../../models/category.model';
+import {
+  Category,
+  CreateCategoryRequest,
+  UpdateCategoryRequest
+} from '../../models/category.model';
 
 export const loadCategories = createAction('[Category] Load Categories');
 
@@ -30,7 +34,7 @@ export const loadSingleCategoryFailure = createAction(
 
 export const createCategory = createAction(
   `[Category] Create Category`,
-  props<{ category: Category }>(),
+  props<{ category: CreateCategoryRequest }>(),
 );
 
 export const createCategorySuccess = createAction(
@@ -75,7 +79,12 @@ export const deleteCategoryFailure = createAction(
 
 export const loadPaginatedCategories = createAction(
   '[Category] Load Paginated Categories',
-  props<{ pageNumber: number; pageSize: number; search?: string }>(),
+  props<{
+    pageNumber: number;
+    pageSize: number;
+    search?: string;
+    refresh?: boolean;
+  }>(),
 );
 
 export const loadPaginatedCategoriesSuccess = createAction(

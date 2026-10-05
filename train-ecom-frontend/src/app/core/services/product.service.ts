@@ -40,6 +40,7 @@ export class ProductService {
     formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     files.forEach((file) => {
       if (file) formData.append('Images', file);
@@ -67,6 +68,7 @@ export class ProductService {
     formData.append('StockQuantity', productData.stockQuantity?.toString() || '0');
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     deletedImageIds.forEach((id) => {
       formData.append('DeletedImageIds', String(id));

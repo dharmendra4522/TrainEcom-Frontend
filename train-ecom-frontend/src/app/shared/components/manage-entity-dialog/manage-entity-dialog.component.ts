@@ -8,7 +8,12 @@ import { Store } from '@ngrx/store';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Brand } from '../../../core/models/brand.model';
-import { Category } from '../../../core/models/category.model';
+import {
+  Category,
+  CreateCategoryRequest,
+  SubCategoryList,
+  UpdateCategoryRequest,
+} from '../../../core/models/category.model';
 import { Actions, ofType } from '@ngrx/effects';
 import { selectBrandLoading } from '../../../core/store/brand/brand.selectors';
 import { selectCategoryLoading } from '../../../core/store/category/category.selectors';
@@ -16,9 +21,19 @@ import * as BrandActions from '../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../core/store/category/category.action';
 import { BrandCategoryDialogComponent } from '../brand-category-dialog/brand-category-dialog.component';
 import { ConfirmDialogServiceService } from '../../../core/services/confirm-dialog.service';
+import { CategoryService } from '../../../core/services/category.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { BrandCategoryDialogData, BrandCategoryDialogResult } from '../brand-category-dialog/brand-category-dialog.component';
+
+interface ManagedCategory extends Category {
+  parentCategoryId?: number | string | null;
+}
+
+type ManagedEntity = Brand | ManagedCategory;
 
 export interface ManageEntityDialogData {
-  type: 'Brand' | 'Category';
+  type: 'Brand' | 'Category' | 'Sub-Category';
+  parentCategoryId?: number | string;
 }
 
 @Component({
@@ -32,11 +47,13 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private dialog = inject(MatDialog);
   private confirmDialog = inject(ConfirmDialogServiceService);
+  private categoryService = inject(CategoryService);
+  private notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
   private actions$ = inject(Actions);
 
-  items$ = new BehaviorSubject<(Brand | Category)[]>([]);
-  localItems: (Brand | Category)[] = [];
+  items$ = new BehaviorSubject<ManagedEntity[]>([]);
+  localItems: ManagedEntity[] = [];
   currentPage = 1;
   pageSize = 10;
   totalRecords = 0;
@@ -48,6 +65,9 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
 
   //Returns dynamic dialog title based on entity type
   get entityTitle(): string {
+    if (this.data.type === 'Sub-Category') {
+      return 'Sub-Categories';
+    }
     return this.data.type === 'Category' ? 'Categories' : 'Brands';
   }
 
@@ -67,7 +87,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   private initializeEntityLoadingState(): void {
     if (this.data.type === 'Brand') {
       this.isLoading$ = this.store.select(selectBrandLoading);
-    } else {
+    } else if (this.data.type === 'Category') {
       this.isLoading$ = this.store.select(selectCategoryLoading);
     }
   }
@@ -76,8 +96,10 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   private loadInitialData(): void {
     if (this.data.type === 'Brand') {
       this.fetchBrands();
-    } else {
+    } else if (this.data.type === 'Category') {
       this.fetchCategories();
+    } else {
+      this.fetchSubCategories();
     }
   }
 
@@ -97,7 +119,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       ).subscribe(() => {
         this.isFetching = false;
       });
-    } else {
+    } else if (this.data.type === 'Category') {
       this.actions$.pipe(
         ofType(CategoryActions.loadPaginatedCategoriesSuccess),
         takeUntil(this.destroy$)
@@ -116,7 +138,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
 
   // Common handler for paginated success response to update items list
   private handlePaginatedSuccess(
-    fetchedItems: (Brand | Category)[],
+    fetchedItems: ManagedEntity[],
     pageNumber: number,
     totalPages: number,
     totalRecords: number
@@ -150,6 +172,39 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
     this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: this.currentPage, pageSize: this.pageSize }));
   }
 
+  private fetchSubCategories(): void {
+    const parentCategoryId = this.data.parentCategoryId;
+    if (this.isFetching || parentCategoryId === undefined) return;
+
+    this.isFetching = true;
+    this.categoryService
+      .fetchSubCategories(this.currentPage, this.pageSize, undefined, parentCategoryId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const subCategories: ManagedCategory[] = response.items.map(
+            (item: SubCategoryList) => ({
+              id: item.id,
+              name: item.subCategoryName,
+              description: item.description,
+              parentCategoryId: item.parentCategoryId ?? parentCategoryId,
+            }),
+          );
+          this.handlePaginatedSuccess(
+            subCategories,
+            response.pageNumber,
+            response.totalPages,
+            response.totalRecords,
+          );
+        },
+        error: (error: unknown) => {
+          this.isFetching = false;
+          console.error('Error fetching subcategories:', error);
+          this.notificationService.showError('Failed to load sub-categories.');
+        },
+      });
+  }
+
   // Handles scroll event on dialog content for infinite scrolling
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
@@ -168,8 +223,10 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   private loadMoreItems(): void {
     if (this.data.type === 'Brand') {
       this.fetchBrands();
-    } else {
+    } else if (this.data.type === 'Category') {
       this.fetchCategories();
+    } else {
+      this.fetchSubCategories();
     }
   }
 
@@ -197,12 +254,12 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Opens dialog to edit an existing entity
-  onEdit(item: Brand | Category): void {
+  onEdit(item: ManagedEntity): void {
     this.openAddEditDialog(item);
   }
 
   // Prompts confirmation and deletes selected entity
-  onDelete(id: string): void {
+  onDelete(id: string | number): void {
     this.confirmDialog
       .confirm(
         `Are you sure you want to delete this ${this.data.type}?`,
@@ -211,8 +268,28 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       )
       .subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this.dispatchDeleteAction(id);
-          this.removeDeletedItemLocally(id);
+          if (this.data.type === 'Sub-Category') {
+            this.categoryService
+              .deleteCategory(id)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: () => {
+                  this.notificationService.showSuccess(
+                    'Sub-category deleted successfully.',
+                  );
+                  this.refreshSubCategories();
+                },
+                error: (error: unknown) => {
+                  console.error('Error deleting subcategory:', error);
+                  this.notificationService.showError(
+                    'Failed to delete sub-category.',
+                  );
+                },
+              });
+          } else {
+            this.dispatchDeleteAction(String(id));
+            this.removeDeletedItemLocally(id);
+          }
         }
       });
   }
@@ -227,33 +304,47 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Updates local array state and checks if more data needs fetching after deletion
-  private removeDeletedItemLocally(id: string): void {
-    this.localItems = this.localItems.filter(item => item.id !== id);
+  private removeDeletedItemLocally(id: string | number): void {
+    this.localItems = this.localItems.filter(item => String(item.id) !== String(id));
     this.items$.next(this.localItems);
     this.totalRecords = Math.max(0, this.totalRecords - 1);
     this.checkAndFetchNextPageIfNeeded();
   }
 
   // Opens BrandCategoryDialog for creating or updating items
-  private openAddEditDialog(item?: Brand | Category): void {
+  private openAddEditDialog(item?: ManagedEntity): void {
     const isEdit = !!item;
-    const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
+    const initialData: BrandCategoryDialogData['initialData'] = item
+      ? {
+          name: item.name,
+          description: item.description,
+          ...(this.data.type === 'Sub-Category'
+            ? { parentCategoryId: (item as ManagedCategory).parentCategoryId }
+            : {}),
+        }
+      : this.data.type === 'Sub-Category'
+        ? { name: '', description: '', parentCategoryId: this.data.parentCategoryId }
+        : undefined;
+    const dialogData: BrandCategoryDialogData = {
+      title: isEdit ? `Edit ${this.data.type}` : `Add ${this.data.type}`,
+      type: this.data.type,
+      isEdit,
+      initialData,
+    };
+    const dialogRef = this.dialog.open<
+      BrandCategoryDialogComponent,
+      BrandCategoryDialogData,
+      BrandCategoryDialogResult
+    >(BrandCategoryDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: {
-        title: isEdit ? `Edit ${this.data.type}` : `Add ${this.data.type}`,
-        type: this.data.type,
-        isEdit: isEdit,
-        initialData: item
-          ? { name: item.name, description: item.description }
-          : null,
-      },
+      data: dialogData,
     });
 
     dialogRef
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((result: { name: string; description?: string } | undefined) => {
+      .subscribe((result) => {
         if (result) {
           if (isEdit && item) {
             this.handleEntityUpdate(item, result);
@@ -265,7 +356,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Dispatches update action and updates local items array
-  private handleEntityUpdate(item: Brand | Category, result: { name: string; description?: string }): void {
+  private handleEntityUpdate(item: ManagedEntity, result: BrandCategoryDialogResult): void {
     if (this.data.type === 'Brand') {
       this.store.dispatch(
         BrandActions.updateBrand({
@@ -273,6 +364,35 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
           brand: result as Brand,
         }),
       );
+    } else if (this.data.type === 'Sub-Category') {
+      const parentCategoryId =
+        result.parentCategoryId ?? this.data.parentCategoryId;
+      const payload: UpdateCategoryRequest = {
+        name: result.name,
+        description: result.description,
+        parentCategoryId:
+          parentCategoryId === undefined || parentCategoryId === null
+            ? null
+            : Number(parentCategoryId),
+      };
+      this.categoryService
+        .updateCategory(item.id, payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.notificationService.showSuccess(
+              'Sub-category updated successfully.',
+            );
+            this.refreshSubCategories();
+          },
+          error: (error: unknown) => {
+            console.error('Error updating subcategory:', error);
+            this.notificationService.showError(
+              'Failed to update sub-category.',
+            );
+          },
+        });
+      return;
     } else {
       this.store.dispatch(
         CategoryActions.updateCategory({
@@ -289,7 +409,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Dispatches create action and handles success response to close dialog with ID
-  private handleEntityCreation(result: { name: string; description?: string }): void {
+  private handleEntityCreation(result: BrandCategoryDialogResult): void {
     if (this.data.type === 'Brand') {
       this.store.dispatch(
         BrandActions.createBrand({ brand: result as Brand }),
@@ -305,6 +425,34 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
           this.dialogRef.close(brand.id);
         }
       });
+    } else if (this.data.type === 'Sub-Category') {
+      const parentCategoryId = result.parentCategoryId ?? this.data.parentCategoryId;
+      if (parentCategoryId === undefined || parentCategoryId === null) {
+        return;
+      }
+
+      const payload: CreateCategoryRequest = {
+        name: result.name,
+        description: result.description,
+        parentCategoryId: Number(parentCategoryId),
+      };
+      this.categoryService
+        .createCategory(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (category) => {
+            this.notificationService.showSuccess(
+              'Sub-category created successfully.',
+            );
+            this.dialogRef.close(category.id);
+          },
+          error: (error: unknown) => {
+            console.error('Error creating subcategory:', error);
+            this.notificationService.showError(
+              'Failed to create sub-category.',
+            );
+          },
+        });
     } else {
       this.store.dispatch(
         CategoryActions.createCategory({
@@ -320,5 +468,12 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  private refreshSubCategories(): void {
+    this.currentPage = 1;
+    this.localItems = [];
+    this.items$.next([]);
+    this.fetchSubCategories();
   }
 }

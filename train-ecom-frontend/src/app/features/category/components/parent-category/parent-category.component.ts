@@ -1,6 +1,5 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import {
@@ -15,6 +14,8 @@ import {
   Category,
   UpdateCategoryRequest,
 } from '../../../../core/models/category.model';
+import { CategoryService } from '../../../../core/services/category.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 import {
   TableAction,
   TableActionEvent,
@@ -44,7 +45,8 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
 
   private dialog = inject(MatDialog);
   private store = inject(Store);
-  private ngrxActions = inject(Actions);
+  private categoryService = inject(CategoryService);
+  private notificationService = inject(NotificationService);
   private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
 
@@ -84,12 +86,6 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadPage(1, this.pageSize, this.searchControl.value);
     this.setupSearchFilter();
-    this.ngrxActions
-      .pipe(ofType(CategoryActions.deleteCategorySuccess), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.currentPage = 1;
-        this.loadPage(1, this.pageSize, this.searchControl.value);
-      });
   }
 
   private setupSearchFilter(): void {
@@ -139,13 +135,19 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadPage(pageNumber: number, pageSize: number, search: string): void {
+  private loadPage(
+    pageNumber: number,
+    pageSize: number,
+    search: string,
+    refresh = false,
+  ): void {
     this.currentPage = pageNumber;
     this.store.dispatch(
       CategoryActions.loadPaginatedCategories({
         pageNumber,
         pageSize,
         search: search.trim() || undefined,
+        refresh,
       }),
     );
   }
@@ -154,12 +156,21 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
     id: string | number,
     payload: UpdateCategoryRequest,
   ): void {
-    this.store.dispatch(
-      CategoryActions.updateCategory({
-        categoryId: String(id),
-        category: payload,
-      }),
-    );
+    this.categoryService
+      .updateCategory(id, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Category updated successfully.');
+          this.loadPage(1, this.pageSize, this.searchControl.value, true);
+        },
+        error: (error) => {
+          console.error('Error updating category:', error);
+          this.notificationService.showError(
+            'Failed to update category. Please try again.',
+          );
+        },
+      });
   }
 
   private deleteCategory(id: string | number): void {
@@ -169,11 +180,26 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
         'Delete',
         'Cancel',
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this.store.dispatch(
-            CategoryActions.deleteCategory({ categoryId: String(id) }),
-          );
+          this.categoryService
+            .deleteCategory(id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                this.notificationService.showSuccess(
+                  'Category deleted successfully.',
+                );
+                this.loadPage(1, this.pageSize, this.searchControl.value, true);
+              },
+              error: (error) => {
+                console.error('Error deleting category:', error);
+                this.notificationService.showError(
+                  'Failed to delete category. Please try again.',
+                );
+              },
+            });
         }
       });
   }

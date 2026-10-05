@@ -9,14 +9,25 @@ import {
 
 import { Product, ProductImage } from '../../../../core/models/product.model';
 import { Brand } from '../../../../core/models/brand.model';
-import { Category } from '../../../../core/models/category.model';
+import { Category, SubCategoryItem } from '../../../../core/models/category.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { CategoryService } from '../../../../core/services/category.service';
 import { selectProductById, selectProductsLoading } from '../../../../core/store/product/product.selectors';
 import { Observable, combineLatest, Subject } from 'rxjs';
-import { startWith, map, filter, take, takeUntil } from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  filter,
+  map,
+  startWith,
+  take,
+  takeUntil,
+} from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
-import { ManageEntityDialogComponent } from '../../../../shared/components/manage-entity-dialog/manage-entity-dialog.component';
+import {
+  ManageEntityDialogComponent,
+  ManageEntityDialogData,
+} from '../../../../shared/components/manage-entity-dialog/manage-entity-dialog.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
@@ -28,6 +39,11 @@ import { Actions, ofType } from '@ngrx/effects';
 import { Location } from '@angular/common';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
+import {
+  getFieldError,
+  noSpaceAllow,
+  trimControlValue,
+} from '../../../auth/register.utils';
 
 @Component({
   selector: 'app-product-form',
@@ -37,6 +53,7 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private notification = inject(NotificationService);
+  private categoryService = inject(CategoryService);
   private matDialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
   private store = inject(Store);
@@ -47,19 +64,24 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   private portal: PortalKey = 'admin';
 
-  brandControl = new FormControl<string | number | null>('');
-  categoryControl = new FormControl<string | number | null>('');
+  brandControl = new FormControl<string | number | null>('', Validators.required);
+  categoryControl = new FormControl<string | number | null>('', Validators.required);
+  subcatgoryControl = new FormControl<string | number | null>('', Validators.required);
 
   isEditMode: boolean = false;
   productId: string | null = null;
   originalBrandId: string | number = '';
   originalCategoryId: string | number = '';
+  originalSubCategoryId: string | number = ''
   originalBrandName: string = '';
   originalCategoryName: string = '';
+  originalSubCategoryName: string = '';
+
 
   productForm!: FormGroup;
   brands: Brand[] = [];
   categories: Category[] = [];
+  subCategories: SubCategoryItem[] = [];
   selectFiles: File[] = [];
   previewUrls: (string | null)[] = [];
   existingImages: { id: string | number; imageUrl: string }[] = [];
@@ -70,8 +92,26 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     this.initFormAndData();
+    this.setupCategoryControl();
     this.checkRouteForEditMode();
     this.setupPaginatedListeners();
+  }
+
+  private setupCategoryControl(): void {
+    this.categoryControl.valueChanges
+      .pipe(
+        distinctUntilChanged(
+          (previous, current) => previous === current,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((categoryId) => {
+        this.subcatgoryControl.reset('', { emitEvent: false });
+        const selectedCategory = this.categories.find(
+          (category) => category.id === categoryId,
+        );
+        this.subCategories = selectedCategory?.subCategories ?? [];
+      });
   }
 
   // Lifecycle hook to cleanup object URLs and destroy subjects.
@@ -172,11 +212,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   private patchProductFormValues(product: Product): void {
     const brandId = product.brandId || '';
     const categoryId = product.categoryId || '';
+    const subCategoryId = product.subCategoryId || '';
 
     this.originalBrandId = brandId;
     this.originalCategoryId = categoryId;
     this.originalBrandName = product.brandName || '';
     this.originalCategoryName = product.categoryName || '';
+    this.originalSubCategoryName = product.subCategoryName || '';
 
     this.productForm.patchValue({
       title: product.name || '',
@@ -184,19 +226,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       stockQuantity: product.stockQuantity ?? 0,
       brand: brandId,
       category: categoryId,
-      description: product.description || ''
+      description: product.description || '',
+      subCategory: subCategoryId
     });
 
     // check if brandId exists before setting the value to avoid null or undefined issues
     if (brandId) {
       this.brandControl.setValue(brandId);
       this.productForm.get('brand')?.setValue(brandId);
-    }
-
-    // check if categoryId exists before setting the value to avoid null or undefined issues
-    if (categoryId) {
-      this.categoryControl.setValue(categoryId);
-      this.productForm.get('category')?.setValue(categoryId);
     }
 
     if (product.images) {
@@ -214,10 +251,23 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   // Opens the manage entity dialog for adding/editing brands or categories.
-  openManageDialog(type: 'Brand' | 'Category'): void {
-    this.matDialog.open(ManageEntityDialogComponent, {
+  openManageDialog(type: 'Brand' | 'Category' | 'Sub-Category'): void {
+    const parentCategoryId = this.categoryControl.value;
+    if (type === 'Sub-Category' && (parentCategoryId === null || parentCategoryId === '')) {
+      return;
+    }
+
+    const data: ManageEntityDialogData = {
+      type,
+      ...(type === 'Sub-Category' ? { parentCategoryId: parentCategoryId ?? undefined } : {}),
+    };
+    this.matDialog.open<
+      ManageEntityDialogComponent,
+      ManageEntityDialogData,
+      string | number
+    >(ManageEntityDialogComponent, {
       width: '600px',
-      data: { type },
+      data,
       disableClose: true
     }).afterClosed().subscribe((newId: unknown) => {
       if (newId && (typeof newId === 'string' || typeof newId === 'number')) {
@@ -227,19 +277,43 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   // Handles state synchronization after manage entity dialog is closed.
-  private handleManageDialogClose(type: 'Brand' | 'Category', newId: string | number): void {
+  private handleManageDialogClose(
+    type: 'Brand' | 'Category' | 'Sub-Category',
+    newId: string | number,
+  ): void {
     if (type === 'Brand') {
       this.store.select(selectAllBrands).pipe(take(1)).subscribe((brands: Brand[]) => {
         this.brands = brands;
         this.productForm.get('brand')?.setValue(newId);
         this.brandControl.setValue(newId);
       });
-    } else {
+    } else if (type === 'Category') {
       this.store.select(selectAllCategories).pipe(take(1)).subscribe((categories: Category[]) => {
         this.categories = categories;
-        this.productForm.get('category')?.setValue(newId);
         this.categoryControl.setValue(newId);
       });
+    } else {
+      const parentCategoryId = this.categoryControl.value;
+      if (parentCategoryId === null || parentCategoryId === '') {
+        return;
+      }
+
+      this.categoryService
+        .fetchSubCategories(1, 100, undefined, parentCategoryId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.subCategories = response.items.map((subCategory) => ({
+              id: subCategory.id,
+              name: subCategory.subCategoryName,
+            }));
+            this.subcatgoryControl.setValue(newId);
+          },
+          error: (error: unknown) => {
+            console.error('Error refreshing product subcategories:', error);
+            this.notification.showError('Could not refresh sub-categories.');
+          },
+        });
     }
   }
 
@@ -308,14 +382,63 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Initializes the reactive product form group with validations.
   private validateForm(): void {
     this.productForm = this.fb.group({
-      title: ['', Validators.required],
+      title: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(100),
+          noSpaceAllow(),
+        ],
+      ],
       price: [0, [Validators.required, Validators.min(0.01)]],
       stockQuantity: [0, [Validators.min(0)]],
-      brand: ['', Validators.required],
-      category: ['', Validators.required],
-      description: ['', Validators.required],
+      brand: this.brandControl,
+      category: this.categoryControl,
+      subCategory: this.subcatgoryControl,
+      description: [
+        '',
+        [Validators.required, Validators.maxLength(2000), noSpaceAllow()],
+      ],
       images: this.fb.array([this.fb.control('')]),
     });
+  }
+
+  onSubCategorySearch(search: string): void {
+    const searchTerm = search.trim().toLowerCase();
+    const selectedCategory = this.categories.find(
+      (category) => category.id === this.categoryControl.value,
+    );
+    const categorySubCategories = selectedCategory?.subCategories ?? [];
+    this.subCategories = searchTerm
+      ? categorySubCategories.filter((subCategory) =>
+          subCategory.name.toLowerCase().includes(searchTerm),
+        )
+      : categorySubCategories;
+  }
+
+  getErrorMessage(controlName: string, label: string): string {
+    const control = this.productForm.get(controlName);
+    const sharedError = getFieldError(control, label);
+    if (sharedError) {
+      return sharedError;
+    }
+
+    const maxLength = control?.getError('maxlength')?.requiredLength;
+    return maxLength
+      ? `${label} must be no more than ${maxLength} characters.`
+      : '';
+  }
+
+  onBlurTrim(controlName: string): void {
+    const control = this.productForm.get(controlName);
+    if (!control) {
+      return;
+    }
+
+    trimControlValue(control);
+    control.markAsTouched();
+    control.updateValueAndValidity();
   }
 
 
@@ -391,6 +514,10 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   // Submits the product form, dispatching create or update actions based on mode.
   onSubmit(): void {
+    this.productForm.markAllAsTouched();
+    this.onBlurTrim('title');
+    this.onBlurTrim('description');
+
     if (this.productForm.valid) {
       const formValue = this.productForm.value;
       const cleanFiles = this.selectFiles.filter((f: File | undefined): f is File => !!f);
@@ -407,6 +534,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             : 0,
         brandId: formValue.brand,
         categoryId: formValue.category,
+        subCategoryId: formValue.subCategory,
       };
 
       if (this.isEditMode && this.productId) {
@@ -486,6 +614,23 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   // Dispatches action to search/load paginated categories.
   onCategorySearch(term: string): void {
-    this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10, search: term }));
+    const search = term.trim();
+    if (!search) {
+      this.store
+        .select(selectAllCategories)
+        .pipe(take(1))
+        .subscribe((categories) => {
+          this.categories = categories;
+        });
+      return;
+    }
+
+    this.store.dispatch(
+      CategoryActions.loadPaginatedCategories({
+        pageNumber: 1,
+        pageSize: 10,
+        search,
+      }),
+    );
   }
 }

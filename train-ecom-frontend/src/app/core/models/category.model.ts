@@ -7,7 +7,7 @@ export interface Category extends Record<string, unknown> {
   numberOfProducts?: number;
 }
 
-export interface SubCategoryItem {
+export interface SubCategoryItem extends Record<string, unknown> {
   id: number;
   name: string;
 }
