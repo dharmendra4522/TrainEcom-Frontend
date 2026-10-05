@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Category } from '../../models/category.model';
+import { Category, UpdateCategoryRequest } from '../../models/category.model';
 
 export const loadCategories = createAction('[Category] Load Categories');
 
@@ -45,7 +45,7 @@ export const createCategoryFailure = createAction(
 
 export const updateCategory = createAction(
   `[Category] Update Category`,
-  props<{ categoryId: string | number; category: Category }>(),
+  props<{ categoryId: string | number; category: UpdateCategoryRequest }>(),
 );
 
 export const updateCategorySuccess = createAction(

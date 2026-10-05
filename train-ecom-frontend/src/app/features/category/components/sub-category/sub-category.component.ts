@@ -1,6 +1,11 @@
 import { Component, inject, Input } from '@angular/core';
+import { Actions, ofType } from '@ngrx/effects';
+import { MatDialog } from '@angular/material/dialog';
 import { CategoryService } from '../../../../core/services/category.service';
-import { SubCategoryList } from '../../../../core/models/category.model';
+import {
+  SubCategoryList,
+  UpdateCategoryRequest,
+} from '../../../../core/models/category.model';
 import { FormControl } from '@angular/forms';
 import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
 import { EMPTY, Subject } from 'rxjs';
@@ -13,6 +18,31 @@ import {
   switchMap,
   takeUntil,
 } from 'rxjs/operators';
+import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import * as CategoryActions from '../../../../core/store/category/category.action';
+import {
+  BrandCategoryDialogComponent,
+  BrandCategoryDialogData,
+  BrandCategoryDialogResult,
+} from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
+
+function isSubCategoryList(row: unknown): row is SubCategoryList {
+  return (
+    typeof row === 'object' &&
+    row !== null &&
+    'id' in row &&
+    typeof row.id === 'number' &&
+    'subCategoryName' in row &&
+    typeof row.subCategoryName === 'string' &&
+    'parentCategoryName' in row &&
+    typeof row.parentCategoryName === 'string' &&
+    'description' in row &&
+    typeof row.description === 'string' &&
+    'productCount' in row &&
+    typeof row.productCount === 'number'
+  );
+}
 
 @Component({
   selector: 'app-sub-category',
@@ -21,6 +51,10 @@ import {
 })
 export class SubCategoryComponent {
   private categoryService = inject(CategoryService);
+  private storeActions = inject(Actions);
+  private dialog = inject(MatDialog);
+  private confirmDialog = inject(ConfirmDialogServiceService);
+  private notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
   @Input() searchControl = new FormControl('', { nonNullable: true });
@@ -43,19 +77,22 @@ export class SubCategoryComponent {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Sub-Category',
+      tooltip: 'Edit',
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Sub-Category',
+      tooltip: 'Delete',
     },
   ];
 
   ngOnInit(): void {
     this.loadSubCategories(1, this.pageSize);
     this.setupSearchFilter();
+    this.storeActions
+      .pipe(ofType(CategoryActions.createCategorySuccess), takeUntil(this.destroy$))
+      .subscribe(() => this.refreshSubCategories());
   }
 
   private loadSubCategories(
@@ -120,12 +157,111 @@ export class SubCategoryComponent {
   }
 
   handleSubCategoryAction(event: TableActionEvent): void {
-    const subCategory = event.row as SubCategoryList;
-    if (event.action === 'edit') {
-      // Edit 
-    } else if (event.action === 'delete') {
-      // Delete
+    if (!isSubCategoryList(event.row)) {
+      return;
     }
+    const subCategory = event.row;
+
+    if (event.action === 'edit') {
+      this.openEditDialog(subCategory);
+    } else if (event.action === 'delete') {
+      this.confirmDialog
+        .confirm(
+          `Are you sure you want to delete the sub-category "${subCategory.subCategoryName}"?`,
+          'Delete',
+          'Cancel',
+        )
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((confirmed) => {
+          if (confirmed) {
+            this.deleteSubCategory(subCategory.id);
+          }
+        });
+    }
+  }
+
+  private openEditDialog(subCategory: SubCategoryList): void {
+    const data: BrandCategoryDialogData = {
+      title: 'Edit Sub-Category',
+      type: 'Sub-Category',
+      isEdit: true,
+      initialData: {
+        name: subCategory.subCategoryName,
+        description: subCategory.description,
+        parentCategoryId: subCategory.parentCategoryId,
+        parentCategoryName: subCategory.parentCategoryName,
+      },
+    };
+    const dialogRef = this.dialog.open<
+      BrandCategoryDialogComponent,
+      BrandCategoryDialogData,
+      BrandCategoryDialogResult
+    >(BrandCategoryDialogComponent, { width: '500px', data });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result?.parentCategoryId === undefined || result.parentCategoryId === null) {
+          return;
+        }
+
+        const payload: UpdateCategoryRequest = {
+          name: result.name,
+          description: result.description,
+          parentCategoryId: result.parentCategoryId,
+        };
+        this.isLoading = true;
+        this.categoryService
+          .updateCategory(subCategory.id, payload)
+          .pipe(
+            finalize(() => (this.isLoading = false)),
+            takeUntil(this.destroy$),
+          )
+          .subscribe({
+            next: () => {
+              this.notificationService.showSuccess(
+                'Sub-category updated successfully.',
+              );
+              this.refreshSubCategories();
+            },
+            error: (error) => {
+              console.error('Error updating sub-category:', error);
+              this.notificationService.showError(
+                'Failed to update sub-category. Please try again.',
+              );
+            },
+          });
+      });
+  }
+
+  private deleteSubCategory(subCategoryId: number): void {
+    this.isLoading = true;
+    this.categoryService
+      .deleteCategory(subCategoryId)
+      .pipe(
+        finalize(() => (this.isLoading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess(
+            'Sub-category deleted successfully.',
+          );
+          this.refreshSubCategories();
+        },
+        error: (error) => {
+          console.error('Error deleting sub-category:', error);
+          this.notificationService.showError(
+            'Failed to delete sub-category. Please try again.',
+          );
+        },
+      });
+  }
+
+  private refreshSubCategories(): void {
+    this.currentPage = 1;
+    this.loadSubCategories(1, this.pageSize, this.searchControl.value.trim());
   }
 
   resetSearch(): void {

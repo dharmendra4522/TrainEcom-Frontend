@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import {
@@ -10,7 +11,10 @@ import {
   take,
   takeUntil,
 } from 'rxjs/operators';
-import { Category } from '../../../../core/models/category.model';
+import {
+  Category,
+  UpdateCategoryRequest,
+} from '../../../../core/models/category.model';
 import {
   TableAction,
   TableActionEvent,
@@ -23,7 +27,11 @@ import {
   selectCategoryTotalRecords,
   selectPaginatedCategories,
 } from '../../../../core/store/category/category.selectors';
-import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
+import {
+  BrandCategoryDialogComponent,
+  BrandCategoryDialogData,
+  BrandCategoryDialogResult,
+} from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -36,6 +44,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
 
   private dialog = inject(MatDialog);
   private store = inject(Store);
+  private ngrxActions = inject(Actions);
   private confirmDialog = inject(ConfirmDialogServiceService);
   private destroy$ = new Subject<void>();
 
@@ -54,6 +63,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
     { key: 'name', label: 'Category Name' },
     { key: 'description', label: 'Description' },
     { key: 'numberOfProducts', label: 'Total Products' },
+    { key: 'numberOfSubCategories', label: 'Total Sub-Categories' },
   ];
 
   actions: TableAction[] = [
@@ -61,19 +71,25 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Category',
+      tooltip: 'Edit',
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Category',
+      tooltip: 'Delete',
     },
   ];
 
   ngOnInit(): void {
     this.loadPage(1, this.pageSize, this.searchControl.value);
     this.setupSearchFilter();
+    this.ngrxActions
+      .pipe(ofType(CategoryActions.deleteCategorySuccess), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadPage(1, this.pageSize, this.searchControl.value);
+      });
   }
 
   private setupSearchFilter(): void {
@@ -136,12 +152,12 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
 
   private updateCategory(
     id: string | number,
-    payload: Partial<Category>,
+    payload: UpdateCategoryRequest,
   ): void {
     this.store.dispatch(
       CategoryActions.updateCategory({
         categoryId: String(id),
-        category: payload as Category,
+        category: payload,
       }),
     );
   }
@@ -163,25 +179,32 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   }
 
   private openCategoryDialog(category: Category): void {
-    const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
+    const data: BrandCategoryDialogData = {
+      title: 'Edit Category',
+      type: 'Category',
+      isEdit: true,
+      initialData: { name: category.name, description: category.description },
+    };
+    const dialogRef = this.dialog.open<
+      BrandCategoryDialogComponent,
+      BrandCategoryDialogData,
+      BrandCategoryDialogResult
+    >(BrandCategoryDialogComponent, {
       width: '500px',
-      data: {
-        title: 'Edit Category',
-        type: 'Category',
-        isEdit: true,
-        initialData: { name: category.name, description: category.description },
-      },
+      data,
     });
 
     dialogRef
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (result: { name: string; description: string } | null | undefined) => {
-          if (result && category.id) {
-            this.updateCategory(category.id, result);
-          }
-        },
-      );
+      .subscribe((result) => {
+        if (result && category.id) {
+          const payload: UpdateCategoryRequest = {
+            name: result.name,
+            description: result.description,
+          };
+          this.updateCategory(category.id, payload);
+        }
+      });
   }
 }

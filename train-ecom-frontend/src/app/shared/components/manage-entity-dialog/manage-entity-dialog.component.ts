@@ -277,7 +277,10 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       this.store.dispatch(
         CategoryActions.updateCategory({
           categoryId: item.id,
-          category: result as Category,
+          category: {
+            name: result.name,
+            description: result.description ?? item.description,
+          },
         }),
       );
     }

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { CategoryWiseProductCount, DashboardData, OrderSummaryResponse, RevenueData, VendorItem } from '../models/dashboard.model';
+import { CategoryProductSummaryResponse, DashboardData, OrderSummaryResponse, RevenueData, VendorItem } from '../models/dashboard.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
 
@@ -21,8 +21,8 @@ export class DashboardService {
     return this.http.get<DashboardData>(this.baseAPI);
   }
 
-  fetchCategoryWiseProductCount(): Observable<CategoryWiseProductCount[]> {
-    return this.http.get<CategoryWiseProductCount[]>(this.chartAPI + '/product-category/summary');
+  fetchCategoryWiseProductCount(): Observable<CategoryProductSummaryResponse> {
+    return this.http.get<CategoryProductSummaryResponse>(this.chartAPI + '/product-category/summary');
   }
 
   fetchRevenueData(year?: number, vendorIds?: number[]): Observable<RevenueData> {
