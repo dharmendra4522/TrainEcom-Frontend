@@ -1,0 +1,17 @@
+.image-input {
+  display: none;
+}
+
+.save-button {
+  min-width: 112px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.save-spinner {
+  display: inline-block;
+  flex: 0 0 20px;
+  margin-right: 8px;
+}
