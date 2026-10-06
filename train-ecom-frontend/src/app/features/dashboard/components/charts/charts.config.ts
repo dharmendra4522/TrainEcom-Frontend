@@ -1,8 +1,9 @@
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration, Chart } from 'chart.js';
 import { Router } from '@angular/router';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import { Role } from '../../../../core/models/auth.model';
+import { OrderStatus } from '../../../../core/models/order.model';
 
 export function getUserChartOptions(
   router: Router,
@@ -34,27 +35,35 @@ export function getUserChartOptions(
     },
     layout: {
       padding:
-        window.innerWidth < 768
-          ? { top: 10, bottom: 20, left: 60, right: 70 }
-          : { top: 25, bottom: 10, left: 40, right: 50 },
+        window.innerWidth <= 992
+          ? { top: 15, bottom: 15, left: 15, right: 15 }
+          : { top: 20, bottom: 20, left: 20, right: 20 },
     },
     plugins: {
       legend: { position: 'bottom' },
       datalabels: {
         color: '#000',
+        font: (context: { chart: Chart }) => {
+          const w = context.chart.width;
+          if (w < 200) return { size: 6.5 };
+          if (w < 300) return { size: 8 };
+          return { size: 12 };
+        },
         formatter: (value, context) =>
           `${context.chart.data.labels?.[context.dataIndex]}: ${value}`,
         anchor: 'end',
-        align: 'end',
-        offset: 4,
+        align: (context: { chart: Chart }) =>
+          context.chart.width < 200 ? 'start' : 'end',
+        clamp: true,
+        offset: 2,
         display: true,
-        borderRadius: 4,
+        borderRadius: 3,
         borderColor: '#ccc',
         backgroundColor: '#fff',
         borderWidth: 1,
-        padding: 4
-      }
-    }
+        padding: { top: 2, bottom: 2, left: 3, right: 3 },
+      },
+    },
   };
 }
 
@@ -72,7 +81,7 @@ export function getProductChartOptions(
         if (categoryName) {
           const portal = portalRoutes.currentPortal() ?? 'admin';
           router.navigate(portalRoutes.products(portal, 'manage'), {
-            queryParams: { categoryName }
+            queryParams: { categoryName },
           });
         }
       }
@@ -122,3 +131,57 @@ export const orderChartOptions: ChartConfiguration['options'] = {
     y: { beginAtZero: true }
   }
 };
+
+export function getOrderChartOptions(
+  router: Router,
+  portalRoutes: PortalRouteService,
+  portal: PortalKey,
+  selectedYear: number | null,
+): ChartConfiguration['options'] {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    onClick: (event, elements, chart) => {
+      if (elements && elements.length > 0) {
+        const element = elements[0];
+        const datasetIndex = element.datasetIndex;
+        const monthIndex = element.index;
+
+        const month = monthIndex + 1; // Convert to 1-based month
+        const datasetLabel = String(
+          chart.data.datasets[datasetIndex].label || '',
+        );
+        let orderStatus: OrderStatus | undefined = undefined;
+        if (datasetLabel === 'Active Orders') {
+          orderStatus = OrderStatus.Active;
+        } else if (datasetLabel === 'Delivered Orders') {
+          orderStatus = OrderStatus.Delivered;
+        } else if (datasetLabel === 'Cancelled Orders') {
+          orderStatus = OrderStatus.Cancelled;
+        } else if (datasetLabel === 'Shipped Orders') {
+          orderStatus = OrderStatus.Shipped;
+        }
+        const year = selectedYear ?? new Date().getFullYear();
+
+        router.navigate(portalRoutes.orders(portal, 'manage'), {
+          queryParams: {
+            orderStatus: orderStatus,
+            month: month,
+            year: year,
+          },
+        });
+      }
+    },
+    onHover: (event, chartElement) => {
+      const target = event.native?.target as HTMLElement;
+      if (target)
+        target.style.cursor = chartElement.length > 0 ? 'pointer' : 'default';
+    },
+    plugins: {
+      datalabels: { display: false },
+    },
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+}

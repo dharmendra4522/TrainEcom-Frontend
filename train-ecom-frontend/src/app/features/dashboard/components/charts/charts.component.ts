@@ -14,6 +14,7 @@ import {
   userChartData,
 } from '../dashboard/dashboard.utils';
 import {
+  getOrderChartOptions,
   getProductChartOptions,
   getUserChartOptions,
   orderChartOptions as orderChartConfiguration,
@@ -71,14 +72,14 @@ export class ChartsComponent implements OnInit {
   public userChartOptions = getUserChartOptions(
     this.router,
     this.portalRoutes,
-    this.portal
+    this.portal,
   );
 
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = categoryProductData;
   public productChartOptions = getProductChartOptions(
     this.router,
-    this.portalRoutes
+    this.portalRoutes,
   );
 
   // revenue chart configuration
@@ -89,7 +90,14 @@ export class ChartsComponent implements OnInit {
   // order chart configuration
   public orderChartType: ChartType = 'bar';
   public orderChartData: ChartData<'bar'> = orderStatusChartData;
-  public orderChartOptions = orderChartConfiguration;
+  public get orderChartOptions() {
+    return getOrderChartOptions(
+      this.router,
+      this.portalRoutes,
+      this.portal,
+      this.selectedOrderYear,
+    );
+  }
 
   ngOnInit(): void {
     Chart.register(...registerables, ChartDataLabels);
@@ -115,9 +123,9 @@ export class ChartsComponent implements OnInit {
       datasets: [
         {
           data: [this.totalCustomers, this.totalVendors, this.totalAdminUsers],
-          backgroundColor: ['#4caf50', '#2196f3', '#ff9800']
-        }
-      ]
+          backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
+        },
+      ],
     };
   }
 
@@ -137,13 +145,13 @@ export class ChartsComponent implements OnInit {
             {
               data: counts,
               backgroundColor: ['#2196f3'],
-            }
-          ]
+            },
+          ],
         };
       },
       error: (err: Error) => {
         console.error('Failed to fetch category data', err);
-      }
+      },
     });
   }
 
@@ -159,7 +167,7 @@ export class ChartsComponent implements OnInit {
         const revenues = labels.map(
           (_, monthIndex) =>
             data.monthlyRevenue.find((item) => item.month === monthIndex + 1)
-              ?.revenue ?? 0
+              ?.revenue ?? 0,
         );
 
         this.revenueChartData = {
@@ -174,7 +182,7 @@ export class ChartsComponent implements OnInit {
       },
       error: (err: Error) => {
         console.error('Failed to fetch revenue data', err);
-      }
+      },
     });
   }
 

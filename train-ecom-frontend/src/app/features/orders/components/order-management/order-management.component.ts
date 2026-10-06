@@ -53,6 +53,8 @@ export class OrderManagementComponent implements OnInit {
   // Filter State
   selectedStatus: number | undefined = undefined;
   selectedPaymentStatus: number | undefined = undefined;
+  selectedMonth: number | undefined = undefined;
+  selectedYear: number | undefined = undefined;
   fromDate: Date | string | null = '';
   toDate: Date | string | null = '';
   private appliedFromDate: Date | string | null = '';
@@ -156,6 +158,12 @@ export class OrderManagementComponent implements OnInit {
           ? Number(paymentParam)
           : undefined;
 
+        const monthParam = params['month'];
+        this.selectedMonth = monthParam ? monthParam : undefined;
+
+        const yearParam = params['year'];
+        this.selectedYear = yearParam ? yearParam : undefined;
+
         const searchParam = params['search'];
         if (
           searchParam !== undefined &&
@@ -213,6 +221,8 @@ export class OrderManagementComponent implements OnInit {
         this.selectedPaymentStatus !== undefined
           ? this.selectedPaymentStatus.toString()
           : undefined,
+      month: this.selectedMonth,
+      year: this.selectedYear,
       fromDate: formatToYyyyMmDd(this.appliedFromDate),
       toDate: formatToYyyyMmDd(this.appliedToDate),
       pageNumber: this.pageIndex + 1,
@@ -291,6 +301,8 @@ export class OrderManagementComponent implements OnInit {
     this.filterForm.patchValue({ search: '' }, { emitEvent: false });
     this.selectedStatus = undefined;
     this.selectedPaymentStatus = undefined;
+    this.selectedMonth = undefined;
+    this.selectedYear = undefined;
     this.fromDate = '';
     this.toDate = '';
     this.appliedFromDate = '';
