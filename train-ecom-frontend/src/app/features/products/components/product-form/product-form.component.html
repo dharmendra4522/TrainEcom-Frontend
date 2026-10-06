@@ -108,7 +108,7 @@
         <div class="col-md-4">
           <app-searchable-dropdown
             formControlName="subCategory"
-            [control]="subcatgoryControl"
+            [control]="subcategoryControl"
             label="Sub-Category"
             placeholder="Search Sub-Category"
             [items]="subCategories"
@@ -152,13 +152,11 @@
               >
                 <img
                   [src]="img.imageUrl"
-                  class="img-thumbnail rounded shadow-sm"
-                  style="width: 100px; height: 100px; object-fit: cover"
+                  class="img-thumbnail rounded shadow-sm thumb-img"
                 />
                 <button
                   type="button"
-                  class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center"
-                  style="width: 22px; height: 22px; line-height: 1"
+                  class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 rounded-circle d-flex align-items-center justify-content-center remove-btn"
                   (click)="removeExistingImage(img.id, i)"
                   title="Remove Image"
                 >
@@ -210,8 +208,7 @@
               >
                 <img
                   [src]="previewUrls[i]"
-                  class="img-thumbnail rounded shadow-sm"
-                  style="width: 100px; height: 100px; object-fit: cover"
+                  class="img-thumbnail rounded shadow-sm thumb-img"
                 />
                 <span
                   class="badge bg-success position-absolute bottom-0 start-0 m-1 small"

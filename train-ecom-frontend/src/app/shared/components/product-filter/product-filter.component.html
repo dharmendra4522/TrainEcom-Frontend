@@ -25,7 +25,6 @@
       >
         <a
           [routerLink]="['/products']"
-          [queryParams]="{}"
           routerLinkActive="active-chip"
           [routerLinkActiveOptions]="{ exact: true }"
           class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block"
@@ -110,7 +109,6 @@
         <ng-template #categoryOptions>
           <a
             [routerLink]="['/products']"
-            [queryParams]="{}"
             class="mobile-category-option"
             (click)="closeMobileMenu()"
           >

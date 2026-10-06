@@ -66,7 +66,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   brandControl = new FormControl<string | number | null>('', Validators.required);
   categoryControl = new FormControl<string | number | null>('', Validators.required);
-  subcatgoryControl = new FormControl<string | number | null>('', Validators.required);
+  subcategoryControl = new FormControl<string | number | null>('', Validators.required);
 
   isEditMode: boolean = false;
   productId: string | null = null;
@@ -106,7 +106,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((categoryId) => {
-        this.subcatgoryControl.reset('', { emitEvent: false });
+        this.subcategoryControl.reset('', { emitEvent: false });
         const selectedCategory = this.categories.find(
           (category) => category.id === categoryId,
         );
@@ -307,7 +307,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
               id: subCategory.id,
               name: subCategory.subCategoryName,
             }));
-            this.subcatgoryControl.setValue(newId);
+            this.subcategoryControl.setValue(newId);
           },
           error: (error: unknown) => {
             console.error('Error refreshing product subcategories:', error);
@@ -382,20 +382,12 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Initializes the reactive product form group with validations.
   private validateForm(): void {
     this.productForm = this.fb.group({
-      title: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(100),
-          noSpaceAllow(),
-        ],
-      ],
+      title: ['',this.titleValidator ],
       price: [0, [Validators.required, Validators.min(0.01)]],
       stockQuantity: [0, [Validators.min(0)]],
       brand: this.brandControl,
       category: this.categoryControl,
-      subCategory: this.subcatgoryControl,
+      subCategory: this.subcategoryControl,
       description: [
         '',
         [Validators.required, Validators.maxLength(2000), noSpaceAllow()],
@@ -403,6 +395,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       images: this.fb.array([this.fb.control('')]),
     });
   }
+
+  // mandle multiple validator in title
+  private titleValidator = Validators.compose([
+    Validators.required,
+    Validators.minLength(3),
+    Validators.maxLength(100),
+    noSpaceAllow(),
+  ]);
 
   onSubCategorySearch(search: string): void {
     const searchTerm = search.trim().toLowerCase();
@@ -412,8 +412,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     const categorySubCategories = selectedCategory?.subCategories ?? [];
     this.subCategories = searchTerm
       ? categorySubCategories.filter((subCategory) =>
-          subCategory.name.toLowerCase().includes(searchTerm),
-        )
+        subCategory.name.toLowerCase().includes(searchTerm),
+      )
       : categorySubCategories;
   }
 

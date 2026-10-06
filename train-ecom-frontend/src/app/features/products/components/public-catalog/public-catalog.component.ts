@@ -263,42 +263,15 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
     const queryParams = this.route.snapshot.queryParamMap;
 
-    const brandName =
-      overrides && 'brandName' in overrides
-        ? overrides.brandName || undefined
-        : queryParams.get('brand') || undefined;
-
-    const categoryName =
-      overrides && 'categoryName' in overrides
-        ? overrides.categoryName || undefined
-        : queryParams.get('category') || undefined;
-
-    const subCategoryName = overrides && 'subCategoryName' in overrides ? overrides.subCategoryName || undefined : queryParams.get('subCategory') || undefined
-
+    const brandName = this.getParamValue(overrides, 'brand', undefined);
+    const categoryName = this.getParamValue(overrides, 'categoryName', undefined);
+    const subCategoryName = this.getParamValue(overrides, 'subCategoryName', undefined);
     const search = queryParams.get('search') || undefined;
+    const minPrice = this.getParamValue(overrides, 'minPrice', this.minPriceFilter$.value ?? undefined)
+    const maxPrice = this.getParamValue(overrides, 'maxPrice', this.maxPriceFilter$.value ?? undefined);
+    const sortBy = this.getParamValue(overrides, 'sortBy', this.sortBy$.value || undefined);
+    const minRating = this.getParamValue(overrides, 'minRating', this.ratingFilter$.value ?? undefined, (val) => Number(val));
 
-    const minPrice =
-      overrides && 'minPrice' in overrides
-        ? (overrides.minPrice ?? undefined)
-        : (this.minPriceFilter$.value ?? undefined);
-
-    const maxPrice =
-      overrides && 'maxPrice' in overrides
-        ? (overrides.maxPrice ?? undefined)
-        : (this.maxPriceFilter$.value ?? undefined);
-
-    const sortBy =
-      overrides && 'sortBy' in overrides
-        ? overrides.sortBy || undefined
-        : this.sortBy$.value || undefined;
-
-    const minRating =
-      overrides && 'minRating' in overrides
-        ? (overrides.minRating ?? undefined)
-        : (this.ratingFilter$.value ??
-          (queryParams.get('minRating')
-            ? Number(queryParams.get('minRating'))
-            : undefined));
 
     const pageNumber = overrides?.pageNumber || this.currentPage;
     const isAppend = overrides?.isAppend || false;
@@ -319,6 +292,25 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       }),
     );
   }
+
+  // helper function to extract query parameters and overrides
+  private getParamValue<T>(
+    overrides: Record<string, unknown> | undefined,
+    key: string,
+    fallbackValue: T | undefined,
+    tranform?: (val: string) => T
+  ): T | undefined {
+    if (overrides && key in overrides) {
+      const val = overrides[key];
+      return val != null && val !== undefined ? (val as T) : undefined;
+    }
+    const paramVal = this.route.snapshot.queryParamMap.get(key);
+    if (paramVal !== null && paramVal !== undefined) {
+      return tranform ? tranform(paramVal) : (paramVal as unknown as T)
+    }
+    return fallbackValue;
+  }
+
 
   /** Set price range filter values */
   setPriceRange(min: number | null, max: number | null): void {
@@ -387,9 +379,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         subCategory: null,
         minRating: null,
         sortBy: null,
-        search: null,
+        search: null
       },
-      queryParamsHandling: 'merge',
+      queryParamsHandling: 'merge'
     });
   }
 
