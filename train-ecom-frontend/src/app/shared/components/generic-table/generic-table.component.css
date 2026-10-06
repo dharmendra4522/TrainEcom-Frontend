@@ -155,7 +155,8 @@ tr.cursor-pointer {
 .table-scroll-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
-  max-height: 550px;
+  min-height: 150px;
+  max-height: calc(100vh - 280px);
   overflow-y: auto;
 }
 

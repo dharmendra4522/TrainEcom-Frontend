@@ -35,11 +35,11 @@ export class GroupedProductRowComponent implements OnInit {
     let fetch$: Observable<Product[]> = of([]);
 
     if (this.filterType === 'brand') {
-      fetch$ = this.productService.getPaginatedProducts(1, 6, this.filterValue).pipe(
+      fetch$ = this.productService.getPaginatedProducts(1, 10, this.filterValue).pipe(
         map(res => res.items)
       );
     } else if (this.filterType === 'category') {
-      fetch$ = this.productService.getPaginatedProducts(1, 6, undefined, this.filterValue).pipe(
+      fetch$ = this.productService.getPaginatedProducts(1, 10, undefined, this.filterValue).pipe(
         map(res => res.items)
       );
     } else if (this.filterType === 'newest') {

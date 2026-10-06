@@ -1,55 +1,97 @@
-<mat-card class="product-card" appearance="outlined" [routerLink]="['/products', product.id]" style="cursor: pointer;">
-  <button mat-icon-button class="wishlist-btn" (click)="onToggleWishlist($event)"
-    [matTooltip]="(isFavorite$ | async ) ? 'Remove from Wishlist' : 'Add to Wishlist'" *ngIf="isLoggedIn$ | async">
+<mat-card
+  class="product-card"
+  appearance="outlined"
+  [routerLink]="['/products', product.id]"
+>
+  <button
+    mat-icon-button
+    class="wishlist-btn"
+    (click)="onToggleWishlist($event)"
+    [matTooltip]="
+      (isFavorite$ | async) ? 'Remove from Wishlist' : 'Add to Wishlist'
+    "
+    *ngIf="isLoggedIn$ | async"
+  >
     <mat-icon [class.favorite-icon]="isFavorite$ | async">
-      {{ (isFavorite$ | async) ? 'favorite' : 'favorite_border' }}
+      {{ (isFavorite$ | async) ? "favorite" : "favorite_border" }}
     </mat-icon>
   </button>
 
   <div
-    class="image-container bg-light p-2 rounded-top d-flex align-items-center justify-content-center position-relative overflow-hidden">
-    <img [src]="product.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback [alt]="product.name" loading="lazy"
-      class="product-img" />
-    <button class="hover-add-to-cart-btn d-flex align-items-center justify-content-center gap-1"
-      *ngIf="product.stockQuantity && product.stockQuantity>0" (click)="addToCart(product); $event.stopPropagation()">
-      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">add_shopping_cart</mat-icon>
+    class="image-container bg-light p-2 rounded-top d-flex align-items-center justify-content-center position-relative overflow-hidden"
+  >
+    <img
+      [src]="product.thumbnailUrl || 'assets/placeholder.jpg'"
+      appImgFallback
+      [alt]="product.name"
+      loading="lazy"
+      class="product-img"
+    />
+    <button
+      class="hover-add-to-cart-btn d-flex align-items-center justify-content-center gap-1"
+      *ngIf="product.stockQuantity && product.stockQuantity > 0"
+      (click)="addToCart(product); $event.stopPropagation()"
+    >
+      <mat-icon class="btn-icon">add_shopping_cart</mat-icon>
       <span>Add to Cart</span>
     </button>
   </div>
 
-  <mat-card-header class="custom-card-header">
-    <mat-card-title class="product-title" [title]="product.name">{{ product.name }}</mat-card-title>
-    <mat-card-subtitle class="product-subtitle" [title]="product.categoryName + ' | ' + product.brandName">
-      {{ product.categoryName }} | {{ product.brandName }}
-    </mat-card-subtitle>
-  </mat-card-header>
-
-
   <mat-card-content>
-
-    <div class="d-flex align-items-center gap-1 my-1 text-warning"
-      *ngIf="product.averageRating && product.averageRating > 0">
-      <mat-icon style="font-size: 16px; width: 16px; height: 16px;">star</mat-icon>
-      <span class="fw-bold text-dark small">{{ product.averageRating | number:'1.1-1' }}</span>
-      <span class="text-muted small" *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+    <div
+      class="rating-container d-flex align-items-center gap-1 my-1 text-warning"
+    >
+      <ng-container
+        *ngIf="
+          product.averageRating && product.averageRating > 0;
+          else emptyRating
+        "
+      >
+        <mat-icon class="btn-icon2">star</mat-icon>
+        <span class="fw-bold text-dark small">{{
+          product.averageRating | number: "1.1-1"
+        }}</span>
+        <span class="text-muted small" *ngIf="product.reviewCount"
+          >({{ product.reviewCount }})</span
+        >
+      </ng-container>
+      <ng-template #emptyRating>
+        <span class="invisible small">No Rating</span>
+      </ng-template>
     </div>
 
     <p>{{ product.description | slice: 0 : 50 }}...</p>
-    <span class="text-danger fw-bold" *ngIf="product.stockQuantity && product.stockQuantity < 5">
+    <span
+      class="text-danger fw-bold"
+      *ngIf="product.stockQuantity && product.stockQuantity < 5"
+    >
       Only {{ product.stockQuantity }} left!
     </span>
-    <h5 style="color: #3f51b5; margin-top: 8px">
+    <h5 class="price">
       {{ product.price | currency: "INR" }}
     </h5>
   </mat-card-content>
 
   <mat-card-actions (click)="$event.stopPropagation()">
-    <ng-container *ngIf="product.stockQuantity && product.stockQuantity > 0; else outOfStockTemplate">
-
-      <button mat-raised-button color="primary" class="buy-now-btn" (click)="buyNow()">Buy Now</button>
+    <ng-container
+      *ngIf="
+        product.stockQuantity && product.stockQuantity > 0;
+        else outOfStockTemplate
+      "
+    >
+      <button
+        mat-raised-button
+        color="primary"
+        class="buy-now-btn"
+        (click)="buyNow()"
+      >
+        Buy Now
+      </button>
     </ng-container>
     <ng-template #outOfStockTemplate>
-      <div class="w-100 text-center py-2 text-danger fw-bold bg-danger-subtle rounded-3">
+      <div
+        class="w-100 text-center py-2 text-danger fw-bold bg-danger-subtle rounded-3"
+      >
         Out of Stock
       </div>
     </ng-template>

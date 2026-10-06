@@ -49,6 +49,11 @@ export interface VendorListResponse {
   totalPages: number;
 }
 
+export interface VendorDocument {
+  documentType: number;
+  documentUrl: string;
+}
+
 export interface VendorDetails {
   vendorId: number;
   vendorName: string;
@@ -68,7 +73,7 @@ export interface VendorDetails {
   bankAccountNumber: string;
   ifscCode: string;
   accountHolderName: string;
-  documents: string[];
+  documents: VendorDocument[];
   categories: string[];
   status?: ApprovalStatus | number;
 }

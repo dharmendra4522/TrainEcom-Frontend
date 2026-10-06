@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
     map((brands) =>
       brands
         .filter((brand) => (brand.numberOfProducts ?? brand.productCount ?? 6) >= 6)
-        .slice(0, 3),
+        .slice(0, 10),
     ),
   );
 
@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit {
             (category) =>
               (category.numberOfProducts ?? category.productCount ?? 6) >= 6,
           )
-          .slice(0, 3),
+          .slice(0, 10),
       ),
     );
 
