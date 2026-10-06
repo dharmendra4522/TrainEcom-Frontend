@@ -36,6 +36,7 @@ export class GenericTableComponent {
   @Input() pageIndex: number = 0;
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
   @Input() enableRowClick: boolean = true;
+  @Input() showheaderFilter: boolean = false;
 
   @Output() actionClick = new EventEmitter<TableActionEvent>();
 
@@ -50,6 +51,7 @@ export class GenericTableComponent {
   @Input() hasMoreData: boolean = true;
 
   originalData: Record<string, unknown>[] = [];
+  filterValues: Record<string, string> = {};
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
@@ -215,5 +217,24 @@ export class GenericTableComponent {
     if (atBottom && this.hasMoreData) {
       this.loadMore.emit();
     }
+  }
+
+  // handle filter apply
+  applyFilter(columnKey: string, event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    if (filterValue.trim() === '') {
+      delete this.filterValues[columnKey];
+    } else {
+      this.filterValues[columnKey] = filterValue.trim().toLowerCase();
+    }
+
+    this.data = this.originalData.filter((row) => {
+      return Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '').toLowerCase();
+        return rowValue.includes(val);
+      })
+    })
   }
 }

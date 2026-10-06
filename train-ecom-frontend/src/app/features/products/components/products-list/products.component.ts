@@ -69,19 +69,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
   hasMoreData: boolean = true;
   portal: PortalKey = 'admin';
   isLoadingValue: boolean = false;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', type: 'string' },
+    { key: 'name', label: 'Name', type: 'string', filterable: true},
     {
       key: 'description',
       label: 'Description',
       type: 'string',
       sortable: false,
+      filterable: true
     },
-    { key: 'price', label: 'Price', type: 'number' },
-    { key: 'stockQuantity', label: 'Stock', type: 'number' },
-    { key: 'categoryName', label: 'Category', type: 'string' },
-    { key: 'brandName', label: 'Brand', type: 'string' },
+    { key: 'price', label: 'Price', type: 'number', filterable: true },
+    { key: 'stockQuantity', label: 'Stock', type: 'number', filterable: true },
+    { key: 'categoryName', label: 'Category', type: 'string', filterable: true },
+    { key: 'brandName', label: 'Brand', type: 'string', filterable: true },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',

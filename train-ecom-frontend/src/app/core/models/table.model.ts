@@ -8,6 +8,7 @@ export interface TableColumn {
   sortable?: boolean;
   role?: Role;
   badgeClassKey?: string;
+  filterable?: boolean;
 }
 
 export interface TableAction<T = unknown> {

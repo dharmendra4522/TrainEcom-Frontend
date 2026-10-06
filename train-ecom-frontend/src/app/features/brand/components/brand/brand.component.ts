@@ -21,7 +21,7 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
@@ -52,11 +52,12 @@ export class BrandComponent implements OnInit, OnDestroy {
   private currentBrandsLength = 0;
   private totalRecordsCount = 0;
   private isLoadingValue = false;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Brand Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' },
+    { key: 'name', label: 'Brand Name', filterable: true},
+    { key: 'description', label: 'Description', filterable: true },
+    { key: 'numberOfProducts', label: 'Total Products', filterable: true },
   ];
 
   actions: TableAction[] = [

@@ -183,3 +183,14 @@ tr.cursor-pointer {
 .progress-bar {
   height: 3px;
 }
+
+.filter-header {
+  height: 31px;
+}
+
+.drop-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}

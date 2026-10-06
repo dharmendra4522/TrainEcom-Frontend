@@ -66,6 +66,6 @@
   <app-generic-table [data]="(ProductList)" [isLoading]="(isLoading$ | async) || false" [columns]="columns"
     [actions]="actions" [showInlineActions]="false" [hasMoreData]="hasMoreData" 
     emptyMessage="No products found." (rowClick)="onRowClick($event)"
-    (actionClick)="handleTableAction($event)" (loadMore)="onScrollLoad()">
+    (actionClick)="handleTableAction($event)" (loadMore)="onScrollLoad()" [showheaderFilter]="showHeaderFilter">
   </app-generic-table>
 </div>
