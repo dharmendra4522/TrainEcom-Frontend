@@ -37,7 +37,7 @@ export function getUserChartOptions(
       padding:
         window.innerWidth <= 992
           ? { top: 15, bottom: 15, left: 15, right: 15 }
-          : { top: 20, bottom: 20, left: 20, right: 20 },
+          : { top: 22, bottom: 20, left: 20, right: 20 }
     },
     plugins: {
       legend: { position: 'bottom' },
@@ -61,9 +61,9 @@ export function getUserChartOptions(
         borderColor: '#ccc',
         backgroundColor: '#fff',
         borderWidth: 1,
-        padding: { top: 2, bottom: 2, left: 3, right: 3 },
-      },
-    },
+        padding: { top: 2, bottom: 2, left: 3, right: 3 }
+      }
+    }
   };
 }
 
@@ -81,7 +81,7 @@ export function getProductChartOptions(
         if (categoryName) {
           const portal = portalRoutes.currentPortal() ?? 'admin';
           router.navigate(portalRoutes.products(portal, 'manage'), {
-            queryParams: { categoryName },
+            queryParams: { categoryName }
           });
         }
       }
@@ -167,8 +167,8 @@ export function getOrderChartOptions(
           queryParams: {
             orderStatus: orderStatus,
             month: month,
-            year: year,
-          },
+            year: year
+          }
         });
       }
     },
@@ -182,6 +182,6 @@ export function getOrderChartOptions(
     },
     scales: {
       y: { beginAtZero: true },
-    },
+    }
   };
 }

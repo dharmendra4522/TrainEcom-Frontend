@@ -24,6 +24,7 @@ import {
   normalizePaymentStatus,
 } from '../../../../core/utils/role.utils';
 import { FormControl, FormGroup } from '@angular/forms';
+import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 
 @Component({
   selector: 'app-order-management',
@@ -236,38 +237,11 @@ export class OrderManagementComponent implements OnInit {
   }
 
   getOrderStatusClass(status: string): string {
-    const statusStr = normalizeOrderStatus(status).toLowerCase();
-    switch (statusStr?.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-primary-subtle text-primary border border-primary-subtle';
-      case 'processing':
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'shipped':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'delivered':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'cancelled':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    }
+    return getOrderStatusClass(status);
   }
 
   getPaymentStatusClass(status: string): string {
-    const normalizeStatus = normalizePaymentStatus(status);
-    switch (normalizeStatus?.toLowerCase()) {
-      case 'success':
-      case 'paid':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'failed':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'refunded':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'pending':
-      default:
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-    }
+    return getPaymentStatusClass(status);
   }
 
   onTableScroll(): void {

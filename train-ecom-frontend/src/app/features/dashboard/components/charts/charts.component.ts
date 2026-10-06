@@ -4,7 +4,7 @@ import {
   RevenueData,
 } from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ChartData, ChartType, Chart, registerables } from 'chart.js';
+import { ChartData, ChartType, Chart, registerables, ChartConfiguration } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
@@ -72,14 +72,14 @@ export class ChartsComponent implements OnInit {
   public userChartOptions = getUserChartOptions(
     this.router,
     this.portalRoutes,
-    this.portal,
+    this.portal
   );
 
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = categoryProductData;
   public productChartOptions = getProductChartOptions(
     this.router,
-    this.portalRoutes,
+    this.portalRoutes
   );
 
   // revenue chart configuration
@@ -90,12 +90,12 @@ export class ChartsComponent implements OnInit {
   // order chart configuration
   public orderChartType: ChartType = 'bar';
   public orderChartData: ChartData<'bar'> = orderStatusChartData;
-  public get orderChartOptions() {
+  public get orderChartOptions(): ChartConfiguration['options'] {
     return getOrderChartOptions(
       this.router,
       this.portalRoutes,
       this.portal,
-      this.selectedOrderYear,
+      this.selectedOrderYear
     );
   }
 
@@ -123,9 +123,9 @@ export class ChartsComponent implements OnInit {
       datasets: [
         {
           data: [this.totalCustomers, this.totalVendors, this.totalAdminUsers],
-          backgroundColor: ['#4caf50', '#2196f3', '#ff9800'],
-        },
-      ],
+          backgroundColor: ['#4caf50', '#2196f3', '#ff9800']
+        }
+      ]
     };
   }
 
@@ -144,14 +144,14 @@ export class ChartsComponent implements OnInit {
           datasets: [
             {
               data: counts,
-              backgroundColor: ['#2196f3'],
-            },
-          ],
+              backgroundColor: ['#2196f3']
+            }
+          ]
         };
       },
       error: (err: Error) => {
         console.error('Failed to fetch category data', err);
-      },
+      }
     });
   }
 
@@ -175,14 +175,14 @@ export class ChartsComponent implements OnInit {
           datasets: [
             {
               data: revenues,
-              backgroundColor: ['#4caf50'],
+              backgroundColor: ['#4caf50']
             }
           ]
         };
       },
       error: (err: Error) => {
         console.error('Failed to fetch revenue data', err);
-      },
+      }
     });
   }
 

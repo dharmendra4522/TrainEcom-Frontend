@@ -1,6 +1,6 @@
 <div class="row my-4 align-items-stretch">
   <!-- user chart -->
-  <div class="col-md-3 mb-3 d-flex">
+  <div class="col-md-5 col-lg-3 mb-3 d-flex">
     <mat-card class="p-3 chart-card w-100">
       <ng-container *ngIf="isLoading; else chartContent">
         <div class="spinner-container">
@@ -25,7 +25,7 @@
   </div>
 
   <!-- order chart -->
-  <div class="col-md-9 mb-3">
+  <div class="col-md-7 col-lg-9 mb-3">
     <mat-card class="p-3 chart-card w-100">
       <ng-container *ngIf="isLoading; else orderContentLoaded">
         <div class="spinner-container">
