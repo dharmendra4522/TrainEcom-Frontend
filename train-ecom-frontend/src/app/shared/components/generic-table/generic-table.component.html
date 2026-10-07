@@ -79,10 +79,22 @@
                   [cdkConnectedOverlayWidth]="
                     trigger.elementRef.nativeElement.offsetWidth
                   "
+                  [cdkConnectedOverlayPanelClass]="'custom-multiselect-overlay'"
                   (overlayOutsideClick)="activeDropdownCol = null"
                 >
                   <div class="shadow-sm rounded-3 bg-white mt-1">
-                    <app-multiselect-dropdown></app-multiselect-dropdown>
+                    <app-multiselect-dropdown
+                      [options]="getDropdownOptions(col.key)"
+                      [isLoading]="isDropdownLoading(col.key)"
+                      [selectedValues]="getSelectedValues(col.key)"
+                      (searchChange)="onDropdownSearch(col.key, $event)"
+                      (selectionChange)="
+                        onDropdownSelectionChange(col.key, $event)
+                      "
+                      (applyFilters)="onDropdownApply(col.key)"
+                      (clearFilters)="onDropdownClear(col.key)"
+                      (scrollToBottom)="onDropdownScroll(col.key)"
+                    ></app-multiselect-dropdown>
                   </div>
                 </ng-template>
               </div>

@@ -12,7 +12,8 @@ import {
 import {
   TableColumn,
   TableAction,
-  TableActionEvent
+  TableActionEvent,
+  DropdownOptions
 } from '../../../core/models/table.model';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
@@ -39,17 +40,32 @@ export class GenericTableComponent {
   @Input() enableRowClick: boolean = true;
   @Input() showheaderFilter: boolean = false;
 
-  @Output() actionClick = new EventEmitter<TableActionEvent>();
+  // inputs for dropdown state
+  @Input() dropdownOptionsMap: Record<string, DropdownOptions[]> = {};
+  @Input() dropdownLoadingMap: Record<string, boolean> = {};
+  @Input() selectedFiltersMap: Record<string, (string | number)[]> = {};
 
+  // Outputs for dropdown actions
+  @Output() dropdownSearchChange = new EventEmitter<{ columnKey: string; searchTerm: string }>();
+  @Output() dropdownSelectionChange = new EventEmitter<{ columnKey: string; option: DropdownOptions }>();
+  @Output() dropdownScrolled = new EventEmitter<string>();
+
+  @Output() actionClick = new EventEmitter<TableActionEvent>();
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
-
   @Output() sortChange = new EventEmitter<Sort>();
   @ViewChild(MatSort) sort!: MatSort;
 
   // for scroll-based lazy loading
   @Output() loadMore = new EventEmitter<void>();
   @Input() hasMoreData: boolean = true;
+
+  // events for header filters
+  @Output() filterSearch = new EventEmitter<{ columnKey: string, searchTerm: string }>();
+  @Output() dropdownOpened = new EventEmitter<string>();
+  @Output() loadMoreOptions = new EventEmitter<string>();
+  @Output() filterApply = new EventEmitter<{ columnKey: string }>();
+  @Output() filterClear = new EventEmitter<string>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
@@ -242,7 +258,11 @@ export class GenericTableComponent {
 
   toggleDropdown(colKey: string, event: Event): void {
     event.stopPropagation();
-    this.activeDropdownCol = this.activeDropdownCol === colKey ? null : colKey;
+    const isOpening = this.activeDropdownCol !== colKey;
+    this.activeDropdownCol = isOpening ? colKey : null;
+    if (isOpening) {
+      this.dropdownOpened.emit(colKey);
+    }
   }
 
   getSelectedFilterLabel(colKey: string): string {
@@ -256,4 +276,62 @@ export class GenericTableComponent {
   onDocumentClick(event: Event): void {
     this.activeDropdownCol = null;
   }
+
+  onDropdownSearch(colKey: string, searchTerm: string): void {
+    this.dropdownSearchChange.emit({ columnKey: colKey, searchTerm });
+    this.filterSearch.emit({ columnKey: colKey, searchTerm });
+  }
+
+  onDropdownOpen(colKey: string): void {
+    this.dropdownOpened.emit(colKey)
+  }
+
+  getDropdownOptions(columnKey: string): DropdownOptions[] {
+    return this.dropdownOptionsMap[columnKey] || [];
+  }
+
+  isDropdownLoading(columnKey: string): boolean {
+    return this.dropdownLoadingMap[columnKey] || false;
+  }
+
+  getSelectedValues(columnKey: string): (string | number)[] {
+    return this.selectedFiltersMap[columnKey] || [];
+  }
+
+  onDropdownSelectionChange(columnKey: string, option: DropdownOptions): void {
+    this.dropdownSelectionChange.emit({ columnKey, option });
+  }
+
+  onDropdownScroll(columnKey: string): void {
+    this.dropdownScrolled.emit(columnKey);
+  }
+
+  onDropdownApply(columnKey: string): void {
+    this.filterApply.emit({ columnKey });
+    this.activeDropdownCol = null;
+  }
+
+  onDropdownClear(columnKey: string): void {
+    if (this.selectedFiltersMap && this.selectedFiltersMap[columnKey]) {
+      delete this.selectedFiltersMap[columnKey];
+    }
+
+    if (this.filterValues && this.filterValues[columnKey]) {
+      delete this.filterValues[columnKey];
+    }
+    this.reapplyAllFilters();
+    this.filterClear.emit(columnKey);
+  }
+
+  private reapplyAllFilters(): void {
+    this.data = this.originalData.filter((row) => {
+      return Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '').toLowerCase();
+        return rowValue.includes(val);
+      });
+    });
+  }
+
 }
