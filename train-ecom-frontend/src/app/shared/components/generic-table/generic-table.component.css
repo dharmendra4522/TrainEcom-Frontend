@@ -12,6 +12,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 
 .custom-mat-table td.mat-cell {
@@ -193,4 +194,16 @@ tr.cursor-pointer {
   width: 18px;
   height: 18px;
   pointer-events: none;
+}
+
+.floating-dropdown-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 300px;
+  background: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  margin-top: 4px;
 }

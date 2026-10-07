@@ -7,11 +7,12 @@ import {
   SimpleChanges,
   OnChanges,
   EmbeddedViewRef,
+  HostListener
 } from '@angular/core';
 import {
   TableColumn,
   TableAction,
-  TableActionEvent,
+  TableActionEvent
 } from '../../../core/models/table.model';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
@@ -52,6 +53,7 @@ export class GenericTableComponent {
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
+  activeDropdownCol: string | null = null;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
@@ -234,7 +236,24 @@ export class GenericTableComponent {
         if (!val) return true;
         const rowValue = String(row[key] || '').toLowerCase();
         return rowValue.includes(val);
-      })
-    })
+      });
+    });
+  }
+
+  toggleDropdown(colKey: string, event: Event): void {
+    event.stopPropagation();
+    this.activeDropdownCol = this.activeDropdownCol === colKey ? null : colKey;
+  }
+
+  getSelectedFilterLabel(colKey: string): string {
+    const val = this.filterValues[colKey];
+    if (!val) return '';
+    return val;
+  }
+
+  // close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    this.activeDropdownCol = null;
   }
 }

@@ -49,32 +49,33 @@
 
       <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
         <th mat-header-cell *matHeaderCellDef class="p-0 border-0">
-          <div class="d-flex flex-column w-100">
+          <div class="d-flex flex-column w-100 position-relative">
             <!-- Top Row Filter Input -->
             <div
               class="px-4 py-2 bg-white border-bottom"
               *ngIf="showheaderFilter"
             >
               <div *ngIf="col.filterable" class="position-relative w-100">
-                <input
-                  type="text"
-                  class="form-control form-control-sm bg-light pe-4"
-                  [placeholder]="'Filter ' + col.label"
-                  (keyup)="applyFilter(col.key, $event)"
-                  (click)="$event.stopPropagation()"
-                />
-                <mat-icon
-                  class="position-absolute top-50 end-0 translate-middle-y text-muted me-1 drop-icon"
-                >
-                  arrow_drop_down
-                </mat-icon>
+                <div class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
+                    (click)="toggleDropdown(col.key, $event)">
+                    <span class="text-truncate text-secondary">
+                        {{ getSelectedFilterLabel(col.key) || ('Select ' + col.label) }}
+                    </span>
+                    <mat-icon class="text-muted fs-5 drop-icon">
+                      arrow_drop_down
+                    </mat-icon>
+                </div>
+
+                  <div class="floating-dropdown-container" *ngIf="activeDropdownCol === col.key">
+                    <app-multiselect-dropdown></app-multiselect-dropdown>
+                  </div>
               </div>
               <div class="filter-header" *ngIf="!col.filterable"></div>
             </div>
 
             <!-- Actual Sort Header & Label -->
             <div
-              class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 bg-light-subtle sort-header-container"
+              class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 bg-light-subtle sort-header-container text-nowrap"
               mat-sort-header="{{ col.key }}"
               [disabled]="col.sortable === false"
             >

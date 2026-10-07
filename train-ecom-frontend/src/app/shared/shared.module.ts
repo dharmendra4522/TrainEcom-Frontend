@@ -31,6 +31,7 @@ import { StatusCardComponent } from './components/status-card/status-card.compon
 import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
+import { MultiselectDropdownComponent } from './components/multiselect-dropdown/multiselect-dropdown.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.
     StatusCardComponent,
     VendorActionDialogComponent,
     FilterDialogComponent,
+    MultiselectDropdownComponent,
   ],
   imports: [
     CommonModule,
