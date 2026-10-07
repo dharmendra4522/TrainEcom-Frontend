@@ -78,7 +78,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
       label: 'Description',
       type: 'string',
       sortable: false,
-      filterable: true
     },
     { key: 'price', label: 'Price', type: 'number', filterable: true },
     { key: 'stockQuantity', label: 'Stock', type: 'number', filterable: true },

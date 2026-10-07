@@ -49,11 +49,12 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
 
   currentPage = 1;
   pageSize = 10;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Category Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' },
+    { key: 'name', label: 'Category Name', filterable: true },
+    { key: 'description', label: 'Description'},
+    { key: 'numberOfProducts', label: 'Total Products', filterable: true }
   ];
 
   actions: TableAction[] = [
@@ -61,14 +62,14 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Category',
+      tooltip: 'Edit Category'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Category',
-    },
+      tooltip: 'Delete Category'
+    }
   ];
 
   ngOnInit(): void {

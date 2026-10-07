@@ -30,6 +30,7 @@ export class SalesReportComponent {
   isLoading: boolean = false;
   isTableLoading: boolean = false;
   TopProducts: Record<string, unknown>[] = [];
+  showFilterHeader: boolean = true;
 
   // helper function to convert date in backend format to a more readable format
   private formatDate(dateString: string): string {
@@ -47,9 +48,9 @@ export class SalesReportComponent {
 
   tableColumns: TableColumn[] = [
     { key: 'thumbnailUrl', label: 'Product image', type: 'image' },
-    { key: 'productName', label: 'Product Name', type: 'text' },
-    { key: 'quantitySold', label: 'Quantity Sold', type: 'text' },
-    { key: 'totalSales', label: 'Total Sales', type: 'currency' }
+    { key: 'productName', label: 'Product Name', type: 'text', filterable:true  },
+    { key: 'quantitySold', label: 'Quantity Sold', type: 'text', filterable:true  },
+    { key: 'totalSales', label: 'Total Sales', type: 'currency', filterable:true  }
   ]
 
 

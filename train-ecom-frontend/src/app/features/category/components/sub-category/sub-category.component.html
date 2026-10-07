@@ -9,5 +9,6 @@
     [totalRecords]="totalRecords" 
     emptyMessage="No sub-categories found." 
     (actionClick)="handleSubCategoryAction($event)"
-    (loadMore)="onTableScroll()">
+    (loadMore)="onTableScroll()"
+    [showheaderFilter]="showHeaderFilter">
   </app-generic-table>

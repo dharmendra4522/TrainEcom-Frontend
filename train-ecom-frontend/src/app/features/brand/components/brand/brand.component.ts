@@ -56,7 +56,7 @@ export class BrandComponent implements OnInit, OnDestroy {
 
   columns: TableColumn[] = [
     { key: 'name', label: 'Brand Name', filterable: true},
-    { key: 'description', label: 'Description', filterable: true },
+    { key: 'description', label: 'Description'},
     { key: 'numberOfProducts', label: 'Total Products', filterable: true },
   ];
 

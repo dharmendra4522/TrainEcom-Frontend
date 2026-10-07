@@ -30,3 +30,7 @@ export interface BreadcrumbItem {
   url?: string;
 }
 
+export interface DropdownOptions {
+  id: string | number;
+  label: string;
+}

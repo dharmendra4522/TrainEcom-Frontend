@@ -30,12 +30,13 @@ export class SubCategoryComponent {
   totalRecords: number = 0;
   currentPage: number = 1;
   pageSize: number = 10;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'subCategoryName', label: 'Sub-Category Name' },
-    { key: 'parentCategoryName', label: 'Parent Category' },
+    { key: 'subCategoryName', label: 'Sub-Category Name', filterable: true },
+    { key: 'parentCategoryName', label: 'Parent Category', filterable: true },
     { key: 'description', label: 'Description' },
-    { key: 'productCount', label: 'Product Count' },
+    { key: 'productCount', label: 'Product Count', filterable: true }
   ];
 
   actions: TableAction[] = [
@@ -43,14 +44,14 @@ export class SubCategoryComponent {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Sub-Category',
+      tooltip: 'Edit Sub-Category'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
       tooltip: 'Delete Sub-Category',
-    },
+    }
   ];
 
   ngOnInit(): void {

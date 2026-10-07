@@ -175,6 +175,7 @@
     (loadMore)="onTableScroll()"
     emptyMessage="No orders found matching the filter criteria."
     (rowClick)="navigateToOrderDetails($event)"
+    [showheaderFilter]="showFilterHeader"
   >
   </app-generic-table>
 </div>

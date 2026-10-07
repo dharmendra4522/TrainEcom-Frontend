@@ -56,19 +56,35 @@
               *ngIf="showheaderFilter"
             >
               <div *ngIf="col.filterable" class="position-relative w-100">
-                <div class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
-                    (click)="toggleDropdown(col.key, $event)">
-                    <span class="text-truncate text-secondary">
-                        {{ getSelectedFilterLabel(col.key) || ('Select ' + col.label) }}
-                    </span>
-                    <mat-icon class="text-muted fs-5 drop-icon">
-                      arrow_drop_down
-                    </mat-icon>
+                <div
+                  class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
+                  #trigger="cdkOverlayOrigin"
+                  cdkOverlayOrigin
+                  (click)="toggleDropdown(col.key, $event)"
+                >
+                  <span class="text-truncate text-secondary">
+                    {{
+                      getSelectedFilterLabel(col.key) || "Select " + col.label
+                    }}
+                  </span>
+                  <mat-icon class="text-muted fs-5 drop-icon">
+                    arrow_drop_down
+                  </mat-icon>
                 </div>
 
-                  <div class="floating-dropdown-container" *ngIf="activeDropdownCol === col.key">
+                <ng-template
+                  cdkConnectedOverlay
+                  [cdkConnectedOverlayOrigin]="trigger"
+                  [cdkConnectedOverlayOpen]="activeDropdownCol === col.key"
+                  [cdkConnectedOverlayWidth]="
+                    trigger.elementRef.nativeElement.offsetWidth
+                  "
+                  (overlayOutsideClick)="activeDropdownCol = null"
+                >
+                  <div class="shadow-sm rounded-3 bg-white mt-1">
                     <app-multiselect-dropdown></app-multiselect-dropdown>
                   </div>
+                </ng-template>
               </div>
               <div class="filter-header" *ngIf="!col.filterable"></div>
             </div>

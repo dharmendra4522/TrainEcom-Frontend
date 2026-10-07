@@ -1,1 +1,58 @@
-<p>multiselect-dropdown works!</p>
+<div class="dropdown-wrapper bg-white border rounded-3 shadow-sm  w-100" (click)="$event.stopPropagation()">
+  
+  <!-- Search Input Field -->
+  <div class="mb-2">
+    <mat-form-field appearance="outline" class="w-100 compact-search-field">
+      <input
+        matInput
+        type="text"
+        [placeholder]="placeholder"
+        [formControl]="searchControl"
+      />
+      <button
+        *ngIf="searchControl.value"
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Clear"
+        (click)="clearSearch($event)"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Options Container -->
+  <div class="options-container" (scroll)="onScroll($event)">
+    <div
+      *ngFor="let option of options"
+      class="dropdown-item px-2 py-1.5 rounded d-flex align-items-center cursor-pointer hover-bg"
+      (click)="toggleSelection(option, $event)"
+    >
+      <mat-checkbox
+        [checked]="isChecked(option.id)"
+        (click)="$event.preventDefault()"
+        class="me-2 small-checkbox"
+      >
+        <span class="text-truncate small text-dark">{{ option.label }}</span>
+      </mat-checkbox>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="options.length === 0 && !isLoading"
+      class="text-center py-2 text-muted small"
+    >
+      No options found
+    </div>
+
+    <!-- Loading State -->
+    <div
+      *ngIf="isLoading"
+      class="d-flex justify-content-center align-items-center py-2"
+    >
+      <mat-spinner diameter="20" class="me-2"></mat-spinner>
+      <span class="text-muted small">Loading...</span>
+    </div>
+  </div>
+</div>

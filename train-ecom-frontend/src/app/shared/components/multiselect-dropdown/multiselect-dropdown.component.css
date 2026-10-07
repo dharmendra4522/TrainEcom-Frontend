@@ -1,0 +1,36 @@
+.dropdown-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100% !important;
+  min-width: unset;
+  max-width: unset;
+  z-index: 1090;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
+
+.compact-search-field ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 38px !important;
+}
+
+.compact-search-field ::ng-deep .mat-mdc-form-field-flex {
+  height: 38px !important;
+  align-items: center !important;
+}
+
+.compact-search-field ::ng-deep .mat-mdc-notched-outline {
+  top: 0 !important;
+}
+
+.options-container {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.hover-bg:hover {
+  background-color: #f8f9fa;
+}
