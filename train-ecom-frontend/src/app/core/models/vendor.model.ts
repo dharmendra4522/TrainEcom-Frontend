@@ -52,6 +52,7 @@ export interface VendorListResponse {
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
+ documentLabel?: string;
 }
 
 export interface VendorDetails {

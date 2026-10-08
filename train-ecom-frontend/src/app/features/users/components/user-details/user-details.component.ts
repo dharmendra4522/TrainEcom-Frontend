@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { ActivatedRoute } from '@angular/router';
-import { VendorDetails } from '../../../../core/models/vendor.model';
+import { VendorDetails, VendorDocument } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ApprovalStatus, DocumentType } from '../../../../core/models/user.model';
@@ -44,7 +44,13 @@ export class UserDetailsComponent {
     if (!this.vendorId) return;
     this.isLoading = true;
     this.vendorService.getVendorById(this.vendorId).subscribe({
-      next: (response) => {
+      next: (response: VendorDetails) => {
+       if (response && response.documents) {
+          response.documents = response.documents.map((doc: VendorDocument) => ({
+            ...doc,
+            documentLabel: this.getDocumentLabel(doc.documentType)
+          }));
+        }
         this.vendorDetails = response;
         this.isLoading = false;
       },
