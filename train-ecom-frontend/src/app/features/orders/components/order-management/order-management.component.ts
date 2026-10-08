@@ -85,7 +85,7 @@ export class OrderManagementComponent implements OnInit {
     { key: 'customerName', label: 'Customer Name', filterable: true, filterType: 'search' },
     { key: 'orderDate', label: 'Date', type: 'date', filterable: true, filterType: 'date' },
     { key: 'totalItems', label: 'Items', filterable: true, filterType: 'search' },
-    { key: 'totalAmount', label: 'Total', type: 'currency', filterable: true, filterType: 'search' },
+    { key: 'totalAmount', label: 'Total', type: 'currency', filterable: true, filterType: 'price-range' },
     {
       key: 'orderStatus',
       label: 'Status',

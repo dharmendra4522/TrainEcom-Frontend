@@ -19,6 +19,7 @@ import {
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { debounceTime, Subject, Subscription } from 'rxjs';
+import { PriceRange } from '../multiselect-dropdown/multiselect-dropdown.component';
 
 @Component({
   selector: 'app-generic-table',
@@ -70,6 +71,7 @@ export class GenericTableComponent {
   @Output() filterClear = new EventEmitter<string>();
   @Output() filterChanged = new EventEmitter<Record<string, string>>(); // for only searchable column 
   @Output() filterCleared = new EventEmitter<string>();
+  @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & PriceRange>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
@@ -327,6 +329,10 @@ export class GenericTableComponent {
 
   onDropdownScroll(columnKey: string): void {
     this.dropdownScrolled.emit(columnKey);
+  }
+
+  onPriceRangeChange(columnKey: string, range: PriceRange): void {
+    this.priceRangeChange.emit({ columnKey, ...range });
   }
 
   onDropdownApply(columnKey: string): void {

@@ -57,7 +57,11 @@
             >
               <div *ngIf="col.filterable" class="position-relative w-100">
                 <ng-container
-                  *ngIf="col.filterType === 'dropdown'; else dateFilter"
+                  *ngIf="
+                    col.filterType === 'dropdown' ||
+                    col.filterType === 'price-range';
+                    else dateFilter
+                  "
                 >
                   <mat-form-field
                     appearance="outline"
@@ -103,6 +107,7 @@
                   >
                     <div class="shadow-sm rounded-3 bg-white mt-1">
                       <app-multiselect-dropdown
+                        [isPriceRange]="col.filterType === 'price-range'"
                         [options]="getDropdownOptions(col.key)"
                         [isLoading]="isDropdownLoading(col.key)"
                         [selectedValues]="getSelectedValues(col.key)"
@@ -113,6 +118,7 @@
                         (applyFilters)="onDropdownApply(col.key)"
                         (clearFilters)="onDropdownClear(col.key)"
                         (scrollToBottom)="onDropdownScroll(col.key)"
+                        (priceRangeChange)="onPriceRangeChange(col.key, $event)"
                       ></app-multiselect-dropdown>
                     </div>
                   </ng-template>
