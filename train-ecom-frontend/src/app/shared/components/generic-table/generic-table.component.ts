@@ -388,24 +388,28 @@ export class GenericTableComponent {
     return Object.keys(selected).length;
   }
 
-  // handle date selection
-  onDateInput(inputEle: HTMLInputElement, event: Event): void {
-    event.stopPropagation();
-    if (inputEle) {
-      if (typeof inputEle.showPicker === 'function') {
-        inputEle.showPicker();
-      } else {
-        inputEle.click();
-      }
+  getDateFilterValue(key: string): Date | null {
+    const value = this.filterValues[key];
+    if (!value) {
+      return null;
     }
+
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day);
   }
 
-  onDateFilterChange(key: string, event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  onDateFilterChange(key: string, value: Date | null): void {
     if (!value) {
       delete this.filterValues[key];
     } else {
-      this.filterValues[key] = value;
+      const year = value.getFullYear();
+      const month = String(value.getMonth() + 1).padStart(2, '0');
+      const day = String(value.getDate()).padStart(2, '0');
+      this.filterValues[key] = `${year}-${month}-${day}`;
     }
     this.applyCombinedFilters();
   }

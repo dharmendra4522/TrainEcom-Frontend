@@ -59,28 +59,35 @@
                 <ng-container
                   *ngIf="col.filterType === 'dropdown'; else dateFilter"
                 >
-                  <div
-                    class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="compact-filter-field w-100 filter-select-field"
                     [class.disabled-filter-element]="col.filterDisabled"
                     #trigger="cdkOverlayOrigin"
                     cdkOverlayOrigin
                     (click)="toggleDropdown(col.key, $event)"
                   >
-                    <span class="text-truncate text-secondary">
-                      {{ getSelectedFilterLabel(col.key) || col.label }}
+                    <input
+                      matInput
+                      readonly
+                      class="text-truncate"
+                      [disabled]="col.filterDisabled"
+                      [placeholder]="col.label"
+                      [value]="getSelectedFilterLabel(col.key)"
+                      (click)="$event.stopPropagation(); toggleDropdown(col.key, $event)"
+                    />
+                    <span
+                      *ngIf="getSelectedCount(col.key) > 0"
+                      matSuffix
+                      class="badge bg-primary rounded-pill px-2 py-1"
+                    >
+                      {{ getSelectedCount(col.key) }}
                     </span>
-                    <div class="d-flex align-items-center gap-1">
-                      <span
-                        *ngIf="getSelectedCount(col.key) > 0"
-                        class="badge bg-primary rounded-pill px-2 py-1"
-                      >
-                        {{ getSelectedCount(col.key) }}
-                      </span>
-                      <mat-icon class="text-muted fs-5 drop-icon">
-                        arrow_drop_down
-                      </mat-icon>
-                    </div>
-                  </div>
+                    <mat-icon matSuffix class="text-muted drop-icon">
+                      arrow_drop_down
+                    </mat-icon>
+                  </mat-form-field>
 
                   <ng-template
                     cdkConnectedOverlay
@@ -116,41 +123,53 @@
                   <ng-container
                     *ngIf="col.filterType === 'date'; else searchInput"
                   >
-                    <div
-                      class="position-relative w-100 d-flex align-items-center"
+                    <mat-form-field
+                      appearance="outline"
+                      subscriptSizing="dynamic"
+                      class="compact-filter-field w-100"
                     >
                       <input
-                        type="date"
-                        class="form-control form-control-sm bg-light custom-date-input"
-                        [class.has-value]="filterValues[col.key]"
-                        [value]="filterValues[col.key] || ''"
-                        (change)="onDateFilterChange(col.key, $event)"
-                        (click)="$event.stopPropagation()"
+                        matInput
+                        [matDatepicker]="datePicker"
+                        placeholder="Date"
+                        [value]="getDateFilterValue(col.key)"
+                        (dateChange)="onDateFilterChange(col.key, $event.value)"
+                        (click)="datePicker.open(); $event.stopPropagation()"
                       />
                       <button
                         *ngIf="filterValues[col.key]"
+                        mat-icon-button
+                        matSuffix
                         type="button"
-                        class="btn btn-sm position-absolute end-0 border-0 bg-transparent text-muted px-2 shadow-none"
+                        class="compact-filter-icon"
+                        aria-label="Clear date filter"
                         (click)="clearDateFilter(col.key, $event)"
                       >
-                        <mat-icon
-                          class="fs-6 d-flex align-items-center justify-content-center"
-                          >close</mat-icon
-                        >
+                        <mat-icon>close</mat-icon>
                       </button>
-                    </div>
+                      <mat-datepicker-toggle
+                        *ngIf="!filterValues[col.key]"
+                        matSuffix
+                        [for]="datePicker"
+                        class="compact-datepicker-toggle"
+                        (click)="$event.stopPropagation()"
+                      ></mat-datepicker-toggle>
+                      <mat-datepicker #datePicker></mat-datepicker>
+                    </mat-form-field>
                   </ng-container>
                 </ng-template>
 
                 <!-- search input default -->
                 <ng-template #searchInput>
-                  <div
-                    class="position-relative w-100 d-flex align-items-center"
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="compact-filter-field w-100"
                   >
                     <input
                       #colInput
+                      matInput
                       type="text"
-                      class="form-control form-control-sm bg-light"
                       [class.disabled-filter-element]="col.filterDisabled"
                       [disabled]="col.filterDisabled"
                       [placeholder]="col.label"
@@ -159,21 +178,21 @@
                       (click)="$event.stopPropagation()"
                     />
                     <button
-                      *ngIf="filterValues[col.key]"
+                      mat-icon-button
+                      matSuffix
                       type="button"
-                      class="btn btn-sm position-absolute end-0 border-0 bg-transparent text-muted px-2 shadow-none cut-btn"
+                      class="compact-filter-icon"
+                      [class.filter-clear-hidden]="!filterValues[col.key]"
+                      [disabled]="!filterValues[col.key]"
+                      aria-label="Clear search"
                       (click)="
                         clearSearchInput(col.key, colInput);
                         $event.stopPropagation()
                       "
-                      aria-label="Clear search"
                     >
-                      <mat-icon
-                        class="matrial-icon fs-6 d-flex align-items-center justify-content-center"
-                        >close</mat-icon
-                      >
+                      <mat-icon>close</mat-icon>
                     </button>
-                  </div>
+                  </mat-form-field>
                 </ng-template>
               </div>
               <div class="filter-header" *ngIf="!col.filterable"></div>
@@ -277,16 +296,16 @@
       >
         <th mat-header-cell *matHeaderCellDef class="p-0 border-0">
           <div class="d-flex flex-column w-100">
-            <!-- Top Row Empty Space -->
+            <!-- Empty filter space to align with the other column headers -->
             <div
-              class="px-4 py-2 bg-white border-bottom text-end"
+              class="px-4 py-2 bg-white border-bottom"
               *ngIf="showheaderFilter"
             >
               <div class="filter-header"></div>
             </div>
             <!-- Bottom Row Header Name -->
             <div
-              class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 text-end bg-light-subtle"
+              class="px-4 py-3 fw-bold text-uppercase text-secondary fs-7 text-end text-nowrap bg-light-subtle"
             >
               Actions
             </div>
