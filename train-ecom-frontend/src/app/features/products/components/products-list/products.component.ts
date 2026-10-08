@@ -99,18 +99,23 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private readonly columnSearchSubject$ = new Subject<DropdownOptionsRequest>();
 
+  // track column filter
+  columnFilters: Record<string, string> = {};
+  private readonly columnTableSearchSubject$ = new Subject<Record<string, string>>();
+
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', type: 'string', filterable: true },
+    { key: 'name', label: 'Name', type: 'string', filterable: true, filterType: 'search' },
     {
       key: 'description',
       label: 'Description',
       type: 'string',
       sortable: false,
+      filterable: true, filterType: 'search', filterDisabled: true
     },
-    { key: 'price', label: 'Price', type: 'number', filterable: true },
-    { key: 'stockQuantity', label: 'Stock', type: 'number', filterable: true },
-    { key: 'categoryName', label: 'Category', type: 'string', filterable: true },
-    { key: 'brandName', label: 'Brand', type: 'string', filterable: true },
+    { key: 'price', label: 'Price', type: 'number', filterable: true, filterType: 'search' },
+    { key: 'stockQuantity', label: 'Stock', type: 'number', filterable: true, filterType: 'search' },
+    { key: 'categoryName', label: 'Category', type: 'string', filterable: true, filterType: 'dropdown' },
+    { key: 'brandName', label: 'Brand', type: 'string', filterable: true, filterType: 'dropdown' },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',
@@ -134,7 +139,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     const initialCategory = this.route.snapshot.queryParamMap.get('categoryName');
     if (initialCategory) {
@@ -152,6 +157,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     });
     this.setupColumnDropdownSearch();
   }
+
 
   private setupColumnDropdownSearch(): void {
     this.columnSearchSubject$
@@ -477,7 +483,19 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // handle Apply
   onFilterApply(event: { columnKey: string }): void {
     this.pageNumber = 1;
-    this.fetchFilteredProducts();
+    const categoryFilters = this.selectedFiltersMap['categoryName'] || [];
+    const brandFilters = this.selectedFiltersMap['brandName'] || [];
+    this.store.dispatch(
+      ProductActions.loadProducts({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        search: this.searchControl.value?.trim() || undefined,
+        // Agar multiselect me values hain toh unhe API ke hisab se pass karein (agar single/comma separated ya array hai)
+        categoryName: categoryFilters.length > 0 ? String(categoryFilters[0]) : (this.categoryControl.value || undefined),
+        brandName: brandFilters.length > 0 ? String(brandFilters[0]) : (this.brandControl.value || undefined),
+        portal: this.portal,
+      }),
+    );
   }
 
   // handle drop-down clear 
@@ -505,15 +523,32 @@ export class ProductsComponent implements OnInit, OnDestroy {
   onDropdownSelectionChanged(event: { columnKey: string; option: DropdownOptions }): void {
     const colKey = event.columnKey;
     const optId = event.option.id;
-    if (!this.selectedFiltersMap[colKey]) {
-      this.selectedFiltersMap[colKey] = [];
-    }
+    const currentSelected = this.selectedFiltersMap[colKey] ? [...this.selectedFiltersMap[colKey]] : [];
     const index = this.selectedFiltersMap[colKey].indexOf(optId);
-    if (index > -1) {
-      this.selectedFiltersMap[colKey].splice(index, 1);
+   if (index > -1) {
+      currentSelected.splice(index, 1);
     } else {
-      this.selectedFiltersMap[colKey].push(optId);
+      currentSelected.push(optId);
     }
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [colKey]: currentSelected
+    };
+  }
+
+  onTableFilterChanged(filters: Record<string, string>): void {
+    this.columnFilters = filters;
+    const firstSearchVal = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
+    if (this.searchControl.value !== firstSearchVal) {
+      this.searchControl.setValue(firstSearchVal, { emitEvent: true });
+    }
+  }
+
+  onTableFilterCleared(columnKey: string): void {
+    if (columnKey === 'name' || columnKey === 'price' || columnKey === 'stockQuantity') {
+      this.searchControl.setValue('', { emitEvent: true });
+    }
+    this.columnFilters = {};
   }
 
   ngOnDestroy() {

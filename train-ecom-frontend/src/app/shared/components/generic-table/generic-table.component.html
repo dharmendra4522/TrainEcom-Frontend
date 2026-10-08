@@ -56,45 +56,123 @@
               *ngIf="showheaderFilter"
             >
               <div *ngIf="col.filterable" class="position-relative w-100">
-                <div
-                  class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
-                  #trigger="cdkOverlayOrigin"
-                  cdkOverlayOrigin
-                  (click)="toggleDropdown(col.key, $event)"
+                <ng-container
+                  *ngIf="col.filterType === 'dropdown'; else dateFilter"
                 >
-                  <span class="text-truncate text-secondary">
-                    {{
-                      getSelectedFilterLabel(col.key) || "Select " + col.label
-                    }}
-                  </span>
-                  <mat-icon class="text-muted fs-5 drop-icon">
-                    arrow_drop_down
-                  </mat-icon>
-                </div>
+                  <div
+                    class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between cursor-pointer"
+                    [class.disabled-filter-element]="col.filterDisabled"
+                    #trigger="cdkOverlayOrigin"
+                    cdkOverlayOrigin
+                    (click)="toggleDropdown(col.key, $event)"
+                  >
+                    <span class="text-truncate text-secondary">
+                      {{ getSelectedFilterLabel(col.key) || col.label }}
+                    </span>
+                    <div class="d-flex align-items-center gap-1">
+                      <span
+                        *ngIf="getSelectedCount(col.key) > 0"
+                        class="badge bg-primary rounded-pill px-2 py-1"
+                      >
+                        {{ getSelectedCount(col.key) }}
+                      </span>
+                      <mat-icon class="text-muted fs-5 drop-icon">
+                        arrow_drop_down
+                      </mat-icon>
+                    </div>
+                  </div>
 
-                <ng-template
-                  cdkConnectedOverlay
-                  [cdkConnectedOverlayOrigin]="trigger"
-                  [cdkConnectedOverlayOpen]="activeDropdownCol === col.key"
-                  [cdkConnectedOverlayWidth]="
-                    trigger.elementRef.nativeElement.offsetWidth
-                  "
-                  [cdkConnectedOverlayPanelClass]="'custom-multiselect-overlay'"
-                  (overlayOutsideClick)="activeDropdownCol = null"
-                >
-                  <div class="shadow-sm rounded-3 bg-white mt-1">
-                    <app-multiselect-dropdown
-                      [options]="getDropdownOptions(col.key)"
-                      [isLoading]="isDropdownLoading(col.key)"
-                      [selectedValues]="getSelectedValues(col.key)"
-                      (searchChange)="onDropdownSearch(col.key, $event)"
-                      (selectionChange)="
-                        onDropdownSelectionChange(col.key, $event)
+                  <ng-template
+                    cdkConnectedOverlay
+                    [cdkConnectedOverlayOrigin]="trigger"
+                    [cdkConnectedOverlayOpen]="activeDropdownCol === col.key"
+                    [cdkConnectedOverlayWidth]="
+                      trigger.elementRef.nativeElement.offsetWidth
+                    "
+                    [cdkConnectedOverlayPanelClass]="
+                      'custom-multiselect-overlay'
+                    "
+                    (overlayOutsideClick)="activeDropdownCol = null"
+                  >
+                    <div class="shadow-sm rounded-3 bg-white mt-1">
+                      <app-multiselect-dropdown
+                        [options]="getDropdownOptions(col.key)"
+                        [isLoading]="isDropdownLoading(col.key)"
+                        [selectedValues]="getSelectedValues(col.key)"
+                        (searchChange)="onDropdownSearch(col.key, $event)"
+                        (selectionChange)="
+                          onDropdownSelectionChange(col.key, $event)
+                        "
+                        (applyFilters)="onDropdownApply(col.key)"
+                        (clearFilters)="onDropdownClear(col.key)"
+                        (scrollToBottom)="onDropdownScroll(col.key)"
+                      ></app-multiselect-dropdown>
+                    </div>
+                  </ng-template>
+                </ng-container>
+
+                <!-- Date Filter Type -->
+                <ng-template #dateFilter>
+                  <ng-container
+                    *ngIf="col.filterType === 'date'; else searchInput"
+                  >
+                    <div
+                      class="position-relative w-100 d-flex align-items-center"
+                    >
+                      <input
+                        type="date"
+                        class="form-control form-control-sm bg-light custom-date-input"
+                        [class.has-value]="filterValues[col.key]"
+                        [value]="filterValues[col.key] || ''"
+                        (change)="onDateFilterChange(col.key, $event)"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <button
+                        *ngIf="filterValues[col.key]"
+                        type="button"
+                        class="btn btn-sm position-absolute end-0 border-0 bg-transparent text-muted px-2 shadow-none"
+                        (click)="clearDateFilter(col.key, $event)"
+                      >
+                        <mat-icon
+                          class="fs-6 d-flex align-items-center justify-content-center"
+                          >close</mat-icon
+                        >
+                      </button>
+                    </div>
+                  </ng-container>
+                </ng-template>
+
+                <!-- search input default -->
+                <ng-template #searchInput>
+                  <div
+                    class="position-relative w-100 d-flex align-items-center"
+                  >
+                    <input
+                      #colInput
+                      type="text"
+                      class="form-control form-control-sm bg-light"
+                      [class.disabled-filter-element]="col.filterDisabled"
+                      [disabled]="col.filterDisabled"
+                      [placeholder]="col.label"
+                      [value]="filterValues[col.key] || ''"
+                      (input)="onSearchInput(col.key, $event)"
+                      (click)="$event.stopPropagation()"
+                    />
+                    <button
+                      *ngIf="filterValues[col.key]"
+                      type="button"
+                      class="btn btn-sm position-absolute end-0 border-0 bg-transparent text-muted px-2 shadow-none cut-btn"
+                      (click)="
+                        clearSearchInput(col.key, colInput);
+                        $event.stopPropagation()
                       "
-                      (applyFilters)="onDropdownApply(col.key)"
-                      (clearFilters)="onDropdownClear(col.key)"
-                      (scrollToBottom)="onDropdownScroll(col.key)"
-                    ></app-multiselect-dropdown>
+                      aria-label="Clear search"
+                    >
+                      <mat-icon
+                        class="matrial-icon fs-6 d-flex align-items-center justify-content-center"
+                        >close</mat-icon
+                      >
+                    </button>
                   </div>
                 </ng-template>
               </div>
@@ -165,7 +243,7 @@
 
           <span
             *ngIf="col.type === 'currency'"
-            class="fw-bold text-primary fs-6"
+            class="fw-medium text-dark"
           >
             ₹{{ row[col.key] | number: "1.2-2" }}
           </span>

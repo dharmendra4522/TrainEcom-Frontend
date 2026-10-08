@@ -47,10 +47,10 @@ export class SalesReportComponent {
   }
 
   tableColumns: TableColumn[] = [
-    { key: 'thumbnailUrl', label: 'Product image', type: 'image' },
-    { key: 'productName', label: 'Product Name', type: 'text', filterable:true  },
-    { key: 'quantitySold', label: 'Quantity Sold', type: 'text', filterable:true  },
-    { key: 'totalSales', label: 'Total Sales', type: 'currency', filterable:true  }
+    { key: 'productName', label: 'Product Name', type: 'text', filterable:true, filterType: 'search'  },
+    { key: 'quantitySold', label: 'Quantity Sold', type: 'text', filterable:true, filterType: 'search'  },
+    { key: 'totalSales', label: 'Total Sales', type: 'currency', filterable:true, filterType: 'search'  },
+    { key: 'thumbnailUrl', label: 'Product image', type: 'image' }
   ]
 
 

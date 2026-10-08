@@ -13,10 +13,12 @@ import {
   TableColumn,
   TableAction,
   TableActionEvent,
-  DropdownOptions
+  DropdownOptions,
+  FilterEventPayload
 } from '../../../core/models/table.model';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-generic-table',
@@ -66,10 +68,31 @@ export class GenericTableComponent {
   @Output() loadMoreOptions = new EventEmitter<string>();
   @Output() filterApply = new EventEmitter<{ columnKey: string }>();
   @Output() filterClear = new EventEmitter<string>();
+  @Output() filterChanged = new EventEmitter<Record<string, string>>(); // for only searchable column 
+  @Output() filterCleared = new EventEmitter<string>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
   activeDropdownCol: string | null = null;
+  priceFilters: Record<string, { min: string; max: string }> = {};
+
+
+  private searchSubject = new Subject<{ key: string, value: string }>;
+  private searchSubscribe!: Subscription;
+
+  ngOnInit(): void {
+    this.setupSearch();
+  }
+
+  // search columns
+  private setupSearch(): void {
+    this.searchSubscribe = this.searchSubject.pipe(
+      debounceTime(300),
+    ).subscribe((filter: FilterEventPayload) => {
+      this.filterValues[filter.key] = filter.value;
+      this.filterChanged.emit(this.filterValues);
+    })
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
@@ -332,6 +355,86 @@ export class GenericTableComponent {
         return rowValue.includes(val);
       });
     });
+  }
+
+  onSearchInput(key: string, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement) {
+      const value = inputElement.value;
+      if (!value || value.trim() === '') {
+        delete this.filterValues[key];
+        this.data = [...this.originalData];
+      }
+      this.searchSubject.next({ key, value });
+    }
+  }
+
+  clearSearchInput(key: string, inputElement: HTMLInputElement): void {
+    inputElement.value = '';
+    delete this.filterValues[key];
+    this.data = [...this.originalData];
+    this.filterChanged.emit(this.filterValues);
+    this.filterCleared.emit(key);
+    this.searchSubject.next({ key, value: '' });
+  }
+
+  // get count of select options
+  getSelectedCount(colKey: string): number {
+    const selected = this.selectedFiltersMap[colKey];
+    if (!selected) return 0;
+    if (Array.isArray(selected)) {
+      return selected.length;
+    }
+    return Object.keys(selected).length;
+  }
+
+  // handle date selection
+  onDateInput(inputEle: HTMLInputElement, event: Event): void {
+    event.stopPropagation();
+    if (inputEle) {
+      if (typeof inputEle.showPicker === 'function') {
+        inputEle.showPicker();
+      } else {
+        inputEle.click();
+      }
+    }
+  }
+
+  onDateFilterChange(key: string, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    if (!value) {
+      delete this.filterValues[key];
+    } else {
+      this.filterValues[key] = value;
+    }
+    this.applyCombinedFilters();
+  }
+
+  // Clear date filter
+  clearDateFilter(key: string, event: Event): void {
+    event.stopPropagation();
+    delete this.filterValues[key];
+    this.applyCombinedFilters();
+  }
+
+
+  // process all filters
+  private applyCombinedFilters(): void {
+    this.data = this.originalData.filter((row) => {
+      const matchesTextOrDate = Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '');
+        return rowValue.toLowerCase().includes(val.toLowerCase());
+      });
+      return matchesTextOrDate;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchSubscribe) {
+      this.searchSubscribe.unsubscribe();
+    }
   }
 
 }

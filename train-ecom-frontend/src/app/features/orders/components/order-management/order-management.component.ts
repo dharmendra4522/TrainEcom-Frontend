@@ -81,24 +81,26 @@ export class OrderManagementComponent implements OnInit {
 
   // Table Columns Setup
   columns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', truncate: true, filterable: true },
-    { key: 'customerName', label: 'Customer Name', filterable: true },
-    { key: 'orderDate', label: 'Date', type: 'date', filterable: true },
-    { key: 'totalItems', label: 'Items', filterable: true },
-    { key: 'totalAmount', label: 'Total', type: 'currency', filterable: true },
+    { key: 'orderId', label: 'Order ID', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'customerName', label: 'Customer Name', filterable: true, filterType: 'search' },
+    { key: 'orderDate', label: 'Date', type: 'date', filterable: true, filterType: 'date' },
+    { key: 'totalItems', label: 'Items', filterable: true, filterType: 'search' },
+    { key: 'totalAmount', label: 'Total', type: 'currency', filterable: true, filterType: 'search' },
     {
       key: 'orderStatus',
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'orderStatusClass',
-      filterable: true
+      filterable: true,
+      filterType: 'dropdown'
     },
     {
       key: 'paymentStatus',
       label: 'Payment',
       type: 'badge',
-      badgeClassKey: 'paymentStatusClass', 
-      filterable: true
+      badgeClassKey: 'paymentStatusClass',
+      filterable: true,
+      filterType: 'dropdown'
     },
   ];
 

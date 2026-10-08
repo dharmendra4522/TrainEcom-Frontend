@@ -182,16 +182,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', truncate: false, filterable: true },
-    { key: 'email', label: 'Email', truncate: true, filterable: true },
-    { key: 'phoneNumber', label: 'Phone', filterable: true },
-    { key: 'formattedAddress', label: 'Location', truncate: true, filterable: true },
+    { key: 'name', label: 'Name', truncate: false, filterable: true, filterType:'search' },
+    { key: 'email', label: 'Email', truncate: true, filterable: true, filterType:'search' },
+    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType:'search' },
+    { key: 'formattedAddress', label: 'Location', truncate: true, filterable: true, filterType:'search' },
     {
       key: 'statusDisplay',
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'userStatusClass',
-      filterable: true
+      filterable: true, filterType:'dropdown'
     },
   ];
 

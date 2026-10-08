@@ -83,21 +83,21 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   });
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', truncate: false, filterable: true },
-    { key: 'phoneNumber', label: 'Phone', filterable:true },
-    { key: 'email', label: 'Email', truncate: true, filterable: true },
-    { key: 'bussinessName', label: 'Business Name', truncate: true, filterable: true },
-    { key: 'categoriesDisplay', label: 'Categories', truncate: true, filterable: true },
-    { key: 'gstinNumber', label: 'GSTIN No.', truncate: true, filterable: true },
-    { key: 'panNumber', label: 'PAN No.', truncate: true, filterable: true },
-    { key: 'productCount', label: 'Product Count', truncate: false, filterable: true },
-    { key: 'storeName', label: 'Store Name', truncate: true, filterable: true },
+    { key: 'name', label: 'Name', truncate: false, filterable: true, filterType: 'search' },
+    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType: 'search' },
+    { key: 'email', label: 'Email', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'bussinessName', label: 'Business Name', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'categoriesDisplay', label: 'Categories', truncate: true, filterable: true, filterType: 'dropdown' },
+    { key: 'gstinNumber', label: 'GSTIN No.', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'panNumber', label: 'PAN No.', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'productCount', label: 'Product Count', truncate: false, filterable: true, filterType: 'search', filterDisabled: true },
+    { key: 'storeName', label: 'Display Name', truncate: true, filterable: true, filterType: 'search' },
     {
       key: 'statusDisplay',
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'vendorStatusClass',
-      filterable: true
+      filterable: true, filterType: 'dropdown'
     }
   ];
 

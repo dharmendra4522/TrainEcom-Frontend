@@ -216,3 +216,34 @@ tr.cursor-pointer {
 ::ng-deep .custom-multiselect-overlay .cdk-overlay-pane {
   width: auto !important;
 }
+
+.disabled-filter-element {
+  background-color: #e9ecef !important;
+  opacity: 0.65;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.matrial-icon {
+  height: 18px;
+  width: 18px;
+}
+
+.cut-btn{
+  z-index: 5px;
+}
+
+.badge.bg-primary {
+  font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+  font-size: 10px;
+}
+
+input[type="date"].custom-date-input.has-value::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+input[type="date"].custom-date-input:not(.has-value)::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}

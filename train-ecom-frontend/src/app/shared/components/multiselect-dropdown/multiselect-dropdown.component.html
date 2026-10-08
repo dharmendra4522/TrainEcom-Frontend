@@ -1,8 +1,9 @@
-<div class="dropdown-wrapper bg-white border rounded-3 shadow-sm  w-100" (click)="$event.stopPropagation()">
+<div class="dropdown-wrapper bg-white border rounded-3 shadow-sm w-100" (click)="$event.stopPropagation()">
   
   <!-- Search Input Field -->
-  <div class="">
+  <div>
     <mat-form-field appearance="outline" class="w-100 compact-search-field">
+      <mat-icon matPrefix class="search-prefix-icon text-muted">search</mat-icon>
       <input
         matInput
         type="text"
@@ -30,6 +31,7 @@
       (click)="toggleSelection(option, $event)"
     >
       <mat-checkbox
+      color="primary"
         [checked]="isChecked(option.id)"
         (click)="$event.preventDefault()"
         class="me-2 small-checkbox"

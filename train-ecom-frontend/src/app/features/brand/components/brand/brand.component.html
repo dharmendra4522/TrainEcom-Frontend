@@ -52,7 +52,9 @@
     emptyMessage="No brands found." 
     (actionClick)="handleTableAction($event)"
     (loadMore)="onTableScroll()"
-    [showheaderFilter]="showHeaderFilter">
+    [showheaderFilter]="showHeaderFilter"
+    (filterChanged)="onTableFilterChanged($event)"
+    (filterCleared)="onTableFilterCleared($event)">
   </app-generic-table>
 
 

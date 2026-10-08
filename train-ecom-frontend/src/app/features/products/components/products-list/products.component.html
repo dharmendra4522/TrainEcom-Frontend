@@ -117,8 +117,11 @@
     (dropdownSearchChange)="onDropdownSearchTriggered($event)"
     (dropdownOpened)="onDropdownOpened($event)"
     (dropdownScrolled)="onDropdownScrolled($event)"
+    (dropdownSelectionChange)="onDropdownSelectionChanged($event)"
     (filterApply)="onFilterApply($event)"
     (filterClear)="onFilterClear($event)"
+    (filterChanged)="onTableFilterChanged($event)"
+    (filterCleared)="onTableFilterCleared($event)"
   >
   </app-generic-table>
 </div>
