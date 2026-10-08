@@ -24,6 +24,7 @@ import {
   normalizePaymentStatus,
 } from '../../../../core/utils/role.utils';
 import { FormControl, FormGroup } from '@angular/forms';
+import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 
 @Component({
   selector: 'app-order-management',
@@ -53,6 +54,8 @@ export class OrderManagementComponent implements OnInit {
   // Filter State
   selectedStatus: number | undefined = undefined;
   selectedPaymentStatus: number | undefined = undefined;
+  selectedMonth: number | undefined = undefined;
+  selectedYear: number | undefined = undefined;
   fromDate: Date | string | null = '';
   toDate: Date | string | null = '';
   private appliedFromDate: Date | string | null = '';
@@ -156,6 +159,12 @@ export class OrderManagementComponent implements OnInit {
           ? Number(paymentParam)
           : undefined;
 
+        const monthParam = params['month'];
+        this.selectedMonth = monthParam ? monthParam : undefined;
+
+        const yearParam = params['year'];
+        this.selectedYear = yearParam ? yearParam : undefined;
+
         const searchParam = params['search'];
         if (
           searchParam !== undefined &&
@@ -213,6 +222,8 @@ export class OrderManagementComponent implements OnInit {
         this.selectedPaymentStatus !== undefined
           ? this.selectedPaymentStatus.toString()
           : undefined,
+      month: this.selectedMonth,
+      year: this.selectedYear,
       fromDate: formatToYyyyMmDd(this.appliedFromDate),
       toDate: formatToYyyyMmDd(this.appliedToDate),
       pageNumber: this.pageIndex + 1,
@@ -226,38 +237,11 @@ export class OrderManagementComponent implements OnInit {
   }
 
   getOrderStatusClass(status: string): string {
-    const statusStr = normalizeOrderStatus(status).toLowerCase();
-    switch (statusStr?.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-primary-subtle text-primary border border-primary-subtle';
-      case 'processing':
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'shipped':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'delivered':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'cancelled':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    }
+    return getOrderStatusClass(status);
   }
 
   getPaymentStatusClass(status: string): string {
-    const normalizeStatus = normalizePaymentStatus(status);
-    switch (normalizeStatus?.toLowerCase()) {
-      case 'success':
-      case 'paid':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'failed':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'refunded':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'pending':
-      default:
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-    }
+    return getPaymentStatusClass(status);
   }
 
   onTableScroll(): void {
@@ -291,6 +275,8 @@ export class OrderManagementComponent implements OnInit {
     this.filterForm.patchValue({ search: '' }, { emitEvent: false });
     this.selectedStatus = undefined;
     this.selectedPaymentStatus = undefined;
+    this.selectedMonth = undefined;
+    this.selectedYear = undefined;
     this.fromDate = '';
     this.toDate = '';
     this.appliedFromDate = '';
