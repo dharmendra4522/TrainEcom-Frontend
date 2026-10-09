@@ -1,35 +1,151 @@
-<div class="filter-container d-flex align-items-center justify-content-between gap-2 w-100 px-2">
- 
-  <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden position-relative px-4">
-    
-    <!-- chips container -->
-    <div #chipsContainer class="filter-chips-container overflow-x-auto w-100 scrollbar-none"
-      style="scroll-behavior: smooth; white-space: nowrap;" (scroll)="checkScrollButtons()">
-      <div class="chips-scroll-wrapper d-inline-flex align-items-center gap-2 py-1">
-        <a [routerLink]="['/products']" [queryParams]="{}" routerLinkActive="active-chip"
+<div
+  class="filter-container d-flex align-items-center justify-content-between gap-2 w-100 px-2"
+>
+  <div
+    #categoryArea
+    class="category-chip-area d-flex align-items-center gap-2 flex-grow-1 position-relative px-4"
+  >
+    <button
+      type="button"
+      class="mobile-category-toggle"
+      [attr.aria-expanded]="isMobileMenuOpen"
+      aria-label="Browse categories"
+      (click)="toggleMobileMenu()"
+    >
+      <mat-icon>{{ isMobileMenuOpen ? "close" : "menu" }}</mat-icon>
+    </button>
+
+    <div
+      #chipsContainer
+      class="filter-chips-container overflow-x-auto w-100 scrollbar-none"
+      (scroll)="checkScrollButtons()"
+    >
+      <div
+        class="chips-scroll-wrapper d-inline-flex align-items-center gap-2 py-1"
+      >
+        <a
+          [routerLink]="['/products']"
+          routerLinkActive="active-chip"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block">
+          class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block"
+        >
           All
         </a>
- 
+
         <ng-container *ngIf="categories$ | async as categories">
-          <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.name }"
-            routerLinkActive="active-chip"
-            class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block">
-            {{ cat.name }}
-          </a>
+          <div
+            *ngFor="let cat of categories"
+            class="position-relative d-inline-block"
+          >
+            <button
+              type="button"
+              [matMenuTriggerFor]="categoryMenu"
+              #categoryMenuTrigger="matMenuTrigger"
+              [class.active-chip]="categoryMenuTrigger.menuOpen"
+              class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block"
+            >
+              {{ cat.name }}
+            </button>
+
+            <mat-menu #categoryMenu="matMenu">
+              <a
+                *ngFor="let sub of cat.subCategories"
+                mat-menu-item
+                [routerLink]="['/products']"
+                [queryParams]="{ category: cat.name, subCategory: sub.name }"
+              >
+                {{ sub.name }}
+              </a>
+              <a
+                *ngIf="!cat.subCategories?.length"
+                mat-menu-item
+                [routerLink]="['/products']"
+                [queryParams]="{ category: cat.name }"
+              >
+                View {{ cat.name }} products
+              </a>
+            </mat-menu>
+          </div>
         </ng-container>
       </div>
     </div>
-  </div>
- 
- <!-- Search Box Section -->
-  <div class="search-wrapper flex-shrink-0">
-    <div class="search-box d-flex align-items-center rounded-pill px-3 border">
-      <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
-      <input type="text" [formControl]="searchControl" placeholder="Search products..."
-        class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7" />
+
+    <div *ngIf="isMobileMenuOpen" class="mobile-category-menu">
+      <ng-container *ngIf="categories$ | async as categories">
+        <ng-container *ngIf="selectedCatgory as selectedCategory; else categoryOptions">
+          <div class="mobile-category-menu-header">
+            <button
+              type="button"
+              class="mobile-category-back"
+              (click)="backToMobileCategories()"
+            >
+              <mat-icon>arrow_back</mat-icon>
+              <span>Categories</span>
+            </button>
+            <span class="mobile-category-title">{{ selectedCategory.name }}</span>
+          </div>
+          <ng-container *ngIf="selectedCategory.subCategories?.length; else categoryWithoutSubcategories">
+            <a
+              *ngFor="let sub of selectedCategory.subCategories"
+              [routerLink]="['/products']"
+              [queryParams]="{ category: selectedCategory.name, subCategory: sub.name }"
+              class="mobile-category-option"
+              (click)="closeMobileMenu()"
+            >
+              {{ sub.name }}
+            </a>
+          </ng-container>
+          <ng-template #categoryWithoutSubcategories>
+            <a
+              [routerLink]="['/products']"
+              [queryParams]="{ category: selectedCategory.name }"
+              class="mobile-category-option"
+              (click)="closeMobileMenu()"
+            >
+              View {{ selectedCategory.name }} products
+            </a>
+          </ng-template>
+        </ng-container>
+        <ng-template #categoryOptions>
+          <a
+            [routerLink]="['/products']"
+            class="mobile-category-option"
+            (click)="closeMobileMenu()"
+          >
+            <span>All categories</span>
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+          <button
+            *ngFor="let category of categories"
+            type="button"
+            class="mobile-category-option"
+            (click)="openMobileCategory(category)"
+          >
+            <span>{{ category.name }}</span>
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </ng-template>
+      </ng-container>
     </div>
   </div>
- 
+
+ <div class="search-wrapper flex-shrink-0">
+    <div class="search-box d-flex align-items-center rounded-pill px-3 border">
+      <mat-icon class="text-secondary fs-5 me-2">search</mat-icon>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Search products..."
+        class="border-0 bg-transparent w-100 shadow-none outline-none text-dark fs-7"
+      />
+      <button
+        *ngIf="searchControl.value"
+        type="button"
+        class="clear-btn border-0 bg-transparent p-0 d-flex align-items-center justify-content-center text-secondary"
+        (click)="clearSearch()"
+      >
+        <mat-icon class="fs-5 w-auto h-auto">close</mat-icon>
+      </button>
+    </div>
+  </div>
 </div>

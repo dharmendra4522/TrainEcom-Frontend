@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Category } from '../../../core/models/category.model';
 import { CategoryService } from '../../../core/services/category.service';
+import { getFieldError, noSpaceAllow, trimControlValue } from '../../../features/auth/register.utils';
 
 export interface BrandCategoryDialogData {
   title: string;
@@ -14,7 +15,14 @@ export interface BrandCategoryDialogData {
     name: string;
     description: string;
     parentCategoryId?: number | string | null;
+    parentCategoryName?: string | null;
   };
+}
+
+export interface BrandCategoryDialogResult {
+  name: string;
+  description: string;
+  parentCategoryId?: number | null;
 }
 
 @Component({
@@ -26,7 +34,9 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private categoryService = inject(CategoryService);
   private destroy$ = new Subject<void>();
-  public dialogRef = inject(MatDialogRef<BrandCategoryDialogComponent>);
+  public dialogRef = inject(
+    MatDialogRef<BrandCategoryDialogComponent, BrandCategoryDialogResult>,
+  );
 
   form!: FormGroup;
   parentCategories: Array<{ id: number | string; name: string }> = [];
@@ -34,7 +44,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
   parentCategorySearchControl = new FormControl('', { nonNullable: true });
   private hasParentCategoriesLoaded = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: BrandCategoryDialogData) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: BrandCategoryDialogData) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -48,11 +58,11 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       name: [
         this.data.initialData?.name || '',
-        [Validators.required, Validators.maxLength(100)],
+        [Validators.required, Validators.maxLength(100), noSpaceAllow()],
       ],
       description: [
         this.data.initialData?.description || '',
-        [Validators.maxLength(500)],
+        [Validators.maxLength(500), noSpaceAllow()],
       ],
     });
   }
@@ -83,8 +93,8 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
 
     this.filteredParentCategories = searchTerm
       ? this.parentCategories.filter((category) =>
-          category.name.toLowerCase().includes(searchTerm),
-        )
+        category.name.toLowerCase().includes(searchTerm),
+      )
       : [...this.parentCategories];
   }
 
@@ -105,6 +115,21 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
             name: category.name,
           }));
           this.filteredParentCategories = [...this.parentCategories];
+
+          const initialParentId = this.data.initialData?.parentCategoryId;
+          const initialParentName = this.data.initialData?.parentCategoryName
+            ?.trim()
+            .toLocaleLowerCase();
+          const selectedParent = this.parentCategories.find(
+            (category) => category.id === initialParentId,
+          ) ?? this.parentCategories.find(
+            (category) =>
+              category.name.trim().toLocaleLowerCase() === initialParentName,
+          );
+
+          if (selectedParent) {
+            this.form.get('parentCategoryId')?.setValue(selectedParent.id);
+          }
         },
         error: (error) => {
           console.error('Error fetching parent categories:', error);
@@ -115,6 +140,8 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    this.trimOnBlur('name');
+    this.trimOnBlur('description');
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     } else {
@@ -129,5 +156,21 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getErrorMessage(controlName: string, label: string): string {
+    const control = this.form.get(controlName);
+    return getFieldError(control, label);
+  }
+
+  trimOnBlur(controlName: string): void {
+    const control = this.form.get(controlName);
+    if (control && typeof control.value === 'string') {
+      if (control.value.trim().length > 0) {
+        trimControlValue(control);
+      }
+      control.markAsTouched();
+      control.updateValueAndValidity();
+    }
   }
 }

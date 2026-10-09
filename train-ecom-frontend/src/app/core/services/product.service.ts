@@ -40,6 +40,7 @@ export class ProductService {
     formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     files.forEach((file) => {
       if (file) formData.append('Images', file);
@@ -67,6 +68,7 @@ export class ProductService {
     formData.append('StockQuantity', productData.stockQuantity?.toString() || '0');
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     deletedImageIds.forEach((id) => {
       formData.append('DeletedImageIds', String(id));
@@ -90,6 +92,7 @@ export class ProductService {
     pageSize: number = 10,
     brandName?: string,
     categoryName?: string,
+    subCategoryName?: string,
     search?: string,
     minPrice?: number,
     maxPrice?: number,
@@ -106,6 +109,9 @@ export class ProductService {
     }
     if (categoryName) {
       params = params.set('CategoryName', categoryName);
+    }
+    if (subCategoryName) {
+      params = params.set('SubCategoryName', subCategoryName);
     }
     if (search) {
       params = params.set('Search', search);

@@ -48,10 +48,10 @@ export class CategoryEffects {
         this.store.select(selectCategoryTotalRecords),
       ),
       switchMap(([action, pagesCache, totalRecords]) => {
-        const { pageNumber, pageSize, search } = action;
+        const { pageNumber, pageSize, search, refresh } = action;
         const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
 
-        if (pagesCache[cacheKey]) {
+        if (!refresh && pagesCache[cacheKey]) {
           return of(CategoryActions.loadPaginatedCategoriesSuccess({
             categories: pagesCache[cacheKey],
             totalRecords,

@@ -15,7 +15,10 @@
     <app-top-promo-bar></app-top-promo-bar>
   </ng-container>
 
-  <mat-toolbar class="main-header border-bottom bg-white sticky-top shadow-xs">
+  <mat-toolbar
+    class="main-header border-bottom bg-white sticky-top shadow-xs"
+    [class.management-header]="auth.isManagement"
+  >
     <button
       mat-icon-button
       *ngIf="showMenuButton"
@@ -36,18 +39,6 @@
     </div>
 
     <span class="spacer"></span>
-
-    <!-- Nav links  only for guests and customers -->
-    <div
-      class="nav-links d-none d-lg-flex align-items-center gap-1 me-4"
-      *ngIf="!auth.isManagement"
-    >
-
-    <!-- filter and serach section -->
-    <app-product-filter></app-product-filter>
-    </div>
-
-    <span class="spacer d-none d-lg-block"></span>
 
     <div class="action-icons d-flex align-items-center gap-1 gap-md-2">
       <!-- Cart & Wishlist: only for guests and customers -->
@@ -91,7 +82,7 @@
           mat-flat-button
           color="primary"
           routerLink="/login"
-          class="login-btn d-none d-md-inline-flex align-items-center gap-1 rounded-pill px-4 ms-2 fw-semibold"
+          class="login-btn d-none d-lg-inline-flex align-items-center gap-1 rounded-pill px-4 ms-2 fw-semibold"
         >
           <span>Login</span>
           <mat-icon class="fs-6">arrow_forward</mat-icon>
@@ -100,7 +91,7 @@
           mat-flat-button
           color="primary"
           routerLink="/vendor-register"
-          class="login-btn d-none d-md-inline-flex align-items-center gap-1 rounded-pill px-4 ms-2 fw-semibold"
+          class="login-btn d-none d-lg-inline-flex align-items-center gap-1 rounded-pill px-4 ms-2 fw-semibold"
         >
           <span>Start Selling</span>
           <mat-icon class="fs-6">storefront</mat-icon>
@@ -108,7 +99,7 @@
         <button
           mat-icon-button
           [matMenuTriggerFor]="guestActionMenu"
-          class="d-md-none text-dark"
+          class="d-lg-none text-dark"
           matTooltip="Menu"
         >
           <mat-icon>menu</mat-icon>
@@ -241,6 +232,10 @@
           </button>
         </mat-menu>
       </ng-container>
+    </div>
+
+    <div class="product-filter-band" *ngIf="!auth.isManagement">
+      <app-product-filter class="header-product-filter"></app-product-filter>
     </div>
   </mat-toolbar>
 </ng-container>
