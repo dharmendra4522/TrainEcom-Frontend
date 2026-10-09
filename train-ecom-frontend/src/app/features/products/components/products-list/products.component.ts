@@ -64,7 +64,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ProductList: Product[] = [];
   currentPage: number = 1;
   pageNumber: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 15;
   totalRecords: number = 0;
   hasMoreData: boolean = true;
   portal: PortalKey = 'admin';

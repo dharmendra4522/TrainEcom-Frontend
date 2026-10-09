@@ -112,13 +112,15 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'block',
       color: 'warn',
       tooltip: 'Block/Unblock ',
-      disabled: (row: unknown) => this.isBlockedHide(row),
+      disabled: (row: unknown) => this.isBlockedHide(row) || this.isNonPendingDisable(row),
       hideWhenDisabled: true
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
+      disabled: (row: unknown) => this.isNonPendingDisable(row),
+      hideWhenDisabled: true,
       tooltip: 'Delete Vendor'
     },
     {
@@ -546,6 +548,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     if (vendor && vendorId) {
       this.router.navigate(['/admin/users/manage', vendorId]);
     }
+  }
+
+  private isNonPendingDisable(row: unknown): boolean {
+    if (!this.isVendorTableItem(row)) {
+      return false;
+    }
+    return row.status === VendorStatus.Pending;
   }
 
   ngOnDestroy(): void {

@@ -13,6 +13,12 @@ export enum ApprovalStatus {
   Rejected = 3,
 }
 
+export enum DocumentType {
+  Logo = 1,
+  BussinessDocument = 2,
+  GSTDocument = 3
+}
+
 export interface ProfileVendorDetails {
   id?: number;
   userId?: number;

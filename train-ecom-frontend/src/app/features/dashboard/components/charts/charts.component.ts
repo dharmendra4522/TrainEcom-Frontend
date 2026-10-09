@@ -1,5 +1,5 @@
 import {
-  CategoryWiseProductCount,
+  CategoryProductSummaryResponse,
   OrderSummaryResponse,
   RevenueData,
 } from './../../../../core/models/dashboard.model';
@@ -8,7 +8,6 @@ import { ChartData, ChartType, Chart, registerables, ChartConfiguration } from '
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
-  categoryProductData,
   orderStatusChartData,
   revenueChartData,
   userChartData,
@@ -76,7 +75,10 @@ export class ChartsComponent implements OnInit {
   );
 
   public productChartType: ChartType = 'bar';
-  public productChartData: ChartData<'bar'> = categoryProductData;
+  public productChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [{ data: [], backgroundColor: '#2196f3' }],
+  };
   public productChartOptions = getProductChartOptions(
     this.router,
     this.portalRoutes
@@ -135,10 +137,10 @@ export class ChartsComponent implements OnInit {
       return;
     }
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
-      next: (data: CategoryWiseProductCount[]) => {
-        this.totalCategories = 6;
-        const labels = data.map((item) => item.categoryName);
-        const counts = data.map((item) => item.productCount);
+      next: (data: CategoryProductSummaryResponse) => {
+        this.totalCategories = data.totalCategories;
+        const labels = data.summary.map((item) => item.categoryName);
+        const counts = data.summary.map((item) => item.productCount);
         this.productChartData = {
           labels: labels,
           datasets: [

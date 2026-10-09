@@ -25,9 +25,10 @@ import {
   takeWhile,
   map,
   startWith,
+  filter,
 } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { Role } from '../../../core/models/auth.model';
 import { ApprovalStatus } from '../../../core/models/user.model';
 import { normalizeApprovalStatus, normalizeRole } from '../../../core/utils/role.utils';
@@ -71,6 +72,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   formattedTime: string = '00:00';
   private timerSubscribe?: Subscription;
+  isAccountRoute: boolean = false;
 
   ngOnInit() {
     this.initAuthSubscription();

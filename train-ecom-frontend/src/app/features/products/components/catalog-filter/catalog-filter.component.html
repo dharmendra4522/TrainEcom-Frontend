@@ -29,6 +29,24 @@
       </option>
     </select>
   </div>
+  
+  <div class="filter-section mb-4">
+    <h6 class="fw-bold text-dark mb-3">Sub-category</h6>
+    <select
+      class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
+      [value]="selectedSubCategory"
+      [disabled]="!selectedCategory || availableSubCategories.length === 0"
+      (change)="onSubCategoryChange($event)"
+    >
+      <option value="">All Sub-categories</option>
+      <option
+        *ngFor="let subCategory of availableSubCategories"
+        [value]="subCategory.name"
+      >
+        {{ subCategory.name }}
+      </option>
+    </select>
+  </div>
 
   <div class="filter-section mb-4">
     <h6 class="fw-bold text-dark mb-3">Brand</h6>
@@ -71,9 +89,7 @@
     <select
       class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
       [value]="activeRating === null ? '' : activeRating"
-      (change)="
-        onRatingChange($event)
-      "
+      (change)="onRatingChange($event)"
     >
       <option value="">All Ratings</option>
       <option value="4">4 Stars & Up</option>

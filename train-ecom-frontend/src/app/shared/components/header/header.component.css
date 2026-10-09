@@ -11,6 +11,33 @@
   background-color: #ffffff;
   z-index: 900;
 }
+
+.product-filter-band {
+  position: relative;
+  z-index: 890;
+  order: 2;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.logo-wrapper {
+  order: 1;
+  flex: 0 0 auto;
+}
+
+.main-header > .spacer {
+  order: 3;
+  flex: 0 1 0;
+}
+
+.main-header.management-header > .spacer {
+  flex: 1 1 auto;
+}
+
+.action-icons {
+  order: 4;
+  flex: 0 0 auto;
+}
  
 .spacer {
   flex: 1 1 auto;
@@ -124,8 +151,31 @@
 
 @media (max-width: 768px) {
   .main-header {
+    display: flex;
+    flex-wrap: wrap; 
+    align-content: center;
     padding: 0 16px !important;
-    height: 62px !important;
-    min-height: 62px !important;
+    height: auto !important;
+    min-height: 110px !important;
+    row-gap: 4px;
+  }
+
+  .logo-wrapper {
+    order: 1;
+  }
+
+  .action-icons {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .main-header > .spacer {
+    display: none;
+  }
+
+  .product-filter-band {
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
   }
 }

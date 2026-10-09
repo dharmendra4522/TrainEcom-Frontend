@@ -46,6 +46,11 @@ export interface CategoryWiseProductCount {
   productCount: number;
 }
 
+export interface CategoryProductSummaryResponse {
+  totalCategories: number;
+  summary: CategoryWiseProductCount[];
+}
+
 export interface MonthlyRevenue {
   month: number;
   monthName: string;

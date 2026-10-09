@@ -43,7 +43,7 @@ export const selectCategoryPageSize = createSelector(
     (categoryState: CategoryState) => categoryState.pageSize
 );
 
-export const selectCategoryById = (categoryId: string) => createSelector(
+export const selectCategoryById = (categoryId: number) => createSelector(
     selectCateGoryState,
     (categoryState: CategoryState) => categoryState.categories.find(category => category.id === categoryId)
 );
