@@ -64,12 +64,13 @@ export class SubCategoryComponent {
   totalRecords: number = 0;
   currentPage: number = 1;
   pageSize: number = 10;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'subCategoryName', label: 'Sub-Category Name' },
-    { key: 'parentCategoryName', label: 'Parent Category' },
-    { key: 'description', label: 'Description' },
-    { key: 'productCount', label: 'Product Count' },
+    { key: 'subCategoryName', label: 'Sub-Category Name', filterable: true, filterType: 'search' },
+    { key: 'parentCategoryName', label: 'Parent Category', filterable: true, filterType: 'search' },
+    { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
+    { key: 'productCount', label: 'Product Count', filterable: true, filterType: 'search', filterDisabled: true }
   ];
 
   actions: TableAction[] = [
@@ -267,6 +268,24 @@ export class SubCategoryComponent {
   resetSearch(): void {
     this.searchControl.setValue('');
   }
+
+  onTableFilterChanged(filters: Record<string, string>): void {
+    const searchText = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
+    if (this.searchControl.value !== searchText) {
+      this.searchControl.setValue(searchText, { emitEvent: false });
+    }
+
+    this.currentPage = 1;
+    this.loadSubCategories(this.currentPage, this.pageSize, searchText);
+  }
+
+  // Table header ka search clear hone par yeh call hoga
+  onTableFilterCleared(columnKey: string): void {
+    this.searchControl.setValue('', { emitEvent: false });
+    this.currentPage = 1;
+    this.loadSubCategories(this.currentPage, this.pageSize, '');
+  }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

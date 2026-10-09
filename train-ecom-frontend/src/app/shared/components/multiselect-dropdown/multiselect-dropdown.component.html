@@ -1,0 +1,109 @@
+<div class="dropdown-wrapper bg-white border rounded-3 shadow-sm w-100" (click)="$event.stopPropagation()">
+
+  <ng-container *ngIf="isPriceRange; else optionsDropdown">
+    <div class="price-range-panel">
+      <div class="price-range-title">Price</div>
+      <div class="price-range-values">
+        {{ selectedPriceMin | currency:'INR':'symbol':'1.0-0' }} -
+        {{ selectedPriceMax | currency:'INR':'symbol':'1.0-0' }}
+      </div>
+      <div class="price-range-slider">
+        <input
+          type="range"
+          class="price-range-input price-range-min"
+          [min]="priceMin"
+          [max]="selectedPriceMax"
+          [value]="selectedPriceMin"
+          aria-label="Minimum price"
+          (input)="onPriceMinChange($event)"
+        />
+        <input
+          type="range"
+          class="price-range-input price-range-max"
+          [min]="selectedPriceMin"
+          [max]="priceMax"
+          [value]="selectedPriceMax"
+          aria-label="Maximum price"
+          (input)="onPriceMaxChange($event)"
+        />
+      </div>
+      <div class="border-top p-1 d-flex justify-content-between align-items-center bg-light rounded-bottom">
+      <button mat-button color="warn" class="small-btn" (click)="onClearAll($event)">
+        Clear
+      </button>
+      <button mat-raised-button color="primary" class="small-btn" (click)="onApply($event)">
+        Apply
+      </button>
+    </div>
+    </div>
+  </ng-container>
+
+  <ng-template #optionsDropdown>
+    <!-- Search Input Field -->
+    <div>
+      <mat-form-field appearance="outline" class="w-100 compact-search-field">
+        <mat-icon matPrefix class="search-prefix-icon text-muted">search</mat-icon>
+        <input
+          matInput
+          type="text"
+          [placeholder]="placeholder"
+          [formControl]="searchControl"
+        />
+        <button
+          *ngIf="searchControl.value"
+          mat-icon-button
+          matSuffix
+          type="button"
+          aria-label="Clear"
+          (click)="clearSearch($event)"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- Options Container -->
+    <div class="options-container" (scroll)="onScroll($event)">
+      <div
+        *ngFor="let option of options"
+        class="dropdown-item px-2 py-1.5 rounded d-flex align-items-center cursor-pointer hover-bg"
+        (click)="toggleSelection(option, $event)"
+      >
+        <mat-checkbox
+          color="primary"
+          [checked]="isChecked(option.id)"
+          (click)="$event.preventDefault()"
+          class="me-2 small-checkbox"
+        >
+          <span class="text-truncate small text-dark">{{ option.label }}</span>
+        </mat-checkbox>
+      </div>
+
+      <!-- Empty State -->
+      <div
+        *ngIf="options.length === 0 && !isLoading"
+        class="text-center py-2 text-muted small"
+      >
+        No options found
+      </div>
+
+      <!-- Loading State -->
+      <div
+        *ngIf="isLoading"
+        class="d-flex justify-content-center align-items-center py-2"
+      >
+        <mat-spinner diameter="20" class="me-2"></mat-spinner>
+        <span class="text-muted small">Loading...</span>
+      </div>
+    </div>
+
+    <div class="border-top p-1 d-flex justify-content-between align-items-center bg-light rounded-bottom">
+      <button mat-button color="warn" class="small-btn" (click)="onClearAll($event)">
+        Clear
+      </button>
+      <button mat-raised-button color="primary" class="small-btn" (click)="onApply($event)">
+        Apply
+      </button>
+    </div>
+  </ng-template>
+</div>

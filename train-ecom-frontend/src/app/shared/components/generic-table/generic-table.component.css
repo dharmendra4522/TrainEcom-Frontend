@@ -4,6 +4,15 @@
 
 .custom-mat-table {
   background-color: transparent;
+  table-layout: fixed;
+}
+
+.custom-mat-table .mat-column-sno {
+  width: 56px;
+}
+
+.custom-mat-table .mat-column-actions {
+  width: 104px;
 }
 
 .custom-mat-table th.mat-header-cell {
@@ -12,6 +21,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 
 .custom-mat-table td.mat-cell {
@@ -93,6 +103,16 @@
 @media (max-width: 1200px) {
   .custom-mat-table {
     min-width: 800px;
+    width: max-content;
+    table-layout: auto;
+  }
+
+  .custom-mat-table th.filter-column-header {
+    min-width: 126px;
+  }
+
+  .custom-mat-table th.dropdown-filter-header {
+    min-width: 144px;
   }
 }
 
@@ -158,6 +178,7 @@ tr.cursor-pointer {
   min-height: 150px;
   max-height: calc(100vh - 280px);
   overflow-y: auto;
+  overflow-x: auto;
 }
 
 .table-scroll-container::-webkit-scrollbar {
@@ -183,4 +204,213 @@ tr.cursor-pointer {
 
 .progress-bar {
   height: 3px;
+}
+
+.filter-header {
+  height: 31px;
+}
+
+.compact-filter-field {
+  height: 31px;
+  font-size: 12px;
+}
+
+.filter-select-field {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.dropdown-filter-space {
+  padding-right: 4px !important;
+  padding-left: 4px !important;
+}
+
+.filter-select-input {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-select-suffix {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.filter-select-count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 2px 5px !important;
+  line-height: 1.2;
+  text-align: center;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-text-field-wrapper,
+::ng-deep .compact-filter-field .mat-mdc-form-field-flex {
+  height: 31px !important;
+  min-height: 31px !important;
+  align-items: center !important;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-text-field-wrapper {
+  padding: 0 8px !important;
+  background-color: #f8f9fa;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-form-field-infix {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 31px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-input-element {
+  height: 29px;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 29px;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+::ng-deep .compact-filter-field .mat-mdc-form-field-icon-suffix,
+::ng-deep .compact-filter-field .mat-mdc-form-field-text-suffix {
+  padding: 0;
+}
+
+::ng-deep .compact-filter-field .compact-filter-icon {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+}
+
+::ng-deep .compact-filter-field .compact-filter-icon.filter-clear-hidden {
+  visibility: hidden;
+}
+
+::ng-deep .compact-filter-field .compact-filter-icon .mat-icon,
+::ng-deep .compact-filter-field .mat-datepicker-toggle .mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+::ng-deep .compact-filter-field .mat-datepicker-toggle,
+::ng-deep .compact-filter-field .mat-datepicker-toggle .mat-mdc-icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+.filter-select-field {
+  cursor: pointer;
+  position: relative;
+}
+
+.drop-icon {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.floating-dropdown-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 300px;
+  background: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  margin-top: 4px;
+}
+
+::ng-deep .custom-multiselect-overlay {
+  min-width: 280px !important;
+  max-width: 350px !important;
+}
+
+::ng-deep .custom-multiselect-overlay .cdk-overlay-pane {
+  width: auto !important;
+}
+
+::ng-deep .mat-mdc-form-field-icon-suffix {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+
+.disabled-filter-element {
+  background-color: #e9ecef !important;
+  opacity: 0.65;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+.matrial-icon {
+  height: 18px;
+  width: 18px;
+}
+
+.cut-btn{
+  z-index: 5px;
+}
+
+.filter-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  background: #2563eb;
+  color: #fff;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  margin-left: 4px;
+  margin-right: 2px;
+
+  line-height: 1;
+}
+
+.drop-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+@media (max-width: 576px) {
+  .filter-count-badge {
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    font-size: 8px;
+  }
+
+  .drop-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
 }
