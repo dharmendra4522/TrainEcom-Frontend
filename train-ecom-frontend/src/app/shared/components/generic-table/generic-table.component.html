@@ -22,11 +22,7 @@
     >
       <!-- Seial number -->
       <ng-container matColumnDef="sno" *ngIf="showIndex">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          class="p-0 border-0"
-        >
+        <th mat-header-cell *matHeaderCellDef class="p-0 border-0">
           <div class="d-flex flex-column w-100">
             <!-- Filter Space / Empty Box -->
             <div
@@ -59,7 +55,9 @@
           [class.filter-column-header]="showheaderFilter && col.filterable"
           [class.dropdown-filter-header]="
             showheaderFilter &&
-            (col.filterType === 'dropdown' || col.filterType === 'price-range')
+            (col.filterType === 'dropdown' ||
+              col.filterType === 'price-range' ||
+              col.filterType === 'stock-range')
           "
         >
           <div class="d-flex flex-column w-100 position-relative">
@@ -67,7 +65,9 @@
             <div
               class="px-4 py-2 bg-white border-bottom"
               [class.dropdown-filter-space]="
-                col.filterType === 'dropdown' || col.filterType === 'price-range'
+                col.filterType === 'dropdown' ||
+                col.filterType === 'price-range' ||
+                col.filterType === 'stock-range'
               "
               *ngIf="showheaderFilter"
             >
@@ -75,7 +75,8 @@
                 <ng-container
                   *ngIf="
                     col.filterType === 'dropdown' ||
-                    col.filterType === 'price-range';
+                      col.filterType === 'price-range' ||
+                      col.filterType === 'stock-range';
                     else dateFilter
                   "
                 >
@@ -95,7 +96,10 @@
                       [disabled]="col.filterDisabled"
                       [placeholder]="col.label"
                       [value]="getSelectedFilterLabel(col.key)"
-                      (click)="$event.stopPropagation(); toggleDropdown(col.key, $event)"
+                      (click)="
+                        $event.stopPropagation();
+                        toggleDropdown(col.key, $event)
+                      "
                     />
                     <span matSuffix class="filter-select-suffix">
                       <span
@@ -114,17 +118,21 @@
                     cdkConnectedOverlay
                     [cdkConnectedOverlayOrigin]="trigger"
                     [cdkConnectedOverlayOpen]="activeDropdownCol === col.key"
-                    [cdkConnectedOverlayWidth]="
-                      trigger.elementRef.nativeElement.offsetWidth
-                    "
-                    [cdkConnectedOverlayPanelClass]="
+                      [cdkConnectedOverlayPanelClass]="
                       'custom-multiselect-overlay'
                     "
                     (overlayOutsideClick)="activeDropdownCol = null"
                   >
                     <div class="shadow-sm rounded-3 bg-white mt-1">
                       <app-multiselect-dropdown
+                        [canApply]="canApply(col.key)"
+                        [canClear]="canClear(col.key)"
                         [isPriceRange]="col.filterType === 'price-range'"
+                        [isStockRange]="col.filterType === 'stock-range'"
+                        [priceMin]="0"
+                        [priceMax]="100000"
+                        [stockMin]="0"
+                        [stockMax]="500"
                         [options]="getDropdownOptions(col.key)"
                         [isLoading]="isDropdownLoading(col.key)"
                         [selectedValues]="getSelectedValues(col.key)"
@@ -136,6 +144,7 @@
                         (clearFilters)="onDropdownClear(col.key)"
                         (scrollToBottom)="onDropdownScroll(col.key)"
                         (priceRangeChange)="onPriceRangeChange(col.key, $event)"
+                        (stockRangeChange)="onStockRangeChange(col.key, $event)"
                       ></app-multiselect-dropdown>
                     </div>
                   </ng-template>
@@ -283,10 +292,7 @@
             >
           </div>
 
-          <span
-            *ngIf="col.type === 'currency'"
-            class="fw-medium text-dark"
-          >
+          <span *ngIf="col.type === 'currency'" class="fw-medium text-dark">
             ₹{{ row[col.key] | number: "1.2-2" }}
           </span>
 

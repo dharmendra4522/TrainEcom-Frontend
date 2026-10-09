@@ -19,7 +19,7 @@ import {
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
 import { debounceTime, Subject, Subscription } from 'rxjs';
-import { PriceRange } from '../multiselect-dropdown/multiselect-dropdown.component';
+import { Range } from '../multiselect-dropdown/multiselect-dropdown.component';
 
 @Component({
   selector: 'app-generic-table',
@@ -71,12 +71,12 @@ export class GenericTableComponent {
   @Output() filterClear = new EventEmitter<string>();
   @Output() filterChanged = new EventEmitter<Record<string, string>>(); // for only searchable column 
   @Output() filterCleared = new EventEmitter<string>();
-  @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & PriceRange>();
+  @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & Range>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
   activeDropdownCol: string | null = null;
-  priceFilters: Record<string, { min: string; max: string }> = {};
+  priceFilters: Record<string, { min: number; max: number; changed: boolean }> = {};
 
 
   private searchSubject = new Subject<{ key: string, value: string }>;
@@ -331,8 +331,28 @@ export class GenericTableComponent {
     this.dropdownScrolled.emit(columnKey);
   }
 
-  onPriceRangeChange(columnKey: string, range: PriceRange): void {
-    this.priceRangeChange.emit({ columnKey, ...range });
+  onPriceRangeChange(
+    columnKey: string,
+    range: Range,
+  ): void {
+
+    this.priceFilters[columnKey] = {
+      min: range.min,
+      max: range.max,
+      changed: true,
+    };
+
+    this.priceRangeChange.emit({
+      columnKey,
+      ...range,
+    });
+  }
+
+  onStockRangeChange(
+    columnKey: string,
+    range: Range,
+  ): void {
+    this.onPriceRangeChange(columnKey, range);
   }
 
   onDropdownApply(columnKey: string): void {
@@ -341,15 +361,13 @@ export class GenericTableComponent {
   }
 
   onDropdownClear(columnKey: string): void {
-    if (this.selectedFiltersMap && this.selectedFiltersMap[columnKey]) {
-      delete this.selectedFiltersMap[columnKey];
-    }
-
-    if (this.filterValues && this.filterValues[columnKey]) {
-      delete this.filterValues[columnKey];
-    }
-    this.reapplyAllFilters();
+    delete this.priceFilters[columnKey];
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [columnKey]: [],
+    };
     this.filterClear.emit(columnKey);
+    this.activeDropdownCol = null;
   }
 
   private reapplyAllFilters(): void {
@@ -439,6 +457,32 @@ export class GenericTableComponent {
       });
       return matchesTextOrDate;
     });
+  }
+
+  canApply(columnKey: string): boolean {
+
+    if (this.priceFilters[columnKey]?.changed) {
+      return true;
+    }
+
+    const selected = this.selectedFiltersMap[columnKey];
+
+    return Array.isArray(selected)
+      ? selected.length > 0
+      : false;
+  }
+
+  canClear(columnKey: string): boolean {
+
+    if (this.priceFilters[columnKey]) {
+      return true;
+    }
+
+    const selected = this.selectedFiltersMap[columnKey];
+
+    return Array.isArray(selected)
+      ? selected.length > 0
+      : false;
   }
 
   ngOnDestroy(): void {

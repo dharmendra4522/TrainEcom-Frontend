@@ -136,7 +136,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       label: 'Stock',
       type: 'number',
       filterable: true,
-      filterType: 'search',
+      filterType: 'stock-range',
     },
     {
       key: 'categoryName',
