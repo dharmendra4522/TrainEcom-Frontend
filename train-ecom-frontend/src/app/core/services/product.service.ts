@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Product } from '../models/product.model';
+import { Product, ProductListField } from '../models/product.model';
 import { map } from 'rxjs/operators';
 import { PaginatedProductsResponse } from '../models/product.model';
 import { HttpParams } from '@angular/common/http';
@@ -88,13 +88,22 @@ export class ProductService {
   getPaginatedProducts(
     pageNumber: number = 1,
     pageSize: number = 10,
-    brandName?: string,
-    categoryName?: string,
     search?: string,
+    searchField?: ProductListField,
+    requestField?: ProductListField,
+    categoryIds?: number[],
+    subCategoryIds?: number[],
+    brandIds?: number[],
+    storeName?: string,
+    minStock?: number,
+    maxStock?: number,
     minPrice?: number,
     maxPrice?: number,
     sortBy?: string,
     minRating?: number,
+    brandName?: string,
+    categoryName?: string,
+    filterIds?: number[],
     portal?: PortalKey,
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
@@ -110,6 +119,32 @@ export class ProductService {
     if (search) {
       params = params.set('Search', search);
     }
+    if (searchField) {
+      params = params.set('searchField', searchField.toString());
+    }
+    if (requestField) {
+      params = params.set('RequestFielf', requestField.toString());
+    }
+    categoryIds?.forEach((id) => {
+      params = params.append('CategoryId', id.toString());
+    })
+
+    subCategoryIds?.forEach((id) => {
+      params = params.append('SubcategoryId', id.toString());
+    })
+
+    brandIds?.forEach((id) => {
+      params = params.append('BrandId', id.toString());
+    })
+
+    if (minStock !== undefined && minStock !== null) {
+      params = params.set('MinStock', minStock.toString())
+    }
+
+    if (maxStock !== undefined && maxStock !== null) {
+      params = params.set('MaxStock', maxStock.toString())
+    }
+
     if (minPrice !== undefined && minPrice !== null) {
       params = params.set('MinPrice', minPrice.toString());
     }
@@ -142,8 +177,8 @@ export class ProductService {
 
   getRelatedProducts(productId: string): Observable<Product[]> {
     return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`).pipe(
-    map((response) => response?.items || (Array.isArray(response) ? response : []))
-  );
+      map((response) => response?.items || (Array.isArray(response) ? response : []))
+    );
   }
 
 }

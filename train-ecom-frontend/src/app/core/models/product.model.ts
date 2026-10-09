@@ -28,8 +28,18 @@ export interface PaginatedProductsResponse {
   pageSize: number;
   totalRecords: number;
   totalPages: number;
+  minPrice: number;
+  maxPrice: number;
+  minStock: number;
+  maxStock: number;
 }
 
+export enum ProductListField {
+  Name = 1,
+  Description = 2,
+  Price = 3,
+  StockQuantity = 4,
+}
 
 export interface ProductFilterPayload {
   searchQuery: string;
@@ -39,3 +49,4 @@ export interface ProductFilterPayload {
   maxPrice?: number;
   sortBy: string;
 }
+
