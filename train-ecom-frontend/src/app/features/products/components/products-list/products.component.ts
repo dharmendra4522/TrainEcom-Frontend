@@ -38,6 +38,8 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 import { ProductService } from '../../../../core/services/product.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { extractBackendMessage } from '../../../../core/utils/error.utils';
+import { Category } from '../../../../core/models/category.model';
+import { Brand } from '../../../../core/models/brand.model';
 
 interface DropdownOptionsRequest {
   columnKey: string;
@@ -101,21 +103,55 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   // track column filter
   columnFilters: Record<string, string> = {};
-  private readonly columnTableSearchSubject$ = new Subject<Record<string, string>>();
+  private readonly columnTableSearchSubject$ = new Subject<
+    Record<string, string>
+  >();
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', type: 'string', filterable: true, filterType: 'search' },
+    {
+      key: 'name',
+      label: 'Name',
+      type: 'string',
+      filterable: true,
+      filterType: 'search',
+    },
     {
       key: 'description',
       label: 'Description',
       type: 'string',
       sortable: false,
-      filterable: true, filterType: 'search', filterDisabled: true
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true,
     },
-    { key: 'price', label: 'Price', type: 'number', filterable: true, filterType: 'search' },
-    { key: 'stockQuantity', label: 'Stock', type: 'number', filterable: true, filterType: 'search' },
-    { key: 'categoryName', label: 'Category', type: 'string', filterable: true, filterType: 'dropdown' },
-    { key: 'brandName', label: 'Brand', type: 'string', filterable: true, filterType: 'dropdown' },
+    {
+      key: 'price',
+      label: 'Price',
+      type: 'number',
+      filterable: true,
+      filterType: 'price-range',
+    },
+    {
+      key: 'stockQuantity',
+      label: 'Stock',
+      type: 'number',
+      filterable: true,
+      filterType: 'search',
+    },
+    {
+      key: 'categoryName',
+      label: 'Category',
+      type: 'string',
+      filterable: true,
+      filterType: 'dropdown',
+    },
+    {
+      key: 'brandName',
+      label: 'Brand',
+      type: 'string',
+      filterable: true,
+      filterType: 'dropdown',
+    },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',
@@ -141,7 +177,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    const initialCategory = this.route.snapshot.queryParamMap.get('categoryName');
+    const initialCategory =
+      this.route.snapshot.queryParamMap.get('categoryName');
     if (initialCategory) {
       this.categoryControl.setValue(initialCategory, { emitEvent: false });
     }
@@ -149,15 +186,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.loadInitialMetadata();
     this.initSubscriptions();
     this.setupSearchFilter();
-    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const categoryName = params.get('categoryName') ?? '';
-      if (this.categoryControl.value !== categoryName) {
-        this.categoryControl.setValue(categoryName);
-      }
-    });
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const categoryName = params.get('categoryName') ?? '';
+        if (this.categoryControl.value !== categoryName) {
+          this.categoryControl.setValue(categoryName);
+        }
+      });
     this.setupColumnDropdownSearch();
   }
-
 
   private setupColumnDropdownSearch(): void {
     this.columnSearchSubject$
@@ -182,7 +220,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
             map((response) => ({ request, response })),
             catchError((error: unknown) => {
               this.notification.showError(
-                extractBackendMessage(error, 'Failed to load filter options')
+                extractBackendMessage(error, 'Failed to load filter options'),
               );
               return EMPTY;
             }),
@@ -198,7 +236,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
           ? this.dropdownOptionsMap[request.columnKey] || []
           : [];
         const optionKeys = new Set(
-          existingOptions.map((option) => `${typeof option.id}:${option.id}`)
+          existingOptions.map((option) => `${typeof option.id}:${option.id}`),
         );
         const options = [...existingOptions];
 
@@ -384,18 +422,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  onDropdownSearchTriggered(event: { columnKey: string; searchTerm: string }): void {
+  onDropdownSearchTriggered(event: {
+    columnKey: string;
+    searchTerm: string;
+  }): void {
     const colKey = event.columnKey;
     const term = event.searchTerm.trim().toLowerCase();
 
     if (colKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
-        const filtered = categories.filter((cat: any) =>
-          cat.name.toLowerCase().includes(term)
+        const filtered = categories.filter((cat: Category) =>
+          cat.name.toLowerCase().includes(term),
         );
-        this.dropdownOptionsMap[colKey] = filtered.map((cat: any) => ({
-          id: cat.name || cat.id,
-          label: cat.name
+        this.dropdownOptionsMap[colKey] = filtered.map((cat: Category) => ({
+          id: cat.id,
+          label: cat.name,
         }));
       });
       return;
@@ -403,12 +444,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     if (colKey === 'brandName') {
       this.brands$.pipe(take(1)).subscribe((brands) => {
-        const filtered = brands.filter((brand: any) =>
-          brand.name.toLowerCase().includes(term)
+        const filtered = brands.filter((brand: Brand) =>
+          brand.name.toLowerCase().includes(term),
         );
-        this.dropdownOptionsMap[colKey] = filtered.map((brand: any) => ({
-          id: brand.name || brand.id,
-          label: brand.name
+        this.dropdownOptionsMap[colKey] = filtered.map((brand: Brand) => ({
+          id: brand.id,
+          label: brand.name,
         }));
       });
       return;
@@ -429,9 +470,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
   onDropdownOpened(columnKey: string): void {
     if (columnKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
-        this.dropdownOptionsMap[columnKey] = categories.map((cat: any) => ({
-          id: cat.name || cat.id,
-          label: cat.name
+        this.dropdownOptionsMap[columnKey] = categories.map((cat: Category) => ({
+          id: cat.id,
+          label: cat.name,
         }));
       });
       return;
@@ -439,9 +480,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     if (columnKey === 'brandName') {
       this.brands$.pipe(take(1)).subscribe((brands) => {
-        this.dropdownOptionsMap[columnKey] = brands.map((brand: any) => ({
-          id: brand.name || brand.id,
-          label: brand.name
+        this.dropdownOptionsMap[columnKey] = brands.map((brand: Brand) => ({
+          id: brand.id,
+          label: brand.name,
         }));
       });
       return;
@@ -454,7 +495,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   onDropdownScrolled(columnKey: string): void {
-    if (this.dropdownLoadingMap[columnKey] || !this.dropdownHasMoreMap[columnKey]) {
+    if (
+      this.dropdownLoadingMap[columnKey] ||
+      !this.dropdownHasMoreMap[columnKey]
+    ) {
       return;
     }
 
@@ -490,15 +534,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
         search: this.searchControl.value?.trim() || undefined,
-        // Agar multiselect me values hain toh unhe API ke hisab se pass karein (agar single/comma separated ya array hai)
-        categoryName: categoryFilters.length > 0 ? String(categoryFilters[0]) : (this.categoryControl.value || undefined),
-        brandName: brandFilters.length > 0 ? String(brandFilters[0]) : (this.brandControl.value || undefined),
+        categoryName:
+          categoryFilters.length > 0
+            ? String(categoryFilters[0])
+            : this.categoryControl.value || undefined,
+        brandName:
+          brandFilters.length > 0
+            ? String(brandFilters[0])
+            : this.brandControl.value || undefined,
         portal: this.portal,
       }),
     );
   }
 
-  // handle drop-down clear 
+  // handle drop-down clear
   onFilterClear(columnKey: string): void {
     if (this.selectedFiltersMap[columnKey]) {
       delete this.selectedFiltersMap[columnKey];
@@ -520,32 +569,44 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   // Isse dropdown item click hone par selected state update hogi
-  onDropdownSelectionChanged(event: { columnKey: string; option: DropdownOptions }): void {
+  onDropdownSelectionChanged(event: {
+    columnKey: string;
+    option: DropdownOptions;
+  }): void {
     const colKey = event.columnKey;
     const optId = event.option.id;
-    const currentSelected = this.selectedFiltersMap[colKey] ? [...this.selectedFiltersMap[colKey]] : [];
-    const index = this.selectedFiltersMap[colKey].indexOf(optId);
-   if (index > -1) {
+    const currentSelected = this.selectedFiltersMap[colKey]
+      ? [...this.selectedFiltersMap[colKey]]
+      : [];
+    const index = currentSelected.indexOf(optId);
+    if (index > -1) {
       currentSelected.splice(index, 1);
     } else {
       currentSelected.push(optId);
     }
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-      [colKey]: currentSelected
+      [colKey]: currentSelected,
     };
   }
 
   onTableFilterChanged(filters: Record<string, string>): void {
     this.columnFilters = filters;
-    const firstSearchVal = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
+    const firstSearchVal =
+      Object.values(filters)
+        .find((v) => v !== undefined && v !== null)
+        ?.trim() || '';
     if (this.searchControl.value !== firstSearchVal) {
       this.searchControl.setValue(firstSearchVal, { emitEvent: true });
     }
   }
 
   onTableFilterCleared(columnKey: string): void {
-    if (columnKey === 'name' || columnKey === 'price' || columnKey === 'stockQuantity') {
+    if (
+      columnKey === 'name' ||
+      columnKey === 'price' ||
+      columnKey === 'stockQuantity'
+    ) {
       this.searchControl.setValue('', { emitEvent: true });
     }
     this.columnFilters = {};

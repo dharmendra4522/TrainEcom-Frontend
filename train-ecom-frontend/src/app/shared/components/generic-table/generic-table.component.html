@@ -22,7 +22,11 @@
     >
       <!-- Seial number -->
       <ng-container matColumnDef="sno" *ngIf="showIndex">
-        <th mat-header-cell *matHeaderCellDef class="p-0 border-0">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          class="p-0 border-0"
+        >
           <div class="d-flex flex-column w-100">
             <!-- Filter Space / Empty Box -->
             <div
@@ -48,11 +52,23 @@
       </ng-container>
 
       <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
-        <th mat-header-cell *matHeaderCellDef class="p-0 border-0">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          class="p-0 border-0"
+          [class.filter-column-header]="showheaderFilter && col.filterable"
+          [class.dropdown-filter-header]="
+            showheaderFilter &&
+            (col.filterType === 'dropdown' || col.filterType === 'price-range')
+          "
+        >
           <div class="d-flex flex-column w-100 position-relative">
             <!-- Top Row Filter Input -->
             <div
               class="px-4 py-2 bg-white border-bottom"
+              [class.dropdown-filter-space]="
+                col.filterType === 'dropdown' || col.filterType === 'price-range'
+              "
               *ngIf="showheaderFilter"
             >
               <div *ngIf="col.filterable" class="position-relative w-100">
@@ -75,22 +91,23 @@
                     <input
                       matInput
                       readonly
-                      class="text-truncate"
+                      class="filter-select-input"
                       [disabled]="col.filterDisabled"
                       [placeholder]="col.label"
                       [value]="getSelectedFilterLabel(col.key)"
                       (click)="$event.stopPropagation(); toggleDropdown(col.key, $event)"
                     />
-                    <span
-                      *ngIf="getSelectedCount(col.key) > 0"
-                      matSuffix
-                      class="badge bg-primary rounded-pill px-2 py-1"
-                    >
-                      {{ getSelectedCount(col.key) }}
+                    <span matSuffix class="filter-select-suffix">
+                      <span
+                        *ngIf="getSelectedCount(col.key) > 0"
+                        class="badge bg-primary rounded-pill filter-select-count"
+                      >
+                        {{ getSelectedCount(col.key) }}
+                      </span>
+                      <mat-icon class="text-muted drop-icon">
+                        arrow_drop_down
+                      </mat-icon>
                     </span>
-                    <mat-icon matSuffix class="text-muted drop-icon">
-                      arrow_drop_down
-                    </mat-icon>
                   </mat-form-field>
 
                   <ng-template

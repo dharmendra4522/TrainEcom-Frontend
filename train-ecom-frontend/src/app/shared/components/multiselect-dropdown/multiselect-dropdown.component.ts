@@ -10,7 +10,14 @@ import {
 } from '@angular/core';
 import { DropdownOptions } from '../../../core/models/table.model';
 import { FormControl } from '@angular/forms';
-import { Observable, Subject, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  switchMap,
+} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 export interface PriceRange {
@@ -21,9 +28,11 @@ export interface PriceRange {
 @Component({
   selector: 'app-multiselect-dropdown',
   templateUrl: './multiselect-dropdown.component.html',
-  styleUrl: './multiselect-dropdown.component.css'
+  styleUrl: './multiselect-dropdown.component.css',
 })
-export class MultiselectDropdownComponent implements OnInit, OnChanges, OnDestroy {
+export class MultiselectDropdownComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   @Input() placeholder: string = 'search..';
   @Input() options: DropdownOptions[] = [];
   @Input() selectedValues: (string | number)[] = [];
@@ -35,7 +44,7 @@ export class MultiselectDropdownComponent implements OnInit, OnChanges, OnDestro
   @Output() searchChange = new EventEmitter<string>();
   @Output() selectionChange = new EventEmitter<DropdownOptions>();
   @Output() scrollToBottom = new EventEmitter<void>();
-  @Output() applyFilters = new EventEmitter<void>(); 
+  @Output() applyFilters = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();
   @Output() priceRangeChange = new EventEmitter<PriceRange>();
 
@@ -58,24 +67,25 @@ export class MultiselectDropdownComponent implements OnInit, OnChanges, OnDestro
   }
 
   private setupSearch(): void {
-    this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe((searchTerm) => {
-      this.searchChange.emit(searchTerm || '');
-    });
+    this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((searchTerm) => {
+        this.searchChange.emit(searchTerm || '');
+      });
   }
 
   private setupPriceRangeChanges(): void {
-    this.priceRangeChanges$.pipe(
-      debounceTime(300),
-      distinctUntilChanged((previous, current) =>
-        previous.min === current.min && previous.max === current.max
-      ),
-      switchMap((range): Observable<PriceRange> => of(range)),
-      takeUntil(this.destroy$)
-    ).subscribe((range) => this.priceRangeChange.emit(range));
+    this.priceRangeChanges$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (previous, current) =>
+            previous.min === current.min && previous.max === current.max,
+        ),
+        switchMap((range): Observable<PriceRange> => of(range)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((range) => this.priceRangeChange.emit(range));
   }
 
   updatePriceRange(min: number, max: number): void {
@@ -102,7 +112,7 @@ export class MultiselectDropdownComponent implements OnInit, OnChanges, OnDestro
     this.updatePriceRange(this.selectedPriceMin, max);
   }
 
-  // clear the search input 
+  // clear the search input
   clearSearch(event: Event): void {
     event.stopPropagation();
     this.searchControl.setValue('');
