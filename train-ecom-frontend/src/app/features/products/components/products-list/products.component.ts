@@ -136,7 +136,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       label: 'Stock',
       type: 'number',
       filterable: true,
-      filterType: 'search',
+      filterType: 'stock-range',
     },
     {
       key: 'categoryName',
@@ -210,6 +210,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
                 this.brandControl.value || undefined,
                 this.categoryControl.value || undefined,
                 request.searchTerm || undefined,
+                undefined,
                 undefined,
                 undefined,
                 undefined,

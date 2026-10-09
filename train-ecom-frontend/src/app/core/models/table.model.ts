@@ -8,7 +8,7 @@ export interface TableColumn {
   role?: Role;
   badgeClassKey?: string;
   filterable?: boolean;
-  filterType?: 'dropdown' | 'search'| 'date' | 'price-range';
+  filterType?: 'dropdown' | 'search'| 'date' | 'price-range' | 'stock-range';
   filterDisabled?: boolean;
 }
 

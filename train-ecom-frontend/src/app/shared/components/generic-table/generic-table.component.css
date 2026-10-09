@@ -8,7 +8,10 @@
 }
 
 .custom-mat-table .mat-column-sno {
-  width: 56px;
+  width: 70px !important;
+  min-width: 70px !important;
+  max-width: 70px !important;
+  white-space: nowrap;
 }
 
 .custom-mat-table .mat-column-actions {
@@ -353,8 +356,9 @@ tr.cursor-pointer {
   gap: 2px;
 }
 
-
 .disabled-filter-element {
+  height: 100%;
+  width: 100%;
   background-color: #e9ecef !important;
   opacity: 0.65;
   cursor: not-allowed !important;
@@ -366,7 +370,7 @@ tr.cursor-pointer {
   width: 18px;
 }
 
-.cut-btn{
+.cut-btn {
   z-index: 5px;
 }
 
@@ -374,23 +378,16 @@ tr.cursor-pointer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-width: 18px;
   height: 18px;
-
   padding: 0 5px;
-
   background: #2563eb;
   color: #fff;
-
   border-radius: 999px;
-
   font-size: 10px;
   font-weight: 600;
-
   margin-left: 4px;
   margin-right: 2px;
-
   line-height: 1;
 }
 
