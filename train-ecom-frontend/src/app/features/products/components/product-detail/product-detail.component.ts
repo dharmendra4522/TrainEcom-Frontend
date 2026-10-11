@@ -54,6 +54,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private productDestroy$ = new Subject<void>();
+  private relatedProductsResponse: Product[] = [];
 
   // Product Features for Display
   productFeatures = [
@@ -88,7 +89,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
         const id = params['id'] as string;
         if (id) {
-          this.loadProduct(id);
+          const productId = Number.parseInt(id, 10);
+          if (!Number.isSafeInteger(productId)) {
+            this.notification.showError('Product information is not available.');
+            return;
+          }
+          this.loadProduct(productId);
           if (!this.isManagementMode) {
             this.checkWishlistStatus(id);
           }
@@ -97,7 +103,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   // method to load product details and related products
-  loadProduct(id: string): void {
+  loadProduct(id: number): void {
     this.productDestroy$.next();
     this.dispatchProductActions(id);
     this.setupProductSubscriptions(id);
@@ -105,7 +111,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   // Store dispatch and subscription setup methods
-  private dispatchProductActions(id: string): void {
+  private dispatchProductActions(id: number): void {
     this.store.dispatch(ProductActions.loadProductById({
       id,
       portal: this.isManagementMode ? this.portal : undefined
@@ -116,7 +122,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   // Subscription setup methods for product and related products
-  private setupProductSubscriptions(id: string): void {
+  private setupProductSubscriptions(id: number): void {
     this.store
       .select(selectProductById(id))
       .pipe(takeUntil(this.productDestroy$))
@@ -151,6 +157,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private handleProductLoaded(product: Product | undefined): void {
     if (!product) return;
     this.product = product;
+    this.relatedProducts = this.relatedProductsResponse.filter(
+      (relatedProduct: Product) => relatedProduct.id !== product.id,
+    );
     this.setInitialImage(product);
     this.updateBreadcrumbs(product);
   }
@@ -158,11 +167,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // Handler for related products loading
   private handleRelatedProductsLoaded(products: Product[] | undefined): void {
-    if (products && this.product) {
-      this.relatedProducts = products.filter(
-        (p: Product) => p.id.toString() !== this.product?.id.toString()
-      );
-    }
+    this.relatedProductsResponse = products ?? [];
+    this.relatedProducts = this.product
+      ? this.relatedProductsResponse.filter(
+          (relatedProduct: Product) => relatedProduct.id !== this.product?.id,
+        )
+      : [];
   }
 
   // --- Breadcrumbs Update Method ---
@@ -317,7 +327,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       .confirm('Are you sure you want to delete this product?', 'Delete', 'Cancel')
       .subscribe((confirmed: boolean) => {
         if (!confirmed || !this.product) return;
-        const id = this.product.id.toString();
+        const id = this.product.id;
         this.store.dispatch(ProductActions.deleteProduct({ productId: id, portal: this.portal }));
 
         this.action$

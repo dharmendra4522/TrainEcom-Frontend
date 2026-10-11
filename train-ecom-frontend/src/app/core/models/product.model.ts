@@ -1,17 +1,17 @@
 export interface ProductImage {
-  id: number | string;
+  id: number;
   imageUrl: string;
   isPrimary: boolean;
 }
 
 export interface Product extends Record<string, unknown> {
-  id: number | string;
+  id: number;
   name: string;
   description: string;
   price: number;
-  brandId?: number | string;
+  brandId?: number;
   brandName: string;
-  categoryId?: number | string;
+  categoryId?: number;
   categoryName: string;
   stockQuantity?: number;
   thumbnailUrl?: string;
@@ -22,8 +22,8 @@ export interface Product extends Record<string, unknown> {
   images: ProductImage[];
 }
 
-export interface PaginatedProductsResponse {
-  items: Product[];
+export interface PaginatedProductsResponse<T = Product> {
+  items: T[];
   pageNumber: number;
   pageSize: number;
   totalRecords: number;
@@ -39,14 +39,5 @@ export enum ProductListField {
   Description = 2,
   Price = 3,
   StockQuantity = 4,
-}
-
-export interface ProductFilterPayload {
-  searchQuery: string;
-  categoryId: number | string;
-  brandId: number | string;
-  minPrice?: number;
-  maxPrice?: number;
-  sortBy: string;
 }
 

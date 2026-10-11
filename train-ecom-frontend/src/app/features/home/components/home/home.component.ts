@@ -25,10 +25,17 @@ export class HomeComponent implements OnInit {
       return of({ item, isValid: Number(num) >= 6 });
     }
 
-    const brandName = filterType === 'brand' ? item.name : undefined;
-    const categoryName = filterType === 'category' ? item.name : undefined;
+    const itemId = Number(item.id);
+    const request = filterType === 'brand'
+      ? this.productService.getPaginatedProducts(
+          1, 6, undefined, undefined, undefined, undefined, undefined,
+          [itemId]
+        )
+      : this.productService.getPaginatedProducts(
+          1, 6, undefined, undefined, undefined, [itemId]
+        );
 
-    return this.productService.getPaginatedProducts(1, 6, brandName, categoryName).pipe(
+    return request.pipe(
       map(res => ({ item, isValid: (res.totalRecords ?? res.items?.length ?? 0) >= 6 })),
       catchError(() => of({ item, isValid: false }))
     );

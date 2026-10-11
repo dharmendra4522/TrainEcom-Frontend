@@ -76,8 +76,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   // form control
   searchControl = new FormControl('');
-  categoryControl = new FormControl('');
-  brandControl = new FormControl('');
+  categoryControl = new FormControl<number | null>(null);
+  brandControl = new FormControl<number | null>(null);
 
   // component state
   ProductList: Product[] = [];
@@ -178,9 +178,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     const initialCategory =
-      this.route.snapshot.queryParamMap.get('categoryName');
+      this.route.snapshot.queryParamMap.get('category');
     if (initialCategory) {
-      this.categoryControl.setValue(initialCategory, { emitEvent: false });
+      this.categoryControl.setValue(Number(initialCategory), { emitEvent: false });
     }
 
     this.loadInitialMetadata();
@@ -189,9 +189,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.route.queryParamMap
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        const categoryName = params.get('categoryName') ?? '';
-        if (this.categoryControl.value !== categoryName) {
-          this.categoryControl.setValue(categoryName);
+        const categoryIdStr = params.get('category');
+        const categoryId = categoryIdStr ? Number(categoryIdStr) : null;
+        if (this.categoryControl.value !== categoryId) {
+          this.categoryControl.setValue(categoryId);
         }
       });
     this.setupColumnDropdownSearch();
@@ -207,9 +208,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
               this.productService.getPaginatedProducts(
                 request.pageNumber,
                 this.dropdownOptionsPageSize,
-                this.brandControl.value || undefined,
-                this.categoryControl.value || undefined,
                 request.searchTerm || undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
                 undefined,
                 undefined,
                 undefined,
@@ -319,7 +324,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         startWith(this.categoryControl.value),
         distinctUntilChanged(),
       ),
-      this.brandControl.valueChanges.pipe(startWith('')),
+      this.brandControl.valueChanges.pipe(startWith(this.brandControl.value)),
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([search, category, brand]) => {
@@ -329,8 +334,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
             pageNumber: this.pageNumber,
             pageSize: this.pageSize,
             search: search?.trim() || undefined,
-            categoryName: category || undefined,
-            brandName: brand || undefined,
+            categoryIds: category !== null ? [Number(category)] : undefined,
+            brandIds: brand !== null ? [Number(brand)] : undefined,
             portal: this.portal,
           }),
         );
@@ -340,16 +345,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // dispatch fatehc sction to store
   private fetchProducts(
     search?: string,
-    categoryName?: string,
-    brandName?: string,
+    categoryId?: number | null,
+    brandId?: number | null,
   ): void {
     this.store.dispatch(
       ProductActions.loadProducts({
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
         search,
-        categoryName,
-        brandName,
+        categoryIds:
+          categoryId !== null && categoryId !== undefined
+            ? [categoryId]
+            : undefined,
+        brandIds:
+          brandId !== null && brandId !== undefined ? [brandId] : undefined,
         portal: this.portal,
       }),
     );
@@ -377,8 +386,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   clearFilters(): void {
     this.searchControl.setValue('', { emitEvent: false });
-    this.categoryControl.setValue('', { emitEvent: false });
-    this.brandControl.setValue('', { emitEvent: false });
+    this.categoryControl.setValue(null, { emitEvent: false });
+    this.brandControl.setValue(null, { emitEvent: false });
     this.pageNumber = 1;
     this.fetchProducts();
   }
@@ -397,7 +406,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         this.portalRoutes.products(this.portal, 'edit', product.id),
       );
     } else if (event.action === 'delete') {
-      this.deleteProduct(product.id.toString());
+      this.deleteProduct(product.id);
     } else if (event.action === 'view') {
       this.router.navigate(
         this.portalRoutes.products(this.portal, 'view', product.id),
@@ -406,7 +415,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   // delete product
-  private deleteProduct(productId: string) {
+  private deleteProduct(productId: number) {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this product?',
@@ -470,10 +479,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
   onDropdownOpened(columnKey: string): void {
     if (columnKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
-        this.dropdownOptionsMap[columnKey] = categories.map((cat: Category) => ({
-          id: cat.id,
-          label: cat.name,
-        }));
+        this.dropdownOptionsMap[columnKey] = categories.map(
+          (cat: Category) => ({
+            id: cat.id,
+            label: cat.name,
+          })
+        );
       });
       return;
     }
@@ -534,14 +545,18 @@ export class ProductsComponent implements OnInit, OnDestroy {
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
         search: this.searchControl.value?.trim() || undefined,
-        categoryName:
+        categoryIds:
           categoryFilters.length > 0
-            ? String(categoryFilters[0])
-            : this.categoryControl.value || undefined,
-        brandName:
+            ? [Number(categoryFilters[0])]
+            : this.categoryControl.value !== null
+              ? [Number(this.categoryControl.value)]
+              : undefined,
+        brandIds:
           brandFilters.length > 0
-            ? String(brandFilters[0])
-            : this.brandControl.value || undefined,
+            ? [Number(brandFilters[0])]
+            : this.brandControl.value !== null
+              ? [Number(this.brandControl.value)]
+              : undefined,
         portal: this.portal,
       }),
     );
@@ -561,8 +576,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
         search: this.searchControl.value?.trim() || undefined,
-        categoryName: this.categoryControl.value || undefined,
-        brandName: this.brandControl.value || undefined,
+        categoryIds:
+          this.categoryControl.value !== null
+            ? [this.categoryControl.value]
+            : undefined,
+
+        brandIds:
+          this.brandControl.value !== null
+            ? [this.brandControl.value]
+            : undefined,
         portal: this.portal,
       }),
     );

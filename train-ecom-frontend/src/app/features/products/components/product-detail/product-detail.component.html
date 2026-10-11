@@ -194,7 +194,7 @@
         <h3 class="fw-bold text-dark m-0">Similar Products</h3>
         <p class="text-muted small m-0">Explore items customer also viewed</p>
       </div>
-      <a [routerLink]="['/products']" [queryParams]="{ category: product?.categoryName }"
+      <a [routerLink]="['/products']" [queryParams]="{ category: product?.categoryId }"
         class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold text-decoration-none">
         View All
       </a>

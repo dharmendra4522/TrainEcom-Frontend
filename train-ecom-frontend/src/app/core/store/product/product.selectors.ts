@@ -1,9 +1,8 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { ProductState } from './product.reducer';
 
-
-export const selectProductState = createFeatureSelector<ProductState>('product');
-
+export const selectProductState =
+  createFeatureSelector<ProductState>('product');
 
 export const selectAllProducts = createSelector(
   selectProductState,
@@ -25,10 +24,10 @@ export const selectProductTotalRecords = createSelector(
   (state: ProductState) => state.totalRecords || 0
 );
 
-export const selectProductById = (productId: string) => createSelector(
-  selectProductState,
-  (state: ProductState) => state.products.find(product => product.id?.toString() === productId.toString())
-);
+export const selectProductById = (productId: number) =>
+  createSelector(selectProductState, (state: ProductState) =>
+    state.products.find((product) => product.id === productId)
+  );
 export const selectProductError = createSelector(
   selectProductState,
   (state: ProductState) => state.error
@@ -47,4 +46,24 @@ export const selectProductTotalPages = createSelector(
 export const selectRelatedProducts = createSelector(
   selectProductState,
   (state: ProductState) => state.relatedProducts || []
+);
+
+export const selectProductMinPrice = createSelector(
+  selectProductState,
+  (state) => state.minPrice
+);
+
+export const selectProductMaxPrice = createSelector(
+  selectProductState,
+  (state) => state.maxPrice
+);
+
+export const selectProductMinStock = createSelector(
+  selectProductState,
+  (state) => state.minStock
+);
+
+export const selectProductMaxStock = createSelector(
+  selectProductState,
+  (state) => state.maxStock
 );

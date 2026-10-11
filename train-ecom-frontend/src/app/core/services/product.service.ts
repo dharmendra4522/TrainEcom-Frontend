@@ -10,19 +10,18 @@ import { PortalKey } from '../config/management-access.config';
 import { MANAGEMENT_API_PATHS } from '../config/management-api.config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
-
   private baseAPI = `${environment.apiBaseUrl}/products`;
   private http = inject(HttpClient);
 
-  constructor() { }
+  constructor() {}
 
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`).pipe(
-      map((response) => response?.items || (Array.isArray(response) ? response : []))
-    );
+    return this.http
+      .get<PaginatedProductsResponse>(`${this.baseAPI}`)
+      .pipe(map((response) => response.items ?? []));
   }
 
   private getBaseApi(portal?: PortalKey): string {
@@ -31,32 +30,9 @@ export class ProductService {
       : this.baseAPI;
   }
 
-  createProduct(productData: Partial<Product>, files: File[], portal?: PortalKey): Observable<Product> {
-    const formData = new FormData();
-
-    formData.append('Name', productData.name || '');
-    formData.append('Description', productData.description || '');
-    formData.append('Price', productData.price?.toString() || '0');
-    formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
-    formData.append('BrandId', String(productData.brandId ?? ''));
-    formData.append('CategoryId', String(productData.categoryId ?? ''));
-
-    files.forEach((file) => {
-      if (file) formData.append('Images', file);
-    });
-
-    return this.http.post<Product>(`${this.getBaseApi(portal)}/create`, formData);
-  }
-
-  getProductById(productId: string, portal?: PortalKey): Observable<Product> {
-    return this.http.get<Product>(`${this.getBaseApi(portal)}/getById/${productId}`);
-  }
-
-  updateProduct(
-    productId: string,
+  createProduct(
     productData: Partial<Product>,
-    newFiles: File[] = [],
-    deletedImageIds: Array<string | number> = [],
+    files: File[],
     portal?: PortalKey,
   ): Observable<Product> {
     const formData = new FormData();
@@ -64,7 +40,45 @@ export class ProductService {
     formData.append('Name', productData.name || '');
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
-    formData.append('StockQuantity', productData.stockQuantity?.toString() || '0');
+    formData.append(
+      'stockQuantity',
+      productData.stockQuantity?.toString() || '0'
+    );
+    formData.append('BrandId', String(productData.brandId ?? ''));
+    formData.append('CategoryId', String(productData.categoryId ?? ''));
+
+    files.forEach((file) => {
+      if (file) formData.append('Images', file);
+    });
+
+    return this.http.post<Product>(
+      `${this.getBaseApi(portal)}/create`,
+      formData
+    );
+  }
+
+  getProductById(productId: number, portal?: PortalKey): Observable<Product> {
+    return this.http.get<Product>(
+      `${this.getBaseApi(portal)}/getById/${productId}`
+    );
+  }
+
+  updateProduct(
+    productId: number,
+    productData: Partial<Product>,
+    newFiles: File[] = [],
+    deletedImageIds: Array<string | number> = [],
+    portal?: PortalKey
+  ): Observable<Product> {
+    const formData = new FormData();
+
+    formData.append('Name', productData.name || '');
+    formData.append('Description', productData.description || '');
+    formData.append('Price', productData.price?.toString() || '0');
+    formData.append(
+      'StockQuantity',
+      productData.stockQuantity?.toString() || '0',
+    );
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
 
@@ -78,11 +92,16 @@ export class ProductService {
       }
     });
 
-    return this.http.put<Product>(`${this.getBaseApi(portal)}/update/${productId}`, formData);
+    return this.http.put<Product>(
+      `${this.getBaseApi(portal)}/update/${productId}`,
+      formData
+    );
   }
 
-  deleteProduct(productId: string, portal?: PortalKey): Observable<void> {
-    return this.http.delete<void>(`${this.getBaseApi(portal)}/delete/${productId}`);
+  deleteProduct(productId: number, portal?: PortalKey): Observable<void> {
+    return this.http.delete<void>(
+      `${this.getBaseApi(portal)}/delete/${productId}`
+    );
   }
 
   getPaginatedProducts(
@@ -101,84 +120,93 @@ export class ProductService {
     maxPrice?: number,
     sortBy?: string,
     minRating?: number,
-    brandName?: string,
-    categoryName?: string,
     filterIds?: number[],
-    portal?: PortalKey,
+    portal?: PortalKey
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
 
-    if (brandName) {
-      params = params.set('BrandName', brandName);
-    }
-    if (categoryName) {
-      params = params.set('CategoryName', categoryName);
-    }
     if (search) {
       params = params.set('Search', search);
     }
+
     if (searchField) {
-      params = params.set('searchField', searchField.toString());
+      params = params.set('SearchField', searchField.toString());
     }
+
     if (requestField) {
-      params = params.set('RequestFielf', requestField.toString());
+      params = params.set('RequestField', requestField.toString());
     }
+
     categoryIds?.forEach((id) => {
-      params = params.append('CategoryId', id.toString());
-    })
+      params = params.append('CategoryIds', id.toString());
+    });
 
     subCategoryIds?.forEach((id) => {
-      params = params.append('SubcategoryId', id.toString());
-    })
+      params = params.append('SubCategoryIds', id.toString());
+    });
 
     brandIds?.forEach((id) => {
-      params = params.append('BrandId', id.toString());
-    })
+      params = params.append('BrandIds', id.toString());
+    });
 
-    if (minStock !== undefined && minStock !== null) {
-      params = params.set('MinStock', minStock.toString())
+    filterIds?.forEach((id) => {
+      params = params.append('FilterIds', id.toString());
+    });
+
+    if (storeName) {
+      params = params.set('StoreName', storeName);
     }
 
-    if (maxStock !== undefined && maxStock !== null) {
-      params = params.set('MaxStock', maxStock.toString())
+    if (minStock !== undefined) {
+      params = params.set('MinStock', minStock.toString());
     }
 
-    if (minPrice !== undefined && minPrice !== null) {
+    if (maxStock !== undefined) {
+      params = params.set('MaxStock', maxStock.toString());
+    }
+
+    if (minPrice !== undefined) {
       params = params.set('MinPrice', minPrice.toString());
     }
-    if (maxPrice !== undefined && maxPrice !== null) {
+
+    if (maxPrice !== undefined) {
       params = params.set('MaxPrice', maxPrice.toString());
     }
+
     if (sortBy) {
       params = params.set('SortBy', sortBy);
     }
-    if (minRating !== undefined && minRating !== null) {
+
+    if (minRating !== undefined) {
       params = params.set('MinRating', minRating.toString());
     }
 
-    return this.http.get<PaginatedProductsResponse>(this.getBaseApi(portal), { params });
+    return this.http.get<PaginatedProductsResponse>(this.getBaseApi(portal), {
+      params
+    });
   }
 
+  // getFilteredProducts(
+  //   brandId?: number,
+  //   categoryId?: number,
+  // ): Observable<Product[]> {
+  //   let params = new HttpParams();
+  //   if (brandId !== undefined) {
+  //     params = params.set('BrandIds', brandId.toString());
+  //   }
+  //   if (categoryId !== undefined) {
+  //     params = params.set('CategoryIds', categoryId.toString());
+  //   }
+  //   return this.http
+  //     .get<PaginatedProductsResponse>(this.baseAPI, { params })
+  //     .pipe(map((response) => response?.items || []));
+  // }
 
-  getFilteredProducts(brandName?: string, categoryName?: string): Observable<Product[]> {
-    let params = new HttpParams();
-    if (brandName) {
-      params = params.set('BrandName', brandName);
-    }
-    if (categoryName) {
-      params = params.set('CategoryName', categoryName);
-    }
-    return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params }).pipe(
-      map((response) => response?.items || [])
-    );
+  getRelatedProducts(productId: number): Observable<Product[]> {
+    return this.http
+      .get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`)
+      .pipe(map((response) => response.items ?? []));
   }
-
-  getRelatedProducts(productId: string): Observable<Product[]> {
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`).pipe(
-      map((response) => response?.items || (Array.isArray(response) ? response : []))
-    );
-  }
-
 }

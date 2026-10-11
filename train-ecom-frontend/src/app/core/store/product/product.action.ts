@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Product } from '../../../core/models/product.model';
+import { Product, ProductListField } from '../../../core/models/product.model';
 import { PortalKey } from '../../config/management-access.config';
 
 export const loadProducts = createAction(
@@ -7,13 +7,20 @@ export const loadProducts = createAction(
   props<{
     pageNumber?: number;
     pageSize?: number;
-    brandName?: string;
-    categoryName?: string;
     search?: string;
+    searchField?: ProductListField;
+    requestField?: ProductListField;
+    categoryIds?: number[];
+    subCategoryIds?: number[];
+    brandIds?: number[];
+    storeName?: string;
     minPrice?: number;
     maxPrice?: number;
+    minStock?: number;
+    maxStock?: number;
     sortBy?: string;
     minRating?: number;
+    filterIds?: number[];
     isAppend?: boolean;
     portal?: PortalKey;
   }>(),
@@ -26,6 +33,10 @@ export const loadProductsSuccess = createAction(
     totalPages: number;
     pageNumber: number;
     totalRecords: number;
+    minPrice: number;
+    maxPrice: number;
+    minStock: number;
+    maxStock: number;
     cacheKey: string;
     isAppend?: boolean;
   }>(),
@@ -46,7 +57,6 @@ export const createProductSuccess = createAction(
   props<{ product: Product }>(),
 );
 
-
 export const createProductFailure = createAction(
   '[Product] Create Product Failure',
   props<{ error: string }>(),
@@ -55,7 +65,7 @@ export const createProductFailure = createAction(
 export const updateProduct = createAction(
   '[Product] Update Product',
   props<{
-    id: string;
+    id: number;
     productData: Partial<Product>;
     newFiles: File[];
     deletedImageIds: Array<string | number>;
@@ -73,15 +83,14 @@ export const updateProductFailure = createAction(
   props<{ error: string }>(),
 );
 
-
 export const deleteProduct = createAction(
   '[Product] Delete Product',
-  props<{ productId: string; portal?: PortalKey }>(),
+  props<{ productId: number; portal?: PortalKey }>(),
 );
 
 export const deleteProductSuccess = createAction(
   '[Product] Delete Product Success',
-  props<{ productId: string }>(),
+  props<{ productId: number }>(),
 );
 
 export const deleteProductFailure = createAction(
@@ -91,7 +100,7 @@ export const deleteProductFailure = createAction(
 
 export const loadProductById = createAction(
   '[Product] Load Product By Id',
-  props<{ id: string; portal?: PortalKey }>(),
+  props<{ id: number; portal?: PortalKey }>(),
 );
 
 export const loadProductByIdSuccess = createAction(
@@ -106,7 +115,7 @@ export const loadProductByIdFailure = createAction(
 
 export const loadRelatedProducts = createAction(
   '[Product] Load Related Products',
-  props<{ productId: string }>(),
+  props<{ productId: number }>(),
 );
 
 export const loadRelatedProductsSuccess = createAction(

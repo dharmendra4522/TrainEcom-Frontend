@@ -13,7 +13,7 @@
         </a>
  
         <ng-container *ngIf="categories$ | async as categories">
-          <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.name }"
+          <a *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.id }"
             routerLinkActive="active-chip"
             class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block">
             {{ cat.name }}

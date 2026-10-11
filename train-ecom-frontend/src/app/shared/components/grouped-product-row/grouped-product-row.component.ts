@@ -3,6 +3,7 @@ import { ProductService } from '../../../core/services/product.service';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { Product } from '../../../core/models/product.model';
 import { map, catchError, tap } from 'rxjs/operators';
+import { PortalKey } from '../../../core/config/management-access.config';
 
 @Component({
   selector: 'app-grouped-product-row',
@@ -14,7 +15,8 @@ export class GroupedProductRowComponent implements OnInit {
 
   @Input() title!: string;
   @Input() filterType: 'brand' | 'category' | 'newest' = 'brand';
-  @Input() filterValue!: string;
+  @Input() filterValue!: number | string;
+  @Input() portal?: PortalKey;
 
   @ViewChild('gridContainer') gridContainer!: ElementRef<HTMLDivElement>;
 
@@ -31,21 +33,32 @@ export class GroupedProductRowComponent implements OnInit {
   // Initialize the products based on the filter type and value
   private initFilteredProducts(): void {
     this.isLoadingSubject.next(true);
-
     let fetch$: Observable<Product[]> = of([]);
-
+    const filterId = Number(this.filterValue);
     if (this.filterType === 'brand') {
-      fetch$ = this.productService.getPaginatedProducts(1, 6, this.filterValue).pipe(
-        map(res => res.items)
-      );
+      fetch$ = this.productService
+        .getPaginatedProducts(
+          1, 6, undefined, undefined, undefined, undefined, undefined,
+          [filterId], undefined, undefined, undefined, undefined, undefined,
+          undefined, undefined, undefined, this.portal
+        )
+        .pipe(map((res) => res.items));
     } else if (this.filterType === 'category') {
-      fetch$ = this.productService.getPaginatedProducts(1, 6, undefined, this.filterValue).pipe(
-        map(res => res.items)
-      );
+      fetch$ = this.productService
+        .getPaginatedProducts(
+          1, 6, undefined, undefined, undefined, [filterId], undefined,
+          undefined, undefined, undefined, undefined, undefined, undefined,
+          undefined, undefined, undefined, this.portal
+        )
+        .pipe(map((res) => res.items));
     } else if (this.filterType === 'newest') {
-      fetch$ = this.productService.getPaginatedProducts(1, 10, undefined, undefined, undefined, undefined, undefined, 'Newest').pipe(
-        map(res => res.items)
-      );
+      fetch$ = this.productService
+        .getPaginatedProducts(
+          1, 10, undefined, undefined, undefined, undefined, undefined,
+          undefined, undefined, undefined, undefined, undefined, undefined,
+          'Newest', undefined, undefined, this.portal
+        )
+        .pipe(map((res) => res.items));
     }
 
     this.products$ = fetch$.pipe(

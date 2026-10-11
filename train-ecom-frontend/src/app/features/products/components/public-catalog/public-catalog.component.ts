@@ -217,20 +217,20 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   }
 
   /** Handle category filter change */
-  onCategoryChange(categoryName: string): void {
+  onCategoryChange(categoryId: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { category: categoryName || null },
-      queryParamsHandling: 'merge',
+      queryParams: { category: categoryId || null },
+      queryParamsHandling: 'merge'
     });
   }
 
   /** Handle brand filter change */
-  onBrandChange(brandName: string): void {
+  onBrandChange(brandId: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { brand: brandName || null },
-      queryParamsHandling: 'merge',
+      queryParams: { brand: brandId || null },
+      queryParamsHandling: 'merge'
     });
   }
 
@@ -238,8 +238,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   private dispatchLoadWithCurrentParams(overrides?: {
     pageNumber?: number;
     isAppend?: boolean;
-    brandName?: string | null;
-    categoryName?: string | null;
+    brandId?: string | null;
+    categoryId?: string | null;
     minPrice?: number | null;
     maxPrice?: number | null;
     sortBy?: string | null;
@@ -251,15 +251,26 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
     const queryParams = this.route.snapshot.queryParamMap;
 
-    const brandName =
-      overrides && 'brandName' in overrides
-        ? overrides.brandName || undefined
+    const brandValue =
+      overrides && 'brandId' in overrides
+        ? overrides.brandId || undefined
         : queryParams.get('brand') || undefined;
 
-    const categoryName =
-      overrides && 'categoryName' in overrides
-        ? overrides.categoryName || undefined
+    const categoryValue =
+      overrides && 'categoryId' in overrides
+        ? overrides.categoryId || undefined
         : queryParams.get('category') || undefined;
+
+    const parsedBrandId = brandValue ? Number(brandValue) : undefined;
+    const parsedCategoryId = categoryValue ? Number(categoryValue) : undefined;
+    const brandId =
+      parsedBrandId !== undefined && Number.isFinite(parsedBrandId)
+        ? parsedBrandId
+        : undefined;
+    const categoryId =
+      parsedCategoryId !== undefined && Number.isFinite(parsedCategoryId)
+        ? parsedCategoryId
+        : undefined;
 
     const search = queryParams.get('search') || undefined;
 
@@ -294,8 +305,8 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         pageNumber,
         pageSize: 10,
         isAppend,
-        brandName,
-        categoryName,
+        brandIds: brandId !== undefined ? [brandId] : undefined,
+        categoryIds: categoryId !== undefined ? [categoryId] : undefined,
         search,
         minPrice,
         maxPrice,

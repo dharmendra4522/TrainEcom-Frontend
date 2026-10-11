@@ -38,7 +38,7 @@
             <mat-option value="">All Categories</mat-option>
             <mat-option
               *ngFor="let cat of categories$ | async"
-              [value]="cat.name"
+              [value]="cat.id"
             >
               {{ cat.name }}
             </mat-option>
@@ -59,7 +59,7 @@
             <mat-option value="">All Brands</mat-option>
             <mat-option
               *ngFor="let brand of brands$ | async"
-              [value]="brand.name"
+              [value]="brand.id"
             >
               {{ brand.name }}
             </mat-option>

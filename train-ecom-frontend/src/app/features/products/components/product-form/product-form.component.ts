@@ -51,7 +51,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   categoryControl = new FormControl<string | number | null>('');
 
   isEditMode: boolean = false;
-  productId: string | null = null;
+  productId: number | null = null;
   originalBrandId: string | number = '';
   originalCategoryId: string | number = '';
   originalBrandName: string = '';
@@ -117,7 +117,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
    * Checks route parameters to determine if the component is in edit mode.
    */
   checkRouteForEditMode(): void {
-    this.productId = this.route.snapshot.paramMap.get('id');
+    const routeProductId = this.route.snapshot.paramMap.get('id');
+    this.productId = routeProductId === null
+      ? null
+      : Number.parseInt(routeProductId, 10);
+    if (this.productId !== null && !Number.isSafeInteger(this.productId)) {
+      this.productId = null;
+      this.notification.showError('Product information is not available.');
+    }
     if (this.productId) {
       this.isEditMode = true;
       this.waitForMasterDataAndLoadProduct();
@@ -155,7 +162,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   // Dispatches action to load product details by ID and patches the form.
-  private loadProductDetails(productId: string): void {
+  private loadProductDetails(productId: number): void {
     this.store.dispatch(ProductActions.loadProductById({ id: productId, portal: this.portal }));
 
     this.store
