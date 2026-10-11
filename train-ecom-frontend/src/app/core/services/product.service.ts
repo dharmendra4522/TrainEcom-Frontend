@@ -198,7 +198,13 @@ export class ProductService {
 
   getRelatedProducts(productId: number): Observable<Product[]> {
     return this.http
-      .get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`)
-      .pipe(map((response) => response.items ?? []));
+      .get<PaginatedProductsResponse | Product[]>(
+        `${this.baseAPI}/${productId}/related`,
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response) ? response : response.items ?? [],
+        ),
+      );
   }
 }

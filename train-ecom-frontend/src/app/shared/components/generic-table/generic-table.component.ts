@@ -42,11 +42,14 @@ export class GenericTableComponent {
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
   @Input() enableRowClick: boolean = true;
   @Input() showheaderFilter: boolean = false;
+  @Input() filterResetToken: number = 0;
 
   // inputs for dropdown state
   @Input() dropdownOptionsMap: Record<string, DropdownOptions[]> = {};
   @Input() dropdownLoadingMap: Record<string, boolean> = {};
   @Input() selectedFiltersMap: Record<string, (string | number)[]> = {};
+  @Input() rangeBoundsMap: Record<string, Range> = {};
+  @Input() selectedRangesMap: Record<string, Range> = {};
 
   // Outputs for dropdown actions
   @Output() dropdownSearchChange = new EventEmitter<{ columnKey: string; searchTerm: string }>();
@@ -96,13 +99,19 @@ export class GenericTableComponent {
     })
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data) {
       this.originalData = this.data.map((row, index) => ({
         ...row,
         sno: index + 1,
       }));
 
+      this.data = [...this.originalData];
+    }
+
+    if (changes['filterResetToken']) {
+      this.filterValues = {};
+      this.priceFilters = {};
       this.data = [...this.originalData];
     }
   }
@@ -218,7 +227,10 @@ export class GenericTableComponent {
 
   onRowClick(row: Record<string, unknown>, event: MouseEvent): void {
     if (!this.enableRowClick) return;
-    const target = event.target as HTMLElement;
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
     if (target.closest('.action-btn')) {
       return;
     }
@@ -230,7 +242,9 @@ export class GenericTableComponent {
     row: Record<string, unknown>,
   ): 'primary' | 'accent' | 'warn' | undefined | null {
     const color = typeof act.color === 'function' ? act.color(row) : act.color;
-    return color as 'primary' | 'accent' | 'warn' | undefined | null;
+    return color === 'primary' || color === 'accent' || color === 'warn'
+      ? color
+      : null;
   }
 
   getActionIcon(act: TableAction, row: Record<string, unknown>): string {
@@ -251,7 +265,10 @@ export class GenericTableComponent {
   }
 
   onTableScroll(event: Event): void {
-    const element = event.target as HTMLElement;
+    const element = event.target;
+    if (!(element instanceof HTMLElement)) {
+      return;
+    }
     const threshold = 50;
     const atBottom =
       element.scrollHeight - element.scrollTop - element.clientHeight <=
@@ -264,7 +281,11 @@ export class GenericTableComponent {
 
   // handle filter apply
   applyFilter(columnKey: string, event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+    const filterValue = input.value;
     if (filterValue.trim() === '') {
       delete this.filterValues[columnKey];
     } else {
@@ -321,6 +342,21 @@ export class GenericTableComponent {
 
   getSelectedValues(columnKey: string): (string | number)[] {
     return this.selectedFiltersMap[columnKey] || [];
+  }
+
+  getRangeBounds(columnKey: string): Range {
+    const bounds = this.rangeBoundsMap[columnKey];
+    if (bounds) {
+      return bounds;
+    }
+
+    return columnKey === 'stockQuantity'
+      ? { min: 0, max: 500 }
+      : { min: 0, max: 10000 };
+  }
+
+  getSelectedRange(columnKey: string): Range | undefined {
+    return this.selectedRangesMap[columnKey];
   }
 
   onDropdownSelectionChange(columnKey: string, option: DropdownOptions): void {
@@ -382,22 +418,22 @@ export class GenericTableComponent {
   }
 
   onSearchInput(key: string, event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement) {
-      const value = inputElement.value;
-      if (!value || value.trim() === '') {
-        delete this.filterValues[key];
-        this.data = [...this.originalData];
-      }
-      this.searchSubject.next({ key, value });
+    const inputElement = event.target;
+    if (!(inputElement instanceof HTMLInputElement)) {
+      return;
     }
+    const value = inputElement.value;
+    if (!value || value.trim() === '') {
+      delete this.filterValues[key];
+      this.data = [...this.originalData];
+    }
+    this.searchSubject.next({ key, value });
   }
 
   clearSearchInput(key: string, inputElement: HTMLInputElement): void {
     inputElement.value = '';
     delete this.filterValues[key];
     this.data = [...this.originalData];
-    this.filterChanged.emit(this.filterValues);
     this.filterCleared.emit(key);
     this.searchSubject.next({ key, value: '' });
   }

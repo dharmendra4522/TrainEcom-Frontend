@@ -157,3 +157,37 @@
   height: 16px;
   font-size: 16px;
 }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.back-btn {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.back-btn mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.back-btn:hover,
+.back-btn:focus,
+.back-btn:active {
+  background-color: transparent;
+}
+
+.back-btn .mat-mdc-button-persistent-ripple::before {
+  background-color: transparent;
+}

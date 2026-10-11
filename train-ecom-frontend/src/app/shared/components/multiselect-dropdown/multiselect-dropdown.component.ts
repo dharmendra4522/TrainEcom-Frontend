@@ -11,12 +11,9 @@ import {
 import { DropdownOptions } from '../../../core/models/table.model';
 import { FormControl } from '@angular/forms';
 import {
-  Observable,
   Subject,
   debounceTime,
   distinctUntilChanged,
-  of,
-  switchMap,
 } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -42,6 +39,8 @@ export class MultiselectDropdownComponent
   @Input() priceMax: number = 10000;
   @Input() stockMin: number = 0;
   @Input() stockMax: number = 500;
+  @Input() selectedRange: Range | undefined;
+  @Input() resetToken: number = 0;
   @Input() canApply = false;
   @Input() canClear = false;
 
@@ -58,11 +57,9 @@ export class MultiselectDropdownComponent
   selectedMax = 0;
   activeRangeThumb: 'min' | 'max' = 'max';
   private readonly destroy$ = new Subject<void>();
-  private readonly priceRangeChanges$ = new Subject<Range>();
 
   ngOnInit(): void {
     this.setupSearch();
-    this.setupPriceRangeChanges();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -71,10 +68,15 @@ export class MultiselectDropdownComponent
       changes['priceMin'] ||
       changes['priceMax'] ||
       changes['stockMin'] ||
-      changes['stockMax']
+      changes['stockMax'] ||
+      changes['selectedRange'] ||
+      changes['resetToken']
     ) {
-      this.selectedMin = this.minRange;
-      this.selectedMax = this.maxRange;
+      const range = this.selectedRange
+        ? this.clampRange(this.selectedRange)
+        : { min: this.minRange, max: this.maxRange };
+      this.selectedMin = range.min;
+      this.selectedMax = range.max;
     }
   }
 
@@ -86,31 +88,16 @@ export class MultiselectDropdownComponent
       });
   }
 
-  private setupPriceRangeChanges(): void {
-    this.priceRangeChanges$
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(
-          (previous, current) =>
-            previous.min === current.min && previous.max === current.max,
-        ),
-        switchMap((range): Observable<Range> => of(range)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((range) => {
-        if (this.isStockRange) {
-          this.stockRangeChange.emit(range);
-          return;
-        }
-
-        this.priceRangeChange.emit(range);
-      });
-  }
-
   updatePriceRange(min: number, max: number): void {
     this.selectedMin = min;
     this.selectedMax = max;
-    this.priceRangeChanges$.next({ min, max });
+    const range = { min, max };
+    if (this.isStockRange) {
+      this.stockRangeChange.emit(range);
+      return;
+    }
+
+    this.priceRangeChange.emit(range);
   }
 
   onPriceMinChange(event: Event): void {
@@ -143,6 +130,12 @@ export class MultiselectDropdownComponent
     return this.isStockRange ? this.stockMax : this.priceMax;
   }
 
+  private clampRange(range: Range): Range {
+    const min = Math.min(Math.max(range.min, this.minRange), this.maxRange);
+    const max = Math.min(Math.max(range.max, this.minRange), this.maxRange);
+    return min <= max ? { min, max } : { min, max: min };
+  }
+
   // clear the search input
   clearSearch(event: Event): void {
     event.stopPropagation();
@@ -160,7 +153,10 @@ export class MultiselectDropdownComponent
   }
 
   onScroll(event: Event): void {
-    const element = event.target as HTMLElement;
+    const element = event.target;
+    if (!(element instanceof HTMLElement)) {
+      return;
+    }
     if (element.scrollHeight - element.scrollTop <= element.clientHeight + 15) {
       this.scrollToBottom.emit();
     }

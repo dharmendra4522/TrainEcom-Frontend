@@ -60,10 +60,10 @@ export class CatalogFilterComponent {
 
   get availableSubCategories(): SubCategoryItem[] {
     return (
-      this.categories.find((category) => category.name === this.selectedCategory)
+      this.categories.find(
+        (category) => category.id.toString() === this.selectedCategory,
+      )
         ?.subCategories ?? []
     );
   }
-
-
 }

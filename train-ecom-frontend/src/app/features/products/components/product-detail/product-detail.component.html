@@ -1,11 +1,17 @@
 <div class="product-detail-container py-4 px-2 px-md-4">
-  <div class="d-flex flex-column align-items-start mb-4 flex-wrap gap-2">
-    <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
-      <mat-icon>arrow_back</mat-icon>
-      Back
-    </button>
-    <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
-  </div>
+ <div class="page-header">
+  <button
+    mat-icon-button
+    color="primary"
+    (click)="goBack()"
+    class="back-btn"
+    aria-label="Go back"
+  >
+    <mat-icon>arrow_back_ios_new</mat-icon>
+  </button>
+
+  <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
+</div>
 
   <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
     <mat-spinner diameter="50"></mat-spinner>

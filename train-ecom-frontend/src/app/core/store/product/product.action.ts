@@ -33,10 +33,10 @@ export const loadProductsSuccess = createAction(
     totalPages: number;
     pageNumber: number;
     totalRecords: number;
-    minPrice: number;
-    maxPrice: number;
-    minStock: number;
-    maxStock: number;
+    minPrice?: number;
+    maxPrice?: number;
+    minStock?: number;
+    maxStock?: number;
     cacheKey: string;
     isAppend?: boolean;
   }>(),

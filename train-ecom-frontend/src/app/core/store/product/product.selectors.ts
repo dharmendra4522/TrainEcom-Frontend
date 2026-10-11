@@ -67,3 +67,16 @@ export const selectProductMaxStock = createSelector(
   selectProductState,
   (state) => state.maxStock
 );
+
+export const selectProductRangeBounds = createSelector(
+  selectProductMinPrice,
+  selectProductMaxPrice,
+  selectProductMinStock,
+  selectProductMaxStock,
+  (minPrice, maxPrice, minStock, maxStock) => ({
+    minPrice,
+    maxPrice,
+    minStock,
+    maxStock,
+  }),
+);
