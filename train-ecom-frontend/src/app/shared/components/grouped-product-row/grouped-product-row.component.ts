@@ -21,6 +21,8 @@ export class GroupedProductRowComponent implements OnInit {
   @ViewChild('gridContainer') gridContainer!: ElementRef<HTMLDivElement>;
 
   products$!: Observable<Product[]>;
+  private pageSize: number = 10;
+  private pageNumber: number = 1;
   
   // BehaviorSubject to manage the loading state of the products
   private isLoadingSubject = new BehaviorSubject<boolean>(false);

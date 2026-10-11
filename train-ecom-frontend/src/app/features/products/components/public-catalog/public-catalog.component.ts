@@ -217,13 +217,26 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   }
 
   /** Handle category filter change */
-  onCategoryChange(categoryId: string): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { category: categoryId || null },
-      queryParamsHandling: 'merge'
-    });
-  }
+onCategoryChange(categoryId: string): void {
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {
+      category: categoryId || null,
+      subCategory: null,
+    },
+    queryParamsHandling: 'merge',
+  });
+}
+
+  onSubCategoryChange(subCategoryId: string): void {
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {
+      subCategory: subCategoryId || null,
+    },
+    queryParamsHandling: 'merge',
+  });
+}
 
   /** Handle brand filter change */
   onBrandChange(brandId: string): void {
@@ -240,6 +253,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
     isAppend?: boolean;
     brandId?: string | null;
     categoryId?: string | null;
+    subCategoryId?: string | null;
     minPrice?: number | null;
     maxPrice?: number | null;
     sortBy?: string | null;
@@ -260,9 +274,14 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       overrides && 'categoryId' in overrides
         ? overrides.categoryId || undefined
         : queryParams.get('category') || undefined;
+    const subCategoryValue =
+      overrides && 'subCategoryId' in overrides
+        ? overrides.subCategoryId || undefined
+        : queryParams.get('subCategory') || undefined;
 
     const parsedBrandId = brandValue ? Number(brandValue) : undefined;
     const parsedCategoryId = categoryValue ? Number(categoryValue) : undefined;
+    const parsedSubCategoryId = subCategoryValue ? Number(subCategoryValue) : undefined;
     const brandId =
       parsedBrandId !== undefined && Number.isFinite(parsedBrandId)
         ? parsedBrandId
@@ -271,31 +290,17 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       parsedCategoryId !== undefined && Number.isFinite(parsedCategoryId)
         ? parsedCategoryId
         : undefined;
+    const subCategoryId =
+      parsedSubCategoryId !== undefined && Number.isFinite(parsedSubCategoryId)
+        ? parsedSubCategoryId
+        : undefined;
 
     const search = queryParams.get('search') || undefined;
+    const minPrice = this.getParamValue(overrides, 'minPrice', this.minPriceFilter$.value ?? undefined)
+    const maxPrice = this.getParamValue(overrides, 'maxPrice', this.maxPriceFilter$.value ?? undefined);
+    const sortBy = this.getParamValue(overrides, 'sortBy', this.sortBy$.value || undefined);
+    const minRating = this.getParamValue(overrides, 'minRating', this.ratingFilter$.value ?? undefined, (val) => Number(val));
 
-    const minPrice =
-      overrides && 'minPrice' in overrides
-        ? (overrides.minPrice ?? undefined)
-        : (this.minPriceFilter$.value ?? undefined);
-
-    const maxPrice =
-      overrides && 'maxPrice' in overrides
-        ? (overrides.maxPrice ?? undefined)
-        : (this.maxPriceFilter$.value ?? undefined);
-
-    const sortBy =
-      overrides && 'sortBy' in overrides
-        ? overrides.sortBy || undefined
-        : this.sortBy$.value || undefined;
-
-    const minRating =
-      overrides && 'minRating' in overrides
-        ? (overrides.minRating ?? undefined)
-        : (this.ratingFilter$.value ??
-          (queryParams.get('minRating')
-            ? Number(queryParams.get('minRating'))
-            : undefined));
 
     const pageNumber = overrides?.pageNumber || this.currentPage;
     const isAppend = overrides?.isAppend || false;
@@ -307,6 +312,7 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         isAppend,
         brandIds: brandId !== undefined ? [brandId] : undefined,
         categoryIds: categoryId !== undefined ? [categoryId] : undefined,
+        subCategoryIds: subCategoryId !== undefined ? [subCategoryId] : undefined,
         search,
         minPrice,
         maxPrice,
@@ -315,6 +321,25 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       }),
     );
   }
+
+  // helper function to extract query parameters and overrides
+  private getParamValue<T>(
+    overrides: Record<string, unknown> | undefined,
+    key: string,
+    fallbackValue: T | undefined,
+    tranform?: (val: string) => T
+  ): T | undefined {
+    if (overrides && key in overrides) {
+      const val = overrides[key];
+      return val != null && val !== undefined ? (val as T) : undefined;
+    }
+    const paramVal = this.route.snapshot.queryParamMap.get(key);
+    if (paramVal !== null && paramVal !== undefined) {
+      return tranform ? tranform(paramVal) : (paramVal as unknown as T)
+    }
+    return fallbackValue;
+  }
+
 
   /** Set price range filter values */
   setPriceRange(min: number | null, max: number | null): void {
@@ -380,11 +405,12 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
       queryParams: {
         brand: null,
         category: null,
+        subCategory: null,
         minRating: null,
         sortBy: null,
-        search: null,
+        search: null
       },
-      queryParamsHandling: 'merge',
+      queryParamsHandling: 'merge'
     });
   }
 

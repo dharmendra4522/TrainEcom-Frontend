@@ -46,8 +46,8 @@ export class BrandComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   private currentPage = 0;
-  private pageSize = 10;
-
+  pageSize = 15;
+  
   // Local state tracking
   private currentBrandsLength = 0;
   private totalRecordsCount = 0;

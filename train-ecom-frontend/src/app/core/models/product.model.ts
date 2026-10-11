@@ -13,6 +13,8 @@ export interface Product extends Record<string, unknown> {
   brandName: string;
   categoryId?: number;
   categoryName: string;
+  subCategoryId?: number;
+  subCategoryName?: string;
   stockQuantity?: number;
   thumbnailUrl?: string;
   storeName?: string;

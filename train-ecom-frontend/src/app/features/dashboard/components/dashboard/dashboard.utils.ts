@@ -5,11 +5,12 @@ import {
 import { OrderStatus } from '../../../../core/models/order.model';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
-import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
-
+import { getOrderStatusClass as getOrderStatusBadgeClass, getPaymentStatusClass as getPaymentStatusBadgeClass } from '../../../../shared/utils/status-badge.utils';
 export const INITIAL_ADMIN_STATS: DashboardStatItem[] = [
   { title: 'Products', value: '0', icon: 'inventory_2', color: '#f44336' }
 ];
+
+export { getOrderStatusBadgeClass, getPaymentStatusBadgeClass };
 
 export function buildDashboardStats(
   data: DashboardData,
@@ -25,39 +26,6 @@ export function buildDashboardStats(
       route: portalRoutes.products(portal, 'manage')
     }
   ];
-}
-
-export function getOrderStatusBadgeClass(
-  orderStatus: OrderStatus | number | string
-): string {
-  const statusLabel = normalizeOrderStatus(orderStatus);
-  switch (statusLabel?.toLowerCase()) {
-    case 'confirmed':
-      return 'bg-primary-subtle text-primary border border-primary-subtle';
-    case 'processing':
-      return 'bg-warning-subtle text-warning border border-warning-subtle';
-    case 'shipped':
-      return 'bg-info-subtle text-info border border-info-subtle';
-    case 'delivered':
-      return 'bg-success-subtle text-success border border-success-subtle';
-    case 'cancelled':
-      return 'bg-danger-subtle text-danger border border-danger-subtle';
-    default:
-      return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-  }
-}
-
-export function getPaymentStatusBadgeClass(paymentStatus: string): string {
-  switch (paymentStatus?.toLowerCase()) {
-    case 'success':
-    case 'paid':
-      return 'bg-success-subtle text-success border border-success-subtle';
-    case 'failed':
-      return 'bg-danger-subtle text-danger border border-danger-subtle';
-    case 'pending':
-    default:
-      return 'bg-warning-subtle text-warning border border-warning-subtle';
-  }
 }
 
 // charts dummy data

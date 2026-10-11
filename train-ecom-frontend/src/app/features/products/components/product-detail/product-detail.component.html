@@ -1,10 +1,10 @@
 <div class="product-detail-container py-4 px-2 px-md-4">
-  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
+  <div class="d-flex flex-column align-items-start mb-4 flex-wrap gap-2">
     <button mat-stroked-button color="primary" (click)="goBack()" class="d-flex align-items-center gap-2">
       <mat-icon>arrow_back</mat-icon>
       Back
     </button>
+    <app-breadcrumb [items]="productBreadcrumbs"></app-breadcrumb>
   </div>
 
   <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
@@ -35,10 +35,6 @@
     <div class="col-lg-7">
       <div class="product-info-card p-2 p-md-3">
         <div class="d-flex align-items-center gap-2 mb-2">
-          <span class="badge bg-primary-subtle text-primary fw-semibold px-3 py-2 rounded-pill"
-            *ngIf="product.categoryName">
-            {{ product.categoryName }}
-          </span>
           <span class="badge bg-secondary-subtle text-dark fw-semibold px-3 py-2 rounded-pill"
             *ngIf="product.brandName">
             {{ product.brandName }}
@@ -200,7 +196,7 @@
       </a>
     </div>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-6 g-3 g-md-4">
       <div class="col" *ngFor="let item of relatedProducts">
         <app-product-card [product]="item"></app-product-card>
       </div>

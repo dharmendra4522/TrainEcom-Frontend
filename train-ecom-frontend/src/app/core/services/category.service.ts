@@ -47,7 +47,7 @@ export class CategoryService {
     return this.http
       .get<
         PaginatedCategoryResponse | Category[]
-      >(`${this.baseApi}/all`, { params })
+      >(`${this.baseApi}/parentCategory/all`, { params })
       .pipe(
         map((response) => {
           if (Array.isArray(response)) {

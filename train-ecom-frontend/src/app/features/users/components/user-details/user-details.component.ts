@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { ActivatedRoute } from '@angular/router';
-import { VendorDetails } from '../../../../core/models/vendor.model';
+import { VendorDetails, VendorDocument } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ApprovalStatus } from '../../../../core/models/user.model';
+import { ApprovalStatus, DocumentType } from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
 import { Location } from '@angular/common';
@@ -44,7 +44,13 @@ export class UserDetailsComponent {
     if (!this.vendorId) return;
     this.isLoading = true;
     this.vendorService.getVendorById(this.vendorId).subscribe({
-      next: (response) => {
+      next: (response: VendorDetails) => {
+       if (response && response.documents) {
+          response.documents = response.documents.map((doc: VendorDocument) => ({
+            ...doc,
+            documentLabel: this.getDocumentLabel(doc.documentType)
+          }));
+        }
         this.vendorDetails = response;
         this.isLoading = false;
       },
@@ -99,7 +105,7 @@ export class UserDetailsComponent {
             next: (response) => {
               this.notificationService.showSuccess(
                 response.message ||
-                  `Vendor ${isApprove ? 'approved' : 'rejected'} successfully`,
+                `Vendor ${isApprove ? 'approved' : 'rejected'} successfully`,
               );
               this.loadVendorDetail();
             },
@@ -134,5 +140,19 @@ export class UserDetailsComponent {
 
   onBack(): void {
     this.location.back();
+  }
+
+  //documnts type
+  getDocumentLabel(type: number): string {
+    switch (type) {
+      case DocumentType.Logo:
+        return 'Business Logo / Other Document';
+      case DocumentType.BussinessDocument:
+        return 'Business Registration Document';
+      case DocumentType.GSTDocument:
+        return 'GST Document';
+      default:
+        return 'Document';
+    }
   }
 }

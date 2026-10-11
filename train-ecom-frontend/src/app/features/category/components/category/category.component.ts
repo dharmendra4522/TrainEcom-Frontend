@@ -3,10 +3,12 @@ import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Category } from '../../../../core/models/category.model';
+import { CreateCategoryRequest } from '../../../../core/models/category.model';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import { Store } from '@ngrx/store';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
+import { CategoryService } from '../../../../core/services/category.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-category',
@@ -16,6 +18,8 @@ import { BrandCategoryDialogComponent } from '../../../../shared/components/bran
 export class CategoryComponent implements OnDestroy {
   private dialog = inject(MatDialog);
   private store = inject(Store);
+  private categoryService = inject(CategoryService);
+  private notificationService = inject(NotificationService);
   private destroy$ = new Subject<void>();
 
   activeTabIndex = 0;
@@ -33,43 +37,46 @@ export class CategoryComponent implements OnDestroy {
   }
 
   openCategoryDialog(): void {
-    const isSubCategoryTab = this.activeTabIndex === 1;
+    const isSub = this.activeTabIndex === 1;
     const dialogRef = this.dialog.open(BrandCategoryDialogComponent, {
       width: '500px',
       data: {
-        title: isSubCategoryTab ? 'Create Sub-Category' : 'Create Category',
-        type: isSubCategoryTab ? 'Sub-Category' : 'Category',
+        title: isSub ? 'Create Sub-Category' : 'Create Category',
+        type: isSub ? 'Sub-Category' : 'Category',
         isEdit: false,
         initialData: null,
       },
     });
 
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((result) => {
-        if (!result) {
-          return;
-        }
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result: CreateCategoryRequest | undefined) => {
+      if (result) this.handleDialogCreate(result, isSub);
+    });
+  }
 
-        const payload =
-          isSubCategoryTab && result.parentCategoryId !== undefined
-            ? {
-                name: result.name,
-                description: result.description,
-                parentCategoryId: result.parentCategoryId || null,
-              }
-            : {
-                name: result.name,
-                description: result.description,
-              };
+  private handleDialogCreate(result: CreateCategoryRequest, isSub: boolean): void {
+    const payload: CreateCategoryRequest = {
+      name: result.name,
+      description: result.description,
+      parentCategoryId: isSub ? (result.parentCategoryId ?? null) : undefined,
+    };
 
-        this.store.dispatch(
-          CategoryActions.createCategory({
-            category: payload as Category,
-          }),
-        );
-      });
+    if (isSub) {
+      this.store.dispatch(CategoryActions.createCategory({ category: payload }));
+      return;
+    }
+
+    this.categoryService.createCategory(payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Category created successfully.');
+        this.store.dispatch(CategoryActions.loadPaginatedCategories({
+          pageNumber: 1, pageSize: 10, search: this.categorySearchControl.value.trim() || undefined, refresh: true,
+        }));
+      },
+      error: (err: unknown) => {
+        console.error('Error creating category:', err);
+        this.notificationService.showError('Failed to create category. Please try again.');
+      },
+    });
   }
 
   resetSearch(): void {

@@ -30,31 +30,22 @@ export class ProductService {
       : this.baseAPI;
   }
 
-  createProduct(
-    productData: Partial<Product>,
-    files: File[],
-    portal?: PortalKey,
-  ): Observable<Product> {
+  createProduct(productData: Partial<Product>, files: File[], portal?: PortalKey): Observable<Product> {
     const formData = new FormData();
 
     formData.append('Name', productData.name || '');
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
-    formData.append(
-      'stockQuantity',
-      productData.stockQuantity?.toString() || '0'
-    );
+    formData.append('stockQuantity', productData.stockQuantity?.toString() || '0');
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     files.forEach((file) => {
       if (file) formData.append('Images', file);
     });
 
-    return this.http.post<Product>(
-      `${this.getBaseApi(portal)}/create`,
-      formData
-    );
+    return this.http.post<Product>(`${this.getBaseApi(portal)}/create`, formData);
   }
 
   getProductById(productId: number, portal?: PortalKey): Observable<Product> {
@@ -81,6 +72,7 @@ export class ProductService {
     );
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
+    formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
 
     deletedImageIds.forEach((id) => {
       formData.append('DeletedImageIds', String(id));
