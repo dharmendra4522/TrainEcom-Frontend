@@ -526,25 +526,34 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   // handle Apply
   onFilterApply(event: { columnKey: string }): void {
-    this.pageNumber = 1;
-    const categoryFilters = this.selectedFiltersMap['categoryName'] || [];
-    const brandFilters = this.selectedFiltersMap['brandName'] || [];
-    this.store.dispatch(
-      ProductActions.loadProducts({
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-        search: this.searchControl.value?.trim() || undefined,
-        categoryName:
-          categoryFilters.length > 0
-            ? String(categoryFilters[0])
-            : this.categoryControl.value || undefined,
-        brandName:
-          brandFilters.length > 0
-            ? String(brandFilters[0])
-            : this.brandControl.value || undefined,
-        portal: this.portal,
-      }),
-    );
+    try {
+      this.pageNumber = 1;
+      const categoryFilters =
+        this.selectedFiltersMap?.['categoryName'] ?? [];
+      const brandFilters =
+        this.selectedFiltersMap?.['brandName'] ?? [];
+      this.store.dispatch(
+        ProductActions.loadProducts({
+          pageNumber: this.pageNumber,
+          pageSize: this.pageSize,
+          search: this.searchControl.value?.trim() || undefined,
+          categoryName:
+            categoryFilters.length > 0
+              ? String(categoryFilters[0])
+              : this.categoryControl.value || undefined,
+          brandName:
+            brandFilters.length > 0
+              ? String(brandFilters[0])
+              : this.brandControl.value || undefined,
+          portal: this.portal,
+        }),
+      );
+    } catch (error) {
+      this.notification.showError(
+        'Something went wrong while applying filters.',
+      );
+      console.error(error);
+    }
   }
 
   // handle drop-down clear
