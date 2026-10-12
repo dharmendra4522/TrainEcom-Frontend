@@ -38,7 +38,7 @@ export const selectBrandPageSize = createSelector(
   (state: BrandState) => state.pageSize || 10,
 );
 
-export const selectBrandById = (brandId: string) => createSelector(
+export const selectBrandById = (brandId: number) => createSelector(
   selectBrandState,
   (state: BrandState) => (state.brand || []).find(brand => brand.id === brandId),
 );
