@@ -15,7 +15,6 @@ import {
   VendorListResponse,
   VendorVerifyRequest,
   VendorVerifyResponse,
-  VendorFilterParams,
   VendorStatus,
 } from '../models/vendor.model';
 import { UserService } from './user.service';
@@ -31,13 +30,18 @@ export class VendorService {
 
   constructor() { }
 
-  getVendors(filter?: VendorFilterParams): Observable<VendorListResponse> {
+  getVendors(filter?: AdminUserFilterParams): Observable<VendorListResponse> {
     const vendorFilter: AdminUserFilterParams = {
-      Search: filter?.search,
+      Search: filter?.Search,
+      SearchField: filter?.SearchField,
+      RequestField: filter?.RequestField,
       Role: Role.Vendor,
-      status: filter?.status === 'All' ? undefined : filter?.status,
-      PageNumber: filter?.pageNumber,
-      PageSize: filter?.pageSize,
+      Status: filter?.Status,
+      ApprovalStatus: filter?.ApprovalStatus,
+      FilterIds: filter?.FilterIds,
+      BusinessCategoriesIds: filter?.BusinessCategoriesIds,
+      PageNumber: filter?.PageNumber,
+      PageSize: filter?.PageSize,
     };
 
     return this.userService.getAllUsers(vendorFilter).pipe(
@@ -72,14 +76,14 @@ export class VendorService {
       categories,
       businessDetail: business
         ? {
-            businessName: business.bussinessName,
-            categories,
-            storeName: business.storeName,
-            gstin: business.gstin,
-            pan: business.pan,
-            city: business.city,
-            rejectionReason: business.rejectionReason ?? null,
-          }
+          businessName: business.bussinessName,
+          categories,
+          storeName: business.storeName,
+          gstin: business.gstin,
+          pan: business.pan,
+          city: business.city,
+          rejectionReason: business.rejectionReason ?? null,
+        }
         : undefined,
     };
   }

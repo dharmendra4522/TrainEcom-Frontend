@@ -238,10 +238,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   private getFilterParams(): VendorFilterParams {
     return {
-      search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
-      pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize
+      Search: this.searchQuery || undefined,
+      Status:
+        this.selectedStatus === 'All'
+          ? undefined
+          : [Number(this.selectedStatus)],
+      PageNumber: this.pageIndex + 1,
+      PageSize: this.pageSize,
     };
   }
 
@@ -503,7 +506,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               );
             },
           });
-      });
+        });
   }
 
   private handleToggleBlockVendor(vendor: VendorTableItem): void {
