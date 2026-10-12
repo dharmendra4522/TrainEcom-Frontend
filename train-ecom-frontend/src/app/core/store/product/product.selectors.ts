@@ -77,6 +77,6 @@ export const selectProductRangeBounds = createSelector(
     minPrice,
     maxPrice,
     minStock,
-    maxStock,
-  }),
+    maxStock
+  })
 );

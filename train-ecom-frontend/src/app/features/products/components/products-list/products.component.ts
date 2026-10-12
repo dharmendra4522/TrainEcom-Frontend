@@ -2,13 +2,13 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   Product,
   PaginatedProductsResponse,
-  ProductListField,
+  ProductListField
 } from '../../../../core/models/product.model';
 import {
   TableColumn,
   TableAction,
   TableActionEvent,
-  DropdownOptions,
+  DropdownOptions
 } from '../../../../core/models/table.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -17,7 +17,7 @@ import {
   selectAllProducts,
   selectProductsLoading,
   selectProductRangeBounds,
-  selectProductTotalRecords,
+  selectProductTotalRecords
 } from '../../../../core/store/product/product.selectors';
 import { FormControl } from '@angular/forms';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
@@ -34,7 +34,7 @@ import {
   switchMap,
   map,
   catchError,
-  finalize,
+  finalize
 } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
@@ -57,7 +57,7 @@ interface DropdownOptionsRequest {
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css',
+  styleUrl: './products.component.css'
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -75,7 +75,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
   totalRecords$: Observable<number> = this.store.select(
-    selectProductTotalRecords,
+    selectProductTotalRecords
   );
   rangeBounds$ = this.store.select(selectProductRangeBounds);
   brands$ = this.store.select(selectAllBrands);
@@ -99,7 +99,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private activeColumnSearchKey: 'name' | 'description' | null = null;
   rangeBoundsMap: Record<string, Range> = {
     price: { min: 0, max: 0 },
-    stockQuantity: { min: 0, max: 0 },
+    stockQuantity: { min: 0, max: 0 }
   };
   selectedRangesMap: Record<string, Range> = {};
 
@@ -116,7 +116,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     ProductListField
   > = {
       price: ProductListField.Price,
-      stockQuantity: ProductListField.StockQuantity,
+      stockQuantity: ProductListField.StockQuantity
     };
   private readonly loadedRangeColumns = new Set<
     'price' | 'stockQuantity'
@@ -220,77 +220,129 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private setupColumnDropdownSearch(): void {
     this.columnSearchSubject$
       .pipe(
-        switchMap((request) => {
-          this.dropdownLoadingMap[request.columnKey] = true;
-          return timer(request.append ? 0 : 300).pipe(
-            switchMap(() =>
-              this.productService.getPaginatedProducts(
-                request.pageNumber,
-                this.dropdownOptionsPageSize,
-                request.requestField ? undefined : request.searchTerm || undefined,
-                undefined,
-                request.requestField,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                this.portal,
-              ),
-            ),
-            map((response) => ({ request, response })),
-            catchError((error: unknown) => {
-              this.notification.showError(
-                extractBackendMessage(error, 'Failed to load filter options'),
-              );
-              return EMPTY;
-            }),
-            finalize(() => {
-              this.dropdownLoadingMap[request.columnKey] = false;
-            }),
-          );
-        }),
+        switchMap((request) =>
+          this.loadDropdownRequest(request)
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe(({ request, response }) => {
-        const existingOptions = request.append
-          ? this.dropdownOptionsMap[request.columnKey] || []
-          : [];
-        const optionKeys = new Set(
-          existingOptions.map((option) => `${typeof option.id}:${option.id}`),
-        );
-        const options = [...existingOptions];
-
-        response.items.forEach((product) => {
-          const value = product[request.columnKey];
-          if (
-            (typeof value === 'string' && value.trim() !== '') ||
-            (typeof value === 'number' && Number.isFinite(value))
-          ) {
-            const optionKey = `${typeof value}:${value}`;
-            if (!optionKeys.has(optionKey)) {
-              optionKeys.add(optionKey);
-              options.push({ id: value, label: String(value) });
-            }
-          }
-        });
-
-        this.dropdownOptionsMap[request.columnKey] = options;
+        this.updateDropdownOptions(request, response);
         this.updateRangeBoundsFromResponse(request, response);
-        this.dropdownPageMap[request.columnKey] = request.pageNumber;
-        const totalPages =
-          response.totalPages ||
-          Math.ceil(response.totalRecords / this.dropdownOptionsPageSize);
-        this.dropdownHasMoreMap[request.columnKey] =
-          request.pageNumber < totalPages;
       });
   }
+
+  // load data according to filtered column
+  private loadDropdownRequest(
+    request: DropdownOptionsRequest
+  ): Observable<{
+    request: DropdownOptionsRequest;
+    response: PaginatedProductsResponse;
+  }> {
+    this.dropdownLoadingMap[request.columnKey] = true;
+
+    return timer(request.append ? 0 : 300).pipe(
+      switchMap(() =>
+        this.productService.getPaginatedProducts(
+          request.pageNumber,
+          this.dropdownOptionsPageSize,
+          request.requestField
+            ? undefined
+            : request.searchTerm || undefined,
+          undefined,
+          request.requestField,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          this.portal
+        )
+      ),
+      map((response) => ({
+        request,
+        response
+      })),
+      catchError((error: unknown) => {
+        this.notification.showError(
+          extractBackendMessage(
+            error,
+            'Failed to load filter options'
+          )
+        );
+
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.dropdownLoadingMap[request.columnKey] = false;
+      })
+    );
+  }
+
+  // handle dropdown options update after response
+  private updateDropdownOptions(
+    request: DropdownOptionsRequest,
+    response: PaginatedProductsResponse
+  ): void {
+    const existingOptions = request.append
+      ? this.dropdownOptionsMap[request.columnKey] || []
+      : [];
+
+    const optionKeys = new Set(
+      existingOptions.map(
+        (option) => `${typeof option.id}:${option.id}`
+      )
+    );
+
+    const options = [...existingOptions];
+
+    response.items.forEach((product) => {
+      const value = product[request.columnKey];
+
+      if (
+        (typeof value === 'string' &&
+          value.trim() !== '') ||
+        (typeof value === 'number' &&
+          Number.isFinite(value))
+      ) {
+        const optionKey =
+          `${typeof value}:${value}`;
+
+        if (!optionKeys.has(optionKey)) {
+          optionKeys.add(optionKey);
+
+          options.push({
+            id: value,
+            label: String(value)
+          });
+        }
+      }
+    });
+
+    this.dropdownOptionsMap[request.columnKey] =
+      options;
+
+    this.dropdownPageMap[request.columnKey] =
+      request.pageNumber;
+
+    const totalPages =
+      response.totalPages ||
+      Math.ceil(
+        response.totalRecords /
+        this.dropdownOptionsPageSize
+      );
+
+    this.dropdownHasMoreMap[
+      request.columnKey
+    ] =
+      request.pageNumber < totalPages;
+  }
+
 
   private updateRangeBoundsFromResponse(
     request: DropdownOptionsRequest,
@@ -338,10 +390,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   // initalize store state subscription
   private initSubscriptions(): void {
+    this.subscribeToLoading();
+    this.subscribeToProducts();
+    this.subscribeToTotalRecords();
+    this.subscribeToRangeBounds();
+  }
+
+  // subscribe to loading state changes
+  private subscribeToLoading(): void {
     this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
       this.isLoadingValue = loading;
     });
+  }
 
+  // handle product list subscription and update state
+  private subscribeToProducts(): void {
     this.products$.pipe(takeUntil(this.destroy$)).subscribe((products) => {
       if (this.pageNumber === 1) {
         this.ProductList = [...products];
@@ -352,10 +415,18 @@ export class ProductsComponent implements OnInit, OnDestroy {
       }
       this.checkPaginationLimit();
     });
+  }
+
+  // subscribe to total records changes
+  private subscribeToTotalRecords(): void {
     this.totalRecords$.pipe(takeUntil(this.destroy$)).subscribe((total) => {
       this.totalRecords = total;
       this.checkPaginationLimit();
     });
+  }
+
+  // subscribe to range bounds changes
+  private subscribeToRangeBounds(): void {
     this.rangeBounds$.pipe(takeUntil(this.destroy$)).subscribe((bounds) => {
       const priceBounds = { min: bounds.minPrice, max: bounds.maxPrice };
       const stockBounds = { min: bounds.minStock, max: bounds.maxStock };
@@ -375,7 +446,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
           ? {
             stockQuantity: this.clampRange(selectedStock, stockBounds),
           }
-          : {}),
+          : {})
       };
     });
   }
@@ -386,22 +457,22 @@ export class ProductsComponent implements OnInit, OnDestroy {
         map((search) => search?.trim() ?? ''),
         debounceTime(400),
         distinctUntilChanged(),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe(() => this.loadFirstPage());
 
     combineLatest([
       this.categoryControl.valueChanges.pipe(
         startWith(this.categoryControl.value),
-        distinctUntilChanged(),
+        distinctUntilChanged()
       ),
       this.brandControl.valueChanges.pipe(
         startWith(this.brandControl.value),
-        distinctUntilChanged(),
+        distinctUntilChanged()
       ),
-    ]    )
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => this.loadFirstPage());
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadFirstPage());
   }
 
   private loadFirstPage(): void {
@@ -420,7 +491,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         searchField: masterSearch ? undefined : columnSearch.searchField,
         categoryIds: this.getSelectedIds(
           'categoryName',
-          this.categoryControl.value,
+          this.categoryControl.value
         ),
         brandIds: this.getSelectedIds('brandName', this.brandControl.value),
         minPrice: this.selectedRangesMap['price']?.min,
@@ -453,7 +524,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private getSelectedIds(
     columnKey: 'categoryName' | 'brandName',
-    fallbackId: number | null,
+    fallbackId: number | null
   ): number[] | undefined {
     if (Object.prototype.hasOwnProperty.call(this.selectedFiltersMap, columnKey)) {
       const selectedIds = this.selectedFiltersMap[columnKey].filter(
@@ -530,13 +601,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
     const productId = event.row.id;
     if (event.action === 'edit') {
       this.router.navigate(
-        this.portalRoutes.products(this.portal, 'edit', productId),
+        this.portalRoutes.products(this.portal, 'edit', productId)
       );
     } else if (event.action === 'delete') {
       this.deleteProduct(productId);
     } else if (event.action === 'view') {
       this.router.navigate(
-        this.portalRoutes.products(this.portal, 'view', productId),
+        this.portalRoutes.products(this.portal, 'view', productId)
       );
     }
   }
@@ -567,6 +638,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
+
+  // handle dropdown search event
   onDropdownSearchTriggered(event: {
     columnKey: string;
     searchTerm: string;
@@ -577,11 +650,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
     if (colKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
         const filtered = categories.filter((cat: Category) =>
-          cat.name.toLowerCase().includes(term),
+          cat.name.toLowerCase().includes(term)
         );
         this.dropdownOptionsMap[colKey] = filtered.map((cat: Category) => ({
           id: cat.id,
-          label: cat.name,
+          label: cat.name
         }));
       });
       return;
@@ -612,13 +685,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
     );
   }
 
+  // handle dropdown open event
   onDropdownOpened(columnKey: string): void {
     if (columnKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
         this.dropdownOptionsMap[columnKey] = categories.map(
           (cat: Category) => ({
             id: cat.id,
-            label: cat.name,
+            label: cat.name
           })
         );
       });
@@ -629,7 +703,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.brands$.pipe(take(1)).subscribe((brands) => {
         this.dropdownOptionsMap[columnKey] = brands.map((brand: Brand) => ({
           id: brand.id,
-          label: brand.name,
+          label: brand.name
         }));
       });
       return;
@@ -646,7 +720,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         '',
         1,
         false,
-        this.rangeRequestFields[columnKey],
+        this.rangeRequestFields[columnKey]
       );
       return;
     }
@@ -674,7 +748,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       columnKey,
       this.dropdownSearchTermMap[columnKey] || '',
       (this.dropdownPageMap[columnKey] || 0) + 1,
-      true,
+      true
     );
   }
 
@@ -683,14 +757,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
     searchTerm: string,
     pageNumber: number,
     append: boolean,
-    requestField?: ProductListField,
+    requestField?: ProductListField
   ): void {
     this.columnSearchSubject$.next({
       columnKey,
       searchTerm,
       pageNumber,
       append,
-      requestField,
+      requestField
     });
   }
 
@@ -715,7 +789,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     } else if (columnKey === 'categoryName' || columnKey === 'brandName') {
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,
-        [columnKey]: [],
+        [columnKey]: []
       };
     }
     this.pageNumber = 1;
@@ -744,8 +818,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
       Object.keys(this.selectedRangesMap).length > 0 ||
       Object.values(this.columnFilters).some((value) => value.trim()) ||
       Object.values(this.selectedFiltersMap).some(
-        (selectedValues) => selectedValues.length > 0,
-      ),
+        (selectedValues) => selectedValues.length > 0
+      )
     );
   }
 
@@ -767,7 +841,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-      [colKey]: currentSelected,
+      [colKey]: currentSelected
     };
   }
 

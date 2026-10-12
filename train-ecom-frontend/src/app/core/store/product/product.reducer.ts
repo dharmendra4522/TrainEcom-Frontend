@@ -85,7 +85,7 @@ export const productReducer = createReducer(
           [cacheKey]: products,
         },
         isLoading: false,
-        error: null,
+        error: null
       };
     },
   ),
@@ -219,5 +219,5 @@ export const productReducer = createReducer(
     ...state,
     isLoading: false,
     error: error
-  })),
+  }))
 );

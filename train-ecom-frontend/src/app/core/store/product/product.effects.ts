@@ -14,6 +14,8 @@ import {
 
 import { extractBackendMessage } from '../../utils/error.utils';
 import { PortalRouteService } from '../../services/portal-route.service';
+import { ProductListField } from '../../models/product.model';
+import { PortalKey } from '../../config/management-access.config';
 
 @Injectable()
 export class ProductEffects {
@@ -30,27 +32,13 @@ export class ProductEffects {
       withLatestFrom(
         this.store.select(selectProductPagesCache),
         this.store.select(selectProductTotalPages),
-        this.store.select(selectProductTotalRecords),
+        this.store.select(selectProductTotalRecords)
       ),
       switchMap(([action, pagesCache, totalPages, totalRecords]) => {
         const pageNumber = action.pageNumber ?? 1;
         const pageSize = action.pageSize ?? 10;
-        const search = action.search || '';
-        const searchField = action.searchField;
-        const requestField = action.requestField;
-        const categoryIds = action.categoryIds ?? [];
-        const subCategoryIds = action.subCategoryIds ?? [];
-        const brandIds = action.brandIds ?? [];
-        const storeName = action.storeName;
-        const minPrice = action.minPrice;
-        const maxPrice = action.maxPrice;
-        const minStock = action.minStock;
-        const maxStock = action.maxStock;
-        const sortBy = action.sortBy || '';
-        const minRating = action.minRating;
-        const filterIds = action.filterIds ?? [];
         const portal = action.portal;
-        const cacheKey = `${portal ?? 'public'}-${pageNumber}-${pageSize}-${brandIds.join(',')}-${categoryIds.join(',')}-${subCategoryIds.join(',')}-${storeName}-${search}-${searchField}-${requestField}-${minPrice ?? ''}-${maxPrice ?? ''}-${minStock ?? ''}-${maxStock ?? ''}-${sortBy}-${minRating ?? ''}-${filterIds}`;
+        const cacheKey = this.buildCacheKey(action);
         if (action.isAppend && pagesCache[cacheKey]) {
           const computedCacheTotalPages =
             totalPages > 0
@@ -63,8 +51,8 @@ export class ProductEffects {
               pageNumber,
               totalRecords,
               cacheKey,
-              isAppend: action.isAppend,
-            }),
+              isAppend: action.isAppend
+            })
           );
         }
 
@@ -86,7 +74,7 @@ export class ProductEffects {
             action.sortBy,
             action.minRating,
             action.filterIds,
-            portal,
+            portal
           )
           .pipe(
             map((response) => {
@@ -107,7 +95,7 @@ export class ProductEffects {
                 minStock: response.minStock ?? 0,
                 maxStock: response.maxStock ?? 0,
                 cacheKey,
-                isAppend: action.isAppend,
+                isAppend: action.isAppend
               });
             }),
             catchError((error: unknown) =>
@@ -115,7 +103,7 @@ export class ProductEffects {
                 ProductActions.loadProductsFailure({
                   error: extractBackendMessage(
                     error,
-                    'Failed to fetch products',
+                    'Failed to fetch products'
                   )
                 })
               )
@@ -124,6 +112,46 @@ export class ProductEffects {
       })
     )
   );
+
+  private buildCacheKey(action: {
+    pageNumber?: number;
+    pageSize?: number;
+    search?: string;
+    searchField?: ProductListField;
+    requestField?: ProductListField;
+    categoryIds?: number[];
+    subCategoryIds?: number[];
+    brandIds?: number[];
+    storeName?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minStock?: number;
+    maxStock?: number;
+    sortBy?: string;
+    minRating?: number;
+    filterIds?: number[];
+    portal?: PortalKey;
+  }): string {
+    return JSON.stringify({
+      portal: action.portal ?? 'public',
+      pageNumber: action.pageNumber ?? 1,
+      pageSize: action.pageSize ?? 10,
+      search: action.search,
+      searchField: action.searchField,
+      requestField: action.requestField,
+      categoryIds: action.categoryIds ?? [],
+      subCategoryIds: action.subCategoryIds ?? [],
+      brandIds: action.brandIds ?? [],
+      storeName: action.storeName,
+      minPrice: action.minPrice,
+      maxPrice: action.maxPrice,
+      minStock: action.minStock,
+      maxStock: action.maxStock,
+      sortBy: action.sortBy,
+      minRating: action.minRating,
+      filterIds: action.filterIds ?? []
+    });
+  }
 
   createProduct$ = createEffect(() =>
     this.action$.pipe(
@@ -137,7 +165,7 @@ export class ProductEffects {
             );
             if (portal)
               this.router.navigate(
-                this.portalRoutes.products(portal, 'manage'),
+                this.portalRoutes.products(portal, 'manage')
               );
             return ProductActions.createProductSuccess({ product });
           }),
@@ -166,7 +194,7 @@ export class ProductEffects {
               );
               if (portal)
                 this.router.navigate(
-                  this.portalRoutes.products(portal, 'manage'),
+                  this.portalRoutes.products(portal, 'manage')
                 );
               return ProductActions.updateProductSuccess({ product });
             }),
