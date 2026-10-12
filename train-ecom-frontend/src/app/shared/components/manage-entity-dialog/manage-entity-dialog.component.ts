@@ -259,7 +259,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Prompts confirmation and deletes selected entity
-  onDelete(id: string | number): void {
+  onDelete(id: number): void {
     this.confirmDialog
       .confirm(
         `Are you sure you want to delete this ${this.data.type}?`,
@@ -275,19 +275,19 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
               .subscribe({
                 next: () => {
                   this.notificationService.showSuccess(
-                    'Sub-category deleted successfully.',
+                    'Sub-category deleted successfully.'
                   );
                   this.refreshSubCategories();
                 },
                 error: (error: unknown) => {
                   console.error('Error deleting subcategory:', error);
                   this.notificationService.showError(
-                    'Failed to delete sub-category.',
+                    'Failed to delete sub-category.'
                   );
-                },
+                }
               });
           } else {
-            this.dispatchDeleteAction(String(id));
+            this.dispatchDeleteAction(id);
             this.removeDeletedItemLocally(id);
           }
         }
@@ -295,7 +295,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   }
 
   // Dispatches delete action to NgRx store based on entity type
-  private dispatchDeleteAction(id: string): void {
+  private dispatchDeleteAction(id: number): void {
     if (this.data.type === 'Brand') {
       this.store.dispatch(BrandActions.deleteBrand({ brandId: id }));
     } else {
@@ -338,7 +338,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
     >(BrandCategoryDialogComponent, {
       width: '500px',
       disableClose: true,
-      data: dialogData,
+      data: dialogData
     });
 
     dialogRef
@@ -361,7 +361,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       this.store.dispatch(
         BrandActions.updateBrand({
           brandId: item.id,
-          brand: result as Brand,
+          brand: result as Brand
         }),
       );
     } else if (this.data.type === 'Sub-Category') {

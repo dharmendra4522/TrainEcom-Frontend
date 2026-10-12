@@ -3,7 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Brand, CreateBrandRequest, PaginatedBrandResponse } from '../models/brand.model';
+import { Brand, BrandListField, CreateBrandRequest, PaginatedBrandResponse } from '../models/brand.model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,13 +22,23 @@ export class BrandService {
     );
   }
 
-  getPaginatedBrands(pageNumber: number = 1, pageSize: number = 10, search?: string): Observable<PaginatedBrandResponse> {
+  getPaginatedBrands(
+  pageNumber: number = 1,
+  pageSize: number = 10,
+  search?: string,
+  searchField?: BrandListField
+): Observable<PaginatedBrandResponse>
+ {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
 
     if (search && search.trim() !== '') {
       params = params.set('Search', search.trim());
+    }
+
+    if (searchField !== undefined) {
+      params = params.set('SearchField', searchField.toString());
     }
 
     return this.http.get<PaginatedBrandResponse | Brand[]>(`${this.baseApi}/all`, { params }).pipe(
@@ -39,7 +49,7 @@ export class BrandService {
             pageNumber: 1,
             pageSize: response.length,
             totalRecords: response.length,
-            totalPages: 1,
+            totalPages: 1
           };
         }
 
@@ -48,7 +58,7 @@ export class BrandService {
           pageNumber: response?.pageNumber || pageNumber,
           pageSize: response?.pageSize || pageSize,
           totalRecords: response?.totalRecords ?? response?.items?.length ?? 0,
-          totalPages: response?.totalPages || 1,
+          totalPages: response?.totalPages || 1
         };
       }),
     );
