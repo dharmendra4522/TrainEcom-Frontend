@@ -33,40 +33,46 @@
         </a>
 
         <ng-container *ngIf="categories$ | async as categories">
-          <div
-            *ngFor="let cat of categories"
-            class="position-relative d-inline-block"
-          >
-            <button
-              type="button"
-              [matMenuTriggerFor]="categoryMenu"
-              #categoryMenuTrigger="matMenuTrigger"
-              [class.active-chip]="categoryMenuTrigger.menuOpen"
-              class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block"
-            >
-              {{ cat.name }}
-            </button>
+  <div
+    *ngFor="let cat of categories"
+    class="position-relative d-inline-block"
+  >
+    <button
+      type="button"
+      [matMenuTriggerFor]="categoryMenu"
+      #categoryMenuTrigger="matMenuTrigger"
+      [class.active-chip]="categoryMenuTrigger.menuOpen"
+      class="filter-chip rounded-pill border px-3 py-1 text-decoration-none text-secondary bg-white fs-7 transition-all d-inline-block"
+    >
+      {{ cat.name }}
+    </button>
 
-            <mat-menu #categoryMenu="matMenu">
-              <a
-                *ngFor="let sub of cat.subCategories"
-                mat-menu-item
-                [routerLink]="['/products']"
-                [queryParams]="{ category: cat.name, subCategory: sub.name }"
-              >
-                {{ sub.name }}
-              </a>
-              <a
-                *ngIf="!cat.subCategories?.length"
-                mat-menu-item
-                [routerLink]="['/products']"
-                [queryParams]="{ category: cat.name }"
-              >
-                View {{ cat.name }} products
-              </a>
-            </mat-menu>
-          </div>
-        </ng-container>
+    <mat-menu #categoryMenu="matMenu">
+      <a
+        *ngFor="let sub of cat.subCategories"
+        mat-menu-item
+        [routerLink]="['/products']"
+        [queryParams]="{
+          category: cat.id,
+          subCategory: sub.id
+        }"
+      >
+        {{ sub.name }}
+      </a>
+
+      <a
+        *ngIf="!cat.subCategories?.length"
+        mat-menu-item
+        [routerLink]="['/products']"
+        [queryParams]="{
+          category: cat.id
+        }"
+      >
+        View {{ cat.name }} products
+      </a>
+    </mat-menu>
+  </div>
+</ng-container>
       </div>
     </div>
 
@@ -88,7 +94,7 @@
             <a
               *ngFor="let sub of selectedCategory.subCategories"
               [routerLink]="['/products']"
-              [queryParams]="{ category: selectedCategory.name, subCategory: sub.name }"
+              [queryParams]="{ category: selectedCategory.id, subCategory: sub.id }"
               class="mobile-category-option"
               (click)="closeMobileMenu()"
             >
@@ -98,7 +104,7 @@
           <ng-template #categoryWithoutSubcategories>
             <a
               [routerLink]="['/products']"
-              [queryParams]="{ category: selectedCategory.name }"
+              [queryParams]="{ category: selectedCategory.id }"
               class="mobile-category-option"
               (click)="closeMobileMenu()"
             >

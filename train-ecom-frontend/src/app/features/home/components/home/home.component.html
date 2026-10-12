@@ -7,7 +7,7 @@
 
   <ng-container *ngIf="brands$ | async as brandsList">
     <app-grouped-product-row *ngFor="let brand of brandsList" [title]="brand.name" filterType="brand"
-      [filterValue]="brand.name">
+      [filterValue]="brand.id">
     </app-grouped-product-row>
   </ng-container>
 
@@ -20,7 +20,7 @@
 
   <ng-container *ngIf="categories$ | async as catList">
     <app-grouped-product-row *ngFor="let cat of catList" [title]="cat.name" filterType="category"
-      [filterValue]="cat.name">
+      [filterValue]="cat.id">
     </app-grouped-product-row>
   </ng-container>
 </div>

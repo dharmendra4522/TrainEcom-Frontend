@@ -9,6 +9,10 @@ export interface ProductState {
   pageNumber: number;
   totalPages: number;
   totalRecords: number;
+  minPrice: number;
+  maxPrice: number;
+  minStock: number;
+  maxStock: number;
   isLoading: boolean;
   error: string | null;
 }
@@ -20,8 +24,12 @@ export const initialProductState: ProductState = {
   pageNumber: 1,
   totalPages: 1,
   totalRecords: 0,
+  minPrice: 0,
+  maxPrice: 0,
+  minStock: 0,
+  maxStock: 0,
   isLoading: false,
-  error: null,
+  error: null
 };
 
 export const productReducer = createReducer(
@@ -30,22 +38,33 @@ export const productReducer = createReducer(
   on(ProductActions.loadProducts, (state) => ({
     ...state,
     isLoading: true,
-    error: null,
+    error: null
   })),
 
   on(
     ProductActions.loadProductsSuccess,
     (
       state,
-      { products, totalPages = 1, pageNumber = 1, totalRecords = 0, cacheKey, isAppend } 
+      {
+        products,
+        totalPages = 1,
+        pageNumber = 1,
+        totalRecords = 0,
+        minPrice = state.minPrice,
+        maxPrice = state.maxPrice,
+        minStock = state.minStock,
+        maxStock = state.maxStock,
+        cacheKey,
+        isAppend
+      },
     ) => {
       let updatedProducts: Product[];
 
-
-      // here we check if the action is an append action. If it is, we merge the new products with the existing ones, ensuring no duplicates based on product ID. If it's not an append action, we simply replace the existing products with the new ones.
       if (isAppend) {
-        const existingIds = new Set(state.products.map((p) => p.id.toString()));
-        const newUniqueProducts = products.filter((p) => !existingIds.has(p.id.toString()));
+        const existingIds = new Set(state.products.map((p) => p.id));
+        const newUniqueProducts = products.filter(
+          (p) => !existingIds.has(p.id)
+        );
         updatedProducts = [...state.products, ...newUniqueProducts];
       } else {
         updatedProducts = products;
@@ -57,12 +76,16 @@ export const productReducer = createReducer(
         totalPages: totalPages,
         pageNumber: pageNumber,
         totalRecords: totalRecords,
+        minPrice,
+        maxPrice,
+        minStock,
+        maxStock,
         pagesCache: {
           ...state.pagesCache,
           [cacheKey]: products,
         },
         isLoading: false,
-        error: null,
+        error: null
       };
     },
   ),
@@ -70,20 +93,23 @@ export const productReducer = createReducer(
   on(ProductActions.loadProductsFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
+    error: error
   })),
   on(ProductActions.createProductSuccess, (state, { product }) => ({
     ...state,
     products: [...state.products, product],
     pagesCache: {},
     isLoading: false,
-    error: null,
+    error: null
   })),
 
   on(ProductActions.updateProductSuccess, (state, { product }) => {
-    const existingProduct = state.products.find((p) => p.id.toString() === product.id.toString());
-    const primaryImg = product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl;
-    const resolvedThumbnailUrl = product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
+    const existingProduct = state.products.find((p) => p.id === product.id);
+    const primaryImg =
+      product.images?.find((img) => img.isPrimary)?.imageUrl ||
+      product.images?.[0]?.imageUrl;
+    const resolvedThumbnailUrl =
+      product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
 
     const updatedProduct = {
       ...product,
@@ -92,62 +118,67 @@ export const productReducer = createReducer(
 
     return {
       ...state,
-      products: state.products.map((p) => p.id.toString() === product.id.toString() ? updatedProduct : p),
+      products: state.products.map((p) =>
+        p.id === product.id ? updatedProduct : p
+      ),
       pagesCache: {},
       isLoading: false,
-      error: null,
+      error: null
     };
   }),
 
   on(ProductActions.createProductFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
+    error: error
   })),
   on(ProductActions.updateProductFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
+    error: error
   })),
   on(ProductActions.createProduct, (state) => ({
     ...state,
     isLoading: true,
-    error: null,
+    error: null
   })),
   on(ProductActions.updateProduct, (state) => ({
     ...state,
-    isLoading: true,  
-    error: null,
+    isLoading: true,
+    error: null
   })),
   on(ProductActions.deleteProduct, (state) => ({
     ...state,
     isLoading: true,
-    error: null,
+    error: null
   })),
   on(ProductActions.deleteProductSuccess, (state, { productId }) => ({
     ...state,
-    products: state.products.filter((p) => p.id.toString() !== productId.toString()),
+    products: state.products.filter((p) => p.id !== productId),
     totalRecords: Math.max(0, state.totalRecords - 1),
     pagesCache: {},
     isLoading: false,
-    error: null,
+    error: null
   })),
   on(ProductActions.deleteProductFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
+    error: error
   })),
 
   on(ProductActions.loadProductById, (state) => ({
     ...state,
     isLoading: true,
-    error: null,
+    error: null
   })),
 
   on(ProductActions.loadProductByIdSuccess, (state, { product }) => {
-    const existingProduct = state.products.find((p) => p.id.toString() === product.id.toString());
-    const primaryImg = product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl;
-    const resolvedThumbnailUrl = product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
+    const existingProduct = state.products.find((p) => p.id === product.id);
+    const primaryImg =
+      product.images?.find((img) => img.isPrimary)?.imageUrl ||
+      product.images?.[0]?.imageUrl;
+    const resolvedThumbnailUrl =
+      product.thumbnailUrl || primaryImg || existingProduct?.thumbnailUrl;
 
     const updatedProduct = {
       ...product,
@@ -157,36 +188,36 @@ export const productReducer = createReducer(
     return {
       ...state,
       products: existingProduct
-        ? state.products.map((p) => p.id.toString() === product.id.toString() ? updatedProduct : p)
+        ? state.products.map((p) => (p.id === product.id ? updatedProduct : p))
         : [...state.products, updatedProduct],
       isLoading: false,
-      error: null,
+      error: null
     };
   }),
 
   on(ProductActions.loadProductByIdFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
+    error: error
   })),
 
   on(ProductActions.loadRelatedProducts, (state) => ({
     ...state,
     isLoading: true,
     error: null,
-    relatedProducts: [],
+    relatedProducts: []
   })),
 
   on(ProductActions.loadRelatedProductsSuccess, (state, { products }) => ({
     ...state,
     relatedProducts: products,
     isLoading: false,
-    error: null,
+    error: null
   })),
 
   on(ProductActions.loadRelatedProductsFailure, (state, { error }) => ({
     ...state,
     isLoading: false,
-    error: error,
-  })),
+    error: error
+  }))
 );

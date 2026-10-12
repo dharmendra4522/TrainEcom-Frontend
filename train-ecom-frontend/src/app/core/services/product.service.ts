@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Product } from '../models/product.model';
+import { Product, ProductListField } from '../models/product.model';
 import { map } from 'rxjs/operators';
 import { PaginatedProductsResponse } from '../models/product.model';
 import { HttpParams } from '@angular/common/http';
@@ -10,19 +10,18 @@ import { PortalKey } from '../config/management-access.config';
 import { MANAGEMENT_API_PATHS } from '../config/management-api.config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
-
   private baseAPI = `${environment.apiBaseUrl}/products`;
   private http = inject(HttpClient);
 
-  constructor() { }
+  constructor() {}
 
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}`).pipe(
-      map((response) => response?.items || (Array.isArray(response) ? response : []))
-    );
+    return this.http
+      .get<PaginatedProductsResponse>(`${this.baseAPI}`)
+      .pipe(map((response) => response.items ?? []));
   }
 
   private getBaseApi(portal?: PortalKey): string {
@@ -49,23 +48,28 @@ export class ProductService {
     return this.http.post<Product>(`${this.getBaseApi(portal)}/create`, formData);
   }
 
-  getProductById(productId: string, portal?: PortalKey): Observable<Product> {
-    return this.http.get<Product>(`${this.getBaseApi(portal)}/getById/${productId}`);
+  getProductById(productId: number, portal?: PortalKey): Observable<Product> {
+    return this.http.get<Product>(
+      `${this.getBaseApi(portal)}/getById/${productId}`
+    );
   }
 
   updateProduct(
-    productId: string,
+    productId: number,
     productData: Partial<Product>,
     newFiles: File[] = [],
     deletedImageIds: Array<string | number> = [],
-    portal?: PortalKey,
+    portal?: PortalKey
   ): Observable<Product> {
     const formData = new FormData();
 
     formData.append('Name', productData.name || '');
     formData.append('Description', productData.description || '');
     formData.append('Price', productData.price?.toString() || '0');
-    formData.append('StockQuantity', productData.stockQuantity?.toString() || '0');
+    formData.append(
+      'StockQuantity',
+      productData.stockQuantity?.toString() || '0',
+    );
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
     formData.append('SubCategoryId', productData.subCategoryId?.toString() ?? '');
@@ -80,76 +84,127 @@ export class ProductService {
       }
     });
 
-    return this.http.put<Product>(`${this.getBaseApi(portal)}/update/${productId}`, formData);
+    return this.http.put<Product>(
+      `${this.getBaseApi(portal)}/update/${productId}`,
+      formData
+    );
   }
 
-  deleteProduct(productId: string, portal?: PortalKey): Observable<void> {
-    return this.http.delete<void>(`${this.getBaseApi(portal)}/delete/${productId}`);
+  deleteProduct(productId: number, portal?: PortalKey): Observable<void> {
+    return this.http.delete<void>(
+      `${this.getBaseApi(portal)}/delete/${productId}`
+    );
   }
 
   getPaginatedProducts(
     pageNumber: number = 1,
     pageSize: number = 10,
-    brandName?: string,
-    categoryName?: string,
-    subCategoryName?: string,
     search?: string,
+    searchField?: ProductListField,
+    requestField?: ProductListField,
+    categoryIds?: number[],
+    subCategoryIds?: number[],
+    brandIds?: number[],
+    storeName?: string,
+    minStock?: number,
+    maxStock?: number,
     minPrice?: number,
     maxPrice?: number,
     sortBy?: string,
     minRating?: number,
-    portal?: PortalKey,
+    filterIds?: number[],
+    portal?: PortalKey
   ): Observable<PaginatedProductsResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
 
-    if (brandName) {
-      params = params.set('BrandName', brandName);
-    }
-    if (categoryName) {
-      params = params.set('CategoryName', categoryName);
-    }
-    if (subCategoryName) {
-      params = params.set('SubCategoryName', subCategoryName);
-    }
     if (search) {
       params = params.set('Search', search);
     }
-    if (minPrice !== undefined && minPrice !== null) {
+
+    if (searchField) {
+      params = params.set('SearchField', searchField.toString());
+    }
+
+    if (requestField) {
+      params = params.set('RequestField', requestField.toString());
+    }
+
+    categoryIds?.forEach((id) => {
+      params = params.append('CategoryIds', id.toString());
+    });
+
+    subCategoryIds?.forEach((id) => {
+      params = params.append('SubCategoryIds', id.toString());
+    });
+
+    brandIds?.forEach((id) => {
+      params = params.append('BrandIds', id.toString());
+    });
+
+    filterIds?.forEach((id) => {
+      params = params.append('FilterIds', id.toString());
+    });
+
+    if (storeName) {
+      params = params.set('StoreName', storeName);
+    }
+
+    if (minStock !== undefined) {
+      params = params.set('MinStock', minStock.toString());
+    }
+
+    if (maxStock !== undefined) {
+      params = params.set('MaxStock', maxStock.toString());
+    }
+
+    if (minPrice !== undefined) {
       params = params.set('MinPrice', minPrice.toString());
     }
-    if (maxPrice !== undefined && maxPrice !== null) {
+
+    if (maxPrice !== undefined) {
       params = params.set('MaxPrice', maxPrice.toString());
     }
+
     if (sortBy) {
       params = params.set('SortBy', sortBy);
     }
-    if (minRating !== undefined && minRating !== null) {
+
+    if (minRating !== undefined) {
       params = params.set('MinRating', minRating.toString());
     }
 
-    return this.http.get<PaginatedProductsResponse>(this.getBaseApi(portal), { params });
+    return this.http.get<PaginatedProductsResponse>(this.getBaseApi(portal), {
+      params
+    });
   }
 
+  // getFilteredProducts(
+  //   brandId?: number,
+  //   categoryId?: number,
+  // ): Observable<Product[]> {
+  //   let params = new HttpParams();
+  //   if (brandId !== undefined) {
+  //     params = params.set('BrandIds', brandId.toString());
+  //   }
+  //   if (categoryId !== undefined) {
+  //     params = params.set('CategoryIds', categoryId.toString());
+  //   }
+  //   return this.http
+  //     .get<PaginatedProductsResponse>(this.baseAPI, { params })
+  //     .pipe(map((response) => response?.items || []));
+  // }
 
-  getFilteredProducts(brandName?: string, categoryName?: string): Observable<Product[]> {
-    let params = new HttpParams();
-    if (brandName) {
-      params = params.set('BrandName', brandName);
-    }
-    if (categoryName) {
-      params = params.set('CategoryName', categoryName);
-    }
-    return this.http.get<PaginatedProductsResponse>(this.baseAPI, { params }).pipe(
-      map((response) => response?.items || [])
-    );
+  getRelatedProducts(productId: number): Observable<Product[]> {
+    return this.http
+      .get<PaginatedProductsResponse | Product[]>(
+        `${this.baseAPI}/${productId}/related`,
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response) ? response : response.items ?? [],
+        ),
+      );
   }
-
-  getRelatedProducts(productId: string): Observable<Product[]> {
-    return this.http.get<PaginatedProductsResponse>(`${this.baseAPI}/${productId}/related`).pipe(
-    map((response) => response?.items || (Array.isArray(response) ? response : []))
-  );
-  }
-
 }

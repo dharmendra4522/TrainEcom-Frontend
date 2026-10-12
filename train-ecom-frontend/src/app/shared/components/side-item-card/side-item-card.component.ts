@@ -8,7 +8,7 @@ export interface SideItem {
   image?: string;
   thumbnailUrl?: string;
   quantity?: number;
-  productId?: string | number;
+  productId?: number;
 }
 
 @Component({

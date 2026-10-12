@@ -280,10 +280,8 @@ export class SubCategoryComponent {
   }
 
   // Table header ka search clear hone par yeh call hoga
-  onTableFilterCleared(columnKey: string): void {
+  onTableFilterCleared(_columnKey: string): void {
     this.searchControl.setValue('', { emitEvent: false });
-    this.currentPage = 1;
-    this.loadSubCategories(this.currentPage, this.pageSize, '');
   }
 
 

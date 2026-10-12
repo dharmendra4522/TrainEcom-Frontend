@@ -208,10 +208,8 @@ export class BrandComponent implements OnInit, OnDestroy {
     this.loadBrand(this.currentPage, this.pageSize, searchText);
   }
 
-  onTableFilterCleared(columnKey: string): void {
+  onTableFilterCleared(_columnKey: string): void {
     this.searchControl.setValue('', { emitEvent: false });
-    this.currentPage = 0;
-    this.loadBrand(this.currentPage, this.pageSize, '');
   }
 
   ngOnDestroy(): void {

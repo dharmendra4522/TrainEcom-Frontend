@@ -1,6 +1,6 @@
 export interface CartItem {
     itemId?: number | string;
-    productId: number | string;
+    productId: number;
     productName: string;
     unitPrice: number;
     quantity: number;
@@ -15,7 +15,7 @@ export interface CartProductDetails {
 }
 
 export interface CartWarning {
-    productId: number | string;
+    productId: number;
     productName: string;
     requestedQuantity: number;
     availableQuantity: number;

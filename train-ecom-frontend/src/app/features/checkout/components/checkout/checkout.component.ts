@@ -43,7 +43,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private store = inject(Store);
 
   isDirectBuy: boolean = false;
-  directProductId: string | null = null;
+  directProductId: number | null = null;
   directQty: number | null = null;
 
   addresses: Address[] = [];
@@ -124,10 +124,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         const qty = qtyParam ? +qtyParam : 1;
 
         if (prodId) {
+          const productId = Number.parseInt(prodId, 10);
+          if (!Number.isSafeInteger(productId)) {
+            this.notification.showError('Product information is not available.');
+            return;
+          }
           this.isDirectBuy = true;
-          this.directProductId = prodId;
+          this.directProductId = productId;
           this.directQty = qty;
-          this.loadDirectProductDetails(prodId, qty);
+          this.loadDirectProductDetails(productId, qty);
         } else {
           this.isDirectBuy = false;
           this.loadCartDetails();
@@ -136,7 +141,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   // Load product details for direct buy and set the checkout items and subtotal
-  private loadDirectProductDetails(productId: string, quantity: number): void {
+  private loadDirectProductDetails(productId: number, quantity: number): void {
     this.store.dispatch(ProductActions.loadProductById({ id: productId }));
 
     this.store
