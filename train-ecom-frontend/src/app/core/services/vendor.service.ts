@@ -39,7 +39,7 @@ export class VendorService {
       Status: filter?.Status,
       ApprovalStatus: filter?.ApprovalStatus,
       FilterIds: filter?.FilterIds,
-      BusinessCategoriesIds: filter?.BusinessCategoriesIds,
+      BussinessCategoriesIds: filter?.BussinessCategoriesIds,
       PageNumber: filter?.PageNumber,
       PageSize: filter?.PageSize,
     };

@@ -197,7 +197,7 @@ export interface AdminUserFilterParams {
   ApprovalStatus?: ApprovalStatus | number;
   UserStatus?: UserStatusFilter | number;
   FilterIds?: number[];
-  BusinessCategoriesIds?: number[];
+  BussinessCategoriesIds?: number[];
   PageNumber?: number;
   PageSize?: number;
 }

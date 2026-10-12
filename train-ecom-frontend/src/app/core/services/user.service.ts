@@ -203,8 +203,8 @@ export class UserService {
       filter.FilterIds?.forEach((id) => {
         params = params.append('FilterIds', id.toString());
       });
-      filter.BusinessCategoriesIds?.forEach((id) => {
-        params = params.append('BusinessCategoriesIds', id.toString());
+      filter.BussinessCategoriesIds?.forEach((id) => {
+        params = params.append('BussinessCategoriesIds', id.toString());
       });
       if (filter.PageNumber !== undefined) {
         params = params.set('PageNumber', filter.PageNumber.toString());
