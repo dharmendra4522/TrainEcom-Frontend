@@ -33,6 +33,7 @@ export class ProductEffects {
                 const pageSize = action.pageSize || 10;
                 const brandName = action.brandName || '';
                 const categoryName = action.categoryName || '';
+                const subCategoryName = action.subCategoryName || '';
                 const search = action.search || '';
                 const minPrice = action.minPrice;
                 const maxPrice = action.maxPrice;
@@ -40,7 +41,7 @@ export class ProductEffects {
                 const minRating = action.minRating;
 
                 const portal = action.portal;
-                const cacheKey = `${portal ?? 'public'}-${pageNumber}-${pageSize}-${brandName}-${categoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
+                const cacheKey = `${portal ?? 'public'}-${pageNumber}-${pageSize}-${brandName}-${categoryName}-${subCategoryName}-${search}-${minPrice ?? ''}-${maxPrice ?? ''}-${sortBy}-${minRating ?? ''}`;
 
                 if (action.isAppend && pagesCache[cacheKey]) {
                     const computedCacheTotalPages = totalPages > 0 ? totalPages : Math.max(1, Math.ceil(totalRecords / pageSize));
@@ -59,6 +60,7 @@ export class ProductEffects {
                     pageSize,
                     action.brandName,
                     action.categoryName,
+                    action.subCategoryName,
                     action.search,
                     action.minPrice,
                     action.maxPrice,

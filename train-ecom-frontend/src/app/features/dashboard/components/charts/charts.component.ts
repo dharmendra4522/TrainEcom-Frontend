@@ -1,19 +1,19 @@
 import {
-  CategoryWiseProductCount,
+  CategoryProductSummaryResponse,
   OrderSummaryResponse,
   RevenueData,
 } from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { ChartData, ChartType, Chart, registerables } from 'chart.js';
+import { ChartData, ChartType, Chart, registerables, ChartConfiguration } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
-  categoryProductData,
   orderStatusChartData,
   revenueChartData,
   userChartData,
 } from '../dashboard/dashboard.utils';
 import {
+  getOrderChartOptions,
   getProductChartOptions,
   getUserChartOptions,
   orderChartOptions as orderChartConfiguration,
@@ -75,7 +75,10 @@ export class ChartsComponent implements OnInit {
   );
 
   public productChartType: ChartType = 'bar';
-  public productChartData: ChartData<'bar'> = categoryProductData;
+  public productChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [{ data: [], backgroundColor: '#2196f3' }],
+  };
   public productChartOptions = getProductChartOptions(
     this.router,
     this.portalRoutes
@@ -89,7 +92,14 @@ export class ChartsComponent implements OnInit {
   // order chart configuration
   public orderChartType: ChartType = 'bar';
   public orderChartData: ChartData<'bar'> = orderStatusChartData;
-  public orderChartOptions = orderChartConfiguration;
+  public get orderChartOptions(): ChartConfiguration['options'] {
+    return getOrderChartOptions(
+      this.router,
+      this.portalRoutes,
+      this.portal,
+      this.selectedOrderYear
+    );
+  }
 
   ngOnInit(): void {
     Chart.register(...registerables, ChartDataLabels);
@@ -127,16 +137,16 @@ export class ChartsComponent implements OnInit {
       return;
     }
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
-      next: (data: CategoryWiseProductCount[]) => {
-        this.totalCategories = 6;
-        const labels = data.map((item) => item.categoryName);
-        const counts = data.map((item) => item.productCount);
+      next: (data: CategoryProductSummaryResponse) => {
+        this.totalCategories = data.totalCategories;
+        const labels = data.summary.map((item) => item.categoryName);
+        const counts = data.summary.map((item) => item.productCount);
         this.productChartData = {
           labels: labels,
           datasets: [
             {
               data: counts,
-              backgroundColor: ['#2196f3'],
+              backgroundColor: ['#2196f3']
             }
           ]
         };
@@ -159,7 +169,7 @@ export class ChartsComponent implements OnInit {
         const revenues = labels.map(
           (_, monthIndex) =>
             data.monthlyRevenue.find((item) => item.month === monthIndex + 1)
-              ?.revenue ?? 0
+              ?.revenue ?? 0,
         );
 
         this.revenueChartData = {
@@ -167,7 +177,7 @@ export class ChartsComponent implements OnInit {
           datasets: [
             {
               data: revenues,
-              backgroundColor: ['#4caf50'],
+              backgroundColor: ['#4caf50']
             }
           ]
         };

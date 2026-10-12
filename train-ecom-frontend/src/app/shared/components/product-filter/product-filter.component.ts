@@ -1,5 +1,6 @@
 import {
   Component,
+  HostListener,
   inject,
   OnInit,
   OnDestroy,
@@ -16,10 +17,7 @@ import {
   takeUntil,
   take,
 } from 'rxjs/operators';
-import * as ProductActions from '../../../core/store/product/product.action';
-import * as BrandActions from '../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../core/store/category/category.action';
-import { selectAllBrands } from '../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../core/store/category/category.selectors';
 import { Brand } from '../../../core/models/brand.model';
 import { Category } from '../../../core/models/category.model';
@@ -36,12 +34,16 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   @ViewChild('chipsContainer', { static: false }) chipsContainer!: ElementRef;
+  @ViewChild('categoryArea', { static: false })
+  categoryArea?: ElementRef<HTMLElement>;
 
   categories$: Observable<Category[]> = this.store.select(selectAllCategories);
 
   searchControl = new FormControl('');
   isLeftDisable: boolean = false;
   isRightDisable: boolean = false;
+  isMobileMenuOpen = false;
+  selectedCatgory: Category | null = null;
 
   ngOnInit() {
     this.loadFilterMetadata();
@@ -49,7 +51,6 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
   }
 
   private loadFilterMetadata(): void {
-
     this.store
       .select(selectAllCategories)
       .pipe(take(1))
@@ -102,16 +103,48 @@ export class ProductFilterComponent implements OnInit, OnDestroy {
         element.scrollWidth - tolerance;
     }
   }
-  scrollChips(direction: 'left' | 'right'): void {
-    const container = this.chipsContainer.nativeElement;
-    const scrollAmount = 200;
 
-    if (direction === 'left') {
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  onCategorySelect(category: Category): void {
+    if (this.selectedCatgory?.id === category.id) {
+      this.selectedCatgory = null;
     } else {
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      this.selectedCatgory = category;
     }
-    setTimeout(() => this.checkScrollButtons(), 300);
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.selectedCatgory = null;
+  }
+
+  openMobileCategory(category: Category): void {
+    this.selectedCatgory = category;
+  }
+
+  backToMobileCategories(): void {
+    this.selectedCatgory = null;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    this.selectedCatgory = null;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnOutsideClick(event: MouseEvent): void {
+    const target = event.target;
+    if (
+      (this.selectedCatgory || this.isMobileMenuOpen) &&
+      this.categoryArea &&
+      target instanceof Node &&
+      !this.categoryArea.nativeElement.contains(target)
+    ) {
+      this.closeMobileMenu();
+    }
+  }
+
+  clearSearch(): void {
+    this.searchControl.setValue('');
   }
 
   ngOnDestroy() {

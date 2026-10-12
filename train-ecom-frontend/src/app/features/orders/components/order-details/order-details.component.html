@@ -1,14 +1,14 @@
 <div class=" py-3 py-md-4 px-2 px-sm-3">
   <!-- Top Header & Back Button -->
-  <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4 flex-wrap gap-2">
-    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+  <div class="d-flex flex-column align-items-start mb-3 mb-md-4 flex-wrap gap-3">
     <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0 rounded-3"
       (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
       <span class="d-none d-sm-inline">{{ isManagementMode ? 'Back to Order Management' : 'Back to Orders' }}</span>
       <span class="d-inline d-sm-none">Back</span>
     </button>
-  </div>
+    <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+  </div> 
 
   <div class="row g-3 g-md-4" *ngIf="orderDetail">
     <!-- Left Column: Main Order Details -->

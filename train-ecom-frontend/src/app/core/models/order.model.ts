@@ -34,6 +34,8 @@ export interface AdminOrderFilterParams {
   search?: string;
   orderStatus?: string;
   paymentStatus?: string;
+  month?: number;
+  year?: number;
   fromDate?: string;
   toDate?: string;
   pageNumber?: number;
