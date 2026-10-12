@@ -1,6 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   Product,
+  PaginatedProductsResponse,
   ProductListField,
 } from '../../../../core/models/product.model';
 import {
@@ -50,6 +51,7 @@ interface DropdownOptionsRequest {
   searchTerm: string;
   pageNumber: number;
   append: boolean;
+  requestField?: ProductListField;
 }
 
 @Component({
@@ -109,6 +111,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private dropdownHasMoreMap: Record<string, boolean> = {};
   private dropdownSearchTermMap: Record<string, string> = {};
   private readonly dropdownOptionsPageSize = 10;
+  private readonly rangeRequestFields: Record<
+    'price' | 'stockQuantity',
+    ProductListField
+  > = {
+      price: ProductListField.Price,
+      stockQuantity: ProductListField.StockQuantity,
+    };
+  private readonly loadedRangeColumns = new Set<
+    'price' | 'stockQuantity'
+  >();
 
   private readonly columnSearchSubject$ = new Subject<DropdownOptionsRequest>();
 
@@ -120,7 +132,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       label: 'Name',
       type: 'string',
       filterable: true,
-      filterType: 'search',
+      filterType: 'search'
     },
     {
       key: 'description',
@@ -129,40 +141,41 @@ export class ProductsComponent implements OnInit, OnDestroy {
       sortable: false,
       filterable: true,
       filterType: 'search',
+      filterDisabled: true
     },
     {
       key: 'price',
       label: 'Price',
       type: 'number',
       filterable: true,
-      filterType: 'price-range',
+      filterType: 'price-range'
     },
     {
       key: 'stockQuantity',
       label: 'Stock',
       type: 'number',
       filterable: true,
-      filterType: 'stock-range',
+      filterType: 'stock-range'
     },
     {
       key: 'categoryName',
       label: 'Category',
       type: 'string',
       filterable: true,
-      filterType: 'dropdown',
+      filterType: 'dropdown'
     },
     {
       key: 'brandName',
       label: 'Brand',
       type: 'string',
       filterable: true,
-      filterType: 'dropdown',
+      filterType: 'dropdown'
     },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',
       type: 'image',
-      sortable: false,
+      sortable: false
     },
   ];
 
@@ -171,13 +184,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Product',
+      tooltip: 'Delete'
     },
     {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Product',
+      tooltip: 'Edit'
     },
   ];
 
@@ -214,9 +227,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
               this.productService.getPaginatedProducts(
                 request.pageNumber,
                 this.dropdownOptionsPageSize,
-                request.searchTerm || undefined,
+                request.requestField ? undefined : request.searchTerm || undefined,
                 undefined,
-                undefined,
+                request.requestField,
                 undefined,
                 undefined,
                 undefined,
@@ -269,6 +282,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         });
 
         this.dropdownOptionsMap[request.columnKey] = options;
+        this.updateRangeBoundsFromResponse(request, response);
         this.dropdownPageMap[request.columnKey] = request.pageNumber;
         const totalPages =
           response.totalPages ||
@@ -276,6 +290,29 @@ export class ProductsComponent implements OnInit, OnDestroy {
         this.dropdownHasMoreMap[request.columnKey] =
           request.pageNumber < totalPages;
       });
+  }
+
+  private updateRangeBoundsFromResponse(
+    request: DropdownOptionsRequest,
+    response: PaginatedProductsResponse,
+  ): void {
+    if (request.requestField === ProductListField.Price) {
+      this.rangeBoundsMap = {
+        ...this.rangeBoundsMap,
+        price: {
+          min: response.minPrice,
+          max: response.maxPrice
+        }
+      };
+    } else if (request.requestField === ProductListField.StockQuantity) {
+      this.rangeBoundsMap = {
+        ...this.rangeBoundsMap,
+        stockQuantity: {
+          min: response.minStock,
+          max: response.maxStock
+        }
+      };
+    }
   }
 
   // load initial data Brands aur Categories
@@ -336,8 +373,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
           : {}),
         ...(selectedStock
           ? {
-              stockQuantity: this.clampRange(selectedStock, stockBounds),
-            }
+            stockQuantity: this.clampRange(selectedStock, stockBounds),
+          }
           : {}),
       };
     });
@@ -362,11 +399,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
         startWith(this.brandControl.value),
         distinctUntilChanged(),
       ),
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.loadFirstPage());
-
-    this.dispatchCurrentProductQuery();
+    ]    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => this.loadFirstPage());
   }
 
   private loadFirstPage(): void {
@@ -392,8 +427,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
         maxPrice: this.selectedRangesMap['price']?.max,
         minStock: this.selectedRangesMap['stockQuantity']?.min,
         maxStock: this.selectedRangesMap['stockQuantity']?.max,
-        portal: this.portal,
-      }),
+        portal: this.portal
+      })
     );
   }
 
@@ -412,7 +447,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       searchField:
         key === 'name'
           ? ProductListField.Name
-          : ProductListField.Description,
+          : ProductListField.Description
     };
   }
 
@@ -422,7 +457,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ): number[] | undefined {
     if (Object.prototype.hasOwnProperty.call(this.selectedFiltersMap, columnKey)) {
       const selectedIds = this.selectedFiltersMap[columnKey].filter(
-        (id): id is number => typeof id === 'number',
+        (id): id is number => typeof id === 'number'
       );
       return selectedIds.length > 0 ? selectedIds : undefined;
     }
@@ -521,12 +556,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
       .confirm(
         'Are you sure you want to delete this product?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .subscribe((confirmed) => {
         if (confirmed) {
           this.store.dispatch(
-            ProductActions.deleteProduct({ productId, portal: this.portal }),
+            ProductActions.deleteProduct({ productId, portal: this.portal })
           );
         }
       });
@@ -559,7 +594,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         );
         this.dropdownOptionsMap[colKey] = filtered.map((brand: Brand) => ({
           id: brand.id,
-          label: brand.name,
+          label: brand.name
         }));
       });
       return;
@@ -573,7 +608,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       event.columnKey,
       this.dropdownSearchTermMap[event.columnKey],
       1,
-      false,
+      false
     );
   }
 
@@ -599,6 +634,23 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
       return;
     }
+
+    if (this.isRangeColumn(columnKey)) {
+      if (this.loadedRangeColumns.has(columnKey)) {
+        return;
+      }
+
+      this.loadedRangeColumns.add(columnKey);
+      this.loadDropdownOptionsForColumn(
+        columnKey,
+        '',
+        1,
+        false,
+        this.rangeRequestFields[columnKey],
+      );
+      return;
+    }
+
     this.dropdownSearchTermMap[columnKey] = '';
     this.dropdownOptionsMap[columnKey] = [];
     this.dropdownPageMap[columnKey] = 0;
@@ -607,6 +659,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   onDropdownScrolled(columnKey: string): void {
+    if (this.isRangeColumn(columnKey)) {
+      return;
+    }
+
     if (
       this.dropdownLoadingMap[columnKey] ||
       !this.dropdownHasMoreMap[columnKey]
@@ -627,13 +683,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
     searchTerm: string,
     pageNumber: number,
     append: boolean,
+    requestField?: ProductListField,
   ): void {
     this.columnSearchSubject$.next({
       columnKey,
       searchTerm,
       pageNumber,
       append,
+      requestField,
     });
+  }
+
+  private isRangeColumn(
+    columnKey: string,
+  ): columnKey is 'price' | 'stockQuantity' {
+    return columnKey === 'price' || columnKey === 'stockQuantity';
   }
 
   // handle Apply
@@ -675,13 +739,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   get hasActiveFilters(): boolean {
     return Boolean(
       this.searchControl.value?.trim() ||
-        this.categoryControl.value !== null ||
-        this.brandControl.value !== null ||
-        Object.keys(this.selectedRangesMap).length > 0 ||
-        Object.values(this.columnFilters).some((value) => value.trim()) ||
-        Object.values(this.selectedFiltersMap).some(
-          (selectedValues) => selectedValues.length > 0,
-        ),
+      this.categoryControl.value !== null ||
+      this.brandControl.value !== null ||
+      Object.keys(this.selectedRangesMap).length > 0 ||
+      Object.values(this.columnFilters).some((value) => value.trim()) ||
+      Object.values(this.selectedFiltersMap).some(
+        (selectedValues) => selectedValues.length > 0,
+      ),
     );
   }
 

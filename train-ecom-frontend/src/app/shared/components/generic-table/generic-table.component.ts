@@ -75,6 +75,7 @@ export class GenericTableComponent {
   @Output() filterChanged = new EventEmitter<Record<string, string>>(); // for only searchable column 
   @Output() filterCleared = new EventEmitter<string>();
   @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & Range>();
+  @Output() stockRangeChange = new EventEmitter<{ columnKey: string } & Range>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
@@ -371,24 +372,24 @@ export class GenericTableComponent {
     columnKey: string,
     range: Range,
   ): void {
-
-    this.priceFilters[columnKey] = {
-      min: range.min,
-      max: range.max,
-      changed: true,
-    };
-
-    this.priceRangeChange.emit({
-      columnKey,
-      ...range,
-    });
+    this.updateRangeFilter(columnKey, range);
+    this.priceRangeChange.emit({ columnKey, ...range });
   }
 
   onStockRangeChange(
     columnKey: string,
     range: Range,
   ): void {
-    this.onPriceRangeChange(columnKey, range);
+    this.updateRangeFilter(columnKey, range);
+    this.stockRangeChange.emit({ columnKey, ...range });
+  }
+
+  private updateRangeFilter(columnKey: string, range: Range): void {
+    this.priceFilters[columnKey] = {
+      min: range.min,
+      max: range.max,
+      changed: true,
+    };
   }
 
   onDropdownApply(columnKey: string): void {
@@ -440,6 +441,10 @@ export class GenericTableComponent {
 
   // get count of select options
   getSelectedCount(colKey: string): number {
+    if (this.selectedRangesMap[colKey]) {
+      return 1;
+    }
+
     const selected = this.selectedFiltersMap[colKey];
     if (!selected) return 0;
     if (Array.isArray(selected)) {

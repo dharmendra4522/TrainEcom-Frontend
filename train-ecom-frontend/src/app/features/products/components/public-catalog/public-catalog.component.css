@@ -3,6 +3,10 @@
   height: 100%;
 }
 
+.catalog-subheading {
+  margin-left: 56px !important;
+}
+
 .filter-sidebar {
   border-color: #f1f5f9 !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
