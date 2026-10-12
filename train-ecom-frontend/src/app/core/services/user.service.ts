@@ -24,7 +24,7 @@ export class UserService {
   private http = inject(HttpClient);
   private addressesCache: Address[] | null = null;
 
-  constructor() {}
+  constructor() { }
 
   clearCache(): void {
     this.addressesCache = null;
@@ -171,33 +171,46 @@ export class UserService {
   ): Observable<AdminUserListResponse> {
     let params = new HttpParams();
     if (filter) {
-      const searchValue = filter.Search ?? filter.search;
-      const roleValue = filter.Role ?? filter.role;
-      const approvalValue = filter.ApprovalStatus ?? filter.approvalStatus;
-      const statusValue = filter.Status ?? filter.status ?? filter.UserStatus;
-      const pageNumberValue = filter.PageNumber ?? filter.pageNumber;
-      const pageSizeValue = filter.PageSize ?? filter.pageSize;
-
-      if (searchValue) {
-        params = params.set('Search', String(searchValue));
+      if (filter.Search) {
+        params = params.set('Search', filter.Search);
       }
-      const normalizedApproval = this.normalizeApprovalStatus(approvalValue);
-      if (normalizedApproval !== undefined) {
-        params = params.set('ApprovalStatus', String(normalizedApproval));
+      if (filter.SearchField !== undefined) {
+        params = params.set('SearchField', filter.SearchField.toString());
       }
-      const normalizedRole = this.normalizeRole(roleValue);
+      if (filter.RequestField !== undefined) {
+        params = params.set('RequestField', filter.RequestField.toString());
+      }
+      const normalizedRole = this.normalizeRole(filter.Role);
       if (normalizedRole !== undefined) {
         params = params.set('Role', String(normalizedRole));
       }
-      const normalizedStatus = this.normalizeStatus(statusValue);
-      if (normalizedStatus !== undefined) {
-        params = params.set('Status', String(normalizedStatus));
+      filter.Status?.forEach((status) => {
+        const normalizedStatus = this.normalizeStatus(status);
+
+        if (normalizedStatus !== undefined) {
+          params = params.append(
+            'StatusIds',
+            normalizedStatus.toString(),
+          );
+        }
+      });
+      const normalizedApproval = this.normalizeApprovalStatus(
+        filter.ApprovalStatus,
+      );
+      if (normalizedApproval !== undefined) {
+        params = params.set('ApprovalStatus', String(normalizedApproval));
       }
-      if (pageNumberValue !== undefined) {
-        params = params.set('PageNumber', pageNumberValue.toString());
+      filter.FilterIds?.forEach((id) => {
+        params = params.append('FilterIds', id.toString());
+      });
+      filter.BussinessCategoriesIds?.forEach((id) => {
+        params = params.append('BussinessCategoriesIds', id.toString());
+      });
+      if (filter.PageNumber !== undefined) {
+        params = params.set('PageNumber', filter.PageNumber.toString());
       }
-      if (pageSizeValue !== undefined) {
-        params = params.set('PageSize', pageSizeValue.toString());
+      if (filter.PageSize !== undefined) {
+        params = params.set('PageSize', filter.PageSize.toString());
       }
     }
     const url = `${environment.apiBaseUrl}/admin/users/all`;

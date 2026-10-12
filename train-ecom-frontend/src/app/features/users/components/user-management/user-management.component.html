@@ -18,19 +18,30 @@
           <mat-label>Search users...</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
           <input matInput placeholder="Type to search..." [formControl]="globalSearch">
+          <button
+            *ngIf="globalSearch.value"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear search"
+            title="Clear search"
+            (click)="clearAllFilters()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>
 
     <!-- new navigation tab -->
-    <mat-tab-group [selectedIndex]="selectedindex" (selectedTabChange)="onTabChange($event)" class="mb-2">
+    <mat-tab-group [selectedIndex]="selectedindex" (selectedTabChange)="onTabChange($event)" class="">
       <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
       </mat-tab>
     </mat-tab-group>
   </div>
 
   <!-- Content area -->
-  <div class="tab-content-area row mt-3">
+  <div class="tab-content-area row">
     <div class="col-12" >
       <app-all-users *ngIf="activeTab === 'customers'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-all-users>
       <app-vendor-management *ngIf="activeTab === 'vendors'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-vendor-management>

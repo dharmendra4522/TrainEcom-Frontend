@@ -52,7 +52,7 @@ export interface VendorListResponse {
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
- documentLabel?: string;
+  documentLabel?: string;
 }
 
 export interface VendorDetails {
@@ -112,8 +112,6 @@ export interface VendorProfileEditValues {
   rejectionReason: string;
 }
 
-export interface VendorFilterParams extends AdminUserFilterParams {
-  status?: VendorStatus | number | string;
-}
+export interface VendorFilterParams extends AdminUserFilterParams {}
 
 export type vendorFilterParams = VendorFilterParams;

@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { ApprovalStatus } from '../../../../core/models/user.model';
+import { ApprovalStatus, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -22,10 +22,13 @@ import {
   catchError,
   debounceTime,
   distinctUntilChanged,
+  finalize,
+  of,
   Subject,
   takeUntil,
   startWith,
   switchMap,
+  take,
 } from 'rxjs';
 import {
   VendorFilterParams,
@@ -34,11 +37,16 @@ import {
   VendorStatus,
   VendorTableItem,
 } from '../../../../core/models/vendor.model';
+import { Category } from '../../../../core/models/category.model';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
+import { Store } from '@ngrx/store';
+import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import * as CategoryActions from '../../../../core/store/category/category.action'
+import { CategoryService } from '../../../../core/services/category.service';
 
 @Component({
   selector: 'app-vendor-management',
@@ -59,7 +67,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
   private vendorLoadRequests$ = new Subject<void>();
+  private categorySearchRequests$ = new Subject<string>();
   private router = inject(Router);
+  private store = inject(Store);
+  private categorySevice = inject(CategoryService);
 
   isLoading: boolean = false;
   statusOptions: Array<{ label: string; value: VendorStatus | 'All' }> = [
@@ -71,11 +82,19 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   ];
 
   totalRecords: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 15;
   pageIndex: number = 0;
 
   vendors: VendorTableItem[] = [];
   showHeaderFilter: boolean = true;
+  headerFilters: Record<string, string> = {};
+  selectedFiltersMap: Record<string, (string | number)[]> = {
+    statusDisplay: [],
+    categoriesDisplay: [],
+  };
+  selectedStatusIds: number[] = [];
+  selectedCategoryIds: number[] = [];
+  dropdownLoadingMap: Record<string, boolean> = {};
 
   filterForm = new FormGroup({
     search: new FormControl(''),
@@ -107,21 +126,23 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'edit',
       color: 'primary',
       disabled: true,
+      hideWhenDisabled: true,
       tooltip: 'Edit Vendor'
     },
     {
       actionKey: 'toggleBlock',
-      icon: 'block',
+      icon: (row: unknown) => this.isVendorBlocked(row) ? 'lock_open' : 'block',
+      label: (row: unknown) => this.isVendorBlocked(row) ? 'Unblock' : 'Block',
       color: 'warn',
-      tooltip: 'Block/Unblock ',
-      disabled: (row: unknown) => this.isBlockedHide(row) || this.isNonPendingDisable(row),
+      tooltip: 'Block/Unblock Vendor',
+      disabled: (row: unknown) => !this.isApprovedOrBlocked(row),
       hideWhenDisabled: true
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      disabled: (row: unknown) => this.isNonPendingDisable(row),
+      disabled: (row: unknown) => this.isPending(row),
       hideWhenDisabled: true,
       tooltip: 'Delete Vendor'
     },
@@ -130,7 +151,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'check_circle',
       color: 'primary',
       tooltip: 'Approve Vendor',
-      disabled: (row: unknown) => this.isVerificationDisabled(row),
+      disabled: (row: unknown) => !this.isPending(row),
       hideWhenDisabled: true,
     },
     {
@@ -138,24 +159,33 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       icon: 'cancel',
       color: 'warn',
       tooltip: 'Reject Vendor',
-      disabled: (row: unknown) => this.isVerificationDisabled(row),
+      disabled: (row: unknown) => !this.isPending(row),
       hideWhenDisabled: true,
     },
   ];
 
-  private isVerificationDisabled(row: unknown): boolean {
+  private getVendorStatus(row: unknown): VendorStatus | undefined {
     if (!this.isVendorTableItem(row)) {
-      return false;
+      return undefined;
     }
-
-    return row.status !== VendorStatus.Pending;
+    const status = Number(row.status);
+    return Number.isFinite(status) ? status as VendorStatus : undefined;
   }
 
-  private isBlockedHide(row: unknown): boolean {
+  private isPending(row: unknown): boolean {
+    return this.getVendorStatus(row) === VendorStatus.Pending;
+  }
+
+  private isApprovedOrBlocked(row: unknown): boolean {
+    const status = this.getVendorStatus(row);
+    return status === VendorStatus.Active || status === VendorStatus.Blocked;
+  }
+
+  private isVendorBlocked(row: unknown): boolean {
     if (!this.isVendorTableItem(row)) {
       return false;
     }
-    return row.status === VendorStatus.Rejected;
+    return row.isBlocked === true || this.getVendorStatus(row) === VendorStatus.Blocked;
   }
 
   private isVendorTableItem(row: unknown): row is VendorTableItem {
@@ -165,6 +195,56 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.setupVendorLoading();
     this.searchStream();
+    this.setupCategorySearch();
+    this.loadCategories();
+  }
+
+  private setupCategorySearch(): void {
+    this.categorySearchRequests$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((searchTerm) => {
+          this.dropdownLoadingMap = {
+            ...this.dropdownLoadingMap,
+            categoriesDisplay: true,
+          };
+          return this.categorySevice.getPaginatedCategories(1, 50, searchTerm).pipe(
+            catchError(() => {
+              this.notificationService.showError('Failed to search categories');
+              return of({
+                items: [],
+                pageNumber: 1,
+                pageSize: 50,
+                totalRecords: 0,
+                totalPages: 0,
+              });
+            }),
+            finalize(() => this.setCategoryLoading(false)),
+          );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((response) => {
+        this.setCategoryOptions(response.items);
+      });
+  }
+
+  private setCategoryOptions(categories: Category[]): void {
+    this.dropdownOptionsMap = {
+      ...this.dropdownOptionsMap,
+      categoriesDisplay: categories.map((category: Category) => ({
+        id: category.id,
+        label: category.name,
+      })),
+    };
+  }
+
+  private setCategoryLoading(isLoading: boolean): void {
+    this.dropdownLoadingMap = {
+      ...this.dropdownLoadingMap,
+      categoriesDisplay: isLoading,
+    };
   }
 
   private setupVendorLoading(): void {
@@ -237,11 +317,23 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   }
 
   private getFilterParams(): VendorFilterParams {
+    const headerSearch = this.getHeaderSearchValue();
+
     return {
-      search: this.searchQuery || undefined,
-      status: this.selectedStatus === 'All' ? undefined : this.selectedStatus,
-      pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize
+      Search: headerSearch || this.searchQuery || undefined,
+      SearchField: headerSearch
+        ? this.getSearchField()
+        : undefined,
+      Status:
+        this.selectedStatusIds.length
+          ? this.selectedStatusIds
+          : undefined,
+      BussinessCategoriesIds:
+        this.selectedCategoryIds.length
+          ? this.selectedCategoryIds
+          : undefined,
+      PageNumber: this.pageIndex + 1,
+      PageSize: this.pageSize
     };
   }
 
@@ -503,7 +595,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               );
             },
           });
-      });
+        });
   }
 
   private handleToggleBlockVendor(vendor: VendorTableItem): void {
@@ -552,12 +644,157 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  private isNonPendingDisable(row: unknown): boolean {
-    if (!this.isVendorTableItem(row)) {
-      return false;
-    }
-    return row.status === VendorStatus.Pending;
+  private loadCategories(): void {
+    this.categorySevice.getAllCategories().subscribe({
+      next: (categories) => {
+        this.setCategoryOptions(categories);
+      },
+      error: () => {
+        this.notificationService.showError(
+          'Failed to load categories'
+        );
+      }
+    });
   }
+
+  onDropdownSearchChange(event: {
+    columnKey: string;
+    searchTerm: string;
+  }): void {
+    if (event.columnKey !== 'categoriesDisplay') {
+      return;
+    }
+    this.categorySearchRequests$.next(event.searchTerm.trim());
+  }
+
+  onDropdownOpened(columnKey: string): void {
+    if (columnKey === 'categoriesDisplay') {
+      this.categorySearchRequests$.next('');
+    }
+  }
+
+  onHeaderFilterChange(filters: Record<string, string>): void {
+    this.headerFilters = filters;
+    this.pageIndex = 0;
+    this.loadVendors();
+  }
+
+  // handle header search
+  private getHeaderSearchValue(): string | undefined {
+    return (
+      this.headerFilters['name'] ||
+      this.headerFilters['phoneNumber'] ||
+      this.headerFilters['email'] ||
+      this.headerFilters['bussinessName'] ||
+      this.headerFilters['gstinNumber'] ||
+      this.headerFilters['panNumber'] ||
+      this.headerFilters['storeName'] ||
+      undefined
+    );
+  }
+
+  private getSearchField(): UserListField | undefined {
+    if (this.headerFilters['name']) {
+      return UserListField.Name;
+    }
+    if (this.headerFilters['phoneNumber']) {
+      return UserListField.PhoneNumber;
+    }
+    if (this.headerFilters['email']) {
+      return UserListField.Email;
+    }
+    if (this.headerFilters['bussinessName']) {
+      return UserListField.BussinessName;
+    }
+    if (this.headerFilters['gstinNumber']) {
+      return UserListField.GSTIN;
+    }
+    if (this.headerFilters['panNumber']) {
+      return UserListField.PAN;
+    }
+    if (this.headerFilters['storeName']) {
+      return UserListField.StoreName;
+    }
+    return undefined;
+  }
+
+  dropdownOptionsMap: Record<
+    string,
+    { id: string | number; label: string }[]
+  > = {
+      statusDisplay: [
+        { id: VendorStatus.Active, label: 'Active' },
+        { id: VendorStatus.Pending, label: 'Pending' },
+        { id: VendorStatus.Rejected, label: 'Rejected' },
+        { id: VendorStatus.Blocked, label: 'Blocked' }
+      ],
+      categoriesDisplay: []
+    };
+
+  onDropdownSelectionChange(event: {
+    columnKey: string;
+    option: {
+      id: string | number;
+      label: string;
+    };
+  }): void {
+
+    const selected =
+      this.selectedFiltersMap[event.columnKey] ?? [];
+
+    const exists =
+      selected.includes(event.option.id);
+
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+
+      [event.columnKey]: exists
+        ? selected.filter(
+          x => x !== event.option.id
+        )
+        : [...selected, event.option.id]
+    };
+  }
+
+  // handle apply filter
+  onFilterApply(event: {
+    columnKey: string;
+  }): void {
+    if (event.columnKey === 'statusDisplay') {
+      this.selectedStatusIds =
+        (this.selectedFiltersMap['statusDisplay'] ?? [])
+          .map(Number);
+    }
+    if (event.columnKey === 'categoriesDisplay') {
+      this.selectedCategoryIds =
+        (this.selectedFiltersMap['categoriesDisplay'] ?? [])
+          .map(Number);
+    }
+    this.pageIndex = 0;
+    this.loadVendors();
+  }
+
+  //handle clear filter 
+  onFilterClear(columnKey: string): void {
+    if (columnKey === 'statusDisplay') {
+      this.selectedStatusIds = [];
+      this.selectedFiltersMap = {
+        ...this.selectedFiltersMap,
+        statusDisplay: []
+      };
+    }
+    if (columnKey === 'categoriesDisplay') {
+      this.selectedCategoryIds = [];
+      this.selectedFiltersMap = {
+        ...this.selectedFiltersMap,
+        categoriesDisplay: []
+      };
+    }
+
+    this.pageIndex = 0;
+    this.loadVendors();
+  }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

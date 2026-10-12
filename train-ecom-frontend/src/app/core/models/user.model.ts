@@ -113,7 +113,7 @@ export interface UpdateProfilePayload {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
-  bussinessDetails? :{
+  bussinessDetails?: {
     bussinessName: string | null;
     storeName: string | null;
     bussinessDescription: string | null;
@@ -190,18 +190,16 @@ export interface AdminUserListResponse {
 
 export interface AdminUserFilterParams {
   Search?: string;
-  search?: string;
+  SearchField?: UserListField;
+  RequestField?: UserListField;
   Role?: Role | number;
-  role?: Role | number | string;
-  Status?: number | string;
+  Status?: number[];
   ApprovalStatus?: ApprovalStatus | number;
-  approvalStatus?: ApprovalStatus | number | string;
   UserStatus?: UserStatusFilter | number;
-  status?: number | string;
+  FilterIds?: number[];
+  BussinessCategoriesIds?: number[];
   PageNumber?: number;
-  pageNumber?: number;
   PageSize?: number;
-  pageSize?: number;
 }
 
 export interface UpdateUserStatusPayload {
@@ -223,4 +221,21 @@ export interface BusinessAddress {
   state: string;
   country: string;
   postalCode: number;
+}
+
+
+export enum UserListField {
+  Name = 1,
+  Email = 2,
+  PhoneNumber = 3,
+  AddressCity = 4,
+  AddressState = 5,
+  AddressCountry = 6,
+  ProductCount = 7,
+  BussinessName = 8,
+  StoreName = 9,
+  City = 10,
+  GSTIN = 11,
+  PAN = 12,
+  BussinessCategories = 13
 }
