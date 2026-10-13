@@ -11,20 +11,18 @@ import { DashboardService } from '../../../core/services/dashboard.service';
 export interface FilterDialogData {
   year?: number | null;
   vendors?: number[];
+  isVendor?: boolean;
 }
-
 export interface FilterDialogResult {
   year: number | null;
   vendors: number[];
   count: number;
   cleared?: boolean;
 }
-
 interface VendorOption {
   id: number;
   name: string;
 }
-
 @Component({
   selector: 'app-filter-dialog',
   templateUrl: './filter-dialog.component.html',
@@ -32,7 +30,7 @@ interface VendorOption {
 })
 export class FilterDialogComponent {
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
-  private data = inject<FilterDialogData>(MAT_DIALOG_DATA);
+  public data = inject<FilterDialogData>(MAT_DIALOG_DATA);
   private dashboardService = inject(DashboardService);
 
   public filterForm = new FormGroup({
@@ -61,7 +59,9 @@ export class FilterDialogComponent {
   ngOnInit(): void {
     this.generateYears();
     this.filteredYear.next(this.years.slice());
-    this.fetchVendors();
+    if (!this.data.isVendor) {
+      this.fetchVendors();
+    }
 
     this.filterForm.setValue({
       year: this.data.year ?? null,

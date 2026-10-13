@@ -11,6 +11,7 @@
     [totalCustomers]="totalCustomers"
     [totalVendors]="totalVendors"
     [totalAdminUsers]="totalAdminUsers"
+    [totalStaffUsers]="totalStaffUsers"
     [totalOrders]="totalOrders"
     [activeOrders]="activeOrders"
     [deliveredOrders]="deliveredOrders"
@@ -26,6 +27,7 @@
     [totalCustomers]="totalCustomers"
     [totalVendors]="totalVendors"
     [totalAdminUsers]="totalAdminUsers"
+    [totalStaffUsers]="totalStaffUsers"
     [isVendor]="isVendor"
     [isLoading]="isLoadingStats"
   ></app-charts>
@@ -42,6 +44,7 @@
     <app-generic-table
       [data]="dataSource"
       [columns]="tableColumns"
+      [showIndex]="false"
       [isLoading]="isLoadingStats"
       emptyMessage="No recent orders found."
       (rowClick)="onOrderClick($event)"

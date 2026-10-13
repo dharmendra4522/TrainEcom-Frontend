@@ -92,15 +92,37 @@ export function getProductChartOptions(
         target.style.cursor = chartElement.length > 0 ? 'pointer' : 'default';
     },
     plugins: {
-      legend: { display: false },
-      datalabels: { display: false }
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.parsed.y ?? 0;
+            return `${context.dataset.label}: ${value} Products`;
+          }
+        }
+      },
+      datalabels: {
+        display: false
+      }
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+        stacked: true,
+        grid: {
+          display: false
+        },
+        ticks: {
+          autoSkip: false,
+          maxRotation: 45,
+          minRotation: 45
+        }
       },
-      y: { beginAtZero: true }
+      y: {
+        stacked: true,
+        beginAtZero: true
+      }
     }
   };
 }
