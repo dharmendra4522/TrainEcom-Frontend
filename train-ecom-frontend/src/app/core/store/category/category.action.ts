@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import {
   Category,
+  CategoryListField,
   CreateCategoryRequest,
   UpdateCategoryRequest
 } from '../../models/category.model';
@@ -84,6 +85,7 @@ export const loadPaginatedCategories = createAction(
     pageSize: number;
     search?: string;
     refresh?: boolean;
+    searchField?: CategoryListField;
   }>(),
 );
 

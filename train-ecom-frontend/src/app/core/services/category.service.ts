@@ -3,11 +3,13 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   Category,
+  CategoryListField,
   CreateCategoryRequest,
   PaginatedCategoryResponse,
   PaginatedSubCategoryResponse,
   SubCategoryList,
-  UpdateCategoryRequest,
+  SubCategoryListField,
+  UpdateCategoryRequest
 } from '../models/category.model';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -19,7 +21,7 @@ export class CategoryService {
   private baseApi = `${environment.apiBaseUrl}/categories`;
   private http = inject(HttpClient);
 
-  constructor() {}
+  constructor() { }
 
   getAllCategories(): Observable<Category[]> {
     return this.http
@@ -35,13 +37,20 @@ export class CategoryService {
     pageNumber: number = 1,
     pageSize: number = 10,
     search?: string,
+    searchField?: CategoryListField
   ): Observable<PaginatedCategoryResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
 
     if (search && search.trim() !== '') {
-      params = params.set('search', search.trim());
+      params = params.set('Search', search.trim());
+    }
+    if (searchField !== undefined) {
+      params = params.set(
+        'SearchField',
+        searchField.toString()
+      );
     }
 
     return this.http
@@ -99,7 +108,8 @@ export class CategoryService {
     pageNumber: number = 1,
     pageSize: number = 10,
     search?: string,
-    parentCategoryId?: number | string,
+    parentCategoryIds?: number[] | number | string,
+    searchField?: SubCategoryListField,
   ): Observable<PaginatedSubCategoryResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -108,14 +118,22 @@ export class CategoryService {
     if (search && search.trim() !== '') {
       params = params.set('Search', search.trim());
     }
-
-    if (
-      parentCategoryId !== undefined &&
-      parentCategoryId !== null &&
-      parentCategoryId !== ''
-    ) {
-      params = params.set('ParentCategoryId', parentCategoryId.toString());
+    if (searchField !== undefined) {
+      params = params.set(
+        'SearchField',
+        searchField.toString()
+      );
     }
+    const selectedParentCategoryIds: (number | string)[] | undefined =
+      typeof parentCategoryIds === 'number'
+        ? [parentCategoryIds]
+        : typeof parentCategoryIds === 'string'
+          ? [parentCategoryIds]
+        : parentCategoryIds;
+
+    selectedParentCategoryIds?.forEach((parentCategoryId) => {
+      params = params.append('ParentCategoryIds', parentCategoryId.toString());
+    });
 
     return this.http
       .get<

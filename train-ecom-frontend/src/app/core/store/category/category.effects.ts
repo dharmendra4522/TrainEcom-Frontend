@@ -48,8 +48,8 @@ export class CategoryEffects {
         this.store.select(selectCategoryTotalRecords),
       ),
       switchMap(([action, pagesCache, totalRecords]) => {
-        const { pageNumber, pageSize, search, refresh } = action;
-        const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
+        const { pageNumber, pageSize, search, refresh,searchField } = action;
+        const cacheKey = search ? `search-${search.trim()}-${searchField}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
 
         if (!refresh && pagesCache[cacheKey]) {
           return of(CategoryActions.loadPaginatedCategoriesSuccess({
@@ -62,7 +62,7 @@ export class CategoryEffects {
           }));
         }
 
-        return this.categoryService.getPaginatedCategories(pageNumber, pageSize, search).pipe(
+        return this.categoryService.getPaginatedCategories(pageNumber, pageSize, search, searchField).pipe(
           map((response) => CategoryActions.loadPaginatedCategoriesSuccess({
             categories: response.items,
             totalRecords: response.totalRecords,
