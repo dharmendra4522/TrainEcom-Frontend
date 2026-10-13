@@ -16,6 +16,7 @@ import { Location } from '@angular/common';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import { normalizeOrderStatus, normalizePaymentMethod, normalizePaymentStatus } from '../../../../core/utils/role.utils';
+import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 
 
 @Component({
@@ -90,22 +91,11 @@ export class OrderDetailsComponent {
   }
 
   getStatusClass(orderStatus: OrderStatus | string | number): string {
-    const statusStr = normalizeOrderStatus(orderStatus).toLowerCase();
-    switch (statusStr?.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-primary-subtle text-primary border border-primary-subtle';
-      case 'processing':
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'shipped':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'delivered':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'cancelled':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    }
+    return getOrderStatusClass(orderStatus);
+  }
+
+  getPaymentStatusClass(paymentStatus: PaymentStatus | string | number): string {
+    return getPaymentStatusClass(paymentStatus);
   }
 
 

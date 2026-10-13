@@ -28,18 +28,20 @@ export interface AdminOrderListResponse {
   pageNumber: number;
   pageSize: number;
   totalRecords: number;
+  minOrderAmount?: number;
+  maxOrderAmount?: number;
 }
 
 export interface AdminOrderFilterParams {
-  search?: string;
-  orderStatus?: string;
-  paymentStatus?: string;
-  month?: number;
-  year?: number;
-  fromDate?: string;
-  toDate?: string;
-  pageNumber?: number;
-  pageSize?: number;
+  Search?: string;
+  SearchField?: OrderListField;
+  OrderStatus?: OrderStatus[];
+  PaymentStatus?: PaymentStatus[];
+  OrderDate?: string;
+  MinOrderAmount?: number;
+  MaxOrderAmount?: number;
+  PageNumber?: number;
+  PageSize?: number;
 }
 
 export interface OrderHistoryItem {
@@ -136,4 +138,10 @@ export interface UpdateOrderStatusResponse {
   orderId: number | string;
   orderStatus: OrderStatus;
   message: string;
+}
+
+export enum OrderListField {
+  OrderId = 1,
+  CustomerName = 2,
+  Items = 3
 }

@@ -258,6 +258,7 @@
               col.type === 'number'
             "
             class="fw-medium"
+            [class.order-link]="col.clickable"
             [class.text-truncate-clamp]="
               col.truncate ||
               col.key === 'description' ||

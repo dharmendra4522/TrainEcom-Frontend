@@ -7,7 +7,7 @@
       <div>
         <h2 class="fw-bold text-dark m-0 fs-4 fs-sm-2">Order History</h2>
         <p class="text-muted small m-0">
-          Track and manage your customer order history
+          Track and manage your order history
         </p>
       </div>
     </div>
@@ -125,7 +125,7 @@
     *ngIf="!isLoading && orderHistory.length === 0"
     class="text-center py-5 bg-white rounded-4 shadow-sm px-3"
   >
-    <mat-icon class="fs-1 text-secondary mb-2" style="width: 48px; height: 48px"
+    <mat-icon class="fs-1 text-secondary mb-2 icon-size"
       >receipt_long</mat-icon
     >
     <h6 class="fw-bold text-dark mb-1">No Orders Found</h6>
@@ -138,9 +138,8 @@
   <div *ngIf="!isLoading && orderHistory.length > 0">
     <div
       *ngFor="let order of orderHistory"
-      class="card mb-2 mb-sm-3 shadow-sm border-0 rounded-3 rounded-sm-4 bg-white overflow-hidden order-card"
+      class="card mb-2 mb-sm-3 shadow-sm border-0 rounded-3 rounded-sm-4 bg-white overflow-hidden order-card order-list"
       (click)="navigateToOrderDetails(order.orderId)"
-      style="cursor: pointer"
     >
       <div class="card-body p-2 p-sm-3 p-md-4">
         <div
@@ -163,7 +162,7 @@
           </div>
 
           <!-- Order Info & Price -->
-          <div class="flex-grow-1" style="min-width: 0">
+          <div class="flex-grow-1 product-contain">
             <!-- Top row inside info: Title & Total Amount -->
             <div
               class="d-flex align-items-start justify-content-between gap-2 mb-1"
@@ -188,9 +187,16 @@
               <div class="d-flex align-items-center gap-1 gap-sm-2 flex-wrap">
                 <span
                   class="badge px-2 py-1 rounded-pill small fw-semibold"
-                  [ngClass]="getOrdertatusClass(order.orderStatus)"
+                  [ngClass]="getOrderStatusClass(order.orderStatus)"
                 >
                   {{ normalizeOrderStatus(order.orderStatus) }}
+                </span>
+                <span
+                  *ngIf="order.paymentStatus !== undefined"
+                  class="badge px-2 py-1 rounded-pill small fw-semibold"
+                  [ngClass]="getPaymentStatusClass(order.paymentStatus)"
+                >
+                  {{ normalizePaymentStatus(order.paymentStatus) }}
                 </span>
                 <span class="text-muted small fs-7"
                   >Items: {{ order.totalItems }}</span

@@ -1,11 +1,14 @@
 <div class=" py-3 py-md-4 px-2 px-sm-3">
   <!-- Top Header & Back Button -->
-  <div class="d-flex flex-column align-items-start mb-3 mb-md-4 flex-wrap gap-3">
-    <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0 rounded-3"
-      (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-      <span class="d-none d-sm-inline">{{ isManagementMode ? 'Back to Order Management' : 'Back to Orders' }}</span>
-      <span class="d-inline d-sm-none">Back</span>
+  <div class="order-details-header d-flex flex-row align-items-center mb-3 mb-md-4 flex-wrap gap-2">
+    <button
+      mat-icon-button
+      color="primary"
+      class="order-details-back-button flex-shrink-0"
+      (click)="goBack()"
+      aria-label="Go back"
+    >
+      <mat-icon>arrow_back_ios</mat-icon>
     </button>
     <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
   </div> 
@@ -63,11 +66,11 @@
         <div class="bg-light p-3 rounded-3 border">
           <h6 class="fw-bold text-dark mb-2">{{ orderDetail.customerDetail.customerName }}</h6>
           <div class="d-flex align-items-center text-secondary small mb-1 text-break">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">email</mat-icon>
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">email</mat-icon>
             <span>Email: <span class="text-dark fw-medium">{{ orderDetail.customerDetail.email }}</span></span>
           </div>
           <div class="d-flex align-items-center text-secondary small mt-1">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">phone</mat-icon>
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">phone</mat-icon>
             <span>Phone: <span class="text-dark fw-medium">{{ orderDetail.customerDetail.phoneNumber }}</span></span>
           </div>
         </div>
@@ -87,14 +90,14 @@
             <div class="d-flex align-items-start justify-content-between gap-2">
 
               <!-- Left: Image & Product Details (max-width prevents pushing price off-screen on mobile) -->
-              <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 min-w-0"
-                style="max-width: calc(100% - 85px);">
+              <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 min-w-0 img-size"
+               >
                 <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0">
                   <img [src]="item.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback [alt]="item.productName"
                     class="img-fluid object-fit-cover w-100 h-100">
                 </div>
 
-                <div class="flex-grow-1" style="min-width: 0;">
+                <div class="flex-grow-1 product-name">
                   <h6 class="fw-bold text-dark text-truncate mb-1 fs-6 truncate" [title]="item.productName">
                     {{ item.productName }}
                   </h6>
@@ -117,7 +120,7 @@
               <button mat-button color="primary"
                 class="border-0 bg-transparent text-primary p-0 min-w-0 rate-product-btn"
                 (click)="openReviewDialog(item.productId, item.productName, item.reviewSummary)">
-                <mat-icon style="font-size: 16px; width: 16px; height: 16px;" class="align-middle me-1">star</mat-icon>
+                <mat-icon class="align-middle me-1 star-icon ">star</mat-icon>
                 <span class="small fw-semibold">
                   {{ item.reviewSummary?.reviewId ? 'Update Review' : 'Rate Product' }}
                 </span>
@@ -127,8 +130,8 @@
               <button *ngIf="item.reviewSummary?.reviewId" type="button"
                 class="btn btn-link text-danger p-0 ms-1 d-inline-flex align-items-center gap-1 text-decoration-none border-0 bg-transparent delete-review-btn"
                 (click)="onDeleteReview(item.reviewSummary!.reviewId)" title="Delete Review">
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px;"
-                  class="text-danger align-middle">delete</mat-icon>
+                <mat-icon
+                  class="text-danger align-middle star-icon ">delete</mat-icon>
               </button>
             </div>
 
@@ -152,7 +155,7 @@
             orderDetail.deliveryAddress.postalCode }}
           </p>
           <div class="d-flex align-items-center text-secondary small mt-2">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">phone</mat-icon>
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">phone</mat-icon>
             <span>Phone: <span class="text-dark fw-medium">{{ orderDetail.deliveryAddress.phoneNumber }}</span></span>
           </div>
         </div>
@@ -173,7 +176,12 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small">
           <span class="text-secondary">Status:</span>
-          <span class="fw-semibold text-success">{{ getNormalizePaymentStatus(orderDetail.payment.paymentStatus) }}</span>
+          <span
+            class="badge rounded-pill fw-semibold"
+            [ngClass]="getPaymentStatusClass(orderDetail.payment.paymentStatus)"
+          >
+            {{ getNormalizePaymentStatus(orderDetail.payment.paymentStatus) }}
+          </span>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-2 small" *ngIf="orderDetail.payment.paidAt">
           <span class="text-secondary">Paid At:</span>

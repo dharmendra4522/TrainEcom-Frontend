@@ -22,19 +22,25 @@ export class OrderHistoryService {
 
   private http = inject(HttpClient);
 
-// helper function that builds HttpParams from a filter object, ensuring that only defined properties are included in the request
-private buildParams<T extends object>(filter?: T): HttpParams {
-  let params = new HttpParams();
-  if(!filter) return params;
-
-  Object.entries(filter).forEach(([key, value]) => {
-    if(value !== null && value !== undefined && value !== '') {
-      const stringvalue = typeof value === 'string' ? value.trim() : value.toString();
-      params = params.set(key, stringvalue);
-    }
-  });
-  return params;
-}
+  // helper function that builds HttpParams from a filter object, ensuring that only defined properties are included in the request
+  private buildParams<T extends object>(filter?: T): HttpParams {
+    let params = new HttpParams();
+    if (!filter) return params;
+    Object.entries(filter).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            if (item !== null && item !== undefined && item !== '') {
+              params = params.append(key, item);
+            }
+          });
+        } else {
+          params = params.set(key, value);
+        }
+      }
+    });
+    return params;
+  }
 
   getAllOrderHistory(filter?: OrderHistoryFilterParams): Observable<OrderHistoryResponse> {
     const params = this.buildParams(filter);
@@ -76,7 +82,7 @@ private buildParams<T extends object>(filter?: T): HttpParams {
   updateManagedOrderStatus(
     portal: PortalKey,
     orderId: string,
-   status: OrderStatus | string | number,
+    status: OrderStatus | string | number,
     remark?: string,
   ): Observable<UpdateOrderStatusResponse> {
     return this.http.patch<UpdateOrderStatusResponse>(
