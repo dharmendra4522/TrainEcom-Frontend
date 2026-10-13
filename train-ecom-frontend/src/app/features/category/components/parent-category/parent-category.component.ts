@@ -12,6 +12,7 @@ import {
 } from 'rxjs/operators';
 import {
   Category,
+  CategoryListField,
   UpdateCategoryRequest,
 } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
@@ -61,6 +62,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   currentPage = 1;
   pageSize = 10;
   showHeaderFilter: boolean = true;
+  headerFilters: Record<string, string> = {};
 
 columns: TableColumn[] = [
   {
@@ -97,14 +99,14 @@ columns: TableColumn[] = [
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit',
+      tooltip: 'Edit'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete',
-    },
+      tooltip: 'Delete'
+    }
   ];
 
   ngOnInit(): void {
@@ -142,11 +144,11 @@ columns: TableColumn[] = [
             this.loadPage(
               this.currentPage,
               this.pageSize,
-              this.searchControl.value.trim(),
-            );
+              this.searchControl.value.trim()
+            )
           }
-        });
-      });
+        })
+      })
     });
   }
 
@@ -166,19 +168,21 @@ columns: TableColumn[] = [
     refresh = false,
   ): void {
     this.currentPage = pageNumber;
+    const headerSearch = this.getSearchValue();
     this.store.dispatch(
       CategoryActions.loadPaginatedCategories({
         pageNumber,
         pageSize,
-        search: search.trim() || undefined,
-        refresh,
+        search: headerSearch || search.trim() || undefined,
+        searchField: headerSearch ? this.getSearchField() : undefined,
+        refresh
       }),
     );
   }
 
   private updateCategory(
     id: string | number,
-    payload: UpdateCategoryRequest,
+    payload: UpdateCategoryRequest
   ): void {
     this.categoryService
       .updateCategory(id, payload)
@@ -257,4 +261,36 @@ columns: TableColumn[] = [
         }
       });
   }
+
+  private getSearchValue(): string | undefined {
+    return (
+      this.headerFilters['name'] ||
+      this.headerFilters['description'] ||
+      undefined
+    );
+  }
+
+  private getSearchField():
+    CategoryListField | undefined {
+    if (this.headerFilters['name']) {
+      return CategoryListField.Name;
+    }
+    if (this.headerFilters['description']) {
+      return CategoryListField.Description;
+    }
+    return undefined;
+  }
+
+  onTableFilterChanged(
+    filters: Record<string, string>
+  ): void {
+    this.headerFilters = filters;
+    this.currentPage = 1;
+    this.loadPage(
+      1,
+      this.pageSize,
+      ''
+    );
+  }
+
 }

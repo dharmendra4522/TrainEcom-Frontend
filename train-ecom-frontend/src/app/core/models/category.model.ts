@@ -50,3 +50,22 @@ export interface PaginatedSubCategoryResponse {
   totalPages: number;
 }
 
+export interface SubCategoryFilterParams {
+  parentCategoryIds?: number[];
+  search?: string;
+  searchField?: SubCategoryListField;
+  requestField?: SubCategoryListField;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export enum CategoryListField {
+  Name = 1,
+  Description = 2
+}
+
+export enum SubCategoryListField {
+  SubCategoryName = 1,
+  Description = 2,
+  ParentCategoryname = 3
+}

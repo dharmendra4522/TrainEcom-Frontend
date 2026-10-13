@@ -4,10 +4,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { CategoryService } from '../../../../core/services/category.service';
 import {
   SubCategoryList,
-  UpdateCategoryRequest,
+  SubCategoryListField,
+  UpdateCategoryRequest
 } from '../../../../core/models/category.model';
 import { FormControl } from '@angular/forms';
-import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
+import {
+  DropdownOptions,
+  TableAction,
+  TableActionEvent,
+  TableColumn
+} from '../../../../core/models/table.model';
 import { EMPTY, Subject } from 'rxjs';
 import {
   catchError,
@@ -16,7 +22,7 @@ import {
   finalize,
   map,
   switchMap,
-  takeUntil,
+  takeUntil
 } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -47,7 +53,7 @@ function isSubCategoryList(row: unknown): row is SubCategoryList {
 @Component({
   selector: 'app-sub-category',
   templateUrl: './sub-category.component.html',
-  styleUrl: './sub-category.component.css',
+  styleUrl: './sub-category.component.css'
 })
 export class SubCategoryComponent {
   private categoryService = inject(CategoryService);
@@ -65,10 +71,19 @@ export class SubCategoryComponent {
   currentPage: number = 1;
   pageSize: number = 10;
   showHeaderFilter: boolean = true;
+  headerFilters: Record<string, string> = {};
+  selectedFiltersMap: Record<string, (string | number)[]> = {
+    parentCategoryName: []
+  };
+  dropdownOptionsMap: Record<string, DropdownOptions[]> = {
+    parentCategoryName: []
+  };
+  private allParentCategoryOptions: DropdownOptions[] = [];
+  selectedParentCategoryIds: number[] = [];
 
   columns: TableColumn[] = [
     { key: 'subCategoryName', label: 'Sub-Category Name', filterable: true, filterType: 'search' },
-    { key: 'parentCategoryName', label: 'Parent Category', filterable: true, filterType: 'search' },
+    { key: 'parentCategoryName', label: 'Parent Category', filterable: true, filterType: 'dropdown' },
     { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
     { key: 'productCount', label: 'Product Count', filterable: true, filterType: 'search', filterDisabled: true }
   ];
@@ -78,17 +93,18 @@ export class SubCategoryComponent {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit',
+      tooltip: 'Edit'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete',
+      tooltip: 'Delete'
     },
   ];
 
   ngOnInit(): void {
+    this.loadParentCategoryOptions();
     this.loadSubCategories(1, this.pageSize);
     this.setupSearchFilter();
     this.storeActions
@@ -101,7 +117,16 @@ export class SubCategoryComponent {
     search?: string
   ): void {
     this.isLoading = true;
-    this.categoryService.fetchSubCategories(pageNumber, pageSize, search).subscribe({
+    const searchValue = this.getSearchValue() ?? search;
+    const searchField = searchValue ? this.getSearchField() : undefined;
+
+    this.categoryService.fetchSubCategories(
+      pageNumber,
+      pageSize,
+      searchValue || undefined,
+      this.selectedParentCategoryIds,
+      searchField
+    ).subscribe({
       next: (response) => {
         if (pageNumber === 1) {
           this.subCategories = response.items;
@@ -114,7 +139,7 @@ export class SubCategoryComponent {
       error: (error) => {
         console.error('Error fetching sub-categories:', error);
         this.isLoading = false;
-      },
+      }
     });
   }
 
@@ -128,9 +153,17 @@ export class SubCategoryComponent {
         switchMap((searchTerm) => {
           this.currentPage = 1;
           this.isLoading = true;
+          const headerSearch = this.getSearchValue();
+          const activeSearch = headerSearch ?? searchTerm;
 
           return this.categoryService
-            .fetchSubCategories(this.currentPage, this.pageSize, searchTerm)
+            .fetchSubCategories(
+              this.currentPage,
+              this.pageSize,
+              activeSearch || undefined,
+              this.selectedParentCategoryIds,
+              activeSearch ? this.getSearchField() : undefined
+            )
             .pipe(
               catchError((error) => {
                 console.error('Error fetching sub-categories:', error);
@@ -138,7 +171,7 @@ export class SubCategoryComponent {
               }),
               finalize(() => {
                 this.isLoading = false;
-              }),
+              })
             );
         }),
         takeUntil(this.destroy$),
@@ -170,7 +203,7 @@ export class SubCategoryComponent {
         .confirm(
           `Are you sure you want to delete the sub-category "${subCategory.subCategoryName}"?`,
           'Delete',
-          'Cancel',
+          'Cancel'
         )
         .pipe(takeUntil(this.destroy$))
         .subscribe((confirmed) => {
@@ -190,8 +223,8 @@ export class SubCategoryComponent {
         name: subCategory.subCategoryName,
         description: subCategory.description,
         parentCategoryId: subCategory.parentCategoryId,
-        parentCategoryName: subCategory.parentCategoryName,
-      },
+        parentCategoryName: subCategory.parentCategoryName
+      }
     };
     const dialogRef = this.dialog.open<
       BrandCategoryDialogComponent,
@@ -210,29 +243,28 @@ export class SubCategoryComponent {
         const payload: UpdateCategoryRequest = {
           name: result.name,
           description: result.description,
-          parentCategoryId: result.parentCategoryId,
+          parentCategoryId: result.parentCategoryId
         };
         this.isLoading = true;
         this.categoryService
           .updateCategory(subCategory.id, payload)
           .pipe(
             finalize(() => (this.isLoading = false)),
-            takeUntil(this.destroy$),
+            takeUntil(this.destroy$)
           )
           .subscribe({
             next: () => {
               this.notificationService.showSuccess(
-                'Sub-category updated successfully.',
+                'Sub-category updated successfully.'
               );
               this.refreshSubCategories();
             },
             error: (error) => {
-              console.error('Error updating sub-category:', error);
               this.notificationService.showError(
-                'Failed to update sub-category. Please try again.',
+                'Failed to update sub-category. Please try again.'
               );
-            },
-          });
+            }
+          })
       });
   }
 
@@ -242,7 +274,7 @@ export class SubCategoryComponent {
       .deleteCategory(subCategoryId)
       .pipe(
         finalize(() => (this.isLoading = false)),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: () => {
@@ -254,9 +286,9 @@ export class SubCategoryComponent {
         error: (error) => {
           console.error('Error deleting sub-category:', error);
           this.notificationService.showError(
-            'Failed to delete sub-category. Please try again.',
+            'Failed to delete sub-category. Please try again.'
           );
-        },
+        }
       });
   }
 
@@ -270,18 +302,128 @@ export class SubCategoryComponent {
   }
 
   onTableFilterChanged(filters: Record<string, string>): void {
-    const searchText = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
-    if (this.searchControl.value !== searchText) {
-      this.searchControl.setValue(searchText, { emitEvent: false });
-    }
-
+    this.headerFilters = filters;
     this.currentPage = 1;
-    this.loadSubCategories(this.currentPage, this.pageSize, searchText);
+    this.loadSubCategories(this.currentPage, this.pageSize);
   }
 
-  // Table header ka search clear hone par yeh call hoga
-  onTableFilterCleared(_columnKey: string): void {
-    this.searchControl.setValue('', { emitEvent: false });
+  onTableFilterCleared(columnKey: string): void {
+    const updatedFilters = { ...this.headerFilters };
+    delete updatedFilters[columnKey];
+    this.headerFilters = updatedFilters;
+    this.currentPage = 1;
+    this.loadSubCategories(this.currentPage, this.pageSize);
+  }
+
+  onDropdownSelectionChanged(event: {
+    columnKey: string;
+    option: DropdownOptions;
+  }): void {
+    if (event.columnKey !== 'parentCategoryName') {
+      return;
+    }
+
+    const selectedValues = [...(this.selectedFiltersMap[event.columnKey] ?? [])];
+    const selectedIndex = selectedValues.indexOf(event.option.id);
+    if (selectedIndex >= 0) {
+      selectedValues.splice(selectedIndex, 1);
+    } else {
+      selectedValues.push(event.option.id);
+    }
+
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [event.columnKey]: selectedValues
+    };
+  }
+
+  onDropdownSearchChanged(event: {
+    columnKey: string;
+    searchTerm: string;
+  }): void {
+    if (event.columnKey !== 'parentCategoryName') {
+      return;
+    }
+
+    const searchTerm = event.searchTerm.trim().toLowerCase();
+    const filteredOptions = this.allParentCategoryOptions.filter((option) =>
+      option.label.toLowerCase().includes(searchTerm),
+    );
+
+    this.dropdownOptionsMap = {
+      ...this.dropdownOptionsMap,
+      parentCategoryName: filteredOptions,
+    };
+  }
+
+  onFilterApply(event: { columnKey: string }): void {
+    if (event.columnKey !== 'parentCategoryName') {
+      return;
+    }
+
+    this.selectedParentCategoryIds = this.getSelectedParentCategoryIds();
+    this.currentPage = 1;
+    this.loadSubCategories(this.currentPage, this.pageSize);
+  }
+
+  onFilterClear(columnKey: string): void {
+    if (columnKey !== 'parentCategoryName') {
+      return;
+    }
+
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [columnKey]: [],
+    };
+    this.selectedParentCategoryIds = [];
+    this.currentPage = 1;
+    this.loadSubCategories(this.currentPage, this.pageSize);
+  }
+
+  private loadParentCategoryOptions(): void {
+    this.categoryService
+      .getAllCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (categories) => {
+          this.dropdownOptionsMap = {
+            ...this.dropdownOptionsMap,
+            parentCategoryName: categories.map((category) => ({
+              id: category.id,
+              label: category.name
+            }))
+          };
+          this.allParentCategoryOptions =
+            this.dropdownOptionsMap['parentCategoryName'] ?? [];
+        },
+        error: (error) => {
+          console.error('Error fetching parent categories:', error);
+        },
+      });
+  }
+
+  private getSelectedParentCategoryIds(): number[] {
+    return (this.selectedFiltersMap['parentCategoryName'] ?? []).filter(
+      (value): value is number => typeof value === 'number'
+    );
+  }
+
+  private getSearchValue(): string | undefined {
+    return (
+      this.headerFilters['subCategoryName'] ||
+      this.headerFilters['parentCategoryName'] ||
+      undefined
+    );
+  }
+
+  private getSearchField(): SubCategoryListField | undefined {
+    if (this.headerFilters['subCategoryName']) {
+      return SubCategoryListField.SubCategoryName;
+    }
+    if (this.headerFilters['parentCategoryName']) {
+      return SubCategoryListField.ParentCategoryname;
+    }
+    return undefined;
   }
 
 
