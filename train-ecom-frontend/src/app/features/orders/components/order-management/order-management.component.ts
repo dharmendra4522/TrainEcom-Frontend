@@ -28,10 +28,15 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 import { Range } from '../../../../shared/components/multiselect-dropdown/multiselect-dropdown.component';
 
+interface LegacyAdminOrderFilterParams extends AdminOrderFilterParams {
+  Month?: number;
+  Year?: number;
+}
+
 @Component({
   selector: 'app-order-management',
   templateUrl: './order-management.component.html',
-  styleUrls: ['./order-management.component.css'],
+  styleUrls: ['./order-management.component.css']
 })
 export class OrderManagementComponent implements OnInit {
   private orderService = inject(OrderHistoryService);
@@ -77,6 +82,8 @@ export class OrderManagementComponent implements OnInit {
   selectedRangesMap: Record<string, Range> = {};
   columnFilters: Record<string, string> = {};
   selectedOrderDate: string | undefined = undefined;
+  private selectedMonth: number | undefined;
+  private selectedYear: number | undefined;
 
   // Header Filter State Maps
   dropdownOptionsMap: Record<string, DropdownOptions[]> = {
@@ -92,8 +99,8 @@ export class OrderManagementComponent implements OnInit {
   rangeBoundsMap: Record<string, Range> = {
     totalAmount: {
       min: 0,
-      max: 0,
-    },
+      max: 0
+    }
   };
 
   // Table Columns Setup
@@ -118,7 +125,7 @@ export class OrderManagementComponent implements OnInit {
       badgeClassKey: 'paymentStatusClass',
       filterable: true,
       filterType: 'dropdown'
-    },
+    }
   ];
 
   ngOnInit(): void {
@@ -180,8 +187,7 @@ export class OrderManagementComponent implements OnInit {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        const searchParam = params['search'];
-        const searchValue = typeof searchParam === 'string' ? searchParam : '';
+        const searchValue = this.getQueryString(params['search']) ?? '';
         if (searchValue !== this.filterForm.get('search')?.value) {
           this.filterForm.patchValue(
             { search: searchValue },
@@ -189,6 +195,15 @@ export class OrderManagementComponent implements OnInit {
           );
         }
 
+        const orderStatus = this.parseOrderStatus(params['orderStatus']);
+        const paymentStatus = this.parsePaymentStatus(params['paymentStatus']);
+        this.selectedFiltersMap = {
+          ...this.selectedFiltersMap,
+          orderStatus: orderStatus === undefined ? [] : [orderStatus],
+          paymentStatus: paymentStatus === undefined ? [] : [paymentStatus],
+        };
+        this.selectedMonth = this.parseQueryNumber(params['month']);
+        this.selectedYear = this.parseQueryNumber(params['year']);
         this.pageIndex = 0;
         this.loadOrders();
       });
@@ -213,7 +228,7 @@ export class OrderManagementComponent implements OnInit {
     return this.filterForm.get('search')?.value || '';
   }
 
-  private getFilterParams(): AdminOrderFilterParams {
+  private getFilterParams(): LegacyAdminOrderFilterParams {
     const searchField = this.getActiveSearchField();
     const columnSearch = this.getActiveColumnSearch();
     const search = columnSearch?.term || this.searchQuery.trim() || undefined;
@@ -232,9 +247,62 @@ export class OrderManagementComponent implements OnInit {
       OrderDate: this.selectedOrderDate,
       MinOrderAmount: selectedAmountRange?.min,
       MaxOrderAmount: selectedAmountRange?.max,
+      Month: this.selectedMonth,
+      Year: this.selectedYear,
       PageNumber: this.pageIndex + 1,
       PageSize: this.pageSize
     };
+  }
+
+  private getQueryString(value: unknown): string | undefined {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (Array.isArray(value) && typeof value[0] === 'string') {
+      return value[0];
+    }
+    return undefined;
+  }
+
+  private parseQueryNumber(value: unknown): number | undefined {
+    const queryValue = this.getQueryString(value);
+    if (!queryValue || !/^\d+$/.test(queryValue)) {
+      return undefined;
+    }
+    const parsedValue = parseInt(queryValue, 10);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  private parseOrderStatus(value: unknown): OrderStatus | undefined {
+    const parsedValue = this.parseQueryNumber(value);
+    if (parsedValue === undefined) {
+      return undefined;
+    }
+    switch (parsedValue) {
+      case OrderStatus.Active:
+      case OrderStatus.Shipped:
+      case OrderStatus.Delivered:
+      case OrderStatus.Cancelled:
+        return parsedValue;
+      default:
+        return undefined;
+    }
+  }
+
+  private parsePaymentStatus(value: unknown): PaymentStatus | undefined {
+    const parsedValue = this.parseQueryNumber(value);
+    if (parsedValue === undefined) {
+      return undefined;
+    }
+    switch (parsedValue) {
+      case PaymentStatus.Pending:
+      case PaymentStatus.Success:
+      case PaymentStatus.Refunded:
+      case PaymentStatus.Cancelled:
+        return parsedValue;
+      default:
+        return undefined;
+    }
   }
 
   private getActiveColumnSearch(): { term: string; field: OrderListField } | undefined {
@@ -375,11 +443,19 @@ export class OrderManagementComponent implements OnInit {
     this.selectedRangesMap = {};
     this.columnFilters = {};
     this.selectedOrderDate = undefined;
+    this.selectedMonth = undefined;
+    this.selectedYear = undefined;
     this.filterResetToken++;
     this.pageIndex = 0;
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { search: null },
+      queryParams: {
+        search: null,
+        orderStatus: null,
+        paymentStatus: null,
+        month: null,
+        year: null,
+      },
       queryParamsHandling: 'merge',
     });
   }
