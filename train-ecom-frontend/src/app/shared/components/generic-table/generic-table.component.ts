@@ -7,14 +7,19 @@ import {
   SimpleChanges,
   OnChanges,
   EmbeddedViewRef,
+  HostListener
 } from '@angular/core';
 import {
   TableColumn,
   TableAction,
   TableActionEvent,
+  DropdownOptions,
+  FilterEventPayload
 } from '../../../core/models/table.model';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSort, Sort } from '@angular/material/sort';
+import { debounceTime, Subject, Subscription } from 'rxjs';
+import { Range } from '../multiselect-dropdown/multiselect-dropdown.component';
 
 @Component({
   selector: 'app-generic-table',
@@ -36,12 +41,21 @@ export class GenericTableComponent {
   @Input() pageIndex: number = 0;
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
   @Input() enableRowClick: boolean = true;
+  @Input() showheaderFilter: boolean = false;
+
+  // inputs for dropdown state
+  @Input() dropdownOptionsMap: Record<string, DropdownOptions[]> = {};
+  @Input() dropdownLoadingMap: Record<string, boolean> = {};
+  @Input() selectedFiltersMap: Record<string, (string | number)[]> = {};
+
+  // Outputs for dropdown actions
+  @Output() dropdownSearchChange = new EventEmitter<{ columnKey: string; searchTerm: string }>();
+  @Output() dropdownSelectionChange = new EventEmitter<{ columnKey: string; option: DropdownOptions }>();
+  @Output() dropdownScrolled = new EventEmitter<string>();
 
   @Output() actionClick = new EventEmitter<TableActionEvent>();
-
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() rowClick = new EventEmitter<Record<string, unknown>>();
-
   @Output() sortChange = new EventEmitter<Sort>();
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -49,7 +63,38 @@ export class GenericTableComponent {
   @Output() loadMore = new EventEmitter<void>();
   @Input() hasMoreData: boolean = true;
 
+  // events for header filters
+  @Output() filterSearch = new EventEmitter<{ columnKey: string, searchTerm: string }>();
+  @Output() dropdownOpened = new EventEmitter<string>();
+  @Output() loadMoreOptions = new EventEmitter<string>();
+  @Output() filterApply = new EventEmitter<{ columnKey: string }>();
+  @Output() filterClear = new EventEmitter<string>();
+  @Output() filterChanged = new EventEmitter<Record<string, string>>(); // for only searchable column 
+  @Output() filterCleared = new EventEmitter<string>();
+  @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & Range>();
+
   originalData: Record<string, unknown>[] = [];
+  filterValues: Record<string, string> = {};
+  activeDropdownCol: string | null = null;
+  priceFilters: Record<string, { min: number; max: number; changed: boolean }> = {};
+
+
+  private searchSubject = new Subject<{ key: string, value: string }>;
+  private searchSubscribe!: Subscription;
+
+  ngOnInit(): void {
+    this.setupSearch();
+  }
+
+  // search columns
+  private setupSearch(): void {
+    this.searchSubscribe = this.searchSubject.pipe(
+      debounceTime(300),
+    ).subscribe((filter: FilterEventPayload) => {
+      this.filterValues[filter.key] = filter.value;
+      this.filterChanged.emit(this.filterValues);
+    })
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data) {
@@ -216,4 +261,234 @@ export class GenericTableComponent {
       this.loadMore.emit();
     }
   }
+
+  // handle filter apply
+  applyFilter(columnKey: string, event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    if (filterValue.trim() === '') {
+      delete this.filterValues[columnKey];
+    } else {
+      this.filterValues[columnKey] = filterValue.trim().toLowerCase();
+    }
+
+    this.data = this.originalData.filter((row) => {
+      return Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '').toLowerCase();
+        return rowValue.includes(val);
+      });
+    });
+  }
+
+  toggleDropdown(colKey: string, event: Event): void {
+    event.stopPropagation();
+    const isOpening = this.activeDropdownCol !== colKey;
+    this.activeDropdownCol = isOpening ? colKey : null;
+    if (isOpening) {
+      this.dropdownOpened.emit(colKey);
+    }
+  }
+
+  getSelectedFilterLabel(colKey: string): string {
+    const val = this.filterValues[colKey];
+    if (!val) return '';
+    return val;
+  }
+
+  // close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    this.activeDropdownCol = null;
+  }
+
+  onDropdownSearch(colKey: string, searchTerm: string): void {
+    this.dropdownSearchChange.emit({ columnKey: colKey, searchTerm });
+    this.filterSearch.emit({ columnKey: colKey, searchTerm });
+  }
+
+  onDropdownOpen(colKey: string): void {
+    this.dropdownOpened.emit(colKey)
+  }
+
+  getDropdownOptions(columnKey: string): DropdownOptions[] {
+    return this.dropdownOptionsMap[columnKey] || [];
+  }
+
+  isDropdownLoading(columnKey: string): boolean {
+    return this.dropdownLoadingMap[columnKey] || false;
+  }
+
+  getSelectedValues(columnKey: string): (string | number)[] {
+    return this.selectedFiltersMap[columnKey] || [];
+  }
+
+  onDropdownSelectionChange(columnKey: string, option: DropdownOptions): void {
+    this.dropdownSelectionChange.emit({ columnKey, option });
+  }
+
+  onDropdownScroll(columnKey: string): void {
+    this.dropdownScrolled.emit(columnKey);
+  }
+
+  onPriceRangeChange(
+    columnKey: string,
+    range: Range,
+  ): void {
+
+    this.priceFilters[columnKey] = {
+      min: range.min,
+      max: range.max,
+      changed: true,
+    };
+
+    this.priceRangeChange.emit({
+      columnKey,
+      ...range,
+    });
+  }
+
+  onStockRangeChange(
+    columnKey: string,
+    range: Range,
+  ): void {
+    this.onPriceRangeChange(columnKey, range);
+  }
+
+  onDropdownApply(columnKey: string): void {
+    this.filterApply.emit({ columnKey });
+    this.activeDropdownCol = null;
+  }
+
+  onDropdownClear(columnKey: string): void {
+    delete this.priceFilters[columnKey];
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [columnKey]: [],
+    };
+    this.filterClear.emit(columnKey);
+    this.activeDropdownCol = null;
+  }
+
+  private reapplyAllFilters(): void {
+    this.data = this.originalData.filter((row) => {
+      return Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '').toLowerCase();
+        return rowValue.includes(val);
+      });
+    });
+  }
+
+  onSearchInput(key: string, event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement) {
+      const value = inputElement.value;
+      if (!value || value.trim() === '') {
+        delete this.filterValues[key];
+        this.data = [...this.originalData];
+      }
+      this.searchSubject.next({ key, value });
+    }
+  }
+
+  clearSearchInput(key: string, inputElement: HTMLInputElement): void {
+    inputElement.value = '';
+    delete this.filterValues[key];
+    this.data = [...this.originalData];
+    this.filterChanged.emit(this.filterValues);
+    this.filterCleared.emit(key);
+    this.searchSubject.next({ key, value: '' });
+  }
+
+  // get count of select options
+  getSelectedCount(colKey: string): number {
+    const selected = this.selectedFiltersMap[colKey];
+    if (!selected) return 0;
+    if (Array.isArray(selected)) {
+      return selected.length;
+    }
+    return Object.keys(selected).length;
+  }
+
+  getDateFilterValue(key: string): Date | null {
+    const value = this.filterValues[key];
+    if (!value) {
+      return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day);
+  }
+
+  onDateFilterChange(key: string, value: Date | null): void {
+    if (!value) {
+      delete this.filterValues[key];
+    } else {
+      const year = value.getFullYear();
+      const month = String(value.getMonth() + 1).padStart(2, '0');
+      const day = String(value.getDate()).padStart(2, '0');
+      this.filterValues[key] = `${year}-${month}-${day}`;
+    }
+    this.applyCombinedFilters();
+  }
+
+  // Clear date filter
+  clearDateFilter(key: string, event: Event): void {
+    event.stopPropagation();
+    delete this.filterValues[key];
+    this.applyCombinedFilters();
+  }
+
+
+  // process all filters
+  private applyCombinedFilters(): void {
+    this.data = this.originalData.filter((row) => {
+      const matchesTextOrDate = Object.keys(this.filterValues).every((key) => {
+        const val = this.filterValues[key];
+        if (!val) return true;
+        const rowValue = String(row[key] || '');
+        return rowValue.toLowerCase().includes(val.toLowerCase());
+      });
+      return matchesTextOrDate;
+    });
+  }
+
+  canApply(columnKey: string): boolean {
+
+    if (this.priceFilters[columnKey]?.changed) {
+      return true;
+    }
+
+    const selected = this.selectedFiltersMap[columnKey];
+
+    return Array.isArray(selected)
+      ? selected.length > 0
+      : false;
+  }
+
+  canClear(columnKey: string): boolean {
+
+    if (this.priceFilters[columnKey]) {
+      return true;
+    }
+
+    const selected = this.selectedFiltersMap[columnKey];
+
+    return Array.isArray(selected)
+      ? selected.length > 0
+      : false;
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchSubscribe) {
+      this.searchSubscribe.unsubscribe();
+    }
+  }
+
 }

@@ -62,6 +62,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   totalRecords: number = 0;
   pageSize: number = 10;
   pageIndex: number = 0;
+  showHeaderFilter: boolean = true;
 
   statusOptions: Array<{ label: string; value: VendorStatus | 'All' }> = [
     { label: 'All Status', value: 'All' },
@@ -115,9 +116,9 @@ export class AllUsersComponent implements OnInit, OnDestroy {
             isBlocked: isBlockedUser,
             formattedAddress: user.address
               ? `${user.address.city || ''}, ${user.address.state || ''}`.replace(
-                  /^,\s*|,\s*$/g,
-                  '',
-                )
+                /^,\s*|,\s*$/g,
+                '',
+              )
               : 'N/A',
             description: user.address
               ? `${user.address.addressLine1 || ''}${user.address.addressLine2 ? ', ' + user.address.addressLine2 : ''}, ${user.address.city || ''}, ${user.address.state || ''} - ${user.address.postalCode || ''}`
@@ -181,16 +182,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', truncate: false },
-    { key: 'email', label: 'Email', truncate: true },
-    { key: 'phoneNumber', label: 'Phone' },
-    { key: 'formattedAddress', label: 'Location', truncate: true },
-    // { key: 'role', label: 'Role', truncate: false },
+    { key: 'name', label: 'Name', truncate: false, filterable: true, filterType:'search' },
+    { key: 'email', label: 'Email', truncate: true, filterable: true, filterType:'search' },
+    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType:'search' },
+    { key: 'formattedAddress', label: 'Location', truncate: true, filterable: true, filterType:'search' },
     {
       key: 'statusDisplay',
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'userStatusClass',
+      filterable: true, filterType:'dropdown'
     },
   ];
 

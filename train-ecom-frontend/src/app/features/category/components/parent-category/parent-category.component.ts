@@ -60,12 +60,33 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
 
   currentPage = 1;
   pageSize = 10;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Category Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' },
-    { key: 'numberOfSubCategories', label: 'Total Sub-Categories' },
+    {
+      key: 'name',
+      label: 'Category Name',
+      filterable: true,
+      filterType: 'search'
+    },
+    {
+      key: 'description',
+      label: 'Description',
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true
+    },
+    {
+      key: 'numberOfProducts',
+      label: 'Total Products',
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true
+    },
+    {
+      key: 'numberOfSubCategories',
+      label: 'Total Sub-Categories'
+    }
   ];
 
   actions: TableAction[] = [

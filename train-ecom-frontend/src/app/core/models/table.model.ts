@@ -1,4 +1,3 @@
-import { AdminUser } from '../models/user.model';
 import { Role } from './auth.model';
 export interface TableColumn {
   key: string;
@@ -8,6 +7,9 @@ export interface TableColumn {
   sortable?: boolean;
   role?: Role;
   badgeClassKey?: string;
+  filterable?: boolean;
+  filterType?: 'dropdown' | 'search'| 'date' | 'price-range' | 'stock-range';
+  filterDisabled?: boolean;
 }
 
 export interface TableAction<T = unknown> {
@@ -29,3 +31,12 @@ export interface BreadcrumbItem {
   url?: string;
 }
 
+export interface DropdownOptions {
+  id: string | number;
+  label: string;
+}
+
+export interface FilterEventPayload {
+  key: string;
+  value: string;
+}

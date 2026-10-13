@@ -51,7 +51,10 @@
     [totalRecords]="(totalRecords$ | async) || 0" 
     emptyMessage="No brands found." 
     (actionClick)="handleTableAction($event)"
-    (loadMore)="onTableScroll()">
+    (loadMore)="onTableScroll()"
+    [showheaderFilter]="showHeaderFilter"
+    (filterChanged)="onTableFilterChanged($event)"
+    (filterCleared)="onTableFilterCleared($event)">
   </app-generic-table>
 
 

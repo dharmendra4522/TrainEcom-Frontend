@@ -1,8 +1,6 @@
 <div class="container-fluid mt-2 px-0">
   <div class="sticky-top-section mb-4">
-
     <div class="row align-items-center g-3">
-      
       <!-- Title section -->
       <div class="col-12 col-lg-3">
         <h2 class="fs-4 fw-bold text-dark m-0">Product Management</h2>
@@ -11,20 +9,37 @@
 
       <!-- Search -->
       <div class="col-12 col-sm-6 col-lg-3">
-        <mat-form-field appearance="outline" class="product-filter-field w-100 mb-0" subscriptSizing="dynamic" floatLabel="always">
+        <mat-form-field
+          appearance="outline"
+          class="product-filter-field w-100 mb-0"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+        >
           <mat-label>Search products</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput [formControl]="searchControl" placeholder="Search...">
+          <input
+            matInput
+            [formControl]="searchControl"
+            placeholder="Search..."
+          />
         </mat-form-field>
       </div>
 
       <!-- Category  -->
       <div class="col-12 col-sm-6 col-lg-2">
-        <mat-form-field appearance="outline" class="product-filter-field w-100 mb-0" subscriptSizing="dynamic" floatLabel="always">
+        <mat-form-field
+          appearance="outline"
+          class="product-filter-field w-100 mb-0"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+        >
           <mat-label>Category</mat-label>
           <mat-select [formControl]="categoryControl">
             <mat-option value="">All Categories</mat-option>
-            <mat-option *ngFor="let cat of categories$ | async" [value]="cat.name">
+            <mat-option
+              *ngFor="let cat of categories$ | async"
+              [value]="cat.name"
+            >
               {{ cat.name }}
             </mat-option>
           </mat-select>
@@ -33,11 +48,19 @@
 
       <!-- Brand  -->
       <div class="col-12 col-sm-6 col-lg-2">
-        <mat-form-field appearance="outline" class="product-filter-field w-100 mb-0" subscriptSizing="dynamic" floatLabel="always">
+        <mat-form-field
+          appearance="outline"
+          class="product-filter-field w-100 mb-0"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+        >
           <mat-label>Brand</mat-label>
           <mat-select [formControl]="brandControl">
             <mat-option value="">All Brands</mat-option>
-            <mat-option *ngFor="let brand of brands$ | async" [value]="brand.name">
+            <mat-option
+              *ngFor="let brand of brands$ | async"
+              [value]="brand.name"
+            >
               {{ brand.name }}
             </mat-option>
           </mat-select>
@@ -45,27 +68,60 @@
       </div>
 
       <!-- Clear button -->
-     <div class="col-6 col-sm-3 col-lg-1">
-        <button mat-stroked-button color="warn" (click)="clearFilters()" 
-          [disabled]="!searchControl.value && !categoryControl.value && !brandControl.value"
-          class="product-toolbar-button w-100 d-flex align-items-center justify-content-center gap-1 rounded-3 px-2" title="Clear Filters">
+      <div class="col-6 col-sm-3 col-lg-1">
+        <button
+          mat-stroked-button
+          color="warn"
+          (click)="clearFilters()"
+          [disabled]="
+            !searchControl.value &&
+            !categoryControl.value &&
+            !brandControl.value
+          "
+          class="product-toolbar-button w-100 d-flex align-items-center justify-content-center gap-1 rounded-3 px-2"
+          title="Clear Filters"
+        >
           <mat-icon>clear</mat-icon>Clear
         </button>
       </div>
 
       <!-- Add button-->
       <div class="col-6 col-sm-3 col-lg-1 ms-auto text-lg-end">
-        <button mat-raised-button color="primary" [routerLink]="portalRoutes.products(portal, 'add')" class="product-toolbar-button w-100">
+        <button
+          mat-raised-button
+          color="primary"
+          [routerLink]="portalRoutes.products(portal, 'add')"
+          class="product-toolbar-button w-100"
+        >
           <mat-icon>add</mat-icon> <span>Add</span>
         </button>
       </div>
-
     </div>
   </div>
 
-  <app-generic-table [data]="(ProductList)" [isLoading]="(isLoading$ | async) || false" [columns]="columns"
-    [actions]="actions" [showInlineActions]="false" [hasMoreData]="hasMoreData" 
-    emptyMessage="No products found." (rowClick)="onRowClick($event)"
-    (actionClick)="handleTableAction($event)" (loadMore)="onScrollLoad()">
+  <app-generic-table
+    [data]="ProductList"
+    [isLoading]="(isLoading$ | async) || false"
+    [columns]="columns"
+    [actions]="actions"
+    [showInlineActions]="false"
+    [hasMoreData]="hasMoreData"
+    emptyMessage="No products found."
+    (rowClick)="onRowClick($event)"
+    (actionClick)="handleTableAction($event)"
+    (loadMore)="onScrollLoad()"
+    [showheaderFilter]="showHeaderFilter"
+    [dropdownOptionsMap]="dropdownOptionsMap"
+    [dropdownLoadingMap]="dropdownLoadingMap"
+    [selectedFiltersMap]="selectedFiltersMap"
+    (dropdownSearchChange)="onDropdownSearchTriggered($event)"
+    (dropdownOpened)="onDropdownOpened($event)"
+    (dropdownScrolled)="onDropdownScrolled($event)"
+    (dropdownSelectionChange)="onDropdownSelectionChanged($event)"
+    (filterApply)="onFilterApply($event)"
+    (filterClear)="onFilterClear($event)"
+    (filterChanged)="onTableFilterChanged($event)"
+    (filterCleared)="onTableFilterCleared($event)"
+  >
   </app-generic-table>
 </div>

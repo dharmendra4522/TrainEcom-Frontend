@@ -31,6 +31,8 @@ import { StatusCardComponent } from './components/status-card/status-card.compon
 import { VendorActionDialogComponent } from './components/vendor-action-dialog/vendor-action-dialog.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.component';
+import { MultiselectDropdownComponent } from './components/multiselect-dropdown/multiselect-dropdown.component';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 @NgModule({
   declarations: [
@@ -61,6 +63,8 @@ import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.
     StatusCardComponent,
     VendorActionDialogComponent,
     FilterDialogComponent,
+    MultiselectDropdownComponent
+    
   ],
   imports: [
     CommonModule,
@@ -69,6 +73,7 @@ import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.
     FormsModule,
     ReactiveFormsModule,
     ScrollingModule,
+    OverlayModule
   ],
   exports: [
     HeaderComponent,
@@ -93,6 +98,7 @@ import { FilterDialogComponent } from './components/filter-dialog/filter-dialog.
     NotificationCardComponent,
     StatusCardComponent,
     ScrollingModule,
+    OverlayModule
   ],
 })
 export class SharedModule {}

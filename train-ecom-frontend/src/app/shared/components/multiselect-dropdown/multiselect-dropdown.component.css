@@ -1,0 +1,172 @@
+.dropdown-wrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100% !important;
+  min-width: unset;
+  max-width: unset;
+  z-index: 1090;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  margin-top: 0px !important;
+  box-sizing: border-box;
+}
+
+.compact-search-field {
+  height: 31px;
+}
+
+::ng-deep .compact-search-field .mat-mdc-text-field-wrapper,
+::ng-deep .compact-search-field .mat-mdc-form-field-flex {
+  height: 31px !important;
+  min-height: 31px !important;
+  align-items: center !important;
+}
+
+::ng-deep .compact-search-field .mat-mdc-text-field-wrapper {
+  padding: 0 8px !important;
+}
+
+::ng-deep .compact-search-field .mat-mdc-form-field-infix {
+  min-height: 31px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+::ng-deep .compact-search-field .mat-mdc-input-element {
+  height: 29px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 29px;
+}
+
+::ng-deep .compact-search-field .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+::ng-deep
+  .compact-search-field
+  .mat-mdc-form-field-icon-suffix
+  .mat-mdc-icon-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+::ng-deep .compact-search-field .mat-mdc-form-field-icon-suffix .mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+.options-container {
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.hover-bg:hover {
+  background-color: #f8f9fa;
+}
+
+.price-range-panel {
+  padding: 14px 18px 12px;
+  background: #fff;
+}
+
+.price-range-title {
+  color: #212529;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.price-range-values {
+  margin-top: 4px;
+  color: #212529;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.price-range-slider {
+  position: relative;
+  height: 24px;
+  margin: 12px 8px 0;
+}
+
+.price-range-slider::before {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  left: 0;
+  height: 6px;
+  border-radius: 3px;
+  background: #4054b2;
+  content: "";
+}
+
+.price-range-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.price-range-input::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+}
+
+.price-range-input::-moz-range-track {
+  height: 6px;
+  background: transparent;
+}
+
+.price-range-min,
+.price-range-max {
+  z-index: 2;
+}
+
+.price-range-max {
+  z-index: 1;
+}
+
+.price-range-input.active-slider {
+  z-index: 5;
+}
+
+.price-range-input::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: #0d6efd;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.price-range-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: #0d6efd;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.price-range-input:active::-webkit-slider-thumb,
+.price-range-input:active::-moz-range-thumb {
+  cursor: grabbing;
+}

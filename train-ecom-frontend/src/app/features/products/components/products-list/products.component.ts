@@ -4,6 +4,7 @@ import {
   TableColumn,
   TableAction,
   TableActionEvent,
+  DropdownOptions,
 } from '../../../../core/models/table.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
@@ -19,17 +20,33 @@ import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
 import * as CategoryActions from '../../../../core/store/category/category.action';
-import { combineLatest, Subject, Observable } from 'rxjs';
+import { combineLatest, Subject, Observable, EMPTY, timer } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
   takeUntil,
   startWith,
   take,
+  switchMap,
+  map,
+  catchError,
+  finalize,
 } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
+import { ProductService } from '../../../../core/services/product.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { extractBackendMessage } from '../../../../core/utils/error.utils';
+import { Category } from '../../../../core/models/category.model';
+import { Brand } from '../../../../core/models/brand.model';
+
+interface DropdownOptionsRequest {
+  columnKey: string;
+  searchTerm: string;
+  pageNumber: number;
+  append: boolean;
+}
 
 @Component({
   selector: 'app-products',
@@ -40,6 +57,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
+  private productService = inject(ProductService);
+  private notification = inject(NotificationService);
   readonly portalRoutes = inject(PortalRouteService);
   private route = inject(ActivatedRoute);
 
@@ -69,19 +88,70 @@ export class ProductsComponent implements OnInit, OnDestroy {
   hasMoreData: boolean = true;
   portal: PortalKey = 'admin';
   isLoadingValue: boolean = false;
+  showHeaderFilter: boolean = true;
+
+  // state map for filter column dropdown
+  dropdownOptionsMap: Record<string, DropdownOptions[]> = {};
+  dropdownLoadingMap: Record<string, boolean> = {};
+  selectedFiltersMap: Record<string, (string | number)[]> = {};
+  private dropdownPageMap: Record<string, number> = {};
+  private dropdownHasMoreMap: Record<string, boolean> = {};
+  private dropdownSearchTermMap: Record<string, string> = {};
+  private readonly dropdownOptionsPageSize = 10;
+
+  private readonly columnSearchSubject$ = new Subject<DropdownOptionsRequest>();
+
+  // track column filter
+  columnFilters: Record<string, string> = {};
+  private readonly columnTableSearchSubject$ = new Subject<
+    Record<string, string>
+  >();
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', type: 'string' },
+    {
+      key: 'name',
+      label: 'Name',
+      type: 'string',
+      filterable: true,
+      filterType: 'search',
+    },
     {
       key: 'description',
       label: 'Description',
       type: 'string',
       sortable: false,
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true,
     },
-    { key: 'price', label: 'Price', type: 'number' },
-    { key: 'stockQuantity', label: 'Stock', type: 'number' },
-    { key: 'categoryName', label: 'Category', type: 'string' },
-    { key: 'brandName', label: 'Brand', type: 'string' },
+    {
+      key: 'price',
+      label: 'Price',
+      type: 'number',
+      filterable: true,
+      filterType: 'price-range',
+    },
+    {
+      key: 'stockQuantity',
+      label: 'Stock',
+      type: 'number',
+      filterable: true,
+      filterType: 'stock-range',
+    },
+    {
+      key: 'categoryName',
+      label: 'Category',
+      type: 'string',
+      filterable: true,
+      filterType: 'dropdown',
+    },
+    {
+      key: 'brandName',
+      label: 'Brand',
+      type: 'string',
+      filterable: true,
+      filterType: 'dropdown',
+    },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',
@@ -105,9 +175,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    const initialCategory = this.route.snapshot.queryParamMap.get('categoryName');
+    const initialCategory =
+      this.route.snapshot.queryParamMap.get('categoryName');
     if (initialCategory) {
       this.categoryControl.setValue(initialCategory, { emitEvent: false });
     }
@@ -115,12 +186,82 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.loadInitialMetadata();
     this.initSubscriptions();
     this.setupSearchFilter();
-    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      const categoryName = params.get('categoryName') ?? '';
-      if (this.categoryControl.value !== categoryName) {
-        this.categoryControl.setValue(categoryName);
-      }
-    });
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const categoryName = params.get('categoryName') ?? '';
+        if (this.categoryControl.value !== categoryName) {
+          this.categoryControl.setValue(categoryName);
+        }
+      });
+    this.setupColumnDropdownSearch();
+  }
+
+  private setupColumnDropdownSearch(): void {
+    this.columnSearchSubject$
+      .pipe(
+        switchMap((request) => {
+          this.dropdownLoadingMap[request.columnKey] = true;
+          return timer(request.append ? 0 : 300).pipe(
+            switchMap(() =>
+              this.productService.getPaginatedProducts(
+                request.pageNumber,
+                this.dropdownOptionsPageSize,
+                this.brandControl.value || undefined,
+                this.categoryControl.value || undefined,
+                request.searchTerm || undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                this.portal,
+              ),
+            ),
+            map((response) => ({ request, response })),
+            catchError((error: unknown) => {
+              this.notification.showError(
+                extractBackendMessage(error, 'Failed to load filter options'),
+              );
+              return EMPTY;
+            }),
+            finalize(() => {
+              this.dropdownLoadingMap[request.columnKey] = false;
+            }),
+          );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(({ request, response }) => {
+        const existingOptions = request.append
+          ? this.dropdownOptionsMap[request.columnKey] || []
+          : [];
+        const optionKeys = new Set(
+          existingOptions.map((option) => `${typeof option.id}:${option.id}`),
+        );
+        const options = [...existingOptions];
+
+        response.items.forEach((product) => {
+          const value = product[request.columnKey];
+          if (
+            (typeof value === 'string' && value.trim() !== '') ||
+            (typeof value === 'number' && Number.isFinite(value))
+          ) {
+            const optionKey = `${typeof value}:${value}`;
+            if (!optionKeys.has(optionKey)) {
+              optionKeys.add(optionKey);
+              options.push({ id: value, label: String(value) });
+            }
+          }
+        });
+
+        this.dropdownOptionsMap[request.columnKey] = options;
+        this.dropdownPageMap[request.columnKey] = request.pageNumber;
+        const totalPages =
+          response.totalPages ||
+          Math.ceil(response.totalRecords / this.dropdownOptionsPageSize);
+        this.dropdownHasMoreMap[request.columnKey] =
+          request.pageNumber < totalPages;
+      });
   }
 
   // load initial data Brands aur Categories
@@ -279,6 +420,205 @@ export class ProductsComponent implements OnInit, OnDestroy {
           );
         }
       });
+  }
+
+  onDropdownSearchTriggered(event: {
+    columnKey: string;
+    searchTerm: string;
+  }): void {
+    const colKey = event.columnKey;
+    const term = event.searchTerm.trim().toLowerCase();
+
+    if (colKey === 'categoryName') {
+      this.categories$.pipe(take(1)).subscribe((categories) => {
+        const filtered = categories.filter((cat: Category) =>
+          cat.name.toLowerCase().includes(term),
+        );
+        this.dropdownOptionsMap[colKey] = filtered.map((cat: Category) => ({
+          id: cat.id,
+          label: cat.name,
+        }));
+      });
+      return;
+    }
+
+    if (colKey === 'brandName') {
+      this.brands$.pipe(take(1)).subscribe((brands) => {
+        const filtered = brands.filter((brand: Brand) =>
+          brand.name.toLowerCase().includes(term),
+        );
+        this.dropdownOptionsMap[colKey] = filtered.map((brand: Brand) => ({
+          id: brand.id,
+          label: brand.name,
+        }));
+      });
+      return;
+    }
+
+    this.dropdownSearchTermMap[event.columnKey] = event.searchTerm.trim();
+    this.dropdownOptionsMap[event.columnKey] = [];
+    this.dropdownPageMap[event.columnKey] = 0;
+    this.dropdownHasMoreMap[event.columnKey] = true;
+    this.loadDropdownOptionsForColumn(
+      event.columnKey,
+      this.dropdownSearchTermMap[event.columnKey],
+      1,
+      false,
+    );
+  }
+
+  onDropdownOpened(columnKey: string): void {
+    if (columnKey === 'categoryName') {
+      this.categories$.pipe(take(1)).subscribe((categories) => {
+        this.dropdownOptionsMap[columnKey] = categories.map((cat: Category) => ({
+          id: cat.id,
+          label: cat.name,
+        }));
+      });
+      return;
+    }
+
+    if (columnKey === 'brandName') {
+      this.brands$.pipe(take(1)).subscribe((brands) => {
+        this.dropdownOptionsMap[columnKey] = brands.map((brand: Brand) => ({
+          id: brand.id,
+          label: brand.name,
+        }));
+      });
+      return;
+    }
+    this.dropdownSearchTermMap[columnKey] = '';
+    this.dropdownOptionsMap[columnKey] = [];
+    this.dropdownPageMap[columnKey] = 0;
+    this.dropdownHasMoreMap[columnKey] = true;
+    this.loadDropdownOptionsForColumn(columnKey, '', 1, false);
+  }
+
+  onDropdownScrolled(columnKey: string): void {
+    if (
+      this.dropdownLoadingMap[columnKey] ||
+      !this.dropdownHasMoreMap[columnKey]
+    ) {
+      return;
+    }
+
+    this.loadDropdownOptionsForColumn(
+      columnKey,
+      this.dropdownSearchTermMap[columnKey] || '',
+      (this.dropdownPageMap[columnKey] || 0) + 1,
+      true,
+    );
+  }
+
+  private loadDropdownOptionsForColumn(
+    columnKey: string,
+    searchTerm: string,
+    pageNumber: number,
+    append: boolean,
+  ): void {
+    this.columnSearchSubject$.next({
+      columnKey,
+      searchTerm,
+      pageNumber,
+      append,
+    });
+  }
+
+  // handle Apply
+  onFilterApply(event: { columnKey: string }): void {
+    try {
+      this.pageNumber = 1;
+      const categoryFilters =
+        this.selectedFiltersMap?.['categoryName'] ?? [];
+      const brandFilters =
+        this.selectedFiltersMap?.['brandName'] ?? [];
+      this.store.dispatch(
+        ProductActions.loadProducts({
+          pageNumber: this.pageNumber,
+          pageSize: this.pageSize,
+          search: this.searchControl.value?.trim() || undefined,
+          categoryName:
+            categoryFilters.length > 0
+              ? String(categoryFilters[0])
+              : this.categoryControl.value || undefined,
+          brandName:
+            brandFilters.length > 0
+              ? String(brandFilters[0])
+              : this.brandControl.value || undefined,
+          portal: this.portal,
+        }),
+      );
+    } catch (error) {
+      this.notification.showError(
+        'Something went wrong while applying filters.',
+      );
+      console.error(error);
+    }
+  }
+
+  // handle drop-down clear
+  onFilterClear(columnKey: string): void {
+    if (this.selectedFiltersMap[columnKey]) {
+      delete this.selectedFiltersMap[columnKey];
+    }
+    this.fetchFilteredProducts();
+  }
+
+  private fetchFilteredProducts(): void {
+    this.store.dispatch(
+      ProductActions.loadProducts({
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+        search: this.searchControl.value?.trim() || undefined,
+        categoryName: this.categoryControl.value || undefined,
+        brandName: this.brandControl.value || undefined,
+        portal: this.portal,
+      }),
+    );
+  }
+
+  // Isse dropdown item click hone par selected state update hogi
+  onDropdownSelectionChanged(event: {
+    columnKey: string;
+    option: DropdownOptions;
+  }): void {
+    const colKey = event.columnKey;
+    const optId = event.option.id;
+    const currentSelected = this.selectedFiltersMap[colKey]
+      ? [...this.selectedFiltersMap[colKey]]
+      : [];
+    const index = currentSelected.indexOf(optId);
+    if (index > -1) {
+      currentSelected.splice(index, 1);
+    } else {
+      currentSelected.push(optId);
+    }
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [colKey]: currentSelected,
+    };
+  }
+
+  onTableFilterChanged(filters: Record<string, string>): void {
+    this.columnFilters = filters;
+    const firstSearchVal =
+      Object.values(filters)
+        .find((v) => v !== undefined && v !== null)
+        ?.trim() || '';
+    if (this.searchControl.value !== firstSearchVal) {
+      this.searchControl.setValue(firstSearchVal, { emitEvent: true });
+    }
+  }
+
+  onTableFilterCleared(columnKey: string): void {
+    if (
+      columnKey === 'name' ||
+      columnKey === 'price' ||
+      columnKey === 'stockQuantity'
+    ) {
+      this.searchControl.setValue('', { emitEvent: true });
+    }
+    this.columnFilters = {};
   }
 
   ngOnDestroy() {

@@ -21,7 +21,7 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
@@ -29,7 +29,7 @@ import { ConfirmDialogServiceService } from '../../../../core/services/confirm-d
   templateUrl: './brand.component.html',
   styleUrl: './brand.component.css',
 })
-export class BrandComponent implements OnInit, OnDestroy { 
+export class BrandComponent implements OnInit, OnDestroy {
   private matDialog = inject(MatDialog);
   private store = inject(Store);
   private confirmDialog = inject(ConfirmDialogServiceService);
@@ -46,17 +46,18 @@ export class BrandComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   private currentPage = 0;
-  pageSize = 15;
-  
+  private pageSize = 15;
+
   // Local state tracking
   private currentBrandsLength = 0;
   private totalRecordsCount = 0;
   private isLoadingValue = false;
+  showHeaderFilter: boolean = true;
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Brand Name' },
-    { key: 'description', label: 'Description' },
-    { key: 'numberOfProducts', label: 'Total Products' },
+    { key: 'name', label: 'Brand Name', filterable: true, filterType: 'search' },
+    { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
+    { key: 'numberOfProducts', label: 'Total Products', filterable: true, filterType: 'search' }
   ];
 
   actions: TableAction[] = [
@@ -64,14 +65,14 @@ export class BrandComponent implements OnInit, OnDestroy {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Brand',
+      tooltip: 'Edit Brand'
     },
     {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Brand',
-    },
+      tooltip: 'Delete Brand'
+    }
   ];
 
   ngOnInit(): void {
@@ -195,6 +196,22 @@ export class BrandComponent implements OnInit, OnDestroy {
           );
         }
       });
+  }
+
+  // handle header filter search
+  onTableFilterChanged(filters: Record<string, string>): void {
+    const searchText = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
+    if (this.searchControl.value !== searchText) {
+      this.searchControl.setValue(searchText, { emitEvent: false });
+    }
+    this.currentPage = 0;
+    this.loadBrand(this.currentPage, this.pageSize, searchText);
+  }
+
+  onTableFilterCleared(columnKey: string): void {
+    this.searchControl.setValue('', { emitEvent: false });
+    this.currentPage = 0;
+    this.loadBrand(this.currentPage, this.pageSize, '');
   }
 
   ngOnDestroy(): void {

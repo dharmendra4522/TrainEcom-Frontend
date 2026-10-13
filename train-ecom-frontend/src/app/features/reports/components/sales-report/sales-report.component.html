@@ -116,7 +116,7 @@
 
     <app-generic-table [isLoading]="isTableLoading" [data]="TopProducts" [columns]="tableColumns" [showIndex]="true"
       [showPaginator]="false" emptyMessage="No top selling products found for the selected range."
-      (rowClick)="onTopProductRowClick($event)">
+      (rowClick)="onTopProductRowClick($event)" [showheaderFilter]="showFilterHeader">
     </app-generic-table>
   </div>
 </div>

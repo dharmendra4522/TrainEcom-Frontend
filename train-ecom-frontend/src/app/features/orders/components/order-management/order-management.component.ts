@@ -41,6 +41,7 @@ export class OrderManagementComponent implements OnInit {
 
   orders: AdminOrderItem[] = [];
   isLoading: boolean = false;
+  showFilterHeader: boolean = true;
 
   filterForm = new FormGroup({
     search: new FormControl(''),
@@ -83,22 +84,26 @@ export class OrderManagementComponent implements OnInit {
 
   // Table Columns Setup
   columns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', truncate: true },
-    { key: 'customerName', label: 'Customer Name' },
-    { key: 'orderDate', label: 'Date', type: 'date' },
-    { key: 'totalItems', label: 'Items' },
-    { key: 'totalAmount', label: 'Total', type: 'currency' },
+    { key: 'orderId', label: 'Order ID', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'customerName', label: 'Customer Name', filterable: true, filterType: 'search' },
+    { key: 'orderDate', label: 'Date', type: 'date', filterable: true, filterType: 'date' },
+    { key: 'totalItems', label: 'Items', filterable: true, filterType: 'search' },
+    { key: 'totalAmount', label: 'Total', type: 'currency', filterable: true, filterType: 'price-range' },
     {
       key: 'orderStatus',
       label: 'Status',
       type: 'badge',
-      badgeClassKey: 'orderStatusClass'
+      badgeClassKey: 'orderStatusClass',
+      filterable: true,
+      filterType: 'dropdown'
     },
     {
       key: 'paymentStatus',
       label: 'Payment',
       type: 'badge',
-      badgeClassKey: 'paymentStatusClass'
+      badgeClassKey: 'paymentStatusClass',
+      filterable: true,
+      filterType: 'dropdown'
     },
   ];
 
