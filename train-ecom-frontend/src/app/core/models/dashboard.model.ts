@@ -19,6 +19,7 @@ export interface DashboardData {
   totalCustomers: number;
   totalVendors: number;
   totalAdminUsers: number;
+  totalStaffUsers?: number;
   recentOrders: RecentOrder[];
 }
 
@@ -40,10 +41,17 @@ export type DashboardOrderRow = {
   orderStatusClass: string;
 };
 
+export interface CategorySubCategorySummary {
+  subCategoryId: number;
+  subCategoryName: string;
+  productCount: number;
+}
+
 export interface CategoryWiseProductCount {
   categoryId: number;
   categoryName: string;
   productCount: number;
+  subCategories: CategorySubCategorySummary[];
 }
 
 export interface CategoryProductSummaryResponse {

@@ -10,7 +10,10 @@
       <div class="stat-info" [class.w-75]="isLoadingStats">
         <span class="stat-title fw-bold">{{ stat.title }}</span>
 
-        <h2 class="stat-value fw-bold" *ngIf="!isLoadingStats; else valueLoader">
+        <h2
+          class="stat-value fw-bold"
+          *ngIf="!isLoadingStats; else valueLoader"
+        >
           {{ stat.value }}
         </h2>
         <ng-template #valueLoader>
@@ -27,7 +30,10 @@
     <mat-card-content>
       <div class="stat-info px-3">
         <span class="stat-title fw-bold">Users</span>
-        <h2 class="stat-value fw-bold " *ngIf="!isLoadingStats; else valueLoader">
+        <h2
+          class="stat-value fw-bold"
+          *ngIf="!isLoadingStats; else valueLoader"
+        >
           {{ totalUsers }}
         </h2>
         <ng-template #valueLoader>
@@ -39,10 +45,7 @@
       <!-- subcontent -->
       <div class="mt-2 pt-2 w-100 w-md-75" *ngIf="!isLoadingStats">
         <div class="row g-0">
-          <div
-            class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
-          
-          >
+          <div class="col-6 col-xl-4 d-flex flex-column align-items-start px-3">
             <span class="d-block text-dark fs-5 fw-bold">{{
               totalAdminUsers
             }}</span>
@@ -50,6 +53,7 @@
             <span class="text-muted fs-6 fw-bold">Admin User</span>
           </div>
           <div
+            *ngIf="portal !== 'vendor'"
             class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
             (click)="navigateToCustomers()"
           >
@@ -62,14 +66,29 @@
 
           <div
             class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
+            *ngIf="portal !== 'vendor'; else staffUsersBlock"
             (click)="navigateToVendors()"
           >
-            <span class="d-block text-dark fs-5 fw-bold">{{
-              totalVendors
-            }}</span>
+            <span class="d-block text-dark fs-5 fw-bold">
+              {{ totalVendors }}
+            </span>
+
             <hr class="my-0 w-100 w-md-75 text-primary" />
-            <span class="text-muted fs-6 fw-bold">Vendors</span>
+            <span class="text-muted fs-6 fw-bold"> Vendors </span>
           </div>
+          <ng-template #staffUsersBlock>
+            <div
+              class="col-6 col-xl-4 d-flex flex-column align-items-start px-3"
+            >
+              <span class="d-block text-dark fs-5 fw-bold">
+                {{ totalStaffUsers }}
+              </span>
+
+              <hr class="my-0 w-100 w-md-75 text-primary" />
+
+              <span class="text-muted fs-6 fw-bold"> Staff Users </span>
+            </div>
+          </ng-template>
         </div>
       </div>
     </mat-card-content>
@@ -80,7 +99,10 @@
     <mat-card-content>
       <div class="stat-info px-3">
         <span class="stat-title fw-bold">Orders</span>
-        <h2 class="stat-value fw-bold" *ngIf="!isLoadingStats; else valueLoader">
+        <h2
+          class="stat-value fw-bold"
+          *ngIf="!isLoadingStats; else valueLoader"
+        >
           {{ totalOrders }}
         </h2>
         <ng-template #valueLoader>

@@ -45,7 +45,6 @@
             [matBadge]="orderFilterCount"
             [matBadgeHidden]="orderFilterCount === 0"
             matBadgeOverlap="true"
-            [disabled]="isVendor"
             (click)="onOrderFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>
@@ -111,7 +110,6 @@
             [matBadge]="revenueFilterCount"
             [matBadgeHidden]="revenueFilterCount === 0"
             matBadgeOverlap="true"
-            [disabled]="isVendor"
             (click)="onRevenueFilterDialog()"
           >
             <mat-icon>filter_alt</mat-icon>

@@ -11,6 +11,7 @@ export class DashboardService {
   private http = inject(HttpClient);
 
   private baseAPI = `${environment.apiBaseUrl}/admin/dashboard`
+  private vendorMetrices = `${environment.apiBaseUrl}/vendors/dashboard/metrices`;
   private chartAPI = `${environment.apiBaseUrl}/dashboard`;
   private vendorAPI = `${environment.apiBaseUrl}/vendors/list/all`;
 
@@ -19,6 +20,10 @@ export class DashboardService {
 
   fetchDashboardMetricsData(): Observable<DashboardData> {
     return this.http.get<DashboardData>(this.baseAPI);
+  }
+
+  fetchVendorDashboardMetricsData(): Observable<DashboardData> {
+    return this.http.get<DashboardData>(this.vendorMetrices);
   }
 
   fetchCategoryWiseProductCount(): Observable<CategoryProductSummaryResponse> {

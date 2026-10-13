@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit {
   public totalCustomers: number = 0;
   public totalAdminUsers: number = 0;
   public totalVendors: number = 0;
+  public totalStaffUsers: number = 0;
   public totalOrders: number = 0;
   public activeOrders: number = 0;
   public deliveredOrders: number = 0;
@@ -68,25 +69,24 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
     if (this.portal === 'vendor') {
       this.isVendor = true;
-      this.isLoadingStats = false;
-      this.stats = INITIAL_ADMIN_STATS;
       if (this.checkVendorPending()) {
         this.isApproved = false;
         this.isLoadingStats = false;
         return;
       }
-    } else {
-      // for Admin
       this.isApproved = true;
-      this.fetchDashboardData();
+      this.fetchVendorDashboardData();
+      return;
     }
+    this.isApproved = true;
+    this.fetchDashboardData();
   }
 
   private checkVendorPending(): boolean {
@@ -118,6 +118,31 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
+
+  private fetchVendorDashboardData(): void {
+    this.isLoadingStats = true;
+    this.dashboardService
+      .fetchVendorDashboardMetricsData()
+      .subscribe({
+        next: (data: DashboardData) => {
+          this.updateRecentOrders(data.recentOrders);
+          this.totalUsers = data.totalUsers;
+          this.totalAdminUsers = data.totalAdminUsers;
+          this.totalStaffUsers = data.totalStaffUsers ?? 0;
+          this.totalOrders = data.totalOrders;
+          this.activeOrders = data.activeOrders;
+          this.deliveredOrders = data.deliveredOrders;
+          this.cancelOrders = data.cancelOrders;
+          this.shippedOrders = data.shippedOrders;
+          this.isLoadingStats = false;
+        },
+        error: (err: Error) => {
+          console.error('Failed to fetch vendor dashboard data', err);
+          this.isLoadingStats = false;
+        }
+      });
+  }
+
 
   // Update the stats cards based on the fetched dashboard data
   private updateStatsCards(data: DashboardData): void {

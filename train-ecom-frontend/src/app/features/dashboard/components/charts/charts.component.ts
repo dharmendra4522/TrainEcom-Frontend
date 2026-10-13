@@ -46,6 +46,7 @@ export class ChartsComponent implements OnInit {
   @Input() totalCustomers: number = 0;
   @Input() totalVendors: number = 0;
   @Input() totalAdminUsers: number = 0;
+  @Input() totalStaffUsers: number = 0;
   @Input() isVendor: boolean = false;
   @Input() isLoading: boolean = true;
   @Input() portal: PortalKey = 'admin';
@@ -116,10 +117,23 @@ export class ChartsComponent implements OnInit {
   // initialize user chart data based on the input values
   private initUserChart(): void {
     if (this.isVendor) {
-      this.userChartData = userChartData;
+      this.userChartData = {
+        labels: ['Admin Users', 'Staff Users'],
+        datasets: [
+          {
+            data: [
+              this.totalAdminUsers,
+              this.totalStaffUsers
+            ],
+            backgroundColor: [
+              '#4caf50',
+              '#2196f3'
+            ]
+          }
+        ]
+      };
       return;
     }
-
     this.userChartData = {
       labels: ['Customers', 'Vendors', 'Admin Users'],
       datasets: [
@@ -133,35 +147,82 @@ export class ChartsComponent implements OnInit {
 
   // fetch category data for charts
   private fetchCategoryData(): void {
-    if (this.isVendor) {
-      return;
-    }
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
       next: (data: CategoryProductSummaryResponse) => {
         this.totalCategories = data.totalCategories;
-        const labels = data.summary.map((item) => item.categoryName);
-        const counts = data.summary.map((item) => item.productCount);
-        this.productChartData = {
-          labels: labels,
-          datasets: [
-            {
-              data: counts,
-              backgroundColor: ['#2196f3']
+        const labels = data.summary.map(
+          category => category.categoryName
+        );
+        const datasets: {
+          label: string;
+          data: number[];
+          backgroundColor: string;
+        }[] = [];
+        const subCategoryMap = new Map<
+          string,
+          number[]
+        >();
+        data.summary.forEach(
+          (category, categoryIndex) => {
+            category.subCategories.forEach(
+              subCategory => {
+                if (
+                  !subCategoryMap.has(
+                    subCategory.subCategoryName
+                  )
+                ) {
+                  subCategoryMap.set(
+                    subCategory.subCategoryName,
+                    new Array(labels.length).fill(0)
+                  );
+                }
+                subCategoryMap.get(
+                  subCategory.subCategoryName
+                )![categoryIndex] =
+                  subCategory.productCount;
+              }
+            );
+          }
+        );
+        const colors = [
+          '#4caf50',
+          '#ff9800',
+          '#e91e63',
+          '#9c27b0',
+          '#009688',
+          '#ff5722',
+          '#3f51b5'
+        ];
+        Array.from(subCategoryMap.entries())
+          .forEach(
+            ([subCategoryName, values], index) => {
+
+              datasets.push({
+                label: subCategoryName,
+                data: values,
+                backgroundColor:
+                  colors[index % colors.length]
+              });
             }
-          ]
+          );
+
+        this.productChartData = {
+          labels,
+          datasets
         };
       },
+
       error: (err: Error) => {
-        console.error('Failed to fetch category data', err);
+        console.error(
+          'Failed to fetch category data',
+          err
+        );
       }
     });
   }
 
   // fetch revenue data for charts
   private fetchRevenueData(year?: number, vendorIds?: number[]): void {
-    if (this.isVendor) {
-      return;
-    }
     this.dashboardService.fetchRevenueData(year, vendorIds).subscribe({
       next: (data: RevenueData) => {
         this.totalRevenue = data.totalRevenue;
@@ -169,7 +230,7 @@ export class ChartsComponent implements OnInit {
         const revenues = labels.map(
           (_, monthIndex) =>
             data.monthlyRevenue.find((item) => item.month === monthIndex + 1)
-              ?.revenue ?? 0,
+              ?.revenue ?? 0
         );
 
         this.revenueChartData = {
@@ -190,9 +251,6 @@ export class ChartsComponent implements OnInit {
 
   // fetch order summary data for charts
   private fetchOrderSummaryData(year?: number, vendorIds?: number[]): void {
-    if (this.isVendor) {
-      return;
-    }
     this.dashboardService.fetchOrderSummary(year, vendorIds).subscribe({
       next: (data: OrderSummaryResponse) => {
         this.totalOrders = data.totalOrders;
@@ -267,7 +325,7 @@ export class ChartsComponent implements OnInit {
     >(FilterDialogComponent, {
       width: '400px',
       disableClose: true,
-      data: { year: currentYear, vendors: currentVendors }
+      data: { year: currentYear, vendors: currentVendors, isVendor: this.isVendor }
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.cleared) {
