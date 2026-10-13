@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit {
 
   // order table columns
   tableColumns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', truncate: true, type: 'string' },
+    { key: 'orderId', label: 'Order ID', truncate: true, type: 'string', clickable: true },
     { key: 'customerName', label: 'Customer Name', type: 'string' },
     { key: 'orderDate', label: 'Date', type: 'date' },
     { key: 'totalAmount', label: 'Total Amount', type: 'currency' },
