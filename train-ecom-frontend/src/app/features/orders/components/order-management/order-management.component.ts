@@ -2,10 +2,11 @@ import { Component, inject, OnInit } from '@angular/core';
 import {
   AdminOrderFilterParams,
   AdminOrderItem,
+  OrderListField,
   OrderStatus,
-  PaymentStatus,
+  PaymentStatus
 } from '../../../../core/models/order.model';
-import { TableColumn } from '../../../../core/models/table.model';
+import { DropdownOptions, TableColumn } from '../../../../core/models/table.model';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import {
   EMPTY,
@@ -14,22 +15,28 @@ import {
   debounceTime,
   distinctUntilChanged,
   switchMap,
-  takeUntil,
+  takeUntil
 } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import {
   normalizeOrderStatus,
-  normalizePaymentStatus,
+  normalizePaymentStatus
 } from '../../../../core/utils/role.utils';
 import { FormControl, FormGroup } from '@angular/forms';
 import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
+import { Range } from '../../../../shared/components/multiselect-dropdown/multiselect-dropdown.component';
+
+interface LegacyAdminOrderFilterParams extends AdminOrderFilterParams {
+  Month?: number;
+  Year?: number;
+}
 
 @Component({
   selector: 'app-order-management',
   templateUrl: './order-management.component.html',
-  styleUrls: ['./order-management.component.css'],
+  styleUrls: ['./order-management.component.css']
 })
 export class OrderManagementComponent implements OnInit {
   private orderService = inject(OrderHistoryService);
@@ -49,42 +56,56 @@ export class OrderManagementComponent implements OnInit {
 
   // Pagination State
   totalRecords: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 15;
   pageIndex: number = 0;
 
   // Filter State
-  selectedStatus: number | undefined = undefined;
-  selectedPaymentStatus: number | undefined = undefined;
-  selectedMonth: number | undefined = undefined;
-  selectedYear: number | undefined = undefined;
-  fromDate: Date | string | null = '';
-  toDate: Date | string | null = '';
-  private appliedFromDate: Date | string | null = '';
-  private appliedToDate: Date | string | null = '';
-
-  maxDate: Date = new Date();
-
   // Dropdown Options
-  orderStatusOptions = [
-    { value: OrderStatus.Active, label: 'Active' },
-    { value: OrderStatus.Shipped, label: 'Shipped' },
-    { value: OrderStatus.Delivered, label: 'Delivered' },
-    { value: OrderStatus.Cancelled, label: 'Cancelled' }
+  orderStatusOptions: DropdownOptions[] = [
+    { id: OrderStatus.Active, label: 'Active' },
+    { id: OrderStatus.Shipped, label: 'Shipped' },
+    { id: OrderStatus.Delivered, label: 'Delivered' },
+    { id: OrderStatus.Cancelled, label: 'Cancelled' }
   ];
 
-  paymentStatusOptions = [
-    { value: PaymentStatus.Pending, label: 'Pending' },
-    { value: PaymentStatus.Success, label: 'Success' },
-    { value: PaymentStatus.Refunded, label: 'Refunded' },
-    { value: PaymentStatus.Cancelled, label: 'Cancelled' }
+  paymentStatusOptions: DropdownOptions[] = [
+    { id: PaymentStatus.Pending, label: 'Pending' },
+    { id: PaymentStatus.Success, label: 'Success' },
+    { id: PaymentStatus.Refunded, label: 'Refunded' },
+    { id: PaymentStatus.Cancelled, label: 'Cancelled' }
   ];
 
   private destroy$ = new Subject<void>();
   private orderLoadRequests$ = new Subject<void>();
+  dropdownLoadingMap: Record<string, boolean> = {};
+  filterResetToken = 0;
+  selectedRangesMap: Record<string, Range> = {};
+  columnFilters: Record<string, string> = {};
+  selectedOrderDate: string | undefined = undefined;
+  private selectedMonth: number | undefined;
+  private selectedYear: number | undefined;
+
+  // Header Filter State Maps
+  dropdownOptionsMap: Record<string, DropdownOptions[]> = {
+    orderStatus: this.orderStatusOptions,
+    paymentStatus: this.paymentStatusOptions
+  };
+
+  selectedFiltersMap: Record<string, (string | number)[]> = {
+    orderStatus: [],
+    paymentStatus: [],
+  };
+
+  rangeBoundsMap: Record<string, Range> = {
+    totalAmount: {
+      min: 0,
+      max: 0
+    }
+  };
 
   // Table Columns Setup
   columns: TableColumn[] = [
-    { key: 'orderId', label: 'Order ID', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'orderId', label: 'Order ID', truncate: true, filterable: true, filterType: 'search', clickable: true },
     { key: 'customerName', label: 'Customer Name', filterable: true, filterType: 'search' },
     { key: 'orderDate', label: 'Date', type: 'date', filterable: true, filterType: 'date' },
     { key: 'totalItems', label: 'Items', filterable: true, filterType: 'search' },
@@ -104,7 +125,7 @@ export class OrderManagementComponent implements OnInit {
       badgeClassKey: 'paymentStatusClass',
       filterable: true,
       filterType: 'dropdown'
-    },
+    }
   ];
 
   ngOnInit(): void {
@@ -126,7 +147,7 @@ export class OrderManagementComponent implements OnInit {
                 this.orders = [];
                 this.isLoading = false;
                 return EMPTY;
-              }),
+              })
             );
         }),
         takeUntil(this.destroy$),
@@ -137,15 +158,25 @@ export class OrderManagementComponent implements OnInit {
           orderStatus: normalizeOrderStatus(item.orderStatus),
           paymentStatus: normalizePaymentStatus(item.paymentStatus),
           orderStatusClass: this.getOrderStatusClass(item.orderStatus),
-          paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus),
+          paymentStatusClass: this.getPaymentStatusClass(item.paymentStatus)
         }));
-
+        if (
+          typeof response.minOrderAmount === 'number' &&
+          typeof response.maxOrderAmount === 'number'
+        ) {
+          this.rangeBoundsMap = {
+            ...this.rangeBoundsMap,
+            totalAmount: {
+              min: response.minOrderAmount,
+              max: response.maxOrderAmount,
+            },
+          };
+        }
         if (this.pageIndex === 0) {
           this.orders = mappedOrders;
         } else {
           this.orders = [...this.orders, ...mappedOrders];
         }
-
         this.totalRecords = response.totalRecords || 0;
         this.isLoading = false;
       });
@@ -156,31 +187,23 @@ export class OrderManagementComponent implements OnInit {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        const statusParam = params['orderStatus'];
-        this.selectedStatus = statusParam ? Number(statusParam) : undefined;
-
-        const paymentParam = params['paymentStatus'];
-        this.selectedPaymentStatus = paymentParam
-          ? Number(paymentParam)
-          : undefined;
-
-        const monthParam = params['month'];
-        this.selectedMonth = monthParam ? monthParam : undefined;
-
-        const yearParam = params['year'];
-        this.selectedYear = yearParam ? yearParam : undefined;
-
-        const searchParam = params['search'];
-        if (
-          searchParam !== undefined &&
-          searchParam !== this.filterForm.get('search')?.value
-        ) {
+        const searchValue = this.getQueryString(params['search']) ?? '';
+        if (searchValue !== this.filterForm.get('search')?.value) {
           this.filterForm.patchValue(
-            { search: searchParam },
+            { search: searchValue },
             { emitEvent: false }
           );
         }
 
+        const orderStatus = this.parseOrderStatus(params['orderStatus']);
+        const paymentStatus = this.parsePaymentStatus(params['paymentStatus']);
+        this.selectedFiltersMap = {
+          ...this.selectedFiltersMap,
+          orderStatus: orderStatus === undefined ? [] : [orderStatus],
+          paymentStatus: paymentStatus === undefined ? [] : [paymentStatus],
+        };
+        this.selectedMonth = this.parseQueryNumber(params['month']);
+        this.selectedYear = this.parseQueryNumber(params['year']);
         this.pageIndex = 0;
         this.loadOrders();
       });
@@ -205,35 +228,121 @@ export class OrderManagementComponent implements OnInit {
     return this.filterForm.get('search')?.value || '';
   }
 
-  private getFilterParams(): AdminOrderFilterParams {
-    const formatToYyyyMmDd = (
-      dateParam: Date | string | null
-    ): string | undefined => {
-      if (!dateParam) return undefined;
-      const date = new Date(dateParam);
-      if (isNaN(date.getTime())) return undefined;
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
+  private getFilterParams(): LegacyAdminOrderFilterParams {
+    const searchField = this.getActiveSearchField();
+    const columnSearch = this.getActiveColumnSearch();
+    const search = columnSearch?.term || this.searchQuery.trim() || undefined;
+    const selectedStatuses = this.getSelectedOrderStatuses();
+    const selectedPaymentStatuses = this.getSelectedPaymentStatuses();
+    const selectedAmountRange = this.selectedRangesMap['totalAmount'];
+
     return {
-      search: this.searchQuery ? this.searchQuery.trim() : undefined,
-      orderStatus:
-        this.selectedStatus !== undefined
-          ? this.selectedStatus.toString()
+      Search: search,
+      SearchField: searchField,
+      OrderStatus: selectedStatuses.length > 0 ? selectedStatuses : undefined,
+      PaymentStatus:
+        selectedPaymentStatuses.length > 0
+          ? selectedPaymentStatuses
           : undefined,
-      paymentStatus:
-        this.selectedPaymentStatus !== undefined
-          ? this.selectedPaymentStatus.toString()
-          : undefined,
-      month: this.selectedMonth,
-      year: this.selectedYear,
-      fromDate: formatToYyyyMmDd(this.appliedFromDate),
-      toDate: formatToYyyyMmDd(this.appliedToDate),
-      pageNumber: this.pageIndex + 1,
-      pageSize: this.pageSize
+      OrderDate: this.selectedOrderDate,
+      MinOrderAmount: selectedAmountRange?.min,
+      MaxOrderAmount: selectedAmountRange?.max,
+      Month: this.selectedMonth,
+      Year: this.selectedYear,
+      PageNumber: this.pageIndex + 1,
+      PageSize: this.pageSize
     };
+  }
+
+  private getQueryString(value: unknown): string | undefined {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (Array.isArray(value) && typeof value[0] === 'string') {
+      return value[0];
+    }
+    return undefined;
+  }
+
+  private parseQueryNumber(value: unknown): number | undefined {
+    const queryValue = this.getQueryString(value);
+    if (!queryValue || !/^\d+$/.test(queryValue)) {
+      return undefined;
+    }
+    const parsedValue = parseInt(queryValue, 10);
+    return Number.isFinite(parsedValue) ? parsedValue : undefined;
+  }
+
+  private parseOrderStatus(value: unknown): OrderStatus | undefined {
+    const parsedValue = this.parseQueryNumber(value);
+    if (parsedValue === undefined) {
+      return undefined;
+    }
+    switch (parsedValue) {
+      case OrderStatus.Active:
+      case OrderStatus.Shipped:
+      case OrderStatus.Delivered:
+      case OrderStatus.Cancelled:
+        return parsedValue;
+      default:
+        return undefined;
+    }
+  }
+
+  private parsePaymentStatus(value: unknown): PaymentStatus | undefined {
+    const parsedValue = this.parseQueryNumber(value);
+    if (parsedValue === undefined) {
+      return undefined;
+    }
+    switch (parsedValue) {
+      case PaymentStatus.Pending:
+      case PaymentStatus.Success:
+      case PaymentStatus.Refunded:
+      case PaymentStatus.Cancelled:
+        return parsedValue;
+      default:
+        return undefined;
+    }
+  }
+
+  private getActiveColumnSearch(): { term: string; field: OrderListField } | undefined {
+    if (this.columnFilters['orderId']?.trim()) {
+      return {
+        term: this.columnFilters['orderId'].trim(),
+        field: OrderListField.OrderId,
+      };
+    }
+    if (this.columnFilters['customerName']?.trim()) {
+      return {
+        term: this.columnFilters['customerName'].trim(),
+        field: OrderListField.CustomerName,
+      };
+    }
+    if (this.columnFilters['totalItems']?.trim()) {
+      return {
+        term: this.columnFilters['totalItems'].trim(),
+        field: OrderListField.Items,
+      };
+    }
+    return undefined;
+  }
+
+  private getActiveSearchField(): OrderListField | undefined {
+    return this.getActiveColumnSearch()?.field;
+  }
+
+  private getSelectedOrderStatuses(): OrderStatus[] {
+    const selectedValues = this.selectedFiltersMap['orderStatus'] ?? [];
+    return selectedValues.filter(
+      (value): value is OrderStatus => typeof value === 'number',
+    );
+  }
+
+  private getSelectedPaymentStatuses(): PaymentStatus[] {
+    const selectedValues = this.selectedFiltersMap['paymentStatus'] ?? [];
+    return selectedValues.filter(
+      (value): value is PaymentStatus => typeof value === 'number',
+    );
   }
 
   // fetch orders
@@ -256,45 +365,110 @@ export class OrderManagementComponent implements OnInit {
     }
   }
 
-  onFilterChange(): void {
+  onFilterApply(_event: { columnKey: string }): void {
     this.pageIndex = 0;
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        orderStatus:
-          this.selectedStatus !== undefined ? this.selectedStatus : null,
-        paymentStatus: this.selectedPaymentStatus !== undefined ? this.selectedPaymentStatus : null
-      },
-      queryParamsHandling: 'merge',
-    });
+    this.loadOrders();
   }
 
-  applyDateFilter(): void {
-    this.appliedFromDate = this.fromDate;
-    this.appliedToDate = this.toDate;
+  onFilterClear(columnKey: string): void {
+    if (columnKey === 'totalAmount') {
+      const selectedRanges = { ...this.selectedRangesMap };
+      delete selectedRanges[columnKey];
+      this.selectedRangesMap = selectedRanges;
+    } else if (columnKey === 'orderStatus' || columnKey === 'paymentStatus') {
+      this.selectedFiltersMap = {
+        ...this.selectedFiltersMap,
+        [columnKey]: [],
+      };
+    }
+    this.pageIndex = 0;
+    this.loadOrders();
+  }
+
+  onDropdownSelectionChanged(event: {
+    columnKey: string;
+    option: DropdownOptions;
+  }): void {
+    if (event.columnKey !== 'orderStatus' && event.columnKey !== 'paymentStatus') {
+      return;
+    }
+
+    const selectedValues = [...(this.selectedFiltersMap[event.columnKey] ?? [])];
+    const selectedIndex = selectedValues.indexOf(event.option.id);
+    if (selectedIndex >= 0) {
+      selectedValues.splice(selectedIndex, 1);
+    } else {
+      selectedValues.push(event.option.id);
+    }
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      [event.columnKey]: selectedValues,
+    };
+  }
+
+  onRangeFilterChanged(range: { columnKey: string; min: number; max: number }): void {
+    if (range.columnKey !== 'totalAmount') {
+      return;
+    }
+    this.selectedRangesMap = {
+      ...this.selectedRangesMap,
+      totalAmount: { min: range.min, max: range.max },
+    };
+  }
+
+  onDateFilterChanged(event: {
+    columnKey: string;
+    formattedDate: string | null;
+  }): void {
+    if (event.columnKey !== 'orderDate') {
+      return;
+    }
+    this.selectedOrderDate = event.formattedDate ?? undefined;
+    this.pageIndex = 0;
+    this.loadOrders();
+  }
+
+  onTableFilterChanged(filters: Record<string, string>): void {
+    this.columnFilters = { ...filters };
     this.pageIndex = 0;
     this.loadOrders();
   }
 
   resetFilters(): void {
     this.filterForm.patchValue({ search: '' }, { emitEvent: false });
-    this.selectedStatus = undefined;
-    this.selectedPaymentStatus = undefined;
+    this.selectedFiltersMap = {
+      orderStatus: [],
+      paymentStatus: [],
+    };
+    this.selectedRangesMap = {};
+    this.columnFilters = {};
+    this.selectedOrderDate = undefined;
     this.selectedMonth = undefined;
     this.selectedYear = undefined;
-    this.fromDate = '';
-    this.toDate = '';
-    this.appliedFromDate = '';
-    this.appliedToDate = '';
+    this.filterResetToken++;
     this.pageIndex = 0;
-    this.loadOrders();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        search: null,
+        orderStatus: null,
+        paymentStatus: null,
+        month: null,
+        year: null,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   navigateToOrderDetails(row: Record<string, unknown>): void {
-    const orderId = row['orderId'] as string;
-    if (orderId) {
+    const orderId = row['orderId'];
+    if (typeof orderId === 'string' && orderId !== '') {
       this.router.navigate(
         this.portalRoutes.orders(this.portal, 'details', orderId),
+      );
+    } else if (typeof orderId === 'number' && Number.isFinite(orderId)) {
+      this.router.navigate(
+        this.portalRoutes.orders(this.portal, 'details', orderId.toString()),
       );
     }
   }

@@ -1,13 +1,22 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
-import { OrderHistoryFilterParams, OrderHistoryItem, OrderStatus } from '../../../../core/models/order.model';
+import {
+  OrderHistoryFilterParams,
+  OrderHistoryItem,
+  OrderStatus,
+  PaymentStatus
+} from '../../../../core/models/order.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
+import {
+  normalizeOrderStatus,
+  normalizePaymentStatus
+} from '../../../../core/utils/role.utils';
+import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 
 @Component({
   selector: 'app-order-history',
@@ -39,6 +48,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   orderStatusOptions = Object.values(OrderStatus).filter(val => typeof val === 'number') as OrderStatus[];
   
   normalizeOrderStatus = normalizeOrderStatus;
+  normalizePaymentStatus = normalizePaymentStatus;
 
   private searchSubject = new Subject<string>();
   private searchSub?: Subscription;
@@ -111,24 +121,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.loadOrderHistory();
   }
 
-  getOrdertatusClass(orderStatus: OrderStatus | string | number): string {
-    const statusStr = String(orderStatus).toLowerCase();
-    switch (statusStr) {
-      case 'confirmed':
-      case '1':
-        return 'bg-primary-subtle text-primary border border-primary-subtle';
-      case 'processing':
-        return 'bg-warning-subtle text-warning border border-warning-subtle';
-      case 'shipped':
-        return 'bg-info-subtle text-info border border-info-subtle';
-      case 'delivered':
-        return 'bg-success-subtle text-success border border-success-subtle';
-      case 'cancelled':
-        return 'bg-danger-subtle text-danger border border-danger-subtle';
-      case 'pending':
-      default:
-        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
-    }
+  getOrderStatusClass(orderStatus: OrderStatus | string | number): string {
+    return getOrderStatusClass(orderStatus);
+  }
+
+  getPaymentStatusClass(paymentStatus: PaymentStatus | string | number): string {
+    return getPaymentStatusClass(paymentStatus);
   }
 
   getImageUrl(url?: string | null): string {
