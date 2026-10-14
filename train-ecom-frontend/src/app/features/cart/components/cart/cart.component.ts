@@ -12,8 +12,7 @@ import {
   selectCartItems,
   selectCartTotalAmount,
   selectCartTotalQuantity,
-  selectCartLoading,
-  selectCartLoaded,
+  selectCartLoading
 } from '../../../../core/store/cart/cart.selectors';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { CheckoutService } from '../../../../core/services/checkout.service';
@@ -22,7 +21,7 @@ import { ValidateCheckoutItem, ValidateCheckoutResponse } from '../../../../core
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.css'],
+  styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
   private router = inject(Router);
@@ -35,7 +34,7 @@ export class CartComponent implements OnInit {
   cartItems$: Observable<CartItem[]> = this.store.select(selectCartItems);
   subtotal$: Observable<number> = this.store.select(selectCartTotalAmount);
   totalQuantity$: Observable<number> = this.store.select(
-    selectCartTotalQuantity,
+    selectCartTotalQuantity
   );
   loading$: Observable<boolean> = this.store.select(selectCartLoading);
 
@@ -52,7 +51,7 @@ export class CartComponent implements OnInit {
   updateQuantity(productId: string | number, action: 'add' | 'subtract'): void {
     this.cartItems$.pipe(take(1)).subscribe((items) => {
       const item = items.find(
-        (i) => i.productId === productId || i.itemId === productId,
+        (i) => i.productId === productId || i.itemId === productId
       );
       if (!item) return;
 
@@ -76,7 +75,7 @@ export class CartComponent implements OnInit {
       .confirm(
         'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .pipe(take(1))
       .subscribe((confirmed) => {
@@ -87,16 +86,16 @@ export class CartComponent implements OnInit {
   }
 
   private verifyStockAndExecuteUpdate(item: CartItem, newQty: number): void {
-    const productId = item.productId.toString();
+    const productId = item.productId;
     this.store.dispatch(ProductActions.loadProductById({ id: productId }));
 
     this.actions$
       .pipe(
         ofType(
           ProductActions.loadProductByIdSuccess,
-          ProductActions.loadProductByIdFailure,
+          ProductActions.loadProductByIdFailure
         ),
-        take(1),
+        take(1)
       )
       .subscribe((action) => {
         if (action.type === '[Product] Load Product By Id Success') {
@@ -105,7 +104,7 @@ export class CartComponent implements OnInit {
           if (stock !== undefined && newQty > stock) {
             this.notification.showError(
               `Only ${stock} items are available in stock.`,
-              'Close',
+              'Close'
             );
             return;
           }
@@ -136,7 +135,7 @@ export class CartComponent implements OnInit {
           .confirm(
             `Are you sure you want to remove "${item.productName || 'this item'}" from your cart?`,
             'Remove',
-            'Cancel',
+            'Cancel'
           )
           .pipe(take(1))
           .subscribe((confirmed) => {
@@ -156,7 +155,7 @@ export class CartComponent implements OnInit {
       .confirm(
         'Are you sure you want to clear your entire cart? This action cannot be undone.',
         'Clear Cart',
-        'Cancel',
+        'Cancel'
       )
       .pipe(take(1))
       .subscribe((confirmed) => {
@@ -183,7 +182,7 @@ export class CartComponent implements OnInit {
       if (items.length === 0) {
         this.notification.showInfo(
           'Your cart is empty. Please add items before proceeding to checkout.',
-          'Close',
+          'Close'
         );
         return;
       }

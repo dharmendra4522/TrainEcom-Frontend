@@ -24,7 +24,7 @@
       (change)="onCategoryChange($event)"
     >
       <option value="">All Categories</option>
-      <option *ngFor="let cat of categories" [value]="cat.name">
+      <option *ngFor="let cat of categories" [value]="cat.id">
         {{ cat.name }}
       </option>
     </select>
@@ -41,7 +41,7 @@
       <option value="">All Sub-categories</option>
       <option
         *ngFor="let subCategory of availableSubCategories"
-        [value]="subCategory.name"
+        [value]="subCategory.id"
       >
         {{ subCategory.name }}
       </option>
@@ -56,7 +56,7 @@
       (change)="onBrandChange($event)"
     >
       <option value="">All Brands</option>
-      <option *ngFor="let brand of brands" [value]="brand.name">
+      <option *ngFor="let brand of brands" [value]="brand.id">
         {{ brand.name }}
       </option>
     </select>
@@ -103,7 +103,7 @@
     <select
       class="form-select border rounded-3 p-2 bg-light text-dark fs-7"
       [value]="activeSort"
-      (change)="sortChange.emit($any($event.target).value)"
+      (change)="onSortChange($event)"
     >
       <option value="">Default (None)</option>
       <option value="Newest">Newest</option>

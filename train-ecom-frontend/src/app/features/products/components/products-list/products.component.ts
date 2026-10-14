@@ -1,19 +1,23 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { Product } from '../../../../core/models/product.model';
+import {
+  Product,
+  PaginatedProductsResponse,
+  ProductListField
+} from '../../../../core/models/product.model';
 import {
   TableColumn,
   TableAction,
   TableActionEvent,
-  DropdownOptions,
+  DropdownOptions
 } from '../../../../core/models/table.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PageEvent } from '@angular/material/paginator';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import {
   selectAllProducts,
   selectProductsLoading,
-  selectProductTotalRecords,
+  selectProductRangeBounds,
+  selectProductTotalRecords
 } from '../../../../core/store/product/product.selectors';
 import { FormControl } from '@angular/forms';
 import { selectAllBrands } from '../../../../core/store/brand/brand.selectors';
@@ -30,7 +34,7 @@ import {
   switchMap,
   map,
   catchError,
-  finalize,
+  finalize
 } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
@@ -40,18 +44,20 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { extractBackendMessage } from '../../../../core/utils/error.utils';
 import { Category } from '../../../../core/models/category.model';
 import { Brand } from '../../../../core/models/brand.model';
+import { Range } from '../../../../shared/components/multiselect-dropdown/multiselect-dropdown.component';
 
 interface DropdownOptionsRequest {
   columnKey: string;
   searchTerm: string;
   pageNumber: number;
   append: boolean;
+  requestField?: ProductListField;
 }
 
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css',
+  styleUrl: './products.component.css'
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -69,19 +75,19 @@ export class ProductsComponent implements OnInit, OnDestroy {
   products$: Observable<Product[]> = this.store.select(selectAllProducts);
   isLoading$: Observable<boolean> = this.store.select(selectProductsLoading);
   totalRecords$: Observable<number> = this.store.select(
-    selectProductTotalRecords,
+    selectProductTotalRecords
   );
+  rangeBounds$ = this.store.select(selectProductRangeBounds);
   brands$ = this.store.select(selectAllBrands);
   categories$ = this.store.select(selectAllCategories);
 
   // form control
   searchControl = new FormControl('');
-  categoryControl = new FormControl('');
-  brandControl = new FormControl('');
+  categoryControl = new FormControl<number | null>(null);
+  brandControl = new FormControl<number | null>(null);
 
   // component state
   ProductList: Product[] = [];
-  currentPage: number = 1;
   pageNumber: number = 1;
   pageSize: number = 15;
   totalRecords: number = 0;
@@ -89,6 +95,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   portal: PortalKey = 'admin';
   isLoadingValue: boolean = false;
   showHeaderFilter: boolean = true;
+  filterResetToken = 0;
+  private activeColumnSearchKey: 'name' | 'description' | null = null;
+  rangeBoundsMap: Record<string, Range> = {
+    price: { min: 0, max: 0 },
+    stockQuantity: { min: 0, max: 0 }
+  };
+  selectedRangesMap: Record<string, Range> = {};
 
   // state map for filter column dropdown
   dropdownOptionsMap: Record<string, DropdownOptions[]> = {};
@@ -98,22 +111,36 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private dropdownHasMoreMap: Record<string, boolean> = {};
   private dropdownSearchTermMap: Record<string, string> = {};
   private readonly dropdownOptionsPageSize = 10;
+  private readonly rangeRequestFields: Record<
+    'price' | 'stockQuantity',
+    ProductListField
+  > = {
+      price: ProductListField.Price,
+      stockQuantity: ProductListField.StockQuantity
+    };
+  private readonly loadedRangeColumns = new Set<
+    'price' | 'stockQuantity'
+  >();
 
   private readonly columnSearchSubject$ = new Subject<DropdownOptionsRequest>();
 
   // track column filter
   columnFilters: Record<string, string> = {};
-  private readonly columnTableSearchSubject$ = new Subject<
-    Record<string, string>
-  >();
-
   columns: TableColumn[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      type: 'number',
+      filterable: true,
+      filterType: 'search',
+      clickable: true
+    },
     {
       key: 'name',
       label: 'Name',
       type: 'string',
       filterable: true,
-      filterType: 'search',
+      filterType: 'search'
     },
     {
       key: 'description',
@@ -122,41 +149,41 @@ export class ProductsComponent implements OnInit, OnDestroy {
       sortable: false,
       filterable: true,
       filterType: 'search',
-      filterDisabled: true,
+      filterDisabled: true
     },
     {
       key: 'price',
       label: 'Price',
       type: 'number',
       filterable: true,
-      filterType: 'price-range',
+      filterType: 'price-range'
     },
     {
       key: 'stockQuantity',
       label: 'Stock',
       type: 'number',
       filterable: true,
-      filterType: 'stock-range',
+      filterType: 'stock-range'
     },
     {
       key: 'categoryName',
       label: 'Category',
       type: 'string',
       filterable: true,
-      filterType: 'dropdown',
+      filterType: 'dropdown'
     },
     {
       key: 'brandName',
       label: 'Brand',
       type: 'string',
       filterable: true,
-      filterType: 'dropdown',
+      filterType: 'dropdown'
     },
     {
       key: 'thumbnailUrl',
       label: 'Product Image',
       type: 'image',
-      sortable: false,
+      sortable: false
     },
   ];
 
@@ -165,22 +192,23 @@ export class ProductsComponent implements OnInit, OnDestroy {
       actionKey: 'delete',
       icon: 'delete',
       color: 'warn',
-      tooltip: 'Delete Product',
+      tooltip: 'Delete'
     },
     {
       actionKey: 'edit',
       icon: 'edit',
       color: 'primary',
-      tooltip: 'Edit Product',
-    },
+      tooltip: 'Edit'
+    }
   ];
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
     const initialCategory =
-      this.route.snapshot.queryParamMap.get('categoryName');
-    if (initialCategory) {
-      this.categoryControl.setValue(initialCategory, { emitEvent: false });
+      this.route.snapshot.queryParamMap.get('category');
+    const initialCategoryId = this.parseCategoryId(initialCategory);
+    if (initialCategoryId !== null) {
+      this.categoryControl.setValue(initialCategoryId, { emitEvent: false });
     }
 
     this.loadInitialMetadata();
@@ -189,9 +217,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.route.queryParamMap
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        const categoryName = params.get('categoryName') ?? '';
-        if (this.categoryControl.value !== categoryName) {
-          this.categoryControl.setValue(categoryName);
+        const categoryId = this.parseCategoryId(params.get('category'));
+        if (this.categoryControl.value !== categoryId) {
+          this.categoryControl.setValue(categoryId);
         }
       });
     this.setupColumnDropdownSearch();
@@ -200,68 +228,139 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private setupColumnDropdownSearch(): void {
     this.columnSearchSubject$
       .pipe(
-        switchMap((request) => {
-          this.dropdownLoadingMap[request.columnKey] = true;
-          return timer(request.append ? 0 : 300).pipe(
-            switchMap(() =>
-              this.productService.getPaginatedProducts(
-                request.pageNumber,
-                this.dropdownOptionsPageSize,
-                this.brandControl.value || undefined,
-                this.categoryControl.value || undefined,
-                request.searchTerm || undefined,
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                this.portal,
-              ),
-            ),
-            map((response) => ({ request, response })),
-            catchError((error: unknown) => {
-              this.notification.showError(
-                extractBackendMessage(error, 'Failed to load filter options'),
-              );
-              return EMPTY;
-            }),
-            finalize(() => {
-              this.dropdownLoadingMap[request.columnKey] = false;
-            }),
-          );
-        }),
+        switchMap((request) =>
+          this.loadDropdownRequest(request)
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe(({ request, response }) => {
-        const existingOptions = request.append
-          ? this.dropdownOptionsMap[request.columnKey] || []
-          : [];
-        const optionKeys = new Set(
-          existingOptions.map((option) => `${typeof option.id}:${option.id}`),
-        );
-        const options = [...existingOptions];
-
-        response.items.forEach((product) => {
-          const value = product[request.columnKey];
-          if (
-            (typeof value === 'string' && value.trim() !== '') ||
-            (typeof value === 'number' && Number.isFinite(value))
-          ) {
-            const optionKey = `${typeof value}:${value}`;
-            if (!optionKeys.has(optionKey)) {
-              optionKeys.add(optionKey);
-              options.push({ id: value, label: String(value) });
-            }
-          }
-        });
-
-        this.dropdownOptionsMap[request.columnKey] = options;
-        this.dropdownPageMap[request.columnKey] = request.pageNumber;
-        const totalPages =
-          response.totalPages ||
-          Math.ceil(response.totalRecords / this.dropdownOptionsPageSize);
-        this.dropdownHasMoreMap[request.columnKey] =
-          request.pageNumber < totalPages;
+        this.updateDropdownOptions(request, response);
+        this.updateRangeBoundsFromResponse(request, response);
       });
+  }
+
+  // load data according to filtered column
+  private loadDropdownRequest(
+    request: DropdownOptionsRequest
+  ): Observable<{
+    request: DropdownOptionsRequest;
+    response: PaginatedProductsResponse;
+  }> {
+    this.dropdownLoadingMap[request.columnKey] = true;
+
+    return timer(request.append ? 0 : 300).pipe(
+      switchMap(() =>
+        this.productService.getPaginatedProducts({
+          pageNumber: request.pageNumber,
+          pageSize: this.dropdownOptionsPageSize,
+          search: request.requestField
+            ? undefined
+            : request.searchTerm || undefined,
+          requestField: request.requestField,
+          portal: this.portal
+        })
+      ),
+      map((response) => ({
+        request,
+        response
+      })),
+      catchError((error: unknown) => {
+        this.notification.showError(
+          extractBackendMessage(
+            error,
+            'Failed to load filter options'
+          )
+        );
+
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.dropdownLoadingMap[request.columnKey] = false;
+      })
+    );
+  }
+
+  // handle dropdown options update after response
+  private updateDropdownOptions(
+    request: DropdownOptionsRequest,
+    response: PaginatedProductsResponse
+  ): void {
+    const existingOptions = request.append
+      ? this.dropdownOptionsMap[request.columnKey] || []
+      : [];
+
+    const optionKeys = new Set(
+      existingOptions.map(
+        (option) => `${typeof option.id}:${option.id}`
+      )
+    );
+
+    const options = [...existingOptions];
+
+    response.items.forEach((product) => {
+      const value = product[request.columnKey];
+
+      if (
+        (typeof value === 'string' &&
+          value.trim() !== '') ||
+        (typeof value === 'number' &&
+          Number.isFinite(value))
+      ) {
+        const optionKey =
+          `${typeof value}:${value}`;
+
+        if (!optionKeys.has(optionKey)) {
+          optionKeys.add(optionKey);
+
+          options.push({
+            id: value,
+            label: String(value)
+          });
+        }
+      }
+    });
+
+    this.dropdownOptionsMap[request.columnKey] =
+      options;
+
+    this.dropdownPageMap[request.columnKey] =
+      request.pageNumber;
+
+    const totalPages =
+      response.totalPages ||
+      Math.ceil(
+        response.totalRecords /
+        this.dropdownOptionsPageSize
+      );
+
+    this.dropdownHasMoreMap[
+      request.columnKey
+    ] =
+      request.pageNumber < totalPages;
+  }
+
+
+  private updateRangeBoundsFromResponse(
+    request: DropdownOptionsRequest,
+    response: PaginatedProductsResponse,
+  ): void {
+    if (request.requestField === ProductListField.Price) {
+      this.rangeBoundsMap = {
+        ...this.rangeBoundsMap,
+        price: {
+          min: response.minPrice,
+          max: response.maxPrice
+        }
+      };
+    } else if (request.requestField === ProductListField.StockQuantity) {
+      this.rangeBoundsMap = {
+        ...this.rangeBoundsMap,
+        stockQuantity: {
+          min: response.minStock,
+          max: response.maxStock
+        }
+      };
+    }
   }
 
   // load initial data Brands aur Categories
@@ -287,10 +386,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   // initalize store state subscription
   private initSubscriptions(): void {
+    this.subscribeToLoading();
+    this.subscribeToProducts();
+    this.subscribeToTotalRecords();
+    this.subscribeToRangeBounds();
+  }
+
+  // subscribe to loading state changes
+  private subscribeToLoading(): void {
     this.isLoading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
       this.isLoadingValue = loading;
     });
+  }
 
+  // handle product list subscription and update state
+  private subscribeToProducts(): void {
     this.products$.pipe(takeUntil(this.destroy$)).subscribe((products) => {
       if (this.pageNumber === 1) {
         this.ProductList = [...products];
@@ -301,58 +411,142 @@ export class ProductsComponent implements OnInit, OnDestroy {
       }
       this.checkPaginationLimit();
     });
+  }
+
+  // subscribe to total records changes
+  private subscribeToTotalRecords(): void {
     this.totalRecords$.pipe(takeUntil(this.destroy$)).subscribe((total) => {
       this.totalRecords = total;
       this.checkPaginationLimit();
     });
   }
 
-  // setupSearchFilter method to handle search, category, and brand filtering
-  setupSearchFilter(): void {
-    combineLatest([
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(400),
-        distinctUntilChanged(),
-      ),
-      this.categoryControl.valueChanges.pipe(
-        startWith(this.categoryControl.value),
-        distinctUntilChanged(),
-      ),
-      this.brandControl.valueChanges.pipe(startWith('')),
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([search, category, brand]) => {
-        this.pageNumber = 1; // Reset to first page on filter change
-        this.store.dispatch(
-          ProductActions.loadProducts({
-            pageNumber: this.pageNumber,
-            pageSize: this.pageSize,
-            search: search?.trim() || undefined,
-            categoryName: category || undefined,
-            brandName: brand || undefined,
-            portal: this.portal,
-          }),
-        );
-      });
+  // subscribe to range bounds changes
+  private subscribeToRangeBounds(): void {
+    this.rangeBounds$.pipe(takeUntil(this.destroy$)).subscribe((bounds) => {
+      const priceBounds = { min: bounds.minPrice, max: bounds.maxPrice };
+      const stockBounds = { min: bounds.minStock, max: bounds.maxStock };
+      this.rangeBoundsMap = {
+        price: priceBounds,
+        stockQuantity: stockBounds
+      };
+
+      const selectedPrice = this.selectedRangesMap['price'];
+      const selectedStock = this.selectedRangesMap['stockQuantity'];
+      this.selectedRangesMap = {
+        ...this.selectedRangesMap,
+        ...(selectedPrice
+          ? { price: this.clampRange(selectedPrice, priceBounds) }
+          : {}),
+        ...(selectedStock
+          ? {
+            stockQuantity: this.clampRange(selectedStock, stockBounds),
+          }
+          : {})
+      };
+    });
   }
 
-  // dispatch fatehc sction to store
-  private fetchProducts(
-    search?: string,
-    categoryName?: string,
-    brandName?: string,
-  ): void {
+  setupSearchFilter(): void {
+    this.searchControl.valueChanges
+      .pipe(
+        map((search) => search?.trim() ?? ''),
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => this.loadFirstPage());
+
+    combineLatest([
+      this.categoryControl.valueChanges.pipe(
+        startWith(this.categoryControl.value),
+        distinctUntilChanged()
+      ),
+      this.brandControl.valueChanges.pipe(
+        startWith(this.brandControl.value),
+        distinctUntilChanged()
+      ),
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadFirstPage());
+  }
+
+  private loadFirstPage(): void {
+    this.pageNumber = 1;
+    this.dispatchCurrentProductQuery();
+  }
+
+  private dispatchCurrentProductQuery(): void {
+    const masterSearch = this.searchControl.value?.trim() || undefined;
+    const columnSearch = this.getActiveColumnSearch();
     this.store.dispatch(
       ProductActions.loadProducts({
         pageNumber: this.pageNumber,
         pageSize: this.pageSize,
-        search,
-        categoryName,
-        brandName,
-        portal: this.portal,
-      }),
+        search: masterSearch ?? columnSearch.search,
+        searchField: masterSearch ? undefined : columnSearch.searchField,
+        categoryIds: this.getSelectedIds(
+          'categoryName',
+          this.categoryControl.value
+        ),
+        brandIds: this.getSelectedIds('brandName', this.brandControl.value),
+        minPrice: this.selectedRangesMap['price']?.min,
+        maxPrice: this.selectedRangesMap['price']?.max,
+        minStock: this.selectedRangesMap['stockQuantity']?.min,
+        maxStock: this.selectedRangesMap['stockQuantity']?.max,
+        portal: this.portal
+      })
     );
+  }
+
+  private getActiveColumnSearch(): {
+    search?: string;
+    searchField?: ProductListField;
+  } {
+    const key = this.activeColumnSearchKey;
+    const search = key ? this.columnFilters[key]?.trim() : undefined;
+    if (!search) {
+      return {};
+    }
+
+    return {
+      search,
+      searchField:
+        key === 'name'
+          ? ProductListField.Name
+          : ProductListField.Description
+    };
+  }
+
+  private getSelectedIds(
+    columnKey: 'categoryName' | 'brandName',
+    fallbackId: number | null
+  ): number[] | undefined {
+    if (Object.prototype.hasOwnProperty.call(this.selectedFiltersMap, columnKey)) {
+      const selectedIds = this.selectedFiltersMap[columnKey].filter(
+        (id): id is number => typeof id === 'number'
+      );
+      return selectedIds.length > 0 ? selectedIds : undefined;
+    }
+
+    return fallbackId !== null ? [fallbackId] : undefined;
+  }
+
+  private parseCategoryId(value: string | null): number | null {
+    if (value === null || value.trim() === '') {
+      return null;
+    }
+
+    const categoryId = Number(value);
+    return Number.isSafeInteger(categoryId) && categoryId > 0
+      ? categoryId
+      : null;
+  }
+
+  private clampRange(range: Range, bounds: Range): Range {
+    const min = Math.min(Math.max(range.min, bounds.min), bounds.max);
+    const max = Math.min(Math.max(range.max, bounds.min), bounds.max);
+    return min <= max ? { min, max } : { min, max: min };
   }
 
   // check if more recode exist for load
@@ -368,60 +562,80 @@ export class ProductsComponent implements OnInit, OnDestroy {
   onScrollLoad(): void {
     if (this.isLoadingValue || !this.hasMoreData) return;
     this.pageNumber++;
-    this.fetchProducts(
-      this.searchControl.value?.trim() || undefined,
-      this.categoryControl.value || undefined,
-      this.brandControl.value || undefined,
-    );
+    this.dispatchCurrentProductQuery();
   }
 
   clearFilters(): void {
-    this.searchControl.setValue('', { emitEvent: false });
-    this.categoryControl.setValue('', { emitEvent: false });
-    this.brandControl.setValue('', { emitEvent: false });
+    const hadMasterSearch = Boolean(this.searchControl.value?.trim());
+    this.searchControl.setValue('', { emitEvent: hadMasterSearch });
+    this.categoryControl.setValue(null, { emitEvent: false });
+    this.brandControl.setValue(null, { emitEvent: false });
+    this.selectedFiltersMap = {};
+    this.columnFilters = {};
+    this.activeColumnSearchKey = null;
+    this.selectedRangesMap = {};
+    this.filterResetToken++;
     this.pageNumber = 1;
-    this.fetchProducts();
+    if (!hadMasterSearch) {
+      this.dispatchCurrentProductQuery();
+    }
   }
 
   onRowClick(row: Record<string, unknown>): void {
-    const product = row as Product;
+    if (typeof row['id'] !== 'number') {
+      return;
+    }
     this.router.navigate(
-      this.portalRoutes.products(this.portal, 'view', product.id),
+      this.portalRoutes.products(this.portal, 'view', row['id']),
     );
   }
 
   handleTableAction(event: TableActionEvent): void {
-    const product = event.row as Product;
+    if (!this.isProductRow(event.row)) {
+      return;
+    }
+    const productId = event.row.id;
     if (event.action === 'edit') {
       this.router.navigate(
-        this.portalRoutes.products(this.portal, 'edit', product.id),
+        this.portalRoutes.products(this.portal, 'edit', productId)
       );
     } else if (event.action === 'delete') {
-      this.deleteProduct(product.id.toString());
+      this.deleteProduct(productId);
     } else if (event.action === 'view') {
       this.router.navigate(
-        this.portalRoutes.products(this.portal, 'view', product.id),
+        this.portalRoutes.products(this.portal, 'view', productId)
       );
     }
   }
 
+  private isProductRow(row: unknown): row is { id: number } {
+    return (
+      typeof row === 'object' &&
+      row !== null &&
+      'id' in row &&
+      typeof row.id === 'number'
+    );
+  }
+
   // delete product
-  private deleteProduct(productId: string) {
+  private deleteProduct(productId: number): void {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this product?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .subscribe((confirmed) => {
         if (confirmed) {
           this.store.dispatch(
-            ProductActions.deleteProduct({ productId, portal: this.portal }),
+            ProductActions.deleteProduct({ productId, portal: this.portal })
           );
         }
       });
   }
 
+
+  // handle dropdown search event
   onDropdownSearchTriggered(event: {
     columnKey: string;
     searchTerm: string;
@@ -432,11 +646,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
     if (colKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
         const filtered = categories.filter((cat: Category) =>
-          cat.name.toLowerCase().includes(term),
+          cat.name.toLowerCase().includes(term)
         );
         this.dropdownOptionsMap[colKey] = filtered.map((cat: Category) => ({
           id: cat.id,
-          label: cat.name,
+          label: cat.name
         }));
       });
       return;
@@ -449,7 +663,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
         );
         this.dropdownOptionsMap[colKey] = filtered.map((brand: Brand) => ({
           id: brand.id,
-          label: brand.name,
+          label: brand.name
         }));
       });
       return;
@@ -463,17 +677,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
       event.columnKey,
       this.dropdownSearchTermMap[event.columnKey],
       1,
-      false,
+      false
     );
   }
 
+  // handle dropdown open event
   onDropdownOpened(columnKey: string): void {
     if (columnKey === 'categoryName') {
       this.categories$.pipe(take(1)).subscribe((categories) => {
-        this.dropdownOptionsMap[columnKey] = categories.map((cat: Category) => ({
-          id: cat.id,
-          label: cat.name,
-        }));
+        this.dropdownOptionsMap[columnKey] = categories.map(
+          (cat: Category) => ({
+            id: cat.id,
+            label: cat.name
+          })
+        );
       });
       return;
     }
@@ -482,11 +699,28 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.brands$.pipe(take(1)).subscribe((brands) => {
         this.dropdownOptionsMap[columnKey] = brands.map((brand: Brand) => ({
           id: brand.id,
-          label: brand.name,
+          label: brand.name
         }));
       });
       return;
     }
+
+    if (this.isRangeColumn(columnKey)) {
+      if (this.loadedRangeColumns.has(columnKey)) {
+        return;
+      }
+
+      this.loadedRangeColumns.add(columnKey);
+      this.loadDropdownOptionsForColumn(
+        columnKey,
+        '',
+        1,
+        false,
+        this.rangeRequestFields[columnKey]
+      );
+      return;
+    }
+
     this.dropdownSearchTermMap[columnKey] = '';
     this.dropdownOptionsMap[columnKey] = [];
     this.dropdownPageMap[columnKey] = 0;
@@ -495,6 +729,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   onDropdownScrolled(columnKey: string): void {
+    if (this.isRangeColumn(columnKey)) {
+      return;
+    }
+
     if (
       this.dropdownLoadingMap[columnKey] ||
       !this.dropdownHasMoreMap[columnKey]
@@ -506,7 +744,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       columnKey,
       this.dropdownSearchTermMap[columnKey] || '',
       (this.dropdownPageMap[columnKey] || 0) + 1,
-      true,
+      true
     );
   }
 
@@ -515,65 +753,69 @@ export class ProductsComponent implements OnInit, OnDestroy {
     searchTerm: string,
     pageNumber: number,
     append: boolean,
+    requestField?: ProductListField
   ): void {
     this.columnSearchSubject$.next({
       columnKey,
       searchTerm,
       pageNumber,
       append,
+      requestField
     });
   }
 
+  private isRangeColumn(
+    columnKey: string,
+  ): columnKey is 'price' | 'stockQuantity' {
+    return columnKey === 'price' || columnKey === 'stockQuantity';
+  }
+
   // handle Apply
-  onFilterApply(event: { columnKey: string }): void {
-    try {
-      this.pageNumber = 1;
-      const categoryFilters =
-        this.selectedFiltersMap?.['categoryName'] ?? [];
-      const brandFilters =
-        this.selectedFiltersMap?.['brandName'] ?? [];
-      this.store.dispatch(
-        ProductActions.loadProducts({
-          pageNumber: this.pageNumber,
-          pageSize: this.pageSize,
-          search: this.searchControl.value?.trim() || undefined,
-          categoryName:
-            categoryFilters.length > 0
-              ? String(categoryFilters[0])
-              : this.categoryControl.value || undefined,
-          brandName:
-            brandFilters.length > 0
-              ? String(brandFilters[0])
-              : this.brandControl.value || undefined,
-          portal: this.portal,
-        }),
-      );
-    } catch (error) {
-      this.notification.showError(
-        'Something went wrong while applying filters.',
-      );
-      console.error(error);
-    }
+  onFilterApply(_event: { columnKey: string }): void {
+    this.pageNumber = 1;
+    this.dispatchCurrentProductQuery();
   }
 
   // handle drop-down clear
   onFilterClear(columnKey: string): void {
-    if (this.selectedFiltersMap[columnKey]) {
-      delete this.selectedFiltersMap[columnKey];
+    if (columnKey === 'price' || columnKey === 'stockQuantity') {
+      const selectedRanges = { ...this.selectedRangesMap };
+      delete selectedRanges[columnKey];
+      this.selectedRangesMap = selectedRanges;
+    } else if (columnKey === 'categoryName' || columnKey === 'brandName') {
+      this.selectedFiltersMap = {
+        ...this.selectedFiltersMap,
+        [columnKey]: []
+      };
     }
-    this.fetchFilteredProducts();
+    this.pageNumber = 1;
+    this.dispatchCurrentProductQuery();
   }
 
-  private fetchFilteredProducts(): void {
-    this.store.dispatch(
-      ProductActions.loadProducts({
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-        search: this.searchControl.value?.trim() || undefined,
-        categoryName: this.categoryControl.value || undefined,
-        brandName: this.brandControl.value || undefined,
-        portal: this.portal,
-      }),
+  onRangeFilterChanged(
+    range: { columnKey: string; min: number; max: number },
+  ): void {
+    if (
+      range.columnKey === 'price' ||
+      range.columnKey === 'stockQuantity'
+    ) {
+      this.selectedRangesMap = {
+        ...this.selectedRangesMap,
+        [range.columnKey]: { min: range.min, max: range.max }
+      };
+    }
+  }
+
+  get hasActiveFilters(): boolean {
+    return Boolean(
+      this.searchControl.value?.trim() ||
+      this.categoryControl.value !== null ||
+      this.brandControl.value !== null ||
+      Object.keys(this.selectedRangesMap).length > 0 ||
+      Object.values(this.columnFilters).some((value) => value.trim()) ||
+      Object.values(this.selectedFiltersMap).some(
+        (selectedValues) => selectedValues.length > 0
+      )
     );
   }
 
@@ -595,33 +837,32 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-      [colKey]: currentSelected,
+      [colKey]: currentSelected
     };
   }
 
   onTableFilterChanged(filters: Record<string, string>): void {
-    this.columnFilters = filters;
-    const firstSearchVal =
-      Object.values(filters)
-        .find((v) => v !== undefined && v !== null)
-        ?.trim() || '';
-    if (this.searchControl.value !== firstSearchVal) {
-      this.searchControl.setValue(firstSearchVal, { emitEvent: true });
-    }
-  }
-
-  onTableFilterCleared(columnKey: string): void {
-    if (
-      columnKey === 'name' ||
-      columnKey === 'price' ||
-      columnKey === 'stockQuantity'
+    const previousFilters = this.columnFilters;
+    const searchKeys: Array<'name' | 'description'> = ['name', 'description'];
+    const changedSearchKey = searchKeys.find(
+      (key) => filters[key] !== previousFilters[key],
+    );
+    if (changedSearchKey && filters[changedSearchKey]?.trim()) {
+      this.activeColumnSearchKey = changedSearchKey;
+    } else if (
+      this.activeColumnSearchKey &&
+      !filters[this.activeColumnSearchKey]?.trim()
     ) {
-      this.searchControl.setValue('', { emitEvent: true });
+      const otherKey =
+        this.activeColumnSearchKey === 'name' ? 'description' : 'name';
+      this.activeColumnSearchKey = filters[otherKey]?.trim() ? otherKey : null;
     }
-    this.columnFilters = {};
+    this.columnFilters = { ...filters };
+    this.pageNumber = 1;
+    this.dispatchCurrentProductQuery();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }

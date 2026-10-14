@@ -4,8 +4,8 @@ import { Product } from '../../../../core/models/product.model';
 import { WishListItem } from '../../../../core/models/wishList.model';
 import { Store } from '@ngrx/store';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { Observable } from 'rxjs/internal/Observable';
-import { map } from 'rxjs/internal/operators/map';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as WishlistActions from '../../../../core/store/wish-list/wishList.actions';
 import { selectWishlistItems, selectWishlistLoaded } from '../../../../core/store/wish-list/wishList.selectors';
 import * as ProductActions from '../../../../core/store/product/product.action';
@@ -45,35 +45,43 @@ export class WishlistComponent implements OnInit, OnDestroy {
       .select(selectWishlistItems)
       .pipe(map((items: WishListItem[]) => this.mapWishlistToProducts(items)));
 
-    this.store.select(selectWishlistLoaded).pipe(take(1)).subscribe((loaded) => {
-      if (!loaded) {
-        this.store.dispatch(WishlistActions.loadWishlist());
-      }
-    });
+    this.store
+      .select(selectWishlistLoaded)
+      .pipe(take(1))
+      .subscribe((loaded) => {
+        if (!loaded) {
+          this.store.dispatch(WishlistActions.loadWishlist());
+        }
+      });
   }
 
   private loadRecommendations(): void {
-    this.store.dispatch(ProductActions.loadProducts({ pageNumber: 1, pageSize: 5 }));
+    this.store.dispatch(
+      ProductActions.loadProducts({ pageNumber: 1, pageSize: 5 })
+    );
     this.store
       .select(selectAllProducts)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (products: Product[]) => {
           if (products) {
-            this.justForYouItems = (products || []).slice(0, 5);
+            this.justForYouItems = products.slice(0, 5);
             this.cdr.detectChanges();
           }
         },
         error: (err: unknown) => {
           console.error('Failed to load recommendations:', err);
-          this.notificationService.showError('Could not load recommendations', 'Close');
+          this.notificationService.showError(
+            'Could not load recommendations',
+            'Close'
+          );
         },
       });
   }
 
   private mapWishlistToProducts(items: WishListItem[]): Product[] {
-    return (items || []).map((item: WishListItem) => ({
-      id: item.productId || item.id || '',
+    return items.map((item: WishListItem) => ({
+      id: item.productId ?? item.id,
       name: item.productName || item.name || '',
       description: item.description || '',
       price: item.price || 0,
@@ -85,7 +93,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
       reviewCount: item.reviewCount ?? 0,
       images: [
         {
-          id: 'img-' + (item.productId || item.id),
+          id: item.productId ?? item.id,
           imageUrl: item.thumbnailUrl || item.image || '',
           isPrimary: true,
         },
@@ -103,7 +111,9 @@ export class WishlistComponent implements OnInit, OnDestroy {
     const productDetails = {
       productName: item.name,
       unitPrice: item.price,
-      thumbnailUrl: item.thumbnailUrl || (item.images && item.images.length > 0 ? item.images[0].imageUrl : ''),
+      thumbnailUrl:
+        item.thumbnailUrl ||
+        (item.images && item.images.length > 0 ? item.images[0].imageUrl : ''),
     };
 
     this.store.dispatch(
@@ -128,13 +138,16 @@ export class WishlistComponent implements OnInit, OnDestroy {
   moveAllToBag(): void {
     this.wishlist$.pipe(take(1)).subscribe((items) => {
       if (!items || items.length === 0) return;
-      
+
       const itemsToMove = [...items];
-      itemsToMove.forEach(item => {
+      itemsToMove.forEach((item) => {
         this.addToCart(item);
       });
-      
-      this.notificationService.showSuccess('All items moved to cart successfully', 'Close');
+
+      this.notificationService.showSuccess(
+        'All items moved to cart successfully',
+        'Close'
+      );
     });
   }
 

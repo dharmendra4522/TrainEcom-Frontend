@@ -2,16 +2,18 @@
   <div class="sticky-top-section mb-4">
     <div class="row align-items-center g-3">
       <!-- Title section -->
-      <div class="col-12 col-lg-3">
+      <div class="col-12 col-md-6 col-lg-4">
         <h2 class="fs-4 fw-bold text-dark m-0">Product Management</h2>
         <p class="text-muted small m-0">View and manage products.</p>
       </div>
 
-      <!-- Search -->
-      <div class="col-12 col-sm-6 col-lg-3">
+      <div
+        class="col-12 col-md-6 col-lg-8 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-sm-end gap-3"
+      >
+        <!-- Search -->
         <mat-form-field
           appearance="outline"
-          class="product-filter-field w-100 mb-0"
+          class="product-filter-field product-search-field mb-0"
           subscriptSizing="dynamic"
           floatLabel="always"
         >
@@ -22,76 +24,26 @@
             [formControl]="searchControl"
             placeholder="Search..."
           />
+          <button
+            *ngIf="hasActiveFilters"
+            mat-icon-button
+            matSuffix
+            type="button"
+            color="warn"
+            aria-label="Clear product filters"
+            title="Clear filters"
+            (click)="clearFilters()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
-      </div>
 
-      <!-- Category  -->
-      <div class="col-12 col-sm-6 col-lg-2">
-        <mat-form-field
-          appearance="outline"
-          class="product-filter-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>Category</mat-label>
-          <mat-select [formControl]="categoryControl">
-            <mat-option value="">All Categories</mat-option>
-            <mat-option
-              *ngFor="let cat of categories$ | async"
-              [value]="cat.name"
-            >
-              {{ cat.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- Brand  -->
-      <div class="col-12 col-sm-6 col-lg-2">
-        <mat-form-field
-          appearance="outline"
-          class="product-filter-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>Brand</mat-label>
-          <mat-select [formControl]="brandControl">
-            <mat-option value="">All Brands</mat-option>
-            <mat-option
-              *ngFor="let brand of brands$ | async"
-              [value]="brand.name"
-            >
-              {{ brand.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- Clear button -->
-      <div class="col-6 col-sm-3 col-lg-1">
-        <button
-          mat-stroked-button
-          color="warn"
-          (click)="clearFilters()"
-          [disabled]="
-            !searchControl.value &&
-            !categoryControl.value &&
-            !brandControl.value
-          "
-          class="product-toolbar-button w-100 d-flex align-items-center justify-content-center gap-1 rounded-3 px-2"
-          title="Clear Filters"
-        >
-          <mat-icon>clear</mat-icon>Clear
-        </button>
-      </div>
-
-      <!-- Add button-->
-      <div class="col-6 col-sm-3 col-lg-1 ms-auto text-lg-end">
+        <!-- Add button -->
         <button
           mat-raised-button
           color="primary"
           [routerLink]="portalRoutes.products(portal, 'add')"
-          class="product-toolbar-button w-100"
+          class="product-toolbar-button flex-shrink-0"
         >
           <mat-icon>add</mat-icon> <span>Add</span>
         </button>
@@ -103,6 +55,7 @@
     [data]="ProductList"
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns"
+    [showIndex]="false"
     [actions]="actions"
     [showInlineActions]="false"
     [hasMoreData]="hasMoreData"
@@ -114,6 +67,9 @@
     [dropdownOptionsMap]="dropdownOptionsMap"
     [dropdownLoadingMap]="dropdownLoadingMap"
     [selectedFiltersMap]="selectedFiltersMap"
+    [rangeBoundsMap]="rangeBoundsMap"
+    [selectedRangesMap]="selectedRangesMap"
+    [filterResetToken]="filterResetToken"
     (dropdownSearchChange)="onDropdownSearchTriggered($event)"
     (dropdownOpened)="onDropdownOpened($event)"
     (dropdownScrolled)="onDropdownScrolled($event)"
@@ -121,7 +77,8 @@
     (filterApply)="onFilterApply($event)"
     (filterClear)="onFilterClear($event)"
     (filterChanged)="onTableFilterChanged($event)"
-    (filterCleared)="onTableFilterCleared($event)"
+    (priceRangeChange)="onRangeFilterChanged($event)"
+    (stockRangeChange)="onRangeFilterChanged($event)"
   >
   </app-generic-table>
 </div>

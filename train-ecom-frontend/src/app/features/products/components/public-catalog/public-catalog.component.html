@@ -4,21 +4,18 @@
     class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 border-bottom pb-3 gap-3"
   >
     <div>
-      <div class="mb-2 d-none d-lg-block">
+      <div class="d-flex align-items-center gap-2">
         <button
-          mat-stroked-button
+          mat-icon-button
           color="primary"
+          aria-label="Go back"
           (click)="goBack()"
-          class="d-inline-flex align-items-center gap-1 min-width-unset px-2 py-1"
         >
-          <mat-icon
-            >arrow_back</mat-icon
-          >
-          Back
+          <mat-icon>arrow_back_ios_new</mat-icon>
         </button>
+        <h2 class="fw-bold m-0 text-dark">Product Catalog</h2>
       </div>
-      <h2 class="fw-bold m-0 text-dark">Product Catalog</h2>
-      <p class="text-muted small m-0">
+      <p class="catalog-subheading text-muted small m-0">
         Discover and filter products in real-time
       </p>
     </div>

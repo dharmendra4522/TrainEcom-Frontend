@@ -32,6 +32,16 @@
     box-sizing: border-box;
 }
 
+.product-search-field {
+    width: min(100%, 320px);
+}
+
+@media (max-width: 575.98px) {
+    .product-search-field {
+        width: 100%;
+    }
+}
+
 .page-header{
     display: flex;
     justify-content: space-between;
@@ -82,4 +92,3 @@
   color: #757575;
   font-style: italic;
 }
-

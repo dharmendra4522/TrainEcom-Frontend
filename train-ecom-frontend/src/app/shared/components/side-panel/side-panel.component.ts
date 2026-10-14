@@ -32,7 +32,7 @@ import { normalizeRole } from '../../../core/utils/role.utils';
 
 export interface SidePanelItem {
   id: string | number;
-  productId?: string | number;
+  productId?: number;
   productName?: string;
   name: string;
   unitPrice?: number;
@@ -410,9 +410,16 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     item: SidePanelItem,
     newQty: number,
   ): void {
-    const productId = item.productId || item.id;
+    const productId = item.productId;
+    if (productId === undefined) {
+      this.notificationService.showError(
+        'Product information is not available.'
+      );
+      return;
+    }
+
     this.store.dispatch(
-      ProductActions.loadProductById({ id: productId.toString() }),
+      ProductActions.loadProductById({ id: productId }),
     );
 
     this.actions$

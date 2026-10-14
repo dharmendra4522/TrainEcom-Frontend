@@ -217,31 +217,33 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   }
 
   /** Handle category filter change */
-  onCategoryChange(categoryName: string): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        category: categoryName || null,
-        subCategory: null,
-      },
-      queryParamsHandling: 'merge',
-    });
-  }
+onCategoryChange(categoryId: string): void {
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {
+      category: categoryId || null,
+      subCategory: null,
+    },
+    queryParamsHandling: 'merge',
+  });
+}
 
-  onSubCategoryChange(subCategoryName: string): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { subCategory: subCategoryName || null },
-      queryParamsHandling: 'merge',
-    });
-  }
+  onSubCategoryChange(subCategoryId: string): void {
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: {
+      subCategory: subCategoryId || null,
+    },
+    queryParamsHandling: 'merge',
+  });
+}
 
   /** Handle brand filter change */
-  onBrandChange(brandName: string): void {
+  onBrandChange(brandId: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { brand: brandName || null },
-      queryParamsHandling: 'merge',
+      queryParams: { brand: brandId || null },
+      queryParamsHandling: 'merge'
     });
   }
 
@@ -249,9 +251,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
   private dispatchLoadWithCurrentParams(overrides?: {
     pageNumber?: number;
     isAppend?: boolean;
-    brandName?: string | null;
-    categoryName?: string | null;
-    subCategoryName?: string | null;
+    brandId?: string | null;
+    categoryId?: string | null;
+    subCategoryId?: string | null;
     minPrice?: number | null;
     maxPrice?: number | null;
     sortBy?: string | null;
@@ -263,9 +265,36 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
 
     const queryParams = this.route.snapshot.queryParamMap;
 
-    const brandName = this.getParamValue(overrides, 'brand', undefined);
-    const categoryName = this.getParamValue(overrides, 'categoryName', undefined);
-    const subCategoryName = this.getParamValue(overrides, 'subCategoryName', undefined);
+    const brandValue =
+      overrides && 'brandId' in overrides
+        ? overrides.brandId || undefined
+        : queryParams.get('brand') || undefined;
+
+    const categoryValue =
+      overrides && 'categoryId' in overrides
+        ? overrides.categoryId || undefined
+        : queryParams.get('category') || undefined;
+    const subCategoryValue =
+      overrides && 'subCategoryId' in overrides
+        ? overrides.subCategoryId || undefined
+        : queryParams.get('subCategory') || undefined;
+
+    const parsedBrandId = brandValue ? Number(brandValue) : undefined;
+    const parsedCategoryId = categoryValue ? Number(categoryValue) : undefined;
+    const parsedSubCategoryId = subCategoryValue ? Number(subCategoryValue) : undefined;
+    const brandId =
+      parsedBrandId !== undefined && Number.isFinite(parsedBrandId)
+        ? parsedBrandId
+        : undefined;
+    const categoryId =
+      parsedCategoryId !== undefined && Number.isFinite(parsedCategoryId)
+        ? parsedCategoryId
+        : undefined;
+    const subCategoryId =
+      parsedSubCategoryId !== undefined && Number.isFinite(parsedSubCategoryId)
+        ? parsedSubCategoryId
+        : undefined;
+
     const search = queryParams.get('search') || undefined;
     const minPrice = this.getParamValue(overrides, 'minPrice', this.minPriceFilter$.value ?? undefined)
     const maxPrice = this.getParamValue(overrides, 'maxPrice', this.maxPriceFilter$.value ?? undefined);
@@ -281,9 +310,9 @@ export class PublicCatalogComponent implements OnInit, OnDestroy {
         pageNumber,
         pageSize: 10,
         isAppend,
-        brandName,
-        categoryName,
-        subCategoryName,
+        brandIds: brandId !== undefined ? [brandId] : undefined,
+        categoryIds: categoryId !== undefined ? [categoryId] : undefined,
+        subCategoryIds: subCategoryId !== undefined ? [subCategoryId] : undefined,
         search,
         minPrice,
         maxPrice,
