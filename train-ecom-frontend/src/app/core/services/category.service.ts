@@ -15,7 +15,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CategoryService {
   private baseApi = `${environment.apiBaseUrl}/categories`;
@@ -28,7 +28,7 @@ export class CategoryService {
       .get<Category[] | PaginatedCategoryResponse>(`${this.baseApi}/all`)
       .pipe(
         map((response) =>
-          Array.isArray(response) ? response : response?.items || [],
+          Array.isArray(response) ? response : response?.items || []
         ),
       );
   }
@@ -65,7 +65,7 @@ export class CategoryService {
               pageNumber: 1,
               pageSize: response.length,
               totalRecords: response.length,
-              totalPages: 1,
+              totalPages: 1
             };
           }
 
@@ -75,7 +75,7 @@ export class CategoryService {
             pageSize: response?.pageSize || pageSize,
             totalRecords:
               response?.totalRecords ?? response?.items?.length ?? 0,
-            totalPages: response?.totalPages || 1,
+            totalPages: response?.totalPages || 1
           };
         }),
       );
@@ -95,7 +95,7 @@ export class CategoryService {
   ): Observable<Category> {
     return this.http.put<Category>(
       `${this.baseApi}/update/${String(id)}`,
-      payload,
+      payload
     );
   }
 
@@ -109,7 +109,7 @@ export class CategoryService {
     pageSize: number = 10,
     search?: string,
     parentCategoryIds?: number[] | number | string,
-    searchField?: SubCategoryListField,
+    searchField?: SubCategoryListField
   ): Observable<PaginatedSubCategoryResponse> {
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
@@ -147,7 +147,7 @@ export class CategoryService {
               pageNumber: 1,
               pageSize: response.length,
               totalRecords: response.length,
-              totalPages: 1,
+              totalPages: 1
             };
           }
 
@@ -157,7 +157,7 @@ export class CategoryService {
             pageSize: response?.pageSize || pageSize,
             totalRecords:
               response?.totalRecords ?? response?.items?.length ?? 0,
-            totalPages: response?.totalPages || 1,
+            totalPages: response?.totalPages || 1
           };
         }),
       );

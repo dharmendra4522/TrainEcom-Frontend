@@ -61,11 +61,13 @@ export interface SubCategoryFilterParams {
 
 export enum CategoryListField {
   Name = 1,
-  Description = 2
+  Description = 2,
+  ID=3
 }
 
 export enum SubCategoryListField {
   SubCategoryName = 1,
   Description = 2,
-  ParentCategoryname = 3
+  ParentCategoryname = 3,
+  ID=4
 }

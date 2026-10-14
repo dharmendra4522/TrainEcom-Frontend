@@ -69,7 +69,7 @@ export class SubCategoryComponent {
   isLoading: boolean = false;
   totalRecords: number = 0;
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 15;
   showHeaderFilter: boolean = true;
   headerFilters: Record<string, string> = {};
   selectedFiltersMap: Record<string, (string | number)[]> = {
@@ -82,6 +82,7 @@ export class SubCategoryComponent {
   selectedParentCategoryIds: number[] = [];
 
   columns: TableColumn[] = [
+    {key: 'id', label: 'ID', filterable: true, filterType: 'search', clickable: true },
     { key: 'subCategoryName', label: 'Sub-Category Name', filterable: true, filterType: 'search' },
     { key: 'parentCategoryName', label: 'Parent Category', filterable: true, filterType: 'dropdown' },
     { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
@@ -410,6 +411,7 @@ export class SubCategoryComponent {
 
   private getSearchValue(): string | undefined {
     return (
+      this.headerFilters['id'] ||
       this.headerFilters['subCategoryName'] ||
       this.headerFilters['parentCategoryName'] ||
       undefined
@@ -417,13 +419,24 @@ export class SubCategoryComponent {
   }
 
   private getSearchField(): SubCategoryListField | undefined {
-    if (this.headerFilters['subCategoryName']) {
-      return SubCategoryListField.SubCategoryName;
+    const activeKey = this.headerFilters['id']
+      ? 'id'
+      : this.headerFilters['subCategoryName']
+        ? 'subCategoryName'
+        : this.headerFilters['parentCategoryName']
+          ? 'parentCategoryName'
+          : undefined;
+
+    switch (activeKey) {
+      case 'id':
+        return SubCategoryListField.ID;
+      case 'subCategoryName':
+        return SubCategoryListField.SubCategoryName;
+      case 'parentCategoryName':
+        return SubCategoryListField.ParentCategoryname;
+      default:
+        return undefined;
     }
-    if (this.headerFilters['parentCategoryName']) {
-      return SubCategoryListField.ParentCategoryname;
-    }
-    return undefined;
   }
 
 
