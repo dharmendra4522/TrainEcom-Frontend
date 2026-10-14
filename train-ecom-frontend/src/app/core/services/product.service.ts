@@ -10,7 +10,7 @@ import { PortalKey } from '../config/management-access.config';
 import { MANAGEMENT_API_PATHS } from '../config/management-api.config';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ProductService {
   private baseAPI = `${environment.apiBaseUrl}/products`;
@@ -68,7 +68,7 @@ export class ProductService {
     formData.append('Price', productData.price?.toString() || '0');
     formData.append(
       'StockQuantity',
-      productData.stockQuantity?.toString() || '0',
+      productData.stockQuantity?.toString() || '0'
     );
     formData.append('BrandId', String(productData.brandId ?? ''));
     formData.append('CategoryId', String(productData.categoryId ?? ''));
@@ -187,7 +187,7 @@ export class ProductService {
   getRelatedProducts(productId: number): Observable<Product[]> {
     return this.http
       .get<PaginatedProductsResponse | Product[]>(
-        `${this.baseAPI}/${productId}/related`,
+        `${this.baseAPI}/${productId}/related`
       )
       .pipe(
         map((response) =>
