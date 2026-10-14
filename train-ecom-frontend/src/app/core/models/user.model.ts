@@ -237,5 +237,6 @@ export enum UserListField {
   City = 10,
   GSTIN = 11,
   PAN = 12,
-  BussinessCategories = 13
+  BussinessCategories = 13,
+  UserID= 14
 }

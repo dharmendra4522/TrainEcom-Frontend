@@ -12,7 +12,7 @@ import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
   TableActionEvent,
-  TableColumn,
+  TableColumn
 } from '../../../../core/models/table.model';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -28,14 +28,14 @@ import {
   takeUntil,
   startWith,
   switchMap,
-  take,
+  take
 } from 'rxjs';
 import {
   VendorFilterParams,
   VendorItem,
   VendorListResponse,
   VendorStatus,
-  VendorTableItem,
+  VendorTableItem
 } from '../../../../core/models/vendor.model';
 import { Category } from '../../../../core/models/category.model';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -44,8 +44,6 @@ import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
 import { Store } from '@ngrx/store';
-import { selectAllCategories } from '../../../../core/store/category/category.selectors';
-import * as CategoryActions from '../../../../core/store/category/category.action'
 import { CategoryService } from '../../../../core/services/category.service';
 
 @Component({
@@ -78,7 +76,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     { label: 'Active', value: VendorStatus.Active },
     { label: 'Pending', value: VendorStatus.Pending },
     { label: 'Rejected', value: VendorStatus.Rejected },
-    { label: 'Blocked', value: VendorStatus.Blocked },
+    { label: 'Blocked', value: VendorStatus.Blocked }
   ];
 
   totalRecords: number = 0;
@@ -90,7 +88,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   headerFilters: Record<string, string> = {};
   selectedFiltersMap: Record<string, (string | number)[]> = {
     statusDisplay: [],
-    categoriesDisplay: [],
+    categoriesDisplay: []
   };
   selectedStatusIds: number[] = [];
   selectedCategoryIds: number[] = [];
@@ -98,10 +96,11 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   filterForm = new FormGroup({
     search: new FormControl(''),
-    status: new FormControl<VendorStatus | 'All'>('All'),
+    status: new FormControl<VendorStatus | 'All'>('All')
   });
 
   columns: TableColumn[] = [
+    { key: 'userId', label: 'ID', type: 'number', truncate: false, filterable: true, filterType: 'search', clickable: true },
     { key: 'name', label: 'Name', truncate: false, filterable: true, filterType: 'search' },
     { key: 'phoneNumber', label: 'Phone', filterable: true, filterType: 'search' },
     { key: 'email', label: 'Email', truncate: true, filterable: true, filterType: 'search' },
@@ -220,10 +219,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
                 totalPages: 0,
               });
             }),
-            finalize(() => this.setCategoryLoading(false)),
+            finalize(() => this.setCategoryLoading(false))
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((response) => {
         this.setCategoryOptions(response.items);
@@ -235,7 +234,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       ...this.dropdownOptionsMap,
       categoriesDisplay: categories.map((category: Category) => ({
         id: category.id,
-        label: category.name,
+        label: category.name
       })),
     };
   }
@@ -243,7 +242,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   private setCategoryLoading(isLoading: boolean): void {
     this.dropdownLoadingMap = {
       ...this.dropdownLoadingMap,
-      categoriesDisplay: isLoading,
+      categoriesDisplay: isLoading
     };
   }
 
@@ -256,22 +255,23 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               this.notificationService.showError('Error fetching vendor list');
               this.isLoading = false;
               return EMPTY;
-            }),
-          ),
+            })
+          )
         ),
         takeUntil(this.destroy$),
       )
       .subscribe((response: VendorListResponse) => {
         const mappedVendors = response.items.map(
           (vendor: VendorItem): VendorTableItem => {
-            const businessName = vendor.businessName ?? 'N/A';
+            const businessName = vendor.businessDetail?.businessName ?? 'N/A';
             const categories = vendor.categories ?? [];
             const currentStatus = vendor.status ?? VendorStatus.Pending;
 
             return {
               ...vendor,
               id: vendor.userId,
-              name: vendor.name ?? businessName,
+              name: vendor.name ?? 'N/A',
+              bussinessName: businessName,
               categoriesDisplay:
                 Array.isArray(categories) && categories.length > 0
                   ? categories.join(', ')
@@ -284,9 +284,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               vendorStatusClass: this.getStatusBadgeClass(currentStatus),
               rejectionReason: vendor.rejectionReason ?? null
             };
-          },
+          }
         );
-
         if (this.pageIndex === 0) {
           this.vendors = mappedVendors;
         } else {
@@ -388,7 +387,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     this.searchReset.emit();
     this.filterForm.setValue(
       { search: '', status: 'All' },
-      { emitEvent: false },
+      { emitEvent: false }
     );
     this.pageIndex = 0;
     this.loadVendors();
@@ -682,6 +681,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   // handle header search
   private getHeaderSearchValue(): string | undefined {
     return (
+      this.headerFilters['userId'] ||
       this.headerFilters['name'] ||
       this.headerFilters['phoneNumber'] ||
       this.headerFilters['email'] ||
@@ -694,28 +694,29 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   }
 
   private getSearchField(): UserListField | undefined {
-    if (this.headerFilters['name']) {
-      return UserListField.Name;
+    const activeKey = Object.keys(this.headerFilters).find(
+      key => this.headerFilters[key]?.trim()
+    );
+    switch (activeKey) {
+      case 'userId':
+        return UserListField.UserID;
+      case 'name':
+        return UserListField.Name;
+      case 'phoneNumber':
+        return UserListField.PhoneNumber;
+      case 'email':
+        return UserListField.Email;
+      case 'bussinessName':
+        return UserListField.BussinessName;
+      case 'gstinNumber':
+        return UserListField.GSTIN;
+      case 'panNumber':
+        return UserListField.PAN;
+      case 'storeName':
+        return UserListField.StoreName;
+      default:
+        return undefined;
     }
-    if (this.headerFilters['phoneNumber']) {
-      return UserListField.PhoneNumber;
-    }
-    if (this.headerFilters['email']) {
-      return UserListField.Email;
-    }
-    if (this.headerFilters['bussinessName']) {
-      return UserListField.BussinessName;
-    }
-    if (this.headerFilters['gstinNumber']) {
-      return UserListField.GSTIN;
-    }
-    if (this.headerFilters['panNumber']) {
-      return UserListField.PAN;
-    }
-    if (this.headerFilters['storeName']) {
-      return UserListField.StoreName;
-    }
-    return undefined;
   }
 
   dropdownOptionsMap: Record<

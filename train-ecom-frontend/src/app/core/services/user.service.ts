@@ -7,7 +7,7 @@ import {
   AdminUserFilterParams,
   AdminUserListResponse,
   UpdateUserStatusPayload,
-  ApprovalStatus,
+  ApprovalStatus
 } from '../models/user.model';
 import { Observable, of, tap, map } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -15,7 +15,7 @@ import { Role } from '../models/auth.model';
 import { VendorStatus } from '../models/vendor.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UserService {
   private profileUrl = `${environment.apiBaseUrl}/auth/profile`;
@@ -24,7 +24,7 @@ export class UserService {
   private http = inject(HttpClient);
   private addressesCache: Address[] | null = null;
 
-  constructor() { }
+  constructor() {}
 
   clearCache(): void {
     this.addressesCache = null;
@@ -117,7 +117,7 @@ export class UserService {
       active: VendorStatus.Active,
       pending: VendorStatus.Pending,
       rejected: VendorStatus.Rejected,
-      blocked: VendorStatus.Blocked,
+      blocked: VendorStatus.Blocked
     };
     if (value === 'all') return undefined;
     const numericStatus = Number(value);
@@ -142,7 +142,7 @@ export class UserService {
       vendor: Role.Vendor,
       admin: Role.Admin,
       accounting: Role.Accounting,
-      officeadmin: Role.OfficeAdmin,
+      officeadmin: Role.OfficeAdmin
     };
     return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;
   }
@@ -160,7 +160,7 @@ export class UserService {
     const statusMap: Record<string, number> = {
       pending: ApprovalStatus.Pending,
       approved: ApprovalStatus.Approved,
-      rejected: ApprovalStatus.Rejected,
+      rejected: ApprovalStatus.Rejected
     };
     return statusMap[normalized] ?? Number(normalized) ?? undefined;
   }
@@ -190,7 +190,7 @@ export class UserService {
         if (normalizedStatus !== undefined) {
           params = params.append(
             'StatusIds',
-            normalizedStatus.toString(),
+            normalizedStatus.toString()
           );
         }
       });
