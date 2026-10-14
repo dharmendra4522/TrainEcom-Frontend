@@ -1,3 +1,5 @@
+import { PortalKey } from "../config/management-access.config";
+
 export interface ProductImage {
   id: number;
   imageUrl: string;
@@ -34,6 +36,26 @@ export interface PaginatedProductsResponse<T = Product> {
   maxPrice: number;
   minStock: number;
   maxStock: number;
+}
+
+export interface ProductListFilters {
+  pageNumber?: number;
+  pageSize?: number;
+  search?: string;
+  searchField?: ProductListField;
+  requestField?: ProductListField;
+  categoryIds?: number[];
+  subCategoryIds?: number[];
+  brandIds?: number[];
+  storeName?: string;
+  minStock?: number;
+  maxStock?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  minRating?: number;
+  filterIds?: number[];
+  portal?: PortalKey;
 }
 
 export enum ProductListField {
