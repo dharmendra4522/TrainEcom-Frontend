@@ -1,8 +1,7 @@
 import {
   DashboardData,
-  DashboardStatItem,
+  DashboardStatItem
 } from '../../../../core/models/dashboard.model';
-import { OrderStatus } from '../../../../core/models/order.model';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
 import { getOrderStatusClass as getOrderStatusBadgeClass, getPaymentStatusClass as getPaymentStatusBadgeClass } from '../../../../shared/utils/status-badge.utils';
@@ -34,9 +33,9 @@ export const userChartData = {
   datasets: [
     {
       data: [15],
-      backgroundColor: ['#0dee0d'],
-    },
-  ],
+      backgroundColor: ['#0dee0d']
+    }
+  ]
 };
 
 export const categoryProductData = {

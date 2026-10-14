@@ -1,7 +1,7 @@
 import {
   CategoryProductSummaryResponse,
   OrderSummaryResponse,
-  RevenueData,
+  RevenueData
 } from './../../../../core/models/dashboard.model';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { ChartData, ChartType, Chart, registerables, ChartConfiguration } from 'chart.js';
@@ -9,21 +9,20 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
   orderStatusChartData,
-  revenueChartData,
-  userChartData,
+  revenueChartData
 } from '../dashboard/dashboard.utils';
 import {
   getOrderChartOptions,
   getProductChartOptions,
   getUserChartOptions,
   orderChartOptions as orderChartConfiguration,
-  revenueChartOptions as revenueChartConfiguration,
+  revenueChartOptions as revenueChartConfiguration
 } from './charts.config';
 import { MatDialog } from '@angular/material/dialog';
 import {
   FilterDialogComponent,
   FilterDialogData,
-  FilterDialogResult,
+  FilterDialogResult
 } from '../../../../shared/components/filter-dialog/filter-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Router } from '@angular/router';
@@ -33,7 +32,7 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 @Component({
   selector: 'app-charts',
   templateUrl: './charts.component.html',
-  styleUrls: ['./charts.component.css'],
+  styleUrls: ['./charts.component.css']
 })
 export class ChartsComponent implements OnInit {
   private dialog = inject(MatDialog);
@@ -60,11 +59,15 @@ export class ChartsComponent implements OnInit {
   public revenueFilterCount: number = 0;
   public selectedRevenueYear: number | null = null;
   public selectedRevenueVendorIds: number[] = [];
+  public selectedRevenueFromDate: Date | null = null;
+  public selectedRevenueToDate: Date | null = null;
 
   // Order Filter States
   public orderFilterCount: number = 0;
   public selectedOrderYear: number | null = null;
   public selectedOrderVendorIds: number[] = [];
+  public selectedOrderFromDate: Date | null = null;
+  public selectedOrderToDate: Date | null = null;
 
   public userChartsType: ChartType = 'pie';
   public userChartData!: ChartData<'pie'>;
@@ -78,7 +81,7 @@ export class ChartsComponent implements OnInit {
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = {
     labels: [],
-    datasets: [{ data: [], backgroundColor: '#2196f3' }],
+    datasets: [{ data: [], backgroundColor: '#2196f3' }]
   };
   public productChartOptions = getProductChartOptions(
     this.router,
@@ -157,6 +160,7 @@ export class ChartsComponent implements OnInit {
           label: string;
           data: number[];
           backgroundColor: string;
+          maxBarThickness: number;
         }[] = [];
         const subCategoryMap = new Map<
           string,
@@ -200,8 +204,8 @@ export class ChartsComponent implements OnInit {
               datasets.push({
                 label: subCategoryName,
                 data: values,
-                backgroundColor:
-                  colors[index % colors.length]
+                backgroundColor: colors[index % colors.length],
+                maxBarThickness: 40
               });
             }
           );
@@ -222,8 +226,8 @@ export class ChartsComponent implements OnInit {
   }
 
   // fetch revenue data for charts
-  private fetchRevenueData(year?: number, vendorIds?: number[]): void {
-    this.dashboardService.fetchRevenueData(year, vendorIds).subscribe({
+  private fetchRevenueData(year?: number, vendorIds?: number[], fromDate?: Date | null, toDate?: Date | null): void {
+    this.dashboardService.fetchRevenueData(year, vendorIds, fromDate, toDate).subscribe({
       next: (data: RevenueData) => {
         this.totalRevenue = data.totalRevenue;
         const labels = [...revenueChartData.labels];
@@ -250,8 +254,8 @@ export class ChartsComponent implements OnInit {
   }
 
   // fetch order summary data for charts
-  private fetchOrderSummaryData(year?: number, vendorIds?: number[]): void {
-    this.dashboardService.fetchOrderSummary(year, vendorIds).subscribe({
+  private fetchOrderSummaryData(year?: number, vendorIds?: number[], fromDate?: Date | null, toDate?: Date | null): void {
+    this.dashboardService.fetchOrderSummary(year, vendorIds, fromDate, toDate).subscribe({
       next: (data: OrderSummaryResponse) => {
         this.totalOrders = data.totalOrders;
         const labels = [...orderStatusChartData.labels];
@@ -314,7 +318,9 @@ export class ChartsComponent implements OnInit {
   private openFilterDialog(
     currentYear: number | null,
     currentVendors: number[],
-    onApply: (year: number | null, vendors: number[], count: number) => void,
+    currentFromDate: Date | null,
+    currentToDate: Date | null,
+    onApply: (year: number | null, fromDate: Date | null, toDate: Date | null, vendors: number[], count: number) => void,
     onClear: () => void,
     successMessage: string
   ): void {
@@ -325,7 +331,7 @@ export class ChartsComponent implements OnInit {
     >(FilterDialogComponent, {
       width: '400px',
       disableClose: true,
-      data: { year: currentYear, vendors: currentVendors, isVendor: this.isVendor }
+      data: { year: currentYear, vendors: currentVendors, fromDate: currentFromDate, toDate: currentToDate, isVendor: this.isVendor }
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.cleared) {
@@ -333,7 +339,7 @@ export class ChartsComponent implements OnInit {
         return;
       }
       if (result) {
-        onApply(result.year, result.vendors, result.count);
+        onApply(result.year, result.fromDate ?? null, result.toDate ?? null, result.vendors, result.count);
         this.notificationService.showSuccess(successMessage, 'close');
       }
     });
@@ -344,17 +350,23 @@ export class ChartsComponent implements OnInit {
     this.openFilterDialog(
       this.selectedRevenueYear,
       this.selectedRevenueVendorIds,
-      (year, vendors, count) => {
+      this.selectedRevenueFromDate,
+      this.selectedRevenueToDate,
+      (year, fromDate, toDate, vendors, count) => {
         this.selectedRevenueYear = year;
         this.selectedRevenueVendorIds = vendors;
+        this.selectedRevenueFromDate = fromDate;
+        this.selectedRevenueToDate = toDate;
         this.revenueFilterCount = count;
-        this.fetchRevenueData(year ?? undefined, vendors);
+        this.fetchRevenueData(year ?? undefined, vendors, fromDate, toDate);
       },
       () => {
         this.selectedRevenueYear = null;
         this.selectedRevenueVendorIds = [];
+        this.selectedRevenueFromDate = null;
+        this.selectedRevenueToDate = null;
         this.revenueFilterCount = 0;
-        this.fetchRevenueData(undefined, []);
+        this.fetchRevenueData(undefined, [], null, null);
         this.notificationService.showInfo('Revenue filter cleard', 'Close');
       },
       'Revenue data filter successfully '
@@ -366,17 +378,23 @@ export class ChartsComponent implements OnInit {
     this.openFilterDialog(
       this.selectedOrderYear,
       this.selectedOrderVendorIds,
-      (year, vendors, count) => {
+      this.selectedOrderFromDate,
+      this.selectedOrderToDate,
+      (year, fromDate, toDate, vendors, count) => {
         this.selectedOrderYear = year;
         this.selectedOrderVendorIds = vendors;
+        this.selectedOrderFromDate = fromDate;
+        this.selectedOrderToDate = toDate;
         this.orderFilterCount = count;
-        this.fetchOrderSummaryData(year ?? undefined, vendors);
+        this.fetchOrderSummaryData(year ?? undefined, vendors, fromDate, toDate);
       },
       () => {
         this.selectedOrderYear = null;
         this.selectedOrderVendorIds = [];
+        this.selectedOrderFromDate = null;
+        this.selectedOrderToDate = null;
         this.orderFilterCount = 0;
-        this.fetchOrderSummaryData(undefined, []);
+        this.fetchOrderSummaryData(undefined, [], null, null);
         this.notificationService.showInfo('Order filters cleared', 'Close');
       },
       'Order summary filtered successfully'
