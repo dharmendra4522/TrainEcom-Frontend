@@ -4,8 +4,8 @@ import { BrandService } from "../../services/brand.service";
 import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
-import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands, selectBrandPagesCache } from "./brand.selectors";
-import { exhaustMap, map, catchError, of, withLatestFrom, switchMap, timeout } from "rxjs";
+import { selectBrandTotalRecords, selectBrandPagesCache } from "./brand.selectors";
+import { exhaustMap, map, catchError, of, withLatestFrom, switchMap } from "rxjs";
 
 @Injectable()
 export class BrandEffects {
@@ -33,7 +33,7 @@ export class BrandEffects {
             ofType(BrandActions.loadPaginatedBrands),
             withLatestFrom(
                 this.store.select(selectBrandPagesCache),
-                this.store.select(selectBrandTotalRecords),
+                this.store.select(selectBrandTotalRecords)
             ),
             switchMap(([action, pagesCache, totalRecords]) => {
                 const { pageNumber, pageSize, search, searchField } = action;

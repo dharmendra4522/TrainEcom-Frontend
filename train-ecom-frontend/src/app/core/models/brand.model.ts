@@ -29,4 +29,5 @@ export interface PaginatedBrandResponse {
 export enum BrandListField {
   Name = 1,
   Description = 2,
+  ID=3,
 }

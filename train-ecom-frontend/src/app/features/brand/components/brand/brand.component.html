@@ -42,6 +42,7 @@
     [data]="(paginatedBrands$ | async) || []" 
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
+    [showIndex]="false"
     [actions]="actions" 
     [enableRowClick]="false"
     [showInlineActions]="false" 
