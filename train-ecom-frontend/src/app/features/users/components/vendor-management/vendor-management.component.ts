@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { ApprovalStatus, UserListField } from '../../../../core/models/user.model';
+import { AdminUserFilterParams, ApprovalStatus, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -31,7 +31,6 @@ import {
   take
 } from 'rxjs';
 import {
-  VendorFilterParams,
   VendorItem,
   VendorListResponse,
   VendorStatus,
@@ -315,7 +314,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       });
   }
 
-  private getFilterParams(): VendorFilterParams {
+  private getFilterParams(): AdminUserFilterParams {
     const headerSearch = this.getHeaderSearchValue();
 
     return {
