@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { AdminUserFilterParams, ApprovalStatus, UserListField } from '../../../../core/models/user.model';
+import { AdminUserFilterParams, ApprovalStatus, UserFilterColumn, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -28,7 +28,6 @@ import {
   takeUntil,
   startWith,
   switchMap,
-  take
 } from 'rxjs';
 import {
   VendorItem,
@@ -48,7 +47,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 @Component({
   selector: 'app-vendor-management',
   templateUrl: './vendor-management.component.html',
-  styleUrl: './vendor-management.component.css',
+  styleUrl: './vendor-management.component.css'
 })
 export class VendorManagementComponent implements OnInit, OnDestroy {
   @Input() set externalSearchQuery(value: string) {
@@ -680,14 +679,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   // handle header search
   private getHeaderSearchValue(): string | undefined {
     return (
-      this.headerFilters['userId'] ||
-      this.headerFilters['name'] ||
-      this.headerFilters['phoneNumber'] ||
-      this.headerFilters['email'] ||
-      this.headerFilters['bussinessName'] ||
-      this.headerFilters['gstinNumber'] ||
-      this.headerFilters['panNumber'] ||
-      this.headerFilters['storeName'] ||
+      this.headerFilters[UserFilterColumn.UserId] ||
+      this.headerFilters[UserFilterColumn.Name] ||
+      this.headerFilters[UserFilterColumn.PhoneNumber] ||
+      this.headerFilters[UserFilterColumn.Email] ||
+      this.headerFilters[UserFilterColumn.BussinessName] ||
+      this.headerFilters[UserFilterColumn.GSTIN] ||
+      this.headerFilters[UserFilterColumn.PAN] ||
+      this.headerFilters[UserFilterColumn.StoreName] ||
       undefined
     );
   }
@@ -697,21 +696,21 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       key => this.headerFilters[key]?.trim()
     );
     switch (activeKey) {
-      case 'userId':
+      case UserFilterColumn.UserId:
         return UserListField.UserID;
-      case 'name':
+      case UserFilterColumn.Name:
         return UserListField.Name;
-      case 'phoneNumber':
+      case UserFilterColumn.PhoneNumber:
         return UserListField.PhoneNumber;
-      case 'email':
+      case UserFilterColumn.Email:
         return UserListField.Email;
-      case 'bussinessName':
+      case UserFilterColumn.BussinessName:
         return UserListField.BussinessName;
-      case 'gstinNumber':
+      case UserFilterColumn.GSTIN:
         return UserListField.GSTIN;
-      case 'panNumber':
+      case UserFilterColumn.PAN:
         return UserListField.PAN;
-      case 'storeName':
+      case UserFilterColumn.StoreName:
         return UserListField.StoreName;
       default:
         return undefined;
@@ -741,13 +740,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
     const selected =
       this.selectedFiltersMap[event.columnKey] ?? [];
-
     const exists =
       selected.includes(event.option.id);
-
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-
       [event.columnKey]: exists
         ? selected.filter(
           x => x !== event.option.id

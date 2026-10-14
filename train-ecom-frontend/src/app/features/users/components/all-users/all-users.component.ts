@@ -23,6 +23,7 @@ import {
   AdminUser,
   AdminUserFilterParams,
   AdminUserListResponse,
+  UserFilterColumn,
   UserListField
 } from '../../../../core/models/user.model';
 import { Role } from '../../../../core/models/auth.model';
@@ -282,7 +283,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
                 err?.error?.message ||
                 'User delete karne mein safalta nahi mili.';
               this.notification.showError(errorMessage);
-            },
+            }
           });
         }
       });
@@ -299,15 +300,15 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       key => this.headerFilters[key]?.trim()
     );
     switch (activeKey) {
-      case 'userId':
+      case UserFilterColumn.UserId:
         return UserListField.UserID;
-      case 'name':
+      case UserFilterColumn.Name:
         return UserListField.Name;
-      case 'email':
+      case UserFilterColumn.Email:
         return UserListField.Email;
-      case 'phoneNumber':
+      case UserFilterColumn.PhoneNumber:
         return UserListField.PhoneNumber;
-      case 'formattedAddress':
+      case UserFilterColumn.FormattedAddress:
         return UserListField.AddressCity;
       default:
         return undefined;
@@ -317,7 +318,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   // handle header search
   private getHeaderSearchValue(): string | undefined {
     return (
-      this.headerFilters['userId'] || this.headerFilters['name'] || this.headerFilters['email'] || this.headerFilters['phoneNumber'] || this.headerFilters['formattedAddress'] || undefined
+      this.headerFilters[UserFilterColumn.UserId] || this.headerFilters[UserFilterColumn.Name] || this.headerFilters[UserFilterColumn.Email] || this.headerFilters[UserFilterColumn.PhoneNumber] || this.headerFilters[UserFilterColumn.FormattedAddress] || undefined
     );
   }
 
@@ -398,7 +399,6 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   onHeaderFilterChange(filters: Record<string, string>): void {
-    console.log(filters);
     this.headerFilters = filters;
     this.pageIndex = 0;
     this.loadUsers();

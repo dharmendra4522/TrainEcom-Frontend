@@ -223,6 +223,19 @@ export interface BusinessAddress {
   postalCode: number;
 }
 
+export enum UserFilterColumn {
+  UserId = 'userId',
+  Name = 'name',
+  Email = 'email',
+  PhoneNumber = 'phoneNumber',
+  FormattedAddress = 'formattedAddress',
+  BussinessName = 'bussinessName',
+  GSTIN = 'gstinNumber',
+  PAN = 'panNumber',
+  StoreName = 'storeName',
+  StatusDisplay = 'statusDisplay',
+  CategoriesDisplay = 'categoriesDisplay'
+}
 
 export enum UserListField {
   Name = 1,
