@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Product, ProductListField } from '../models/product.model';
+import { Product, ProductListFilters } from '../models/product.model';
 import { map } from 'rxjs/operators';
 import { PaginatedProductsResponse } from '../models/product.model';
 import { HttpParams } from '@angular/common/http';
@@ -16,7 +16,7 @@ export class ProductService {
   private baseAPI = `${environment.apiBaseUrl}/products`;
   private http = inject(HttpClient);
 
-  constructor() {}
+  constructor() { }
 
   getAllProducts(): Observable<Product[]> {
     return this.http
@@ -97,24 +97,28 @@ export class ProductService {
   }
 
   getPaginatedProducts(
-    pageNumber: number = 1,
-    pageSize: number = 10,
-    search?: string,
-    searchField?: ProductListField,
-    requestField?: ProductListField,
-    categoryIds?: number[],
-    subCategoryIds?: number[],
-    brandIds?: number[],
-    storeName?: string,
-    minStock?: number,
-    maxStock?: number,
-    minPrice?: number,
-    maxPrice?: number,
-    sortBy?: string,
-    minRating?: number,
-    filterIds?: number[],
-    portal?: PortalKey
+    filters: ProductListFilters = {}
   ): Observable<PaginatedProductsResponse> {
+    const {
+      pageNumber = 1,
+      pageSize = 10,
+      search,
+      searchField,
+      requestField,
+      categoryIds,
+      subCategoryIds,
+      brandIds,
+      storeName,
+      minStock,
+      maxStock,
+      minPrice,
+      maxPrice,
+      sortBy,
+      minRating,
+      filterIds,
+      portal
+    } = filters;
+
     let params = new HttpParams()
       .set('PageNumber', pageNumber.toString())
       .set('PageSize', pageSize.toString());
@@ -180,22 +184,6 @@ export class ProductService {
     });
   }
 
-  // getFilteredProducts(
-  //   brandId?: number,
-  //   categoryId?: number,
-  // ): Observable<Product[]> {
-  //   let params = new HttpParams();
-  //   if (brandId !== undefined) {
-  //     params = params.set('BrandIds', brandId.toString());
-  //   }
-  //   if (categoryId !== undefined) {
-  //     params = params.set('CategoryIds', categoryId.toString());
-  //   }
-  //   return this.http
-  //     .get<PaginatedProductsResponse>(this.baseAPI, { params })
-  //     .pipe(map((response) => response?.items || []));
-  // }
-
   getRelatedProducts(productId: number): Observable<Product[]> {
     return this.http
       .get<PaginatedProductsResponse | Product[]>(
@@ -203,8 +191,8 @@ export class ProductService {
       )
       .pipe(
         map((response) =>
-          Array.isArray(response) ? response : response.items ?? [],
-        ),
+          Array.isArray(response) ? response : response.items ?? []
+        )
       );
   }
 }

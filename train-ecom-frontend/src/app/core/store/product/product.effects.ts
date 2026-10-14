@@ -55,27 +55,26 @@ export class ProductEffects {
             })
           );
         }
-
         return this.productService
-          .getPaginatedProducts(
-            pageNumber,
-            pageSize,
-            action.search,
-            action.searchField,
-            action.requestField,
-            action.categoryIds,
-            action.subCategoryIds,
-            action.brandIds,
-            action.storeName,
-            action.minStock,
-            action.maxStock,
-            action.minPrice,
-            action.maxPrice,
-            action.sortBy,
-            action.minRating,
-            action.filterIds,
-            portal
-          )
+          .getPaginatedProducts({
+            pageNumber: action.pageNumber,
+            pageSize: action.pageSize,
+            search: action.search,
+            searchField: action.searchField,
+            requestField: action.requestField,
+            categoryIds: action.categoryIds,
+            subCategoryIds: action.subCategoryIds,
+            brandIds: action.brandIds,
+            storeName: action.storeName,
+            minPrice: action.minPrice,
+            maxPrice: action.maxPrice,
+            minStock: action.minStock,
+            maxStock: action.maxStock,
+            sortBy: action.sortBy,
+            minRating: action.minRating,
+            filterIds: action.filterIds,
+            portal: action.portal
+          })
           .pipe(
             map((response) => {
               // calculate total pages based on totalRecords and pageSize
