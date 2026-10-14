@@ -60,39 +60,46 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   );
 
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 15;
   showHeaderFilter: boolean = true;
   headerFilters: Record<string, string> = {};
 
-columns: TableColumn[] = [
-  {
-    key: 'name',
-    label: 'Category Name',
-    filterable: true,
-    filterType: 'search'
-  },
-  {
-    key: 'description',
-    label: 'Description',
-    filterable: true,
-    filterType: 'search',
-    filterDisabled: true
-  },
-  {
-    key: 'numberOfProducts',
-    label: 'Total Products',
-    filterable: true,
-    filterType: 'search',
-    filterDisabled: true
-  },
-  {
-    key: 'numberOfSubCategories',
-    label: 'Total Sub-Categories',
-    filterable: true,
-    filterType: 'search',
-    filterDisabled: true
-  }
-];
+  columns: TableColumn[] = [
+    {
+      key: 'id',
+      label: 'ID',
+      filterable: true,
+      filterType: 'search',
+      clickable: true
+    },
+    {
+      key: 'name',
+      label: 'Category Name',
+      filterable: true,
+      filterType: 'search'
+    },
+    {
+      key: 'description',
+      label: 'Description',
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true
+    },
+    {
+      key: 'numberOfProducts',
+      label: 'Total Products',
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true
+    },
+    {
+      key: 'numberOfSubCategories',
+      label: 'Total Sub-Categories',
+      filterable: true,
+      filterType: 'search',
+      filterDisabled: true
+    }
+  ];
 
   actions: TableAction[] = [
     {
@@ -264,6 +271,7 @@ columns: TableColumn[] = [
 
   private getSearchValue(): string | undefined {
     return (
+      this.headerFilters['id'] ||
       this.headerFilters['name'] ||
       this.headerFilters['description'] ||
       undefined
@@ -272,13 +280,24 @@ columns: TableColumn[] = [
 
   private getSearchField():
     CategoryListField | undefined {
-    if (this.headerFilters['name']) {
-      return CategoryListField.Name;
+    const activeKey = this.headerFilters['id']
+      ? 'id'
+      : this.headerFilters['name']
+        ? 'name'
+        : this.headerFilters['description']
+          ? 'description'
+          : undefined;
+
+    switch (activeKey) {
+      case 'id':
+        return CategoryListField.ID;
+      case 'name':
+        return CategoryListField.Name;
+      case 'description':
+        return CategoryListField.Description;
+      default:
+        return undefined;
     }
-    if (this.headerFilters['description']) {
-      return CategoryListField.Description;
-    }
-    return undefined;
   }
 
   onTableFilterChanged(
