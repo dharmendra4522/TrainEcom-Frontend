@@ -5,20 +5,20 @@ import { BrandCategoryDialogComponent } from '../../../../shared/components/bran
 import {
   TableColumn,
   TableAction,
-  TableActionEvent,
+  TableActionEvent
 } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
 import {
   selectBrandLoading,
   selectBrandTotalRecords,
-  selectPaginatedBrands,
+  selectPaginatedBrands
 } from '../../../../core/store/brand/brand.selectors';
 import { Observable, Subject } from 'rxjs';
 import {
   distinctUntilChanged,
   debounceTime,
-  takeUntil,
+  takeUntil
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { map } from 'rxjs/operators';
@@ -27,7 +27,7 @@ import { ConfirmDialogServiceService } from '../../../../core/services/confirm-d
 @Component({
   selector: 'app-brand',
   templateUrl: './brand.component.html',
-  styleUrl: './brand.component.css',
+  styleUrl: './brand.component.css'
 })
 export class BrandComponent implements OnInit, OnDestroy {
   private matDialog = inject(MatDialog);
@@ -35,11 +35,11 @@ export class BrandComponent implements OnInit, OnDestroy {
   private confirmDialog = inject(ConfirmDialogServiceService);
 
   paginatedBrands$: Observable<Brand[]> = this.store.select(
-    selectPaginatedBrands,
+    selectPaginatedBrands
   );
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
   totalRecords$: Observable<number> = this.store.select(
-    selectBrandTotalRecords,
+    selectBrandTotalRecords
   );
 
   searchControl = new FormControl('', { nonNullable: true });
@@ -56,6 +56,7 @@ export class BrandComponent implements OnInit, OnDestroy {
   headerFilters: Record<string, string> = {};
 
   columns: TableColumn[] = [
+    { key: 'id', label: 'ID', filterable: true, filterType: 'search', clickable: true},
     { key: 'name', label: 'Brand Name', filterable: true, filterType: 'search' },
     { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
     { key: 'numberOfProducts', label: 'Total Products', filterable: true, filterType: 'search', filterDisabled: true }
@@ -103,7 +104,7 @@ export class BrandComponent implements OnInit, OnDestroy {
         map((searchTerm) => searchTerm.trim()),
         distinctUntilChanged(),
         debounceTime(300),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((searchTerm) => {
         this.currentPage = 0;
@@ -155,7 +156,7 @@ export class BrandComponent implements OnInit, OnDestroy {
         initialData: brand
           ? { name: brand.name, description: brand.description }
           : null
-      },
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -175,13 +176,13 @@ export class BrandComponent implements OnInit, OnDestroy {
 
   updateBrand(
     id: number,
-    payload: { name: string; description: string },
+    payload: { name: string; description: string }
   ): void {
     this.store.dispatch(
       BrandActions.updateBrand({
         brandId: id,
-        brand: payload as Brand,
-      }),
+        brand: payload as Brand
+      })
     );
   }
 
@@ -190,12 +191,12 @@ export class BrandComponent implements OnInit, OnDestroy {
       .confirm(
         'Are you sure you want to delete this brand?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .subscribe((confirmed) => {
         if (confirmed) {
           this.store.dispatch(
-            BrandActions.deleteBrand({ brandId: brandId }),
+            BrandActions.deleteBrand({ brandId: brandId })
           );
         }
       });
@@ -205,11 +206,8 @@ export class BrandComponent implements OnInit, OnDestroy {
   onTableFilterChanged(
   filters: Record<string, string>
 ): void {
-
   this.headerFilters = filters;
-
   this.currentPage = 0;
-
   this.loadBrand(
     this.currentPage,
     this.pageSize
@@ -227,12 +225,25 @@ export class BrandComponent implements OnInit, OnDestroy {
 }
 
   // handle header filter search
-  private getHeaderSearchValue(): string | undefined{
-    return this.headerFilters['name'] || undefined;
+  private getHeaderSearchValue(): string | undefined {
+    return this.headerFilters['id'] || this.headerFilters['name'] || undefined;
   }
 
   private getSearchField(): BrandListField | undefined {
-    return this.headerFilters['name'] ? BrandListField.Name : undefined;
+    const activeKey = this.headerFilters['id']
+     ? 'id'
+     : this.headerFilters['name']
+       ? 'name'
+       : undefined;
+
+    switch (activeKey) {
+     case 'id':
+       return BrandListField.ID;
+     case 'name':
+       return BrandListField.Name;
+     default:
+       return undefined;
+    }
   }
 
   ngOnDestroy(): void {
