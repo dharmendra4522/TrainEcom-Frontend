@@ -62,6 +62,7 @@ export enum ProductListField {
   Name = 1,
   Description = 2,
   Price = 3,
-  StockQuantity = 4
+  StockQuantity = 4,
+  ID = 5
 }
 
