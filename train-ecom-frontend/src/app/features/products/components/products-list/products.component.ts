@@ -128,6 +128,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
   columnFilters: Record<string, string> = {};
   columns: TableColumn[] = [
     {
+      key: 'id',
+      label: 'ID',
+      type: 'number',
+      filterable: true,
+      filterType: 'search',
+      clickable: true
+    },
+    {
       key: 'name',
       label: 'Name',
       type: 'string',
@@ -191,7 +199,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       icon: 'edit',
       color: 'primary',
       tooltip: 'Edit'
-    },
+    }
   ];
 
   ngOnInit(): void {
@@ -242,27 +250,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     return timer(request.append ? 0 : 300).pipe(
       switchMap(() =>
-        this.productService.getPaginatedProducts(
-          request.pageNumber,
-          this.dropdownOptionsPageSize,
-          request.requestField
+        this.productService.getPaginatedProducts({
+          pageNumber: request.pageNumber,
+          pageSize: this.dropdownOptionsPageSize,
+          search: request.requestField
             ? undefined
             : request.searchTerm || undefined,
-          undefined,
-          request.requestField,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          this.portal
-        )
+          requestField: request.requestField,
+          portal: this.portal
+        })
       ),
       map((response) => ({
         request,
@@ -432,7 +428,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       const stockBounds = { min: bounds.minStock, max: bounds.maxStock };
       this.rangeBoundsMap = {
         price: priceBounds,
-        stockQuantity: stockBounds,
+        stockQuantity: stockBounds
       };
 
       const selectedPrice = this.selectedRangesMap['price'];
@@ -805,7 +801,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     ) {
       this.selectedRangesMap = {
         ...this.selectedRangesMap,
-        [range.columnKey]: { min: range.min, max: range.max },
+        [range.columnKey]: { min: range.min, max: range.max }
       };
     }
   }
