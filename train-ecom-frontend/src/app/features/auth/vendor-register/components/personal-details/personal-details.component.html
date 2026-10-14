@@ -15,7 +15,7 @@
           matInput
           type="text"
           formControlName="firstName"
-          placeholder="John Doe"
+          placeholder="Enter your first name"
           (blur)="onBlurTrim('firstName')"
         />
         <mat-error>{{ getErrorMessage("firstName", "First Name") }}</mat-error>
@@ -29,7 +29,7 @@
           matInput
           type="text"
           formControlName="lastName"
-          placeholder="John Doe"
+          placeholder="Enter your last name"
           (blur)="onBlurTrim('lastName')"
         />
         <mat-error>
@@ -62,10 +62,7 @@
     <div class="col-md-6 d-flex justify-content-md-end justify-content-center">
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>Phone Number</mat-label>
-        <div matTextPrefix class="d-flex align-items-center me-2 text-secondary">
-          <mat-icon class="m-2">phone</mat-icon>
-          <!-- <span class="fw-semibold fs-7">+91</span> -->
-        </div>
+        <mat-icon matIconPrefix class="text-secondary">phone</mat-icon>
         <input
           matInput
           type="tel"
