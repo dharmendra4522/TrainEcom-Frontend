@@ -5,6 +5,7 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 import { Role } from '../../../../core/models/auth.model';
 import { OrderStatus } from '../../../../core/models/order.model';
 
+// user chart
 export function getUserChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
@@ -67,6 +68,8 @@ export function getUserChartOptions(
   };
 }
 
+
+// category chart
 export function getProductChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
@@ -127,6 +130,7 @@ export function getProductChartOptions(
   };
 }
 
+// revenue chart
 export const revenueChartOptions: ChartConfiguration['options'] = {
   responsive: true,
   maintainAspectRatio: false,
@@ -143,6 +147,7 @@ export const revenueChartOptions: ChartConfiguration['options'] = {
   }
 };
 
+// order chart
 export const orderChartOptions: ChartConfiguration['options'] = {
   responsive: true,
   maintainAspectRatio: false,
@@ -203,7 +208,17 @@ export function getOrderChartOptions(
       datalabels: { display: false },
     },
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          callback: function (value) {
+            return Number.isInteger(Number(value))
+              ? value
+              : '';
+          }
+        }
+      }
     }
   };
 }

@@ -1,11 +1,11 @@
 <h2 mat-dialog-title>Filters</h2>
 
 <mat-dialog-content>
-  <form [formGroup]="filterForm" class="mb-4 p-2">
+  <form [formGroup]="filterForm" class="mb-4 px-2">
     <div class="d-flex flex-column align-items-start gap-2 w-100">
       <div class="d-flex flex-column align-items-start w-100">
-          <label class="text-dark">Select Year</label>
-          <mat-form-field
+        <label class="text-dark">Select Year</label>
+        <mat-form-field
           appearance="outline"
           class="year-select-field flex-grow-1 w-100"
           subscriptSizing="dynamic"
@@ -42,9 +42,63 @@
           </button>
         </mat-form-field>
       </div>
+      <!-- Date range selection -->
+      <div class="d-flex flex-column align-items-start w-100">
+        <label class="text-dark">From Date</label>
+        <mat-form-field
+          appearance="outline"
+          class="date-field flex-grow-1 w-100"
+          subscriptSizing="dynamic"
+        >
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            formControlName="fromDate"
+          />
+          <button
+            *ngIf="filterForm.controls.fromDate.value"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear from date"
+            (click)="clearFromDate()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-datepicker-toggle matSuffix [for]="fromPicker">
+          </mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="d-flex flex-column align-items-start w-100">
+        <label class="text-dark">To Date</label>
+        <mat-form-field
+          appearance="outline"
+          class="date-field flex-grow-1 w-100"
+          subscriptSizing="dynamic"
+        >
+          <input matInput [matDatepicker]="toPicker" formControlName="toDate" />
+          <button
+            *ngIf="filterForm.controls.toDate.value"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear to date"
+            (click)="clearToDate()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-datepicker-toggle matSuffix [for]="toPicker">
+          </mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
 
       <!-- vendor selection -->
-      <div class="d-flex flex-column align-items-start w-100" *ngIf="!data.isVendor">
+      <div
+        class="d-flex flex-column align-items-start w-100"
+        *ngIf="!data.isVendor"
+      >
         <label class="text-dark">Select vendors</label>
         <mat-form-field
           appearance="outline"
