@@ -7,7 +7,7 @@ import { Role } from '../models/auth.model';
 import {
   AdminUserListResponse,
   AdminUser,
-  AdminUserFilterParams,
+  AdminUserFilterParams
 } from '../models/user.model';
 import {
   VendorDetails,
@@ -15,12 +15,12 @@ import {
   VendorListResponse,
   VendorVerifyRequest,
   VendorVerifyResponse,
-  VendorStatus,
+  VendorStatus
 } from '../models/vendor.model';
 import { UserService } from './user.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class VendorService {
   private http = inject(HttpClient);
@@ -41,14 +41,14 @@ export class VendorService {
       FilterIds: filter?.FilterIds,
       BussinessCategoriesIds: filter?.BussinessCategoriesIds,
       PageNumber: filter?.PageNumber,
-      PageSize: filter?.PageSize,
+      PageSize: filter?.PageSize
     };
 
     return this.userService.getAllUsers(vendorFilter).pipe(
       map((response: AdminUserListResponse): VendorListResponse => ({
         ...response,
-        items: response.items.map((item) => this.toVendorItem(item)),
-      })),
+        items: response.items.map((item) => this.toVendorItem(item))
+      }))
     );
   }
 
@@ -82,15 +82,15 @@ export class VendorService {
           gstin: business.gstin,
           pan: business.pan,
           city: business.city,
-          rejectionReason: business.rejectionReason ?? null,
+          rejectionReason: business.rejectionReason ?? null
         }
-        : undefined,
+        : undefined
     };
   }
 
   updateVendorStatus(
     userId: number,
-    requestData: VendorVerifyRequest,
+    requestData: VendorVerifyRequest
   ): Observable<VendorVerifyResponse> {
     const url = `${this.verifyAPI}/${userId}/verify`;
     return this.http.patch<VendorVerifyResponse>(url, requestData);
