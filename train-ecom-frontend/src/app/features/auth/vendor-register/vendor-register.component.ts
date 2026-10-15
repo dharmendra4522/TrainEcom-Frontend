@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Category } from '../../../core/models/category.model';
 import { Store } from '@ngrx/store';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import * as CategoryActions from '../../../core/store/category/category.action';
 import { selectAllCategories } from '../../../core/store/category/category.selectors';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -13,20 +13,20 @@ import { MatSelectChange } from '@angular/material/select';
 import { AuthService } from '../../../core/services/auth.service';
 import {
   VendorRegisterFormValues,
-  VendorRegisterResponse,
+  VendorRegisterResponse
 } from '../../../core/models/auth.model';
 import {
   bankDetailsValidator,
   createVendorFormData,
   fileValidator,
   noSpaceAllow,
-  passwordMatchValidator,
+  passwordMatchValidator
 } from '../register.utils';
 
 @Component({
   selector: 'app-vendor-register',
   templateUrl: './vendor-register.component.html',
-  styleUrl: './vendor-register.component.css',
+  styleUrl: './vendor-register.component.css'
 })
 export class VendorRegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -54,7 +54,7 @@ export class VendorRegisterComponent implements OnInit {
     this.fetchAllCategory();
     this.countries = Country.getAllCountries();
     const selectedCountry = this.countries.find(
-      (country) => country.name === this.registerForm.get('country')?.value,
+      (country) => country.name === this.registerForm.get('country')?.value
     );
     if (selectedCountry) {
       this.states = State.getStatesOfCountry(selectedCountry.isoCode);
@@ -70,8 +70,8 @@ export class VendorRegisterComponent implements OnInit {
             Validators.required,
             Validators.minLength(3),
             noSpaceAllow(),
-            Validators.pattern(/^[a-zA-Z\s]+$/),
-          ],
+            Validators.pattern(/^[a-zA-Z\s]+$/)
+          ]
         ],
         lastName: [
           '',
@@ -79,12 +79,12 @@ export class VendorRegisterComponent implements OnInit {
             Validators.required,
             Validators.minLength(3),
             noSpaceAllow(),
-            Validators.pattern(/^[a-zA-Z\s]+$/),
-          ],
+            Validators.pattern(/^[a-zA-Z\s]+$/)
+          ]
         ],
         phoneNumber: [
           '',
-          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)],
+          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]
         ],
         email: ['', [Validators.required, Validators.email]],
         password: [
@@ -93,16 +93,16 @@ export class VendorRegisterComponent implements OnInit {
             Validators.required,
             Validators.minLength(8),
             Validators.pattern(
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            ),
-          ],
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+            )
+          ]
         ],
         confirmPassword: ['', [Validators.required]],
         businessName: ['', [Validators.required, Validators.minLength(3)]],
         displayName: ['', [Validators.required, Validators.minLength(3)]],
         bussinessDescription: [
           '',
-          [Validators.required, Validators.minLength(10), noSpaceAllow()],
+          [Validators.required, Validators.minLength(10), noSpaceAllow()]
         ],
         businessCategory: [[], Validators.required],
         gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
@@ -112,22 +112,22 @@ export class VendorRegisterComponent implements OnInit {
           [
             fileValidator(
               ['image/jpeg', 'image/png', 'image/jpeg', 'image/webp'],
-              5,
-            ),
-          ],
+              5
+            )
+          ]
         ],
         gstin: [
           '',
           [
             Validators.required,
             Validators.pattern(
-              /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/,
-            ),
-          ],
+              /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/
+            )
+          ]
         ],
         panNumber: [
           '',
-          [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/)],
+          [Validators.required, Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]$/)]
         ],
         addressLine1: ['', Validators.required],
         addressLine2: [''],
@@ -136,15 +136,15 @@ export class VendorRegisterComponent implements OnInit {
         state: ['', Validators.required],
         postalCode: [
           '',
-          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)],
+          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)]
         ],
 
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
         acountHolderName: [
           '',
-          [Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()],
+          [Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()]
         ],
-        ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]],
+        ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]]
       },
       { validators: [passwordMatchValidator, bankDetailsValidator()] }
     );
@@ -173,7 +173,7 @@ export class VendorRegisterComponent implements OnInit {
     const countryName = this.registerForm.get('country')?.value;
     if (stateName && countryName) {
       const selectedCountry = this.countries.find(
-        (c) => c.name === countryName,
+        (c) => c.name === countryName
       );
       if (selectedCountry) {
         const stateList = State.getStatesOfCountry(selectedCountry.isoCode);
@@ -181,7 +181,7 @@ export class VendorRegisterComponent implements OnInit {
         if (selectedState) {
           this.cities = City.getCitiesOfState(
             selectedCountry.isoCode,
-            selectedState.isoCode,
+            selectedState.isoCode
           );
         }
       }
@@ -201,13 +201,13 @@ export class VendorRegisterComponent implements OnInit {
 
     this.isLoading = true;
     const formData = createVendorFormData(
-      this.registerForm.value as VendorRegisterFormValues,
+      this.registerForm.value as VendorRegisterFormValues
     );
     this.authService.vendorRegister(formData).subscribe({
       next: (res: VendorRegisterResponse) => {
         this.isLoading = false;
         this.notificationService.showSuccess(
-          res.message || 'Registration successful',
+          res.message || 'Registration successful'
         );
         this.registerForm.reset();
         this.route.navigate(['/login']);
@@ -215,9 +215,9 @@ export class VendorRegisterComponent implements OnInit {
       error: (err: { error?: { message?: string } }) => {
         this.isLoading = false;
         this.notificationService.showError(
-          err?.error?.message || 'Registration failed',
-        );
-      },
+          err?.error?.message || 'Registration failed'
+        )
+      }
     });
   }
 
@@ -267,7 +267,7 @@ export class VendorRegisterComponent implements OnInit {
       'email',
       'phoneNumber',
       'password',
-      'confirmPassword',
+      'confirmPassword'
     ]);
   }
 
@@ -276,7 +276,7 @@ export class VendorRegisterComponent implements OnInit {
       'businessName',
       'displayName',
       'businessCategory',
-      'bussinessDescription',
+      'bussinessDescription'
     ]);
   }
 
@@ -286,7 +286,7 @@ export class VendorRegisterComponent implements OnInit {
       'country',
       'state',
       'city',
-      'postalCode',
+      'postalCode'
     ]);
   }
 
