@@ -340,13 +340,11 @@ export class VendorRegisterComponent implements OnInit {
   }
 
   get canAccessStep2(): boolean {
-    return true;
-    // return this.isStep1Valid;
+    return this.isStep1Valid;
   }
 
   get canAccessStep3(): boolean {
-    return true;
-    // return this.isStep1Valid && this.isStep2Valid;
+    return this.isStep1Valid && this.isStep2Valid;
   }
 
   get canAccessStep4(): boolean {
