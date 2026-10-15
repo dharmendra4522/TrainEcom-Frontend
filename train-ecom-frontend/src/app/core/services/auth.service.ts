@@ -10,13 +10,14 @@ import {
   ResetPasswordRequest,
   VendorRegisterResponse,
   RegistrationRole,
+  NominatimResponse
 } from '../models/auth.model';
 import { environment } from '../../../environments/environment';
 import { HttpContext } from '@angular/common/http';
 import { SKIP_ERROR_HANDLING } from '../interceptors/error.context';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
   private loginAPI = `${environment.apiBaseUrl}/auth/login`;
@@ -29,7 +30,7 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.loginAPI, credentials, {
-      context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
     });
   }
 
@@ -43,7 +44,7 @@ export class AuthService {
     payload.append('Role', String(RegistrationRole.Customer));
 
     return this.http.post<RegisterResponse>(this.registerAPI, payload, {
-      context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
+      context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
     });
   }
 
@@ -52,7 +53,7 @@ export class AuthService {
   }
 
   resetPasswordWithOtp(
-    payload: ResetPasswordRequest,
+    payload: ResetPasswordRequest
   ): Observable<ApiBasicResponse> {
     return this.http.post<ApiBasicResponse>(this.resetPasswordAPI, payload);
   }
@@ -62,8 +63,18 @@ export class AuthService {
       this.vendorRegistrationAPI,
       formData,
       {
-        context: new HttpContext().set(SKIP_ERROR_HANDLING, true),
-      },
+        context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
+      }
     );
   }
+  
+  getCurrentAddress(
+    latitude: number,
+    longitude: number
+  ): Observable<NominatimResponse> {
+    const url =
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`;
+    return this.http.get<NominatimResponse>(url);
+  }
+
 }

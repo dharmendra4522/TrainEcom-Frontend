@@ -10,6 +10,7 @@ export interface TableColumn {
   filterable?: boolean;
   filterType?: 'dropdown' | 'search'| 'date' | 'price-range' | 'stock-range';
   filterDisabled?: boolean;
+  clickable?: boolean;
 }
 
 export interface TableAction<T = unknown> {
