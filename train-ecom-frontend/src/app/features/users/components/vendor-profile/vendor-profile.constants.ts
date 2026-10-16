@@ -17,8 +17,8 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
     fields: [
       { label: 'Full Name', key: 'name' },
       { label: 'Email Address', key: 'email' },
-      { label: 'Phone Number', key: 'phoneNumber' },
-    ],
+      { label: 'Phone Number', key: 'phoneNumber' }
+    ]
   },
   {
     label: 'Business',
@@ -26,8 +26,8 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
       { label: 'Business Name', key: 'bussinessName' },
       { label: 'Display Name', key: 'storeName' },
       { label: 'Business Description', key: 'bussinessDescription' },
-      { label: 'Categories', key: 'categories', isList: true },
-    ],
+      { label: 'Categories', key: 'categories', isList: true }
+    ]
   },
   {
     label: 'Address',
@@ -37,8 +37,8 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
       { label: 'City', key: 'city' },
       { label: 'State', key: 'state' },
       { label: 'Country', key: 'country' },
-      { label: 'Postal Code', key: 'postalCode' },
-    ],
+      { label: 'Postal Code', key: 'postalCode' }
+    ]
   },
   {
     label: 'Account & Tax',
@@ -47,8 +47,8 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
       { label: 'PAN Number', key: 'pan' },
       { label: 'Account Holder Name', key: 'accountHolderName' },
       { label: 'Bank Account Number', key: 'bankAccountNumber' },
-      { label: 'IFSC Code', key: 'ifscCode' },
-    ],
+      { label: 'IFSC Code', key: 'ifscCode' }
+    ]
   },
   {
     label: 'Documents',
@@ -57,15 +57,15 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
         label: 'Business Registration Document',
         key: 'doc1',
         isLink: true,
-        docType: 1,
+        docType: 1
       },
       { label: 'GST Document', key: 'doc2', isLink: true, docType: 2 },
       {
         label: 'Business Logo / Other Document',
         key: 'doc3',
         isLink: true,
-        docType: 3,
-      },
-    ],
-  },
+        docType: 3
+      }
+    ]
+  }
 ];

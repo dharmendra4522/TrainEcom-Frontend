@@ -4,7 +4,7 @@ import {
   FormGroup,
   Validators,
   AbstractControl,
-  ValidationErrors,
+  ValidationErrors
 } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { selectUserProfile } from '../../../../core/store/user/user.selectors';
@@ -12,7 +12,7 @@ import {
   ProfileVendorDetails,
   UserProfile,
   ApprovalStatus,
-  UpdateProfilePayload,
+  UpdateProfilePayload
 } from '../../../../core/models/user.model';
 import { Category } from '../../../../core/models/category.model';
 import {
@@ -21,7 +21,7 @@ import {
   IState,
   ICity,
   State,
-  City,
+  City
 } from 'country-state-city';
 import { Observable } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
@@ -37,13 +37,13 @@ import { fileValidator } from '../../../auth/register.utils';
 import {
   ProfileFieldConfig,
   VENDOR_PROFILE_TABS,
-  VendorTabConfig,
+  VendorTabConfig
 } from './vendor-profile.constants';
 
 @Component({
   selector: 'app-vendor-profile',
   templateUrl: './vendor-profile.component.html',
-  styleUrl: './vendor-profile.component.css',
+  styleUrl: './vendor-profile.component.css'
 })
 export class VendorProfileComponent implements OnInit {
   private store = inject(Store);
@@ -85,24 +85,24 @@ export class VendorProfileComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(3),
-            Validators.pattern(/^[a-zA-Z\s]+$/),
-          ],
+            Validators.pattern(/^[a-zA-Z\s]+$/)
+          ]
         ],
         lastName: [
           '',
           [
             Validators.required,
             Validators.minLength(3),
-            Validators.pattern(/^[a-zA-Z\s]+$/),
-          ],
+            Validators.pattern(/^[a-zA-Z\s]+$/)
+          ]
         ],
         email: [
           { value: '', disabled: true },
-          [Validators.required, Validators.email],
+          [Validators.required, Validators.email]
         ],
         phoneNumber: [
           '',
-          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)],
+          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]
         ],
         oldPassword: [''],
         newPassword: [''],
@@ -113,8 +113,8 @@ export class VendorProfileComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(3),
-            Validators.pattern(/.*\S.*/),
-          ],
+            Validators.pattern(/.*\S.*/)
+          ]
         ],
         businessCategory: [[], Validators.required],
         bussinessDescription: [
@@ -122,8 +122,8 @@ export class VendorProfileComponent implements OnInit {
           [
             Validators.required,
             Validators.minLength(10),
-            Validators.pattern(/.*\S.*/),
-          ],
+            Validators.pattern(/.*\S.*/)
+          ]
         ],
         gstin: [{ value: '', disabled: true }],
         panNumber: [{ value: '', disabled: true }],
@@ -134,7 +134,7 @@ export class VendorProfileComponent implements OnInit {
         state: ['', Validators.required],
         postalCode: [
           '',
-          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)],
+          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)]
         ],
         bankAccountNumber: [{ value: '', disabled: true }],
         acountHolderName: [{ value: '', disabled: true }],
@@ -146,12 +146,12 @@ export class VendorProfileComponent implements OnInit {
           [
             fileValidator(
               ['image/jpeg', 'image/png', 'image/jpeg', 'image/webp'],
-              5,
-            ),
-          ],
-        ],
+              5
+            )
+          ]
+        ]
       },
-      { validators: this.passwordMatchValidator },
+      { validators: this.passwordMatchValidator }
     );
   }
 
@@ -161,7 +161,7 @@ export class VendorProfileComponent implements OnInit {
     this.categories$
       .pipe(
         filter((categories) => categories.length > 0),
-        take(1),
+        take(1)
       )
       .subscribe((categories) => {
         this.categoryOptions = categories;
@@ -259,7 +259,7 @@ export class VendorProfileComponent implements OnInit {
     const location = this.resolveLocation(
       address?.country,
       address?.state,
-      address?.city,
+      address?.city
     );
     this.editForm.patchValue({
       firstName: nameParts.shift() || '',
@@ -280,7 +280,7 @@ export class VendorProfileComponent implements OnInit {
       postalCode: address?.postalCode || '',
       bankAccountNumber: vendor?.bankAccountNumber || '',
       acountHolderName: vendor?.accountHolderName || '',
-      ifscCode: vendor?.ifscCode || '',
+      ifscCode: vendor?.ifscCode || ''
     });
     this.updateLocationLists(location.country, location.state);
   }
@@ -357,11 +357,11 @@ export class VendorProfileComponent implements OnInit {
     stateName?: string | null,
   ): void {
     const country = this.countries.find((item) =>
-      this.matchesLocation(item.name, countryName),
+      this.matchesLocation(item.name, countryName)
     );
     this.states = country ? State.getStatesOfCountry(country.isoCode) : [];
     const state = this.states.find((item) =>
-      this.matchesLocation(item.name, stateName),
+      this.matchesLocation(item.name, stateName)
     );
     this.cities =
       country && state
@@ -380,7 +380,7 @@ export class VendorProfileComponent implements OnInit {
     this.editForm.patchValue({ city: '' });
     this.updateLocationLists(
       this.editForm.get('country')?.value as string,
-      stateName,
+      stateName
     );
   }
 
@@ -411,8 +411,8 @@ export class VendorProfileComponent implements OnInit {
           control?.addValidators([
             Validators.minLength(8),
             Validators.pattern(
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            ),
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+            )
           ]);
         }
       } else {
@@ -462,7 +462,7 @@ export class VendorProfileComponent implements OnInit {
     return this.controlValid(
       'displayName',
       'businessCategory',
-      'bussinessDescription',
+      'bussinessDescription'
     );
   }
   get isStep3Valid(): boolean {
@@ -471,7 +471,7 @@ export class VendorProfileComponent implements OnInit {
       'country',
       'state',
       'city',
-      'postalCode',
+      'postalCode'
     );
   }
   get isStep4Valid(): boolean {
@@ -503,7 +503,7 @@ export class VendorProfileComponent implements OnInit {
       confirmPassword: 'Confirm Password',
       gstDocument: 'GST Document',
       businessDocument: 'Registration Document',
-      businessLogo: 'Business Logo',
+      businessLogo: 'Business Logo'
     };
 
     return Object.keys(this.editForm.controls)
@@ -537,7 +537,7 @@ export class VendorProfileComponent implements OnInit {
     if (this.editForm.invalid) {
       this.editForm.markAllAsTouched();
       this.notificationService.showError(
-        `Please fix: ${this.invalidFieldLabels.join(', ')}.`,
+        `Please fix: ${this.invalidFieldLabels.join(', ')}.`
       );
       return;
     }
@@ -563,8 +563,8 @@ export class VendorProfileComponent implements OnInit {
           : null,
         ifscCode: value.ifscCode ?? null,
         newCategoryIds: this.getSelectedCategoryIds(),
-        documentUrls: this.vendorData?.documentUrls || [],
-      },
+        documentUrls: this.vendorData?.documentUrls || []
+      }
     };
     if (this.isPasswordChangeMode) {
       payload.oldPassword = value.oldPassword;
@@ -585,9 +585,9 @@ export class VendorProfileComponent implements OnInit {
       error: (error: { error?: { message?: string } }) => {
         this.isSaving = false;
         this.notificationService.showError(
-          error.error?.message || 'Profile update failed',
+          error.error?.message || 'Profile update failed'
         );
-      },
+      }
     });
   }
 

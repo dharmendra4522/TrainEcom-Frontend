@@ -15,6 +15,7 @@ import { UserDetailsComponent } from './components/user-details/user-details.com
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 import { VendorProfileComponent } from './components/vendor-profile/vendor-profile.component';
 import { AuthModule } from '../auth/auth.module';
+import { RequestApprovalComponent } from './components/request-approval/request-approval.component';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -25,7 +26,8 @@ import { AuthModule } from '../auth/auth.module';
     AllUsersComponent,
     UserDetailsComponent,
     ProfileEditComponent,
-    VendorProfileComponent
+    VendorProfileComponent,
+    RequestApprovalComponent
   ],
   imports: [
     CommonModule,

@@ -2,21 +2,22 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ActivatedRoute } from '@angular/router';
 import { Role } from '../../../../core/models/auth.model';
-
 import { FormControl } from '@angular/forms';
-
+import { MatDialog } from '@angular/material/dialog';
+import { RequestApprovalComponent } from '../request-approval/request-approval.component';
 export interface TabItem {
   label: string;
   value: 'customers' | 'vendors';
 }
-
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.css'],
+  styleUrls: ['./user-management.component.css']
 })
 export class UserManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
+
 
   activeTab: 'customers' | 'vendors' = 'customers';
   selectedindex: number = 0;
@@ -29,7 +30,7 @@ export class UserManagementComponent implements OnInit {
 
   tabs: TabItem[] = [
     { label: 'Customers', value: 'customers' },
-    { label: 'Vendors', value: 'vendors' },
+    { label: 'Vendors', value: 'vendors' }
   ];
 
   ngOnInit(): void {
@@ -60,5 +61,14 @@ export class UserManagementComponent implements OnInit {
 
   clearAllFilters(): void {
     this.globalSearch.setValue('');
+  }
+
+  onRequestClick(): void{
+    const dialogRef = this.dialog.open(RequestApprovalComponent, {
+      width: '1000px',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Close dialog')
+    })
   }
 }
