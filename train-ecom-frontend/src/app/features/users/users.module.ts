@@ -35,7 +35,7 @@ import { RequestApprovalComponent } from './components/request-approval/request-
     SharedModule,
     ReactiveFormsModule,
     FormsModule,
-    AuthModule,
+    AuthModule
   ],
 })
 export class UsersModule {}

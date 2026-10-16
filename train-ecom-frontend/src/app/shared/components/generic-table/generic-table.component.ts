@@ -241,9 +241,9 @@ export class GenericTableComponent {
   getActionColor(
     act: TableAction,
     row: Record<string, unknown>,
-  ): 'primary' | 'accent' | 'warn' | undefined | null {
+  ): 'primary' | 'accent' | 'warn' | 'info' | undefined | null {
     const color = typeof act.color === 'function' ? act.color(row) : act.color;
-    return color === 'primary' || color === 'accent' || color === 'warn'
+    return color === 'primary' || color === 'accent' || color === 'warn' || color == 'info'
       ? color
       : null;
   }

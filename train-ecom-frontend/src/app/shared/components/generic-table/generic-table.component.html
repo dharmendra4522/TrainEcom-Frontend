@@ -384,7 +384,8 @@
                       [ngClass]="{
                         'text-danger': act.color === 'warn',
                         'text-primary': act.color === 'primary',
-                        'text-accent': act.color === 'accent'
+                        'text-accent': act.color === 'accent',
+                        'text-info': act.color === 'info'
                       }"
                       >{{ getActionIcon(act, row) }}</mat-icon
                     >
@@ -392,7 +393,8 @@
                       [ngClass]="{
                         'text-danger': act.color === 'warn',
                         'text-primary': act.color === 'primary',
-                        'text-accent': act.color === 'accent'
+                        'text-accent': act.color === 'accent',
+                        'text-info': act.color === 'info'
                       }"
                       >{{ getActionLabel(act, row) | titlecase }}</span
                     >
