@@ -658,14 +658,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     columnKey: string;
     searchTerm: string;
   }): void {
-    if (event.columnKey !== 'categoriesDisplay') {
+    if (event.columnKey !== UserFilterColumn.CategoriesDisplay) {
       return;
     }
     this.categorySearchRequests$.next(event.searchTerm.trim());
   }
 
   onDropdownOpened(columnKey: string): void {
-    if (columnKey === 'categoriesDisplay') {
+    if (columnKey === UserFilterColumn.CategoriesDisplay) {
       this.categorySearchRequests$.next('');
     }
   }
@@ -756,14 +756,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   onFilterApply(event: {
     columnKey: string;
   }): void {
-    if (event.columnKey === 'statusDisplay') {
+    if (event.columnKey === UserFilterColumn.StatusDisplay) {
       this.selectedStatusIds =
-        (this.selectedFiltersMap['statusDisplay'] ?? [])
+        (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [])
           .map(Number);
     }
-    if (event.columnKey === 'categoriesDisplay') {
+    if (event.columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds =
-        (this.selectedFiltersMap['categoriesDisplay'] ?? [])
+        (this.selectedFiltersMap[UserFilterColumn.CategoriesDisplay] ?? [])
           .map(Number);
     }
     this.pageIndex = 0;
@@ -772,14 +772,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   //handle clear filter 
   onFilterClear(columnKey: string): void {
-    if (columnKey === 'statusDisplay') {
+    if (columnKey === UserFilterColumn.StatusDisplay) {
       this.selectedStatusIds = [];
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,
         statusDisplay: []
       };
     }
-    if (columnKey === 'categoriesDisplay') {
+    if (columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds = [];
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,

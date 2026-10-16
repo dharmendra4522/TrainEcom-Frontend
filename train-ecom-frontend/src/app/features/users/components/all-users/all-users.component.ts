@@ -348,11 +348,11 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       label: string;
     };
   }): void {
-    if (event.columnKey !== 'statusDisplay') {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
     const selected =
-      this.selectedFiltersMap['statusDisplay'] ?? [];
+      this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [];
     const exists =
       selected.includes(event.option.id);
 
@@ -367,16 +367,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   onFilterApply(event: { columnKey: string }): void {
-    if (event.columnKey !== 'statusDisplay') {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
-    this.selectedStatusIds = (this.selectedFiltersMap['statusDisplay'] ?? []).map(Number);
+    this.selectedStatusIds = (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? []).map(Number);
     this.pageIndex = 0;
     this.loadUsers();
   }
 
   onFilterClear(columnKey: string): void {
-    if (columnKey !== 'statusDisplay') {
+    if (columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
     this.selectedStatusIds = [];
