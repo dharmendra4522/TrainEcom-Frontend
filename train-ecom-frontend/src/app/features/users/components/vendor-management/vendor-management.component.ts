@@ -146,10 +146,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     {
       actionKey: 'verifyApprove',
       icon: 'check_circle',
-      color: 'primary',
+      color: 'secondary',
       tooltip: 'Approve Vendor',
       disabled: (row: unknown) => !this.isPending(row),
-      hideWhenDisabled: true,
+      hideWhenDisabled: true
     },
     {
       actionKey: 'verifyPending',
@@ -157,7 +157,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       color: 'warn',
       tooltip: 'Reject Vendor',
       disabled: (row: unknown) => !this.isPending(row),
-      hideWhenDisabled: true,
+      hideWhenDisabled: true
     },
   ];
 

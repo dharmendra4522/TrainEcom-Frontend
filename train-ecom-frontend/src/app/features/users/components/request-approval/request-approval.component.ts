@@ -21,7 +21,6 @@ export class RequestApprovalComponent {
   requestCount: number = 0;
   hasMoreData = true;
 
-
   @Output() loadMore = new EventEmitter();
   @Output() requestCountChange = new EventEmitter<number>();
   // table dummy data
@@ -159,7 +158,7 @@ export class RequestApprovalComponent {
     {
       actionKey: 'approve',
       icon: 'check_circle',
-      color: 'primary',
+      color: 'secondary',
       tooltip: 'Approve'
 
     },
@@ -172,7 +171,7 @@ export class RequestApprovalComponent {
     {
       actionKey: 'view-profile',
       icon: 'visibility',
-      color: 'info',
+      color: 'primary',
       tooltip: 'View Profile'
     }
   ];
