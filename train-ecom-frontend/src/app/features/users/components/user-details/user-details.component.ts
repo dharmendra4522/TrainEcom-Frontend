@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { ActivatedRoute } from '@angular/router';
-import { VendorDetails, VendorDocument } from '../../../../core/models/vendor.model';
+import { DocumentType, VendorDetails, VendorDocument } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ApprovalStatus, DocumentType } from '../../../../core/models/user.model';
+import { ApprovalStatus } from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
 import { Location } from '@angular/common';

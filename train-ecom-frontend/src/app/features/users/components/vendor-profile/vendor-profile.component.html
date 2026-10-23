@@ -48,9 +48,9 @@
                 <div class="p-3 bg-light rounded border text-dark fs-6">
                   {{ getFieldValue(field.key) || "N/A" }}
                 </div>
-                <mat-hint *ngIf="field.reviewHint"
-                  >{{field.reviewHint}}</mat-hint
-                >
+                <mat-hint *ngIf="field.reviewHint">{{
+                  field.reviewHint
+                }}</mat-hint>
               </div>
             </div>
           </div>
@@ -98,9 +98,9 @@
                     >
                   </div>
                 </ng-template>
-                <mat-hint *ngIf="field.reviewHint"
-                  >{{field.reviewHint}}</mat-hint
-                >
+                <mat-hint *ngIf="field.reviewHint">{{
+                  field.reviewHint
+                }}</mat-hint>
               </div>
             </div>
           </div>
@@ -159,7 +159,9 @@
                 <div class="p-3 bg-light rounded border text-dark fs-6">
                   {{ getFieldValue(field.key) || "N/A" }}
                 </div>
-                <mat-hint *ngIf="field.reviewHint">{{field.reviewHint}}</mat-hint>
+                <mat-hint *ngIf="field.reviewHint">{{
+                  field.reviewHint
+                }}</mat-hint>
               </div>
             </div>
           </div>
@@ -178,15 +180,18 @@
             <div class="row gx-4 gy-3">
               <div
                 class="col-md-6 d-flex flex-column"
-                *ngFor="let field of getTabFields('Documents'); let i = index"
+                *ngFor="let field of getTabFields('Documents');"
               >
                 <span class="text-secondary small fw-semibold mb-1">{{
                   field.label
                 }}</span>
                 <div class="p-3 bg-light rounded border text-dark fs-6">
                   <a
-                    *ngIf="getDocumentUrl(i + 1); else noDoc"
-                    [href]="getDocumentUrl(i + 1)"
+                    *ngIf="
+                      field.docType && getDocumentUrl(field.docType);
+                      else noDoc
+                    "
+                    [href]="getDocumentUrl(field.docType)"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-decoration-underline text-primary"
@@ -197,7 +202,9 @@
                     ><span class="text-muted">Not provided</span></ng-template
                   >
                 </div>
-                 <mat-hint *ngIf="field.reviewHint">{{field.reviewHint}}</mat-hint>
+                <mat-hint *ngIf="field.reviewHint">{{
+                  field.reviewHint
+                }}</mat-hint>
               </div>
             </div>
           </div>

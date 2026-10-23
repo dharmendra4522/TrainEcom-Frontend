@@ -13,12 +13,6 @@ export enum ApprovalStatus {
   Rejected = 3,
 }
 
-export enum DocumentType {
-  Logo = 1,
-  BussinessDocument = 2,
-  GSTDocument = 3
-}
-
 export interface ProfileVendorDetails {
   id?: number;
   userId?: number;
@@ -39,7 +33,7 @@ export interface ProfileVendorDetails {
   categories?: string[] | null;
   documentUrls?: string[] | null;
   documents?: Array<{
-    documentType: number | string;
+    documentType: number;
     documentUrl: string;
   }> | null;
   approvalStatus?: ApprovalStatus | number | string | null;

@@ -12,7 +12,7 @@ import {
   ProfileVendorDetails,
   UserProfile,
   ApprovalStatus,
-  UpdateProfilePayload
+  UpdateProfilePayload,
 } from '../../../../core/models/user.model';
 import { Category } from '../../../../core/models/category.model';
 import {
@@ -32,13 +32,12 @@ import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 import { selectAuthStatus } from '../../../../core/store/auth/auth.selectors';
-import { VendorProfileEditValues } from '../../../../core/models/vendor.model';
+import { DocumentType, ProfileFieldConfig, VendorProfileEditValues, VendorTabConfig } from '../../../../core/models/vendor.model';
 import { fileValidator } from '../../../auth/register.utils';
 import {
-  ProfileFieldConfig,
   VENDOR_PROFILE_TABS,
-  VendorTabConfig
 } from './vendor-profile.constants';
+import { PendingFieldChanges } from '../../../../core/models/request-approve.model';
 
 @Component({
   selector: 'app-vendor-profile',
@@ -68,6 +67,7 @@ export class VendorProfileComponent implements OnInit {
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
   cities: ICity[] = [];
+  pendingChangesMap: Record<string, PendingFieldChanges> = {};
 
   ngOnInit(): void {
     this.initializeEditForm();
@@ -136,9 +136,9 @@ export class VendorProfileComponent implements OnInit {
           '',
           [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)]
         ],
-        bankAccountNumber: [{ value: '', disabled: true }],
-        acountHolderName: [{ value: '', disabled: true }],
-        ifscCode: [{ value: '', disabled: true }],
+        bankAccountNumber: [{ value: '' }],
+        acountHolderName: [{ value: '' }],
+        ifscCode: [{ value: '' }],
         gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
         businessDocument: ['', [fileValidator(['application/pdf'], 5)]],
         businessLogo: [
@@ -187,11 +187,14 @@ export class VendorProfileComponent implements OnInit {
         if (this.vendorData && this.vendorData.documents) {
           const urls: string[] = [];
           this.vendorData.documents.forEach((doc) => {
-            if (Number(doc.documentType) === 1) urls[0] = doc.documentUrl;
-            if (Number(doc.documentType) === 2) urls[1] = doc.documentUrl;
-            if (Number(doc.documentType) === 3) urls[2] = doc.documentUrl;
+            if (doc.documentType === DocumentType.Logo) urls[0] = doc.documentUrl;
+            if (doc.documentType === DocumentType.BussinessDocument) urls[1] = doc.documentUrl;
+            if (doc.documentType === DocumentType.GSTDocument) urls[2] = doc.documentUrl;
           });
-          this.vendorData.documentUrls = urls;
+          this.vendorData = {
+            ...this.vendorData,
+            documentUrls: urls
+          };
         }
         this.patchEditForm(profile);
       }
@@ -201,7 +204,7 @@ export class VendorProfileComponent implements OnInit {
   getDocumentUrl(documentType: number): string | null {
     const document = this.vendorData?.documents?.find(
       (item) =>
-        Number(item.documentType) === documentType && !!item.documentUrl,
+        item.documentType === documentType && !!item.documentUrl,
     );
     return (
       document?.documentUrl ||
@@ -542,6 +545,35 @@ export class VendorProfileComponent implements OnInit {
       return;
     }
     const value = this.editForm.value as VendorProfileEditValues;
+    if (value.phoneNumber && value.phoneNumber !== this.userProfileData?.phoneNumber) {
+      this.addPendingChange('phoneNumber', 'Phone Number', this.userProfileData?.phoneNumber, value.phoneNumber);
+    }
+    if (value.displayName && value.displayName !== this.vendorData?.storeName) {
+      this.addPendingChange('storeName', 'Display Name', this.vendorData?.storeName, value.displayName);
+    }
+    const selectedCategoryNames = this.getSelectedCategoryNames();
+    if (JSON.stringify(selectedCategoryNames) !== JSON.stringify(this.vendorData?.categories ?? [])) {
+      this.addPendingChange('categories', 'Categories', this.vendorData?.categories ?? [], selectedCategoryNames);
+    }
+    if (value.acountHolderName && value.acountHolderName !== this.vendorData?.accountHolderName
+    ) {
+      this.addPendingChange('accountHolderName', 'Account Holder Name', this.vendorData?.accountHolderName, value.acountHolderName);
+    }
+    if (value.bankAccountNumber && value.bankAccountNumber !== this.vendorData?.bankAccountNumber) {
+      this.addPendingChange('bankAccountNumber', 'Bank Account Number', this.vendorData?.bankAccountNumber, value.bankAccountNumber);
+    }
+    if (value.ifscCode && value.ifscCode !== this.vendorData?.ifscCode) {
+      this.addPendingChange('ifscCode', 'IFSC Code', this.vendorData?.ifscCode, value.ifscCode);
+    }
+    if (value.businessDocument instanceof File) {
+      this.addPendingChange('businessDocument', 'Business Registration Document', this.getDocumentUrl(DocumentType.BussinessDocument), value.businessDocument.name);
+    }
+    if (value.gstDocument instanceof File) {
+      this.addPendingChange('gstDocument', 'GST Document', this.getDocumentUrl(DocumentType.GSTDocument), value.gstDocument.name);
+    }
+    if (value.businessLogo instanceof File) {
+      this.addPendingChange('businessLogo', 'Business Logo', this.getDocumentUrl(DocumentType.Logo), value.businessLogo.name);
+    }
     const payload: UpdateProfilePayload = {
       name: `${value.firstName?.trim() || ''} ${value.lastName?.trim() || ''}`.trim(),
       phoneNumber: value.phoneNumber,
@@ -610,6 +642,31 @@ export class VendorProfileComponent implements OnInit {
     }, []);
   }
 
+  // Get selected category names from the form 
+  private getSelectedCategoryNames(): string[] {
+    const selectedCategories =
+      this.editForm.get('businessCategory')?.value;
+
+    if (!Array.isArray(selectedCategories)) {
+      return [];
+    }
+
+    return selectedCategories.reduce<string[]>(
+      (categoryNames, cat) => {
+        const matched =
+          this.categoryOptions.find(
+            option =>
+              String(option.id) === String(cat)
+          );
+        if (matched?.name) {
+          categoryNames.push(matched.name);
+        }
+        return categoryNames;
+      },
+      []
+    );
+  }
+
   getTabFields(tabLabel: string): ProfileFieldConfig[] {
     const matchedTab = this.tabConfig.find((t) => t.label === tabLabel);
     return matchedTab ? matchedTab.fields : [];
@@ -625,7 +682,6 @@ export class VendorProfileComponent implements OnInit {
     if (key === 'phoneNumber') {
       return this.userProfileData?.phoneNumber;
     }
-
     if (this.vendorData) {
       const vendorKey = key as keyof ProfileVendorDetails;
       const value = this.vendorData[vendorKey];
@@ -639,7 +695,23 @@ export class VendorProfileComponent implements OnInit {
         return value;
       }
     }
-
     return null;
+  }
+
+  // helper method to add a pending change to the pendingChangesMap
+  private addPendingChange(
+    fieldKey: string,
+    fieldName: string,
+    oldValue: unknown,
+    newValue: unknown
+  ): void {
+    this.pendingChangesMap[fieldKey] = {
+      fieldKey,
+      fieldName,
+      oldValue,
+      newValue,
+      status: 'PENDING',
+      requestAt: new Date().toISOString()
+    };
   }
 }

@@ -1,16 +1,5 @@
-export interface ProfileFieldConfig {
-  label: string;
-  key: string;
-  isList?: boolean;
-  isLink?: boolean;
-  docType?: number;
-  reviewHint?: string;
-}
+import { DocumentType, VendorTabConfig } from "../../../../core/models/vendor.model";
 
-export interface VendorTabConfig {
-  label: string;
-  fields: ProfileFieldConfig[];
-}
 
 export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
   {
@@ -58,17 +47,23 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
         label: 'Business Registration Document',
         key: 'doc1',
         isLink: true,
-        docType: 1,
+        docType: DocumentType.BussinessDocument,
         reviewHint: 'Your new business Doc is under review'
       },
-      { label: 'GST Document', key: 'doc2', isLink: true, docType: 2, reviewHint: 'Your new GST Doc is under review' },
+      { label: 'GST Document', key: 'doc2', isLink: true, docType: DocumentType.GSTDocument, reviewHint: 'Your new GST Doc is under review' },
       {
         label: 'Business Logo / Other Document',
         key: 'doc3',
         isLink: true,
-        docType: 3,
+        docType: DocumentType.Logo,
         reviewHint: 'Your new business logo in under review'
       }
     ]
   }
 ];
+
+
+// approval request fields
+export const APPROVAL_REQUIRED_FIELDS = new Set([
+  'phoneNumber', 'displayName', 'businessCategory', 'accountHolderName', 'bankAccountNumber', 'ifscCode', 'businessDocument', 'gstDocument', 'businessLogo'
+])

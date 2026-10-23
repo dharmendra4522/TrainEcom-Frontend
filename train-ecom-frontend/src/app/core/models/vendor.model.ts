@@ -7,6 +7,12 @@ export enum VendorStatus {
   Blocked = 4,
 }
 
+export enum DocumentType {
+  Logo = 1,
+  BussinessDocument = 2,
+  GSTDocument = 3
+}
+
 export interface VendorItem {
   vendorId: number;
   userId: number;
@@ -109,5 +115,22 @@ export interface VendorProfileEditValues {
   bankAccountNumber: string | number;
   acountHolderName: string;
   ifscCode: string;
+  businessDocument: File | string | null;
+  gstDocument: File | string | null;
+  businessLogo: File | string | null;
   rejectionReason: string;
+}
+
+export interface ProfileFieldConfig {
+  label: string;
+  key: string;
+  isList?: boolean;
+  isLink?: boolean;
+  docType?: DocumentType;
+  reviewHint?: string;
+}
+
+export interface VendorTabConfig {
+  label: string;
+  fields: ProfileFieldConfig[];
 }
