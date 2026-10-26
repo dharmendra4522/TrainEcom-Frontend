@@ -171,46 +171,46 @@ export class UserService {
   ): Observable<AdminUserListResponse> {
     let params = new HttpParams();
     if (filter) {
-      if (filter.Search) {
-        params = params.set('Search', filter.Search);
+      if (filter.search) {
+        params = params.set('search', filter.search);
       }
-      if (filter.SearchField !== undefined) {
-        params = params.set('SearchField', filter.SearchField.toString());
+      if (filter.searchField !== undefined) {
+        params = params.set('searchField', filter.searchField.toString());
       }
-      if (filter.RequestField !== undefined) {
-        params = params.set('RequestField', filter.RequestField.toString());
+      if (filter.requestField !== undefined) {
+        params = params.set('requestField', filter.requestField.toString());
       }
-      const normalizedRole = this.normalizeRole(filter.Role);
+      const normalizedRole = this.normalizeRole(filter.role);
       if (normalizedRole !== undefined) {
-        params = params.set('Role', String(normalizedRole));
+        params = params.set('role', String(normalizedRole));
       }
-      filter.Status?.forEach((status) => {
+      filter.status?.forEach((status) => {
         const normalizedStatus = this.normalizeStatus(status);
 
         if (normalizedStatus !== undefined) {
           params = params.append(
-            'StatusIds',
+            'statusIds',
             normalizedStatus.toString()
           );
         }
       });
       const normalizedApproval = this.normalizeApprovalStatus(
-        filter.ApprovalStatus,
+        filter.approvalStatus,
       );
       if (normalizedApproval !== undefined) {
-        params = params.set('ApprovalStatus', String(normalizedApproval));
+        params = params.set('approvalStatus', String(normalizedApproval));
       }
-      filter.FilterIds?.forEach((id) => {
-        params = params.append('FilterIds', id.toString());
+      filter.filterIds?.forEach((id) => {
+        params = params.append('filterIds', id.toString());
       });
-      filter.BussinessCategoriesIds?.forEach((id) => {
-        params = params.append('BussinessCategoriesIds', id.toString());
+      filter.bussinessCategoriesIds?.forEach((id) => {
+        params = params.append('bussinessCategoriesIds', id.toString());
       });
-      if (filter.PageNumber !== undefined) {
-        params = params.set('PageNumber', filter.PageNumber.toString());
+      if (filter.pageNumber !== undefined) {
+        params = params.set('pageNumber', filter.pageNumber.toString());
       }
-      if (filter.PageSize !== undefined) {
-        params = params.set('PageSize', filter.PageSize.toString());
+      if (filter.pageSize !== undefined) {
+        params = params.set('pageSize', filter.pageSize.toString());
       }
     }
     const url = `${environment.apiBaseUrl}/admin/users/all`;

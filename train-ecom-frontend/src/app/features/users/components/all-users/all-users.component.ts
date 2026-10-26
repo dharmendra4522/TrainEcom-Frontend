@@ -149,17 +149,17 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     const headerSearch = this.getHeaderSearchValue();
 
     return {
-      Search: headerSearch || this.searchQuery || undefined,
-      SearchField: headerSearch
+      search: headerSearch || this.searchQuery || undefined,
+      searchField: headerSearch
         ? this.getSearchField()
         : undefined,
-      Role: this.fixedRole,
-      Status:
+      role: this.fixedRole,
+      status:
         this.selectedStatusIds.length
           ? this.selectedStatusIds
           : undefined,
-      PageNumber: this.pageIndex + 1,
-      PageSize: this.pageSize
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
     };
   }
 

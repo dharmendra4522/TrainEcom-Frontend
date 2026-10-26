@@ -317,20 +317,20 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     const headerSearch = this.getHeaderSearchValue();
 
     return {
-      Search: headerSearch || this.searchQuery || undefined,
-      SearchField: headerSearch
+      search: headerSearch || this.searchQuery || undefined,
+      searchField: headerSearch
         ? this.getSearchField()
         : undefined,
-      Status:
+      status:
         this.selectedStatusIds.length
           ? this.selectedStatusIds
           : undefined,
-      BussinessCategoriesIds:
+      bussinessCategoriesIds:
         this.selectedCategoryIds.length
           ? this.selectedCategoryIds
           : undefined,
-      PageNumber: this.pageIndex + 1,
-      PageSize: this.pageSize
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
     };
   }
 
