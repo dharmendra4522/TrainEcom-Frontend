@@ -16,6 +16,14 @@
               [registerForm]="editForm"
               [isStep1Valid]="isStep1Valid"
               [isEditMode]="true"
+              [isPasswordChangeMode]="isPasswordChangeMode"
+              [isOldPassView]="isOldPasswordVisible"
+              [isNewPassView]="isNewPasswordVisible"
+              [isEditConfirmPassView]="isConfirmPasswordVisible"
+              (togglePasswordChange)="togglePasswordChange()"
+              (toggleOldPassword)="toggleOldPasswordVisibility()"
+              (toggleNewPassword)="toggleNewPasswordVisibility()"
+              (toggleEditConfirmPassword)="toggleConfirmPasswordVisibility()"
             >
             </app-personal-details>
           </div>

@@ -12,7 +12,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { fileValidator } from '../../../auth/register.utils';
+import { bankDetailsValidator, fileValidator, noSpaceAllow } from '../../../auth/register.utils';
 import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
@@ -67,8 +67,11 @@ export class VendorProfileEditComponent implements OnChanges {
   states: IState[] = [];
   cities: ICity[] = [];
   pendingChangesMap: Record<string, PendingFieldChanges> = {};
-  readonly isStep4Valid: boolean = true;
   readonly isStep5Valid: boolean = true;
+  maxFileSize: number = 5;
+  public isOldPasswordVisible: boolean = false;
+  public isNewPasswordVisible: boolean = false;
+  public isConfirmPasswordVisible: boolean = false;
 
   // handle changes in inputs property and patch form values
   ngOnChanges(changes: SimpleChanges): void {
@@ -88,19 +91,20 @@ export class VendorProfileEditComponent implements OnChanges {
       {
         firstName: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.minLength(3),
             Validators.pattern(/^[a-zA-Z\s]+$/)
-          ]
+          ])
+
         ],
         lastName: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.minLength(3),
             Validators.pattern(/^[a-zA-Z\s]+$/)
-          ]
+          ])
         ],
         email: [
           { value: '', disabled: true },
@@ -108,7 +112,7 @@ export class VendorProfileEditComponent implements OnChanges {
         ],
         phoneNumber: [
           '',
-          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]
+          Validators.compose([Validators.required, Validators.pattern(/^[6-9]\d{9}$/)])
         ],
         oldPassword: [''],
         newPassword: [''],
@@ -116,20 +120,20 @@ export class VendorProfileEditComponent implements OnChanges {
         businessName: [{ value: '', disabled: true }],
         displayName: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.minLength(3),
             Validators.pattern(/.*\S.*/)
-          ]
+          ])
         ],
         businessCategory: [[], Validators.required],
         bussinessDescription: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.minLength(10),
             Validators.pattern(/.*\S.*/)
-          ]
+          ])
         ],
         gstin: [{ value: '', disabled: true }],
         panNumber: [{ value: '', disabled: true }],
@@ -140,24 +144,21 @@ export class VendorProfileEditComponent implements OnChanges {
         state: ['', Validators.required],
         postalCode: [
           '',
-          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)]
+          Validators.compose([Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)])
         ],
-        bankAccountNumber: [{ value: '' }],
-        acountHolderName: [{ value: '' }],
-        ifscCode: [{ value: '' }],
-        gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
-        businessDocument: ['', [fileValidator(['application/pdf'], 5)]],
+        bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
+        acountHolderName: ['', Validators.compose([Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()])],
+        ifscCode: ['', Validators.compose([Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)])],
+        gstDocument: ['', [fileValidator(['application/pdf'], this.maxFileSize)]],
+        businessDocument: ['', [fileValidator(['application/pdf'], this.maxFileSize)]],
         businessLogo: [
           '',
           [
-            fileValidator(
-              ['image/jpeg', 'image/png', 'image/jpeg', 'image/webp'],
-              5
-            )
+            fileValidator(['image/jpeg', 'image/png', 'image/jpeg', 'image/webp'], this.maxFileSize)
           ]
         ]
       },
-      { validators: passwordMatchValidator }
+      { validators: [passwordMatchValidator, bankDetailsValidator()] }
     );
   }
 
@@ -307,6 +308,14 @@ export class VendorProfileEditComponent implements OnChanges {
     );
   }
 
+  get isStep4Valid(): boolean {
+    return this.controlValid(
+      'bankAccountNumber',
+      'acountHolderName',
+      'ifscCode'
+    )
+  }
+
   get invalidFieldLabels(): string[] {
     const labels: Record<string, string> = {
       firstName: 'First Name',
@@ -325,7 +334,10 @@ export class VendorProfileEditComponent implements OnChanges {
       confirmPassword: 'Confirm Password',
       gstDocument: 'GST Document',
       businessDocument: 'Registration Document',
-      businessLogo: 'Business Logo'
+      businessLogo: 'Business Logo',
+      bankAccountNumber: 'Bank Account Number',
+      acountHolderName: 'Account Holder Name',
+      ifscCode: 'IFSC Code'
     };
     return Object.keys(this.editForm.controls)
       .filter((name) => this.editForm.get(name)?.invalid)
@@ -578,4 +590,42 @@ export class VendorProfileEditComponent implements OnChanges {
       null
     );
   }
+
+  // handle if user want to update password
+  public togglePasswordChange(): void {
+    this.isPasswordChangeMode = !this.isPasswordChangeMode;
+    const controls = ['oldPassword', 'newPassword', 'confirmPassword'];
+    controls.forEach((name) => {
+      const control = this.editForm.get(name);
+      if (this.isPasswordChangeMode) {
+        control?.setValidators([Validators.required]);
+
+        if (name === 'newPassword') {
+          control?.addValidators([
+            Validators.minLength(8),
+            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+          ]);
+        }
+      } else {
+        control?.clearValidators();
+        control?.reset('');
+      }
+      control?.updateValueAndValidity();
+    });
+    this.editForm.updateValueAndValidity();
+  }
+
+  // Toggle visibility of password fields
+  public toggleOldPasswordVisibility(): void {
+    this.isOldPasswordVisible = !this.isOldPasswordVisible;
+  }
+
+  public toggleNewPasswordVisibility(): void {
+    this.isNewPasswordVisible = !this.isNewPasswordVisible;
+  }
+
+  public toggleConfirmPasswordVisibility(): void {
+    this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
+  }
+
 }
