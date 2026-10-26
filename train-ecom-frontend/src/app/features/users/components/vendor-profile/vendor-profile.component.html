@@ -33,125 +33,56 @@
     </div>
     <mat-tab-group animationDuration="300ms">
       <!-- General -->
-      <mat-tab label="General">
+      <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
         <div class="p-4">
           <div class="row gx-4 gy-3">
             <div
               class="col-md-6 d-flex flex-column"
-              *ngFor="let field of getTabFields('General')"
+              *ngFor="let field of tab.fields"
             >
               <span class="text-secondary small fw-semibold mb-1">
                 {{ field.label }}
               </span>
 
-              <div class="p-3 bg-light rounded border text-dark fs-6">
-                {{ getFieldValue(field.key) || "N/A" }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Business -->
-      <mat-tab label="Business">
-        <div class="p-4">
-          <div class="row gx-4 gy-3">
-            <div
-              class="col-md-6 d-flex flex-column"
-              *ngFor="let field of getTabFields('Business')"
-            >
-              <span class="text-secondary small fw-semibold mb-1">
-                {{ field.label }}
-              </span>
-              <div
-                class="p-3 bg-light rounded border text-dark fs-6"
-                *ngIf="field.key !== 'categories'; else categoryList"
-              >
-                {{ getFieldValue(field.key) || "N/A" }}
-              </div>
-
-              <ng-template #categoryList>
+              <ng-container *ngIf="field.isLink; else normalField">
                 <div class="p-3 bg-light rounded border">
-                  <span
-                    *ngFor="let cat of vendorCategories"
-                    class="badge bg-light text-dark border px-3 py-2 me-2"
+                  <a
+                    *ngIf="field.docType && documentUrlMap[field.docType]"
+                    [href]="documentUrlMap[field.docType]"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    {{ cat }}
+                    View Document
+                  </a>
+                  <span
+                    *ngIf="field.docType && !documentUrlMap[field.docType]"
+                    class="text-muted"
+                  >
+                    Not provided
                   </span>
                 </div>
+              </ng-container>
+
+              <ng-template #normalField>
+                <ng-container *ngIf="field.isList; else normalValue">
+                  <div class="p-3 bg-light rounded border">
+                    <span
+                      *ngFor="let cat of vendorCategories"
+                      class="badge bg-light text-dark border px-3 py-2 me-2"
+                    >
+                      {{ cat }}
+                    </span>
+                  </div>
+                </ng-container>
+                <ng-template #normalValue>
+                  <div class="p-3 bg-light rounded border text-dark fs-6">
+                    {{ fieldValues[field.key] || "N/A" }}
+                  </div>
+                </ng-template>
               </ng-template>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Address -->
-      <mat-tab label="Address">
-        <div class="p-4">
-          <div class="row gx-4 gy-3">
-            <div
-              class="col-md-6 d-flex flex-column"
-              *ngFor="let field of getTabFields('Address')"
-            >
-              <span class="text-secondary small fw-semibold mb-1">
-                {{ field.label }}
-              </span>
-
-              <div class="p-3 bg-light rounded border text-dark fs-6">
-                {{ getFieldValue(field.key) || "N/A" }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Account & Tax -->
-      <mat-tab label="Account & Tax">
-        <div class="p-4">
-          <div class="row gx-4 gy-3">
-            <div
-              class="col-md-6 d-flex flex-column"
-              *ngFor="let field of getTabFields('Account & Tax')"
-            >
-              <span class="text-secondary small fw-semibold mb-1">
-                {{ field.label }}
-              </span>
-
-              <div class="p-3 bg-light rounded border text-dark fs-6">
-                {{ getFieldValue(field.key) || "N/A" }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Documents -->
-      <mat-tab label="Documents">
-        <div class="p-4">
-          <div class="row gx-4 gy-3">
-            <div
-              class="col-md-6 d-flex flex-column"
-              *ngFor="let field of getTabFields('Documents')"
-            >
-              <span class="text-secondary small fw-semibold mb-1">
-                {{ field.label }}
-              </span>
-              <div class="p-3 bg-light rounded border">
-                <a
-                  *ngIf="field.docType && getDocumentUrl(field.docType)"
-                  [href]="getDocumentUrl(field.docType)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Document
-                </a>
-                <span
-                  *ngIf="field.docType && !getDocumentUrl(field.docType)"
-                  class="text-muted"
-                >
-                  Not provided
-                </span>
-              </div>
+              <mat-hint *ngIf="field.reviewHint && isApprovedVendor" class="hint-text">{{
+                field.reviewHint
+              }}</mat-hint>
             </div>
           </div>
         </div>

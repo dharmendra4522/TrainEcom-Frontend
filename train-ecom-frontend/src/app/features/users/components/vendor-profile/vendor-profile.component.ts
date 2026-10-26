@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectUserProfile } from '../../../../core/store/user/user.selectors';
 import {
@@ -12,6 +12,7 @@ import { DocumentType, ProfileFieldConfig, VendorTabConfig } from '../../../../c
 import {
   VENDOR_PROFILE_TABS,
 } from './vendor-profile.constants';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-vendor-profile',
@@ -20,16 +21,16 @@ import {
 })
 export class VendorProfileComponent implements OnInit {
   private store = inject(Store);
+  private destroyRef = inject(DestroyRef);
 
   isEditMode: boolean = false;
-  userProfile$ = this.store.select(selectUserProfile);
-  // password visibility toggles
   vendorData: ProfileVendorDetails | null = null;
   userProfileData: UserProfile | null = null;
-
-  tabConfig: VendorTabConfig[] = VENDOR_PROFILE_TABS;
-  isSaving: boolean = false;
   authStatus: string | null = null;
+  documentUrlMap: Record<number, string | null> = {};
+  fieldValues: Record<string, string | null> = {};
+  readonly tabs = VENDOR_PROFILE_TABS;
+  vendorCategories: string[] = [];
 
   ngOnInit(): void {
     this.subscribeAuthStatus();
@@ -38,48 +39,67 @@ export class VendorProfileComponent implements OnInit {
 
   // subscribe Auth status from store
   private subscribeAuthStatus(): void {
-    this.store.select(selectAuthStatus).subscribe((status) => {
+    this.store.select(selectAuthStatus).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((status) => {
       this.authStatus = status;
     });
   }
 
   // fetch vendor details from user profile and patch the form
   private fetchVendorDetails(): void {
-    this.userProfile$.subscribe((profile) => {
-      if (profile) {
-        this.userProfileData = profile;
-        this.vendorData = profile.vendorDetails ?? null;
-        if (this.vendorData?.documents?.length) {
-          const urls: string[] = [];
-          this.vendorData.documents.forEach((doc) => {
-            if (doc.documentType === DocumentType.Logo) urls[0] = doc.documentUrl;
-            if (doc.documentType === DocumentType.BussinessDocument) urls[1] = doc.documentUrl;
-            if (doc.documentType === DocumentType.GSTDocument) urls[2] = doc.documentUrl;
-          });
-          this.vendorData = {
-            ...this.vendorData,
-            documentUrls: urls
-          };
-        }
+    this.store.select(selectUserProfile).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((profile) => {
+      if (!profile) {
+        return;
       }
+      this.userProfileData = profile;
+      this.vendorData = profile.vendorDetails ?? null;
+      this.setDocumentUrls();
+      this.setVendorCategories();
+      this.setFieldValues(profile);
     });
   }
 
-  getDocumentUrl(documentType: number): string | null {
-    const document = this.vendorData?.documents?.find(
-      (item) =>
-        item.documentType === documentType && !!item.documentUrl,
-    );
-    return (
-      document?.documentUrl ||
-      this.vendorData?.documentUrls?.[documentType - 1] ||
-      null
-    );
+  // handle set document urls for each document type
+  private setDocumentUrls(): void {
+    const documentUrlMap: Record<number, string | null> = {
+      [DocumentType.Logo]: null,
+      [DocumentType.BussinessDocument]: null,
+      [DocumentType.GSTDocument]: null
+    };
+    this.vendorData?.documents?.forEach((doc) => {
+      documentUrlMap[doc.documentType] = doc.documentUrl;
+    });
+    this.documentUrlMap = documentUrlMap;
   }
 
-  get vendorCategories(): string[] {
-    return this.vendorData?.categories ?? [];
+  // handle vendor categories
+  private setVendorCategories(): void {
+    this.vendorCategories = this.vendorData?.categories ?? [];
   }
+
+  // hendle set field values for each field in the profile
+  private setFieldValues(profile: UserProfile): void {
+    const vendor = this.vendorData;
+    this.fieldValues = {
+      name: profile.name,
+      email: profile.email,
+      phoneNumber: profile.phoneNumber,
+      bussinessName: vendor?.bussinessName ?? null,
+      storeName: vendor?.storeName ?? null,
+      bussinessDescription: vendor?.bussinessDescription ?? null,
+      addressLine1: vendor?.addressLine1 ?? null,
+      addressLine2: vendor?.addressLine2 ?? null,
+      city: vendor?.city ?? null,
+      state: vendor?.state ?? null,
+      country: vendor?.country ?? null,
+      postalCode: vendor?.postalCode ?? null,
+      gstin: vendor?.gstin ?? null,
+      pan: vendor?.pan ?? null,
+      accountHolderName: vendor?.accountHolderName ?? null,
+      bankAccountNumber: vendor?.bankAccountNumber ?? null,
+      ifscCode: vendor?.ifscCode ?? null
+    };
+  }
+
 
   // toggle edit mode only if vendor is approved
   toggleEditMode(): void {
@@ -94,35 +114,4 @@ export class VendorProfileComponent implements OnInit {
     return normalizeApprovalStatus(approvalValue) === ApprovalStatus.Approved;
   }
 
-
-  getTabFields(tabLabel: string): ProfileFieldConfig[] {
-    const matchedTab = this.tabConfig.find((t) => t.label === tabLabel);
-    return matchedTab ? matchedTab.fields : [];
-  }
-
-  getFieldValue(key: string): string | number | null | undefined {
-    if (key === 'name') {
-      return this.userProfileData?.name;
-    }
-    if (key === 'email') {
-      return this.userProfileData?.email;
-    }
-    if (key === 'phoneNumber') {
-      return this.userProfileData?.phoneNumber;
-    }
-    if (this.vendorData) {
-      const vendorKey = key as keyof ProfileVendorDetails;
-      const value = this.vendorData[vendorKey];
-
-      if (
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        value === null ||
-        value === undefined
-      ) {
-        return value;
-      }
-    }
-    return null;
-  }
 }

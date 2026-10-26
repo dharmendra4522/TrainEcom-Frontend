@@ -24,7 +24,7 @@ export interface ProfileVendorDetails {
   city?: string | null;
   state?: string | null;
   country?: string | null;
-  postalCode?: string | number | null;
+  postalCode?: string | null;
   gstin?: string | null;
   pan?: string | null;
   accountHolderName?: string | null;
@@ -36,15 +36,15 @@ export interface ProfileVendorDetails {
     documentType: number;
     documentUrl: string;
   }> | null;
-  approvalStatus?: ApprovalStatus | number | string | null;
-  status?: ApprovalStatus | number | string | null;
+  approvalStatus?: ApprovalStatus | null;
+  status?: ApprovalStatus | null;
   defaultAddress?: {
     addressLine1: string;
     addressLine2?: string | null;
     city?: string | null;
     state?: string | null;
     country?: string | null;
-    postalCode?: string | number | null;
+    postalCode?: string | null;
   }
 }
 
@@ -58,9 +58,9 @@ export interface UserProfile {
   vendorDetails?: ProfileVendorDetails | null;
   submittedDate?: string | null;
   registrationId?: string | null;
-  isApproved?: ApprovalStatus | number | null;
-  approvalStatus?: ApprovalStatus | number | string | null;
-  status?: ApprovalStatus | number | string | null;
+  isApproved?: ApprovalStatus | null;
+  approvalStatus?: ApprovalStatus | null;
+  status?: ApprovalStatus | null;
 }
 
 export interface VendorBusinessDetail {
