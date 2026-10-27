@@ -16,7 +16,6 @@ export interface UpdateBrandRequest {
   description: string;
 }
 
-
 export interface PaginatedBrandResponse {
   items: Brand[];
   pageNumber: number;
@@ -29,5 +28,5 @@ export interface PaginatedBrandResponse {
 export enum BrandListField {
   Name = 1,
   Description = 2,
-  ID=3,
+  ID = 3
 }

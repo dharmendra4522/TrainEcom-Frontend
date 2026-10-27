@@ -2,84 +2,68 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Brand, BrandListField, CreateBrandRequest, PaginatedBrandResponse } from '../models/brand.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class BrandService {
-  private baseApi = `${environment.apiBaseUrl}/brands`;
+  private readonly baseApi = `${environment.apiBaseUrl}/brands`;
   private http = inject(HttpClient);
 
-  constructor() { }
-
+  // Fetch all brands without pagination
   getAllBrands(): Observable<Brand[]> {
-    return this.http.get<Brand[] | PaginatedBrandResponse>(`${this.baseApi}/all`).pipe(
-      catchError(() => this.http.get<Brand[] | PaginatedBrandResponse>(this.baseApi)),
-      catchError(() => this.http.get<Brand[] | PaginatedBrandResponse>(`${this.baseApi}/getAll`)),
-      map((response) => Array.isArray(response) ? response : response?.items || [])
-    );
+    return this.http.get<PaginatedBrandResponse>(`${this.baseApi}/all`).pipe(
+      map((response) => response.items)
+    )
   }
 
+  // Fetch paginated brands with optional search and search field
   getPaginatedBrands(
-  pageNumber: number = 1,
-  pageSize: number = 10,
-  search?: string,
-  searchField?: BrandListField
-): Observable<PaginatedBrandResponse>
- {
+    pageNumber: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    searchField?: BrandListField,
+    requestField?: BrandListField
+  ): Observable<PaginatedBrandResponse> {
     let params = new HttpParams()
-      .set('PageNumber', pageNumber.toString())
-      .set('PageSize', pageSize.toString());
+      .set('pageNumber', `${pageNumber}`)
+      .set('pageSize', `${pageSize}`);
 
     if (search && search.trim() !== '') {
-      params = params.set('Search', search.trim());
+      params = params.set('search', search.trim());
     }
 
     if (searchField !== undefined) {
-      params = params.set('SearchField', searchField.toString());
+      params = params.set('searchField', searchField);
     }
-
-    return this.http.get<PaginatedBrandResponse | Brand[]>(`${this.baseApi}/all`, { params }).pipe(
-      map((response) => {
-        if (Array.isArray(response)) {
-          return {
-            items: response,
-            pageNumber: 1,
-            pageSize: response.length,
-            totalRecords: response.length,
-            totalPages: 1
-          };
-        }
-
-        return {
-          items: response?.items || [],
-          pageNumber: response?.pageNumber || pageNumber,
-          pageSize: response?.pageSize || pageSize,
-          totalRecords: response?.totalRecords ?? response?.items?.length ?? 0,
-          totalPages: response?.totalPages || 1
-        };
-      }),
+    if (requestField !== undefined) {
+      params = params.set('requestField', requestField);
+    }
+    return this.http.get<PaginatedBrandResponse>(
+      `${this.baseApi}/all`,
+      { params }
     );
   }
 
-  getBrandById(id: string | number): Observable<Brand> {
-    const brandId = String(id);
-    return this.http.get<Brand>(`${this.baseApi}/${brandId}`).pipe(
-      catchError(() => this.http.get<Brand>(`${this.baseApi}/getById/${brandId}`))
-    );
+  // Fetch a brand by ID 
+  getBrandById(id: number): Observable<Brand> {
+    return this.http.get<Brand>(`${this.baseApi}/getById/${id}`);
   }
 
+  // Create a new brand
   createBrand(payload: CreateBrandRequest): Observable<Brand> {
     return this.http.post<Brand>(`${this.baseApi}/create`, payload);
   }
 
-  updateBrand(id: string | number, payload: CreateBrandRequest): Observable<Brand> {
-    return this.http.put<Brand>(`${this.baseApi}/update/${String(id)}`, payload);
+  // Update an existing brand
+  updateBrand(id: number, payload: CreateBrandRequest): Observable<Brand> {
+    return this.http.put<Brand>(`${this.baseApi}/update/${id}`, payload);
   }
 
-  deleteBrand(id: string | number): Observable<void> {
-    return this.http.delete<void>(`${this.baseApi}/delete/${String(id)}`);
+  // Delete a brand by ID
+  deleteBrand(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseApi}/delete/${id}`);
   }
 }

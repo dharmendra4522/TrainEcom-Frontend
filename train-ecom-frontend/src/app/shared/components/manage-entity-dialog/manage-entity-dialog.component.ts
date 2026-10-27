@@ -2,17 +2,17 @@ import { Component, Inject, inject, OnInit, OnDestroy, ElementRef, ViewChild } f
 import {
   MAT_DIALOG_DATA,
   MatDialogRef,
-  MatDialog,
+  MatDialog
 } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Brand } from '../../../core/models/brand.model';
+import { Brand, UpdateBrandRequest } from '../../../core/models/brand.model';
 import {
   Category,
   CreateCategoryRequest,
   SubCategoryList,
-  UpdateCategoryRequest,
+  UpdateCategoryRequest
 } from '../../../core/models/category.model';
 import { Actions, ofType } from '@ngrx/effects';
 import { selectBrandLoading } from '../../../core/store/brand/brand.selectors';
@@ -39,7 +39,7 @@ export interface ManageEntityDialogData {
 @Component({
   selector: 'app-manage-entity-dialog',
   templateUrl: './manage-entity-dialog.component.html',
-  styleUrl: './manage-entity-dialog.component.css',
+  styleUrl: './manage-entity-dialog.component.css'
 })
 export class ManageEntityDialogComponent implements OnInit, OnDestroy {
   @ViewChild('scrollContainer', { read: ElementRef }) scrollContainer?: ElementRef<HTMLElement>;
@@ -361,8 +361,8 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       this.store.dispatch(
         BrandActions.updateBrand({
           brandId: item.id,
-          brand: result as Brand
-        }),
+          brand: result as UpdateBrandRequest
+        })
       );
     } else if (this.data.type === 'Sub-Category') {
       const parentCategoryId =
@@ -381,14 +381,14 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.notificationService.showSuccess(
-              'Sub-category updated successfully.',
+              'Sub-category updated successfully.'
             );
             this.refreshSubCategories();
           },
           error: (error: unknown) => {
             console.error('Error updating subcategory:', error);
             this.notificationService.showError(
-              'Failed to update sub-category.',
+              'Failed to update sub-category.'
             );
           },
         });
@@ -399,9 +399,9 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
           categoryId: item.id,
           category: {
             name: result.name,
-            description: result.description ?? item.description,
-          },
-        }),
+            description: result.description ?? item.description
+          }
+        })
       );
     }
     this.localItems = this.localItems.map(i => i.id === item.id ? { ...i, ...result } : i);
@@ -434,7 +434,7 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
       const payload: CreateCategoryRequest = {
         name: result.name,
         description: result.description,
-        parentCategoryId: Number(parentCategoryId),
+        parentCategoryId: Number(parentCategoryId)
       };
       this.categoryService
         .createCategory(payload)
@@ -442,21 +442,21 @@ export class ManageEntityDialogComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (category) => {
             this.notificationService.showSuccess(
-              'Sub-category created successfully.',
+              'Sub-category created successfully.'
             );
             this.dialogRef.close(category.id);
           },
           error: (error: unknown) => {
             console.error('Error creating subcategory:', error);
             this.notificationService.showError(
-              'Failed to create sub-category.',
+              'Failed to create sub-category.'
             );
           },
         });
     } else {
       this.store.dispatch(
         CategoryActions.createCategory({
-          category: result as Category,
+          category: result as Category
         }),
       );
       this.actions$.pipe(

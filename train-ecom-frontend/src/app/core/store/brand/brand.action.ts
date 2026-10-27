@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Brand, BrandListField } from '../../models/brand.model';
+import { Brand, BrandListField, CreateBrandRequest, UpdateBrandRequest } from '../../models/brand.model';
 
 export const loadBrands = createAction('[Brand] Load Brands');
 
@@ -30,7 +30,7 @@ export const loadSingleBrandFailure = createAction(
 
 export const createBrand = createAction(
   `[Brand] Create Brand`,
-  props<{ brand: Brand }>()
+  props<{ brand: CreateBrandRequest }>()
 );
 
 export const createBrandSuccess = createAction(
@@ -45,7 +45,7 @@ export const createBrandFailure = createAction(
 
 export const updateBrand = createAction(
   `[Brand] Update Brand`,
-  props<{ brandId: number; brand: Brand }>()
+  props<{ brandId: number; brand: UpdateBrandRequest }>()
 );
 
 export const updateBrandSuccess = createAction(
