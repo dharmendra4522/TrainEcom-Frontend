@@ -1,14 +1,13 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectUserProfile } from '../../../../core/store/user/user.selectors';
 import {
-  ProfileVendorDetails,
   UserProfile,
   ApprovalStatus
 } from '../../../../core/models/user.model';
 import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 import { selectAuthStatus } from '../../../../core/store/auth/auth.selectors';
-import { DocumentType, ProfileFieldConfig, VendorTabConfig } from '../../../../core/models/vendor.model';
+import { DocumentType } from '../../../../core/models/vendor.model';
 import {
   VENDOR_PROFILE_TABS,
 } from './vendor-profile.constants';
@@ -24,7 +23,6 @@ export class VendorProfileComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   isEditMode: boolean = false;
-  vendorData: ProfileVendorDetails | null = null;
   userProfileData: UserProfile | null = null;
   authStatus: string | null = null;
   documentUrlMap: Record<number, string | null> = {};
@@ -51,7 +49,6 @@ export class VendorProfileComponent implements OnInit {
         return;
       }
       this.userProfileData = profile;
-      this.vendorData = profile.vendorDetails ?? null;
       this.setDocumentUrls();
       this.setVendorCategories();
       this.setFieldValues(profile);
@@ -65,7 +62,7 @@ export class VendorProfileComponent implements OnInit {
       [DocumentType.BussinessDocument]: null,
       [DocumentType.GSTDocument]: null
     };
-    this.vendorData?.documents?.forEach((doc) => {
+    this.userProfileData?.vendorDetails?.documents?.forEach((doc) => {
       documentUrlMap[doc.documentType] = doc.documentUrl;
     });
     this.documentUrlMap = documentUrlMap;
@@ -73,12 +70,12 @@ export class VendorProfileComponent implements OnInit {
 
   // handle vendor categories
   private setVendorCategories(): void {
-    this.vendorCategories = this.vendorData?.categories ?? [];
+    this.vendorCategories = this.userProfileData?.vendorDetails?.categories ?? [];
   }
 
   // hendle set field values for each field in the profile
   private setFieldValues(profile: UserProfile): void {
-    const vendor = this.vendorData;
+    const vendor = profile.vendorDetails;
     this.fieldValues = {
       name: profile.name,
       email: profile.email,
@@ -109,6 +106,7 @@ export class VendorProfileComponent implements OnInit {
     this.isEditMode = !this.isEditMode;
   }
 
+  // check if the vendor is approved 
   get isApprovedVendor(): boolean {
     const approvalValue = this.authStatus ?? localStorage.getItem('vendorStatus');
     return normalizeApprovalStatus(approvalValue) === ApprovalStatus.Approved;

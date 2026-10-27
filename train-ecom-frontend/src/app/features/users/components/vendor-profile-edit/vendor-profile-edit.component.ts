@@ -20,7 +20,6 @@ import * as UserActions from '../../../../core/store/user/user.actions';
 import { filter, Observable, take } from 'rxjs';
 import { selectAllCategories } from '../../../../core/store/category/category.selectors';
 import {
-  ProfileVendorDetails,
   UpdateProfilePayload,
   UserProfile
 } from '../../../../core/models/user.model';
@@ -53,7 +52,6 @@ export class VendorProfileEditComponent implements OnChanges {
   private userService = inject(UserService);
 
   @Input() userProfileData: UserProfile | null = null;
-  @Input() vendorData: ProfileVendorDetails | null = null;
 
   @Output() onEditModeToggle = new EventEmitter<boolean>();
   @Output() onProfileUpdate = new EventEmitter<void>();
@@ -425,53 +423,53 @@ export class VendorProfileEditComponent implements OnChanges {
         value.phoneNumber
       );
     }
-    if (value.displayName && value.displayName !== this.vendorData?.storeName) {
+    if (value.displayName && value.displayName !== this.userProfileData?.vendorDetails?.storeName) {
       this.addPendingChange(
         'storeName',
         'Display Name',
-        this.vendorData?.storeName,
+        this.userProfileData?.vendorDetails?.storeName,
         value.displayName
       );
     }
     const selectedCategoryNames = this.getSelectedCategoryNames();
     if (
       JSON.stringify(selectedCategoryNames) !==
-      JSON.stringify(this.vendorData?.categories ?? [])
+      JSON.stringify(this.userProfileData?.vendorDetails?.categories ?? [])
     ) {
       this.addPendingChange(
         'categories',
         'Categories',
-        this.vendorData?.categories ?? [],
+        this.userProfileData?.vendorDetails?.categories ?? [],
         selectedCategoryNames
       );
     }
     if (
       value.acountHolderName &&
-      value.acountHolderName !== this.vendorData?.accountHolderName
+      value.acountHolderName !== this.userProfileData?.vendorDetails?.accountHolderName
     ) {
       this.addPendingChange(
         'accountHolderName',
         'Account Holder Name',
-        this.vendorData?.accountHolderName,
+        this.userProfileData?.vendorDetails?.accountHolderName,
         value.acountHolderName
       );
     }
     if (
       value.bankAccountNumber &&
-      value.bankAccountNumber !== this.vendorData?.bankAccountNumber
+      value.bankAccountNumber !== this.userProfileData?.vendorDetails?.bankAccountNumber
     ) {
       this.addPendingChange(
         'bankAccountNumber',
         'Bank Account Number',
-        this.vendorData?.bankAccountNumber,
+        this.userProfileData?.vendorDetails?.bankAccountNumber,
         value.bankAccountNumber
       );
     }
-    if (value.ifscCode && value.ifscCode !== this.vendorData?.ifscCode) {
+    if (value.ifscCode && value.ifscCode !== this.userProfileData?.vendorDetails?.ifscCode) {
       this.addPendingChange(
         'ifscCode',
         'IFSC Code',
-        this.vendorData?.ifscCode,
+        this.userProfileData?.vendorDetails?.ifscCode,
         value.ifscCode
       );
     }
@@ -528,7 +526,7 @@ export class VendorProfileEditComponent implements OnChanges {
           : null,
         ifscCode: value.ifscCode ?? null,
         newCategoryIds: this.getSelectedCategoryIds(),
-        documentUrls: this.vendorData?.documentUrls || []
+        documentUrls: this.userProfileData?.vendorDetails?.documentUrls || []
       }
     };
     if (this.isPasswordChangeMode) {
@@ -547,7 +545,6 @@ export class VendorProfileEditComponent implements OnChanges {
         this.isSaving = false;
         this.isPasswordChangeMode = false;
         this.userProfileData = profile;
-        this.vendorData = profile.vendorDetails || null;
         this.store.dispatch(UserActions.loadProfileSuccess({ profile }));
         this.notificationService.showSuccess('Profile updated successfully');
         this.onProfileUpdate.emit();
@@ -581,12 +578,12 @@ export class VendorProfileEditComponent implements OnChanges {
 
   // Get the document URL for a specific document type
   getDocumentUrl(documentType: number): string | null {
-    const document = this.vendorData?.documents?.find(
+    const document = this.userProfileData?.vendorDetails?.documents?.find(
       (item) => item.documentType === documentType
     );
     return (
       document?.documentUrl ||
-      this.vendorData?.documentUrls?.[documentType - 1] ||
+      this.userProfileData?.vendorDetails?.documentUrls?.[documentType - 1] ||
       null
     );
   }
