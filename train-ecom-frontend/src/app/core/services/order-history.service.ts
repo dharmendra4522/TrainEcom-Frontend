@@ -47,43 +47,43 @@ export class OrderHistoryService {
     return this.http.get<OrderHistoryResponse>(`${this.baseAPI}/history`, { params });
   }
 
-  getOrderDetails(orderId: string): Observable<OrderDetailsResponse> {
+  getOrderDetails(orderId: number): Observable<OrderDetailsResponse> {
     return this.http.get<OrderDetailsResponse>(`${this.baseAPI}/history/getById/${orderId}`);
   }
 
-  cancelOrder(orderId: string): Observable<void> {
+  cancelOrder(orderId: number): Observable<void> {
     return this.http.patch<void>(`${this.baseAPI}/${orderId}/cancel`, {});
   }
 
-  getOrderTracking(orderId: string): Observable<OrderTrackingResponse> {
+  getOrderTracking(orderId: number): Observable<OrderTrackingResponse> {
     return this.http.get<OrderTrackingResponse>(`${this.baseAPI}/${orderId}/tracking`);
   }
 
   getManagedOrders(
     portal: PortalKey,
-    filter?: AdminOrderFilterParams,
+    filter?: AdminOrderFilterParams
   ): Observable<AdminOrderListResponse> {
     const params = this.buildParams(filter);
     return this.http.get<AdminOrderListResponse>(
       `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.list}`,
-      { params },
+      { params }
     );
   }
 
   getManagedOrderDetails(
     portal: PortalKey,
-    orderId: string,
+    orderId: number
   ): Observable<OrderDetailsResponse> {
     return this.http.get<OrderDetailsResponse>(
-      `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.detail}/${orderId}`,
+      `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.detail}/${orderId}`
     );
   }
 
   updateManagedOrderStatus(
     portal: PortalKey,
-    orderId: string,
-    status: OrderStatus | string | number,
-    remark?: string,
+    orderId: number,
+    status: OrderStatus,
+    remark?: string
   ): Observable<UpdateOrderStatusResponse> {
     return this.http.patch<UpdateOrderStatusResponse>(
       `${environment.apiBaseUrl}${MANAGEMENT_API_PATHS[portal].orders.updateStatus}/${orderId}/update-status`,

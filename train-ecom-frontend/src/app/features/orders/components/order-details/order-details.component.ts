@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { OrderDetailsResponse, OrderStatus, PaymentMethod, PaymentStatus } from '../../../../core/models/order.model';
+import { OrderDetailsResponse, OrderStatus } from '../../../../core/models/order.model';
 import { BreadcrumbItem } from '../../../../core/models/table.model';
 import { OrderTrackingDialogComponent } from '../order-tracking-dialog/order-tracking-dialog.component';
 import { AdminOrderStatusDialogComponent } from '../admin-order-status-dialog/admin-order-status-dialog.component';
@@ -33,11 +32,15 @@ export class OrderDetailsComponent {
   private location = inject(Location);
   private portalRoutes = inject(PortalRouteService);
 
-
   orderDetail: OrderDetailsResponse | null = null;
   isCancelling: boolean = false;
   isManagementMode: boolean = false;
   portal: PortalKey = 'admin';
+  statusClass: string = '';
+  paymentStatusClass: string = '';
+  paymentMethodLabel: string = '';
+  paymentStatusLabel: string = '';
+  orderStatusLabel: string = '';
 
   get breadcrumbs(): BreadcrumbItem[] {
     const parentRoute = this.isManagementMode
@@ -57,7 +60,9 @@ export class OrderDetailsComponent {
 
   ngOnInit(): void {
     this.setRouteContext();
-    const orderId = this.route.snapshot.paramMap.get('orderId');
+    const orderId = Number(
+      this.route.snapshot.paramMap.get('orderId')
+    );
     if (orderId) {
       this.loadOrderDetails(orderId);
     }
@@ -69,11 +74,10 @@ export class OrderDetailsComponent {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
   }
 
-  private loadOrderDetails(orderId: string | number): void {
-    const normalizedOrderId = String(orderId);
+  private loadOrderDetails(orderId: number): void {
     const orderObservable = this.isManagementMode
-      ? this.orderService.getManagedOrderDetails(this.portal, normalizedOrderId)
-      : this.orderService.getOrderDetails(normalizedOrderId);
+      ? this.orderService.getManagedOrderDetails(this.portal, orderId)
+      : this.orderService.getOrderDetails(orderId);
     orderObservable.subscribe({
       next: (response) => {
         if (response && response.orderDate && !response.orderDate.includes('+')) {
@@ -83,6 +87,11 @@ export class OrderDetailsComponent {
           response.payment.paidAt = response.payment.paidAt + 'Z';
         }
         this.orderDetail = response;
+        this.statusClass = getOrderStatusClass(response.orderStatus);
+        this.paymentStatusClass = getPaymentStatusClass(response.payment.paymentStatus);
+        this.paymentMethodLabel = normalizePaymentMethod(response.payment.paymentMethod);
+        this.paymentStatusLabel = normalizePaymentStatus(response.payment.paymentStatus);
+        this.orderStatusLabel = normalizeOrderStatus(response.orderStatus);
       },
       error: (error) => {
         this.notification.showError('Failed to fetch order details. Please try again later.');
@@ -90,20 +99,11 @@ export class OrderDetailsComponent {
     });
   }
 
-  getStatusClass(orderStatus: OrderStatus | string | number): string {
-    return getOrderStatusClass(orderStatus);
-  }
-
-  getPaymentStatusClass(paymentStatus: PaymentStatus | string | number): string {
-    return getPaymentStatusClass(paymentStatus);
-  }
-
-
   goBack(): void {
     this.location.back();
   }
 
-  onCancelOrder(orderId: string | number): void {
+  onCancelOrder(orderId: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -115,13 +115,13 @@ export class OrderDetailsComponent {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.isCancelling = true;
-        this.orderService.cancelOrder(String(orderId)).subscribe({
+        this.orderService.cancelOrder(orderId).subscribe({
           next: () => {
             this.isCancelling = false;
             this.notification.showSuccess('Order cancelled successfully.');
             if (this.orderDetail) {
               this.orderDetail.orderStatus = OrderStatus.Cancelled;
-              this.loadOrderDetails(String(orderId));
+              this.loadOrderDetails(orderId);
             }
           },
           error: (error) => {
@@ -158,7 +158,7 @@ export class OrderDetailsComponent {
         orderId: this.orderDetail.orderId,
         currentStatus: this.orderDetail.orderStatus,
         portal: this.portal
-        
+
       }
     });
 
@@ -282,19 +282,11 @@ export class OrderDetailsComponent {
   get isDelivered(): boolean {
     return this.orderDetail?.orderStatus === OrderStatus.Delivered;
   }
-  
-  // normalize the payment method for display
-  getNormalizePaymentMathod(status: PaymentMethod): string {
-    return normalizePaymentMethod(status);
+
+  // disable the update status button
+  get isUpdateStatusDisabled(): boolean {
+    const status = this.orderDetail?.orderStatus;
+    return status === OrderStatus.Delivered || status === OrderStatus.Cancelled;
   }
 
-  // normalize payment status for display
-  getNormalizePaymentStatus(status: PaymentStatus): string {
-    return normalizePaymentStatus(status);
-  }
-
-
-  get formattedOrderStatus(): string {
-    return this.orderDetail ? normalizeOrderStatus(this.orderDetail.orderStatus) : '';
-  }
 }
