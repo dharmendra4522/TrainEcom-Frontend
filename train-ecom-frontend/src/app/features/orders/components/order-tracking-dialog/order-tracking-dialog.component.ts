@@ -1,7 +1,7 @@
 import { Component, Inject, inject, OnInit } from '@angular/core';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { OrderStatus, OrderTrackingResponse, OrderTrackingStep } from '../../../../core/models/order.model';
+import { OrderStatus, OrderTrackingResponse, OrderTrackingStep, TrackingViewModel } from '../../../../core/models/order.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 
@@ -14,11 +14,11 @@ export class OrderTrackingDialogComponent implements OnInit {
   private orderHistoryService = inject(OrderHistoryService);
   private dialogRef = inject(MatDialogRef<OrderTrackingDialogComponent>);
 
-  trackingData: OrderTrackingResponse | null = null;
+  trackingData: TrackingViewModel | null = null;
   isLoading: boolean = false;
   errorMessage: string | null = null;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { orderId: string }) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { orderId: number }) { }
 
   ngOnInit(): void {
     this.fetchTrackingDetails();
@@ -31,10 +31,20 @@ export class OrderTrackingDialogComponent implements OnInit {
 
     this.orderHistoryService.getOrderTracking(this.data.orderId).subscribe({
       next: (response: OrderTrackingResponse) => {
-        if (response && response.trackingSteps) {
+        if (response?.trackingSteps) {
           this.processTrackingSteps(response);
         }
-        this.trackingData = response;
+        this.trackingData = {
+          ...response,
+          currentStatusLabel: normalizeOrderStatus(response.currentStatus),
+          trackingSteps: response.trackingSteps.map(step => ({
+            ...step,
+            statusLabel: normalizeOrderStatus(step.status),
+            isCancelled:
+              normalizeOrderStatus(step.status).toLowerCase() === 'cancelled'
+          }))
+        };
+
         this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -96,11 +106,6 @@ export class OrderTrackingDialogComponent implements OnInit {
   private handleTrackingError(error: HttpErrorResponse): void {
     this.errorMessage = 'Failed to fetch tracking details. Please try again later.';
     this.isLoading = false;
-  }
-
-  // Helper method to get string label from status without using 'any'
-  getStatusLabel(status: OrderStatus | number | string): string {
-    return normalizeOrderStatus(status);
   }
 
   closeDialog(): void {
