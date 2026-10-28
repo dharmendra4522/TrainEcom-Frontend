@@ -10,7 +10,9 @@
       <ng-template #chartContent>
         <div>
           <h5 class="card-title m-0 fw-bold">Users</h5>
-          <span class="fw-bold fs-5 text-dark" *ngIf="totalUsers > 0"> {{ totalUsers }}</span>
+          <span class="fw-bold fs-5 text-dark" *ngIf="totalUsers > 0">
+            {{ totalUsers }}</span
+          >
         </div>
         <div class="bar-chart">
           <canvas
@@ -26,104 +28,30 @@
 
   <!-- order chart -->
   <div class="col-md-7 col-lg-9 mb-3">
-    <mat-card class="p-3 chart-card w-100">
-      <ng-container *ngIf="isLoading; else orderContentLoaded">
-        <div class="spinner-container">
-          <mat-spinner diameter="30"></mat-spinner>
-        </div>
-      </ng-container>
-      <ng-template #orderContentLoaded>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h5 class="card-title m-0 fw-bold">Order</h5>
-            <span class="fw-bold fs-5 text-dark"  *ngIf="totalOrders > 0"> {{ totalOrders }}</span>
-          </div>
-          <button
-            mat-stroked-button
-            color="primary"
-            class="icon-btn"
-            [matBadge]="orderFilterCount"
-            [matBadgeHidden]="orderFilterCount === 0"
-            matBadgeOverlap="true"
-            (click)="onOrderFilterDialog()"
-          >
-            <mat-icon>filter_alt</mat-icon>
-          </button>
-        </div>
-        <div class="bar-chart">
-          <canvas
-            baseChart
-            [data]="orderChartData"
-            [type]="orderChartType"
-            [options]="orderChartOptions"
-          ></canvas>
-        </div>
-      </ng-template>
-    </mat-card>
+    <app-order-chart
+      [isLoading]="isLoading"
+      [portal]="portal"
+      [isVendor]="isVendor"
+    ></app-order-chart>
   </div>
 
   <!-- category chart -->
   <div class="col-md-6 mb-3">
-    <mat-card class="p-3 chart-card w-100">
-      <ng-container *ngIf="isLoading; else categoryContentLoaded">
-        <div class="spinner-container">
-          <mat-spinner diameter="30"></mat-spinner>
-        </div>
-      </ng-container>
-      <ng-template #categoryContentLoaded>
-        <div>
-            <h5 class="card-title m-0 fw-bold">Category</h5>
-            <span class="fw-bold fs-5 text-dark"  *ngIf="totalCategories > 0"> {{ totalCategories }}</span>
-          </div>
-        <div class="bar-chart">
-          <canvas
-            baseChart
-            [data]="productChartData"
-            [type]="productChartType"
-            [options]="productChartOptions"
-          ></canvas>
-        </div>
-      </ng-template>
-    </mat-card>
+    <app-category-chart
+      [isLoading]="isLoading"
+      [portal]="portal"
+      [isVendor]="isVendor"
+    >
+    </app-category-chart>
   </div>
 
   <!-- revenue chart -->
   <div class="col-md-6 mb-3">
-    <mat-card class="p-3 chart-card w-100">
-      <ng-container *ngIf="isLoading; else revenueContentLoaded">
-        <div class="spinner-container">
-          <mat-spinner diameter="30"></mat-spinner>
-        </div>
-      </ng-container>
-      <ng-template #revenueContentLoaded>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h5 class="card-title m-0 fw-bold">Total Revenue</h5>
-            <span class="fw-bold fs-5 text-dark revenue-text"  *ngIf="totalRevenue > 0">
-              {{ totalRevenue | currency: "INR" : true }}</span
-            >
-          </div>
-          <button
-            mat-stroked-button
-            color="primary"
-            class="icon-btn"
-            [matBadge]="revenueFilterCount"
-            [matBadgeHidden]="revenueFilterCount === 0"
-            matBadgeOverlap="true"
-            (click)="onRevenueFilterDialog()"
-          >
-            <mat-icon>filter_alt</mat-icon>
-          </button>
-        </div>
-        <div class="bar-chart">
-          <canvas
-            baseChart
-            [data]="revenueChartData"
-            [type]="revenueChartType"
-            [options]="revenueChartOptions"
-          ></canvas>
-        </div>
-      </ng-template>
-    </mat-card>
+    <app-revenue-chart
+      [isLoading]="isLoading"
+      [portal]="portal"
+      [isVendor]="isVendor"
+    >
+    </app-revenue-chart>
   </div>
 </div>
