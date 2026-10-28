@@ -37,7 +37,7 @@ export interface SubCategoryList extends Record<string, unknown> {
   id: number;
   subCategoryName: string;
   parentCategoryName: string;
-  parentCategoryId?: number | string | null;
+  parentCategoryId?: number | null;
   description: string;
   productCount: number;
 }
@@ -62,12 +62,12 @@ export interface SubCategoryFilterParams {
 export enum CategoryListField {
   Name = 1,
   Description = 2,
-  ID=3
+  ID = 3
 }
 
 export enum SubCategoryListField {
   SubCategoryName = 1,
   Description = 2,
   ParentCategoryname = 3,
-  ID=4
+  ID = 4
 }

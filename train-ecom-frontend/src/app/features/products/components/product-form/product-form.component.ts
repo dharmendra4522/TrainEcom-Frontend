@@ -17,8 +17,6 @@ import { Observable, combineLatest, Subject } from 'rxjs';
 import {
   distinctUntilChanged,
   filter,
-  map,
-  startWith,
   take,
   takeUntil,
 } from 'rxjs/operators';
@@ -28,7 +26,7 @@ import {
   ManageEntityDialogComponent,
   ManageEntityDialogData,
 } from '../../../../shared/components/manage-entity-dialog/manage-entity-dialog.component';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as ProductActions from '../../../../core/store/product/product.action';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
@@ -42,13 +40,13 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 import {
   getFieldError,
   noSpaceAllow,
-  trimControlValue,
+  trimControlValue
 } from '../../../auth/register.utils';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
-  styleUrl: './product-form.component.css',
+  styleUrl: './product-form.component.css'
 })
 export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -64,19 +62,20 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   private portal: PortalKey = 'admin';
 
-  brandControl = new FormControl<string | number | null>('', Validators.required);
-  categoryControl = new FormControl<string | number | null>('', Validators.required);
-  subcategoryControl = new FormControl<string | number | null>('', Validators.required);
+  brandControl = new FormControl<number | null>(null, Validators.required);
+  categoryControl = new FormControl<number | null>(null, Validators.required);
+  subcategoryControl = new FormControl<number | null>(null, Validators.required);
 
   isEditMode: boolean = false;
   productId: number | null = null;
-  originalBrandId: string | number = '';
-  originalCategoryId: string | number = '';
-  originalSubCategoryId: string | number = ''
+  originalBrandId: number | null = null;
+  originalCategoryId: number | null = null;
+  originalSubCategoryId: number | null = null;
   originalBrandName: string = '';
   originalCategoryName: string = '';
   originalSubCategoryName: string = '';
-
+  pageNumber: number = 1;
+  pageSize: number = 10;
 
   productForm!: FormGroup;
   brands: Brand[] = [];
@@ -101,14 +100,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     this.categoryControl.valueChanges
       .pipe(
         distinctUntilChanged(
-          (previous, current) => previous === current,
+          (previous, current) => previous === current
         ),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((categoryId) => {
-        this.subcategoryControl.reset('', { emitEvent: false });
+        this.subcategoryControl.reset(null, { emitEvent: false });
         const selectedCategory = this.categories.find(
-          (category) => category.id === categoryId,
+          (category) => category.id === categoryId
         );
         this.subCategories = selectedCategory?.subCategories ?? [];
       });
@@ -136,7 +135,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(({ brands, pageNumber }: { brands: Brand[]; pageNumber: number }) => {
-        if (pageNumber === 1) {
+        if (pageNumber === this.pageNumber) {
           this.brands = brands;
         }
       });
@@ -147,7 +146,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(({ categories, pageNumber }: { categories: Category[]; pageNumber: number }) => {
-        if (pageNumber === 1) {
+        if (pageNumber === this.pageNumber) {
           this.categories = categories;
         }
       });
@@ -183,7 +182,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             brands &&
             brands.length > 0 &&
             categories &&
-            categories.length > 0,
+            categories.length > 0
         ),
         takeUntil(this.destroy$),
         take(1)
@@ -217,9 +216,9 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   //  Patches form control values and metadata from loaded product object.
   private patchProductFormValues(product: Product): void {
-    const brandId = product.brandId || '';
-    const categoryId = product.categoryId || '';
-    const subCategoryId = product.subCategoryId || '';
+    const brandId = product.brandId || null;
+    const categoryId = product.categoryId || null;
+    const subCategoryId = product.subCategoryId || null;
 
     this.originalBrandId = brandId;
     this.originalCategoryId = categoryId;
@@ -260,24 +259,24 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Opens the manage entity dialog for adding/editing brands or categories.
   openManageDialog(type: 'Brand' | 'Category' | 'Sub-Category'): void {
     const parentCategoryId = this.categoryControl.value;
-    if (type === 'Sub-Category' && (parentCategoryId === null || parentCategoryId === '')) {
+    if (type === 'Sub-Category' && (parentCategoryId === null || parentCategoryId === undefined)) {
       return;
     }
 
     const data: ManageEntityDialogData = {
       type,
-      ...(type === 'Sub-Category' ? { parentCategoryId: parentCategoryId ?? undefined } : {}),
+      ...(type === 'Sub-Category' ? { parentCategoryId: parentCategoryId ?? undefined } : {})
     };
     this.matDialog.open<
       ManageEntityDialogComponent,
       ManageEntityDialogData,
-      string | number
+      number
     >(ManageEntityDialogComponent, {
       width: '600px',
       data,
       disableClose: true
     }).afterClosed().subscribe((newId: unknown) => {
-      if (newId && (typeof newId === 'string' || typeof newId === 'number')) {
+      if (typeof newId === 'number') {
         this.handleManageDialogClose(type, newId);
       }
     });
@@ -286,7 +285,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Handles state synchronization after manage entity dialog is closed.
   private handleManageDialogClose(
     type: 'Brand' | 'Category' | 'Sub-Category',
-    newId: string | number,
+    newId: number
   ): void {
     if (type === 'Brand') {
       this.store.select(selectAllBrands).pipe(take(1)).subscribe((brands: Brand[]) => {
@@ -301,7 +300,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       });
     } else {
       const parentCategoryId = this.categoryControl.value;
-      if (parentCategoryId === null || parentCategoryId === '') {
+      if (parentCategoryId === null || parentCategoryId === undefined) {
         return;
       }
 
@@ -312,14 +311,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           next: (response) => {
             this.subCategories = response.items.map((subCategory) => ({
               id: subCategory.id,
-              name: subCategory.subCategoryName,
+              name: subCategory.subCategoryName
             }));
             this.subcategoryControl.setValue(newId);
           },
           error: (error: unknown) => {
-            console.error('Error refreshing product subcategories:', error);
             this.notification.showError('Could not refresh sub-categories.');
-          },
+          }
         });
     }
   }
@@ -347,18 +345,18 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Dispatches create action for brand or category based on dialog result.
   private handleDialogSubmit(
     type: 'brand' | 'category',
-    result: { name: string; description?: string },
+    result: { name: string; description?: string }
   ): void {
     const payload = {
       name: result.name,
-      description: result.description ?? '',
+      description: result.description ?? ''
     };
     if (type === 'brand') {
       this.actions$
         .pipe(
           ofType(BrandActions.createBrandSuccess),
           takeUntil(this.destroy$),
-          take(1),
+          take(1)
         )
         .subscribe(({ brand }: { brand: Brand }) => {
           this.productForm.patchValue({ brand: brand.id });
@@ -366,14 +364,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         });
 
       this.store.dispatch(
-        BrandActions.createBrand({ brand: payload as Brand }),
+        BrandActions.createBrand({ brand: payload as Brand })
       );
     } else {
       this.actions$
         .pipe(
           ofType(CategoryActions.createCategorySuccess),
           takeUntil(this.destroy$),
-          take(1),
+          take(1)
         )
         .subscribe(({ category }: { category: Category }) => {
           this.productForm.patchValue({ category: category.id });
@@ -381,7 +379,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
         });
 
       this.store.dispatch(
-        CategoryActions.createCategory({ category: payload as Category }),
+        CategoryActions.createCategory({ category: payload as Category })
       )
     }
   }
@@ -389,7 +387,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   // Initializes the reactive product form group with validations.
   private validateForm(): void {
     this.productForm = this.fb.group({
-      title: ['',this.titleValidator ],
+      title: ['', this.titleValidator],
       price: [0, [Validators.required, Validators.min(0.01)]],
       stockQuantity: [0, [Validators.min(0)]],
       brand: this.brandControl,
@@ -397,9 +395,9 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       subCategory: this.subcategoryControl,
       description: [
         '',
-        [Validators.required, Validators.maxLength(2000), noSpaceAllow()],
+        [Validators.required, Validators.maxLength(2000), noSpaceAllow()]
       ],
-      images: this.fb.array([this.fb.control('')]),
+      images: this.fb.array([this.fb.control('')])
     });
   }
 
@@ -408,18 +406,18 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     Validators.required,
     Validators.minLength(3),
     Validators.maxLength(100),
-    noSpaceAllow(),
+    noSpaceAllow()
   ]);
 
   onSubCategorySearch(search: string): void {
     const searchTerm = search.trim().toLowerCase();
     const selectedCategory = this.categories.find(
-      (category) => category.id === this.categoryControl.value,
+      (category) => category.id === this.categoryControl.value
     );
     const categorySubCategories = selectedCategory?.subCategories ?? [];
     this.subCategories = searchTerm
       ? categorySubCategories.filter((subCategory) =>
-        subCategory.name.toLowerCase().includes(searchTerm),
+        subCategory.name.toLowerCase().includes(searchTerm)
       )
       : categorySubCategories;
   }
@@ -541,7 +539,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             : 0,
         brandId: formValue.brand,
         categoryId: formValue.category,
-        subCategoryId: formValue.subCategory,
+        subCategoryId: formValue.subCategory
       };
 
       if (this.isEditMode && this.productId) {
@@ -551,8 +549,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
             productData: productPayload,
             newFiles: cleanFiles,
             deletedImageIds: this.deletedImageIds,
-            portal: this.portal,
-          }),
+            portal: this.portal
+          })
         );
       } else {
         this.store.dispatch(
@@ -585,7 +583,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           }
         },
         error: (error: unknown) =>
-          console.error('Error fetching brands:', error),
+          console.error('Error fetching brands:', error)
       });
   }
 
@@ -606,7 +604,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
           }
         },
         error: (error: unknown) =>
-          console.error('Error fetching categories:', error),
+          console.error('Error fetching categories:', error)
       });
   }
 
@@ -616,7 +614,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   // Dispatches action to search/load paginated brands.
   onBrandSearch(term: string): void {
-    this.store.dispatch(BrandActions.loadPaginatedBrands({ pageNumber: 1, pageSize: 10, search: term }));
+    this.store.dispatch(BrandActions.loadPaginatedBrands({ pageNumber: this.pageNumber, pageSize: this.pageSize, search: term }));
   }
 
   // Dispatches action to search/load paginated categories.
@@ -634,10 +632,10 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(
       CategoryActions.loadPaginatedCategories({
-        pageNumber: 1,
-        pageSize: 10,
-        search,
-      }),
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize ,
+        search
+      })
     );
   }
 }
