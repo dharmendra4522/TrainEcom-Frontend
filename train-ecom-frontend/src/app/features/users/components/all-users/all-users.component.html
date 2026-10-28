@@ -1,51 +1,11 @@
 <div class="container-fluid px-0">
-  <!-- Filter section -->
-  <div class="row g-3 mb-4 align-items-center" [formGroup]="filterForm">
-    <!-- Filter by Status -->
-    <div class="col-12 col-md-3">
-      <mat-form-field
-        appearance="outline"
-        class="users-status-field w-100 mb-0"
-        subscriptSizing="dynamic"
-      >
-        <mat-label>Filter by Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option
-            *ngFor="let option of statusOptions"
-            [value]="option.value"
-          >
-            {{ option.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <!-- Reset Button -->
-    <div
-      class="col-12 col-md-2 d-flex align-items-center"
-      *ngIf="
-        searchQuery ||
-        (selectedStatus && selectedStatus !== 'All')
-      "
-    >
-      <button
-        mat-stroked-button
-        color="warn"
-        class="users-reset-button w-100 d-flex align-items-center justify-content-center gap-1 rounded-3"
-        (click)="resetFilters()"
-        title="Reset Filters"
-      >
-        <mat-icon>clear</mat-icon> Reset
-      </button>
-    </div>
-  </div>
-
   <!-- Users Table -->
   <app-generic-table
     [data]="allUsers"
     [columns]="columns"
     [actions]="actions"
     [isLoading]="isLoading"
+    [showIndex]="false"
     [showPaginator]="false"
     [showInlineActions]="false"
     [totalRecords]="totalRecords"
@@ -53,5 +13,11 @@
     (actionClick)="onActionClick($event)"
     emptyMessage="Users will appear here once the API is connected."
     [showheaderFilter]="showHeaderFilter"
+    (filterChanged)="onHeaderFilterChange($event)"
+    [dropdownOptionsMap]="dropdownOptionsMap"
+    [selectedFiltersMap]="selectedFiltersMap"
+    (dropdownSelectionChange)="onDropdownSelectionChange($event)"
+    (filterApply)="onFilterApply($event)"
+    (filterClear)="onFilterClear($event)"
   ></app-generic-table>
 </div>

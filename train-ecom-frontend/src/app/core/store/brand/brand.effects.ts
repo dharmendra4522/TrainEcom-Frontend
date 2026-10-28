@@ -4,8 +4,8 @@ import { BrandService } from "../../services/brand.service";
 import { NotificationService } from "../../services/notification.service";
 import { Store } from "@ngrx/store";
 import * as BrandActions from "./brand.action";
-import { selectBrandPageNumber, selectBrandPageSize, selectBrandTotalRecords, selectPaginatedBrands, selectBrandPagesCache } from "./brand.selectors";
-import { exhaustMap, map, catchError, of, withLatestFrom, switchMap, timeout } from "rxjs";
+import { selectBrandTotalRecords, selectBrandPagesCache } from "./brand.selectors";
+import { exhaustMap, map, catchError, of, withLatestFrom, switchMap } from "rxjs";
 
 @Injectable()
 export class BrandEffects {
@@ -33,11 +33,11 @@ export class BrandEffects {
             ofType(BrandActions.loadPaginatedBrands),
             withLatestFrom(
                 this.store.select(selectBrandPagesCache),
-                this.store.select(selectBrandTotalRecords),
+                this.store.select(selectBrandTotalRecords)
             ),
             switchMap(([action, pagesCache, totalRecords]) => {
-                const { pageNumber, pageSize, search } = action;
-                const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`; // dynamic cache key
+                const { pageNumber, pageSize, search, searchField } = action;
+                const cacheKey = search ? `search-${search.trim()}-${searchField}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`; // dynamic cache key
 
                 if (!search && pagesCache[cacheKey]) {
                     return of(BrandActions.loadPaginatedBrandsSuccess({
@@ -50,7 +50,7 @@ export class BrandEffects {
                     }));
                 }
 
-                return this.brandService.getPaginatedBrands(pageNumber, pageSize, search).pipe(
+                return this.brandService.getPaginatedBrands(pageNumber, pageSize, search, searchField).pipe(
                     map((response) => BrandActions.loadPaginatedBrandsSuccess({
                         brands: response.items,
                         totalRecords: response.totalRecords,
@@ -72,7 +72,7 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.loadSingleBrand),
             exhaustMap(({ brandId }) =>
-                this.brandService.getBrandById(String(brandId)).pipe(
+                this.brandService.getBrandById(brandId).pipe(
                     map((brand) => BrandActions.loadSingleBrandSuccess({ brand })),
                     catchError((error) =>
                         of(BrandActions.loadSingleBrandFailure({ error: error?.message || 'Failed to load brand' }))
@@ -104,7 +104,7 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.updateBrand),
             exhaustMap(({ brandId, brand }) =>
-                this.brandService.updateBrand(String(brandId), brand).pipe(
+                this.brandService.updateBrand(brandId, brand).pipe(
                     map((updatedBrand) => {
                         this.notification.showSuccess('Brand updated successfully!');
                         return BrandActions.updateBrandSuccess({ brand: updatedBrand });
@@ -122,10 +122,10 @@ export class BrandEffects {
         this.actions$.pipe(
             ofType(BrandActions.deleteBrand),
             exhaustMap(({ brandId }) =>
-                this.brandService.deleteBrand(String(brandId)).pipe(
+                this.brandService.deleteBrand(brandId).pipe(
                     map(() => {
                         this.notification.showSuccess('Brand deleted successfully.');
-                        return BrandActions.deleteBrandSuccess({ brandId: String(brandId) });
+                        return BrandActions.deleteBrandSuccess({ brandId });
                     }),
                     catchError((error) => {
                         this.notification.showError(error?.message || 'Failed to delete brand');
