@@ -7,7 +7,7 @@ import { Role } from '../models/auth.model';
 import {
   AdminUserListResponse,
   AdminUser,
-  AdminUserFilterParams,
+  AdminUserFilterParams
 } from '../models/user.model';
 import {
   VendorDetails,
@@ -15,13 +15,12 @@ import {
   VendorListResponse,
   VendorVerifyRequest,
   VendorVerifyResponse,
-  VendorFilterParams,
-  VendorStatus,
+  VendorStatus
 } from '../models/vendor.model';
 import { UserService } from './user.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class VendorService {
   private http = inject(HttpClient);
@@ -31,20 +30,25 @@ export class VendorService {
 
   constructor() { }
 
-  getVendors(filter?: VendorFilterParams): Observable<VendorListResponse> {
+  getVendors(filter?: AdminUserFilterParams): Observable<VendorListResponse> {
     const vendorFilter: AdminUserFilterParams = {
-      Search: filter?.search,
-      Role: Role.Vendor,
-      status: filter?.status === 'All' ? undefined : filter?.status,
-      PageNumber: filter?.pageNumber,
-      PageSize: filter?.pageSize,
+      search: filter?.search,
+      searchField: filter?.searchField,
+      requestField: filter?.requestField,
+      role: Role.Vendor,
+      status: filter?.status,
+      approvalStatus: filter?.approvalStatus,
+      filterIds: filter?.filterIds,
+      bussinessCategoriesIds: filter?.bussinessCategoriesIds,
+      pageNumber: filter?.pageNumber,
+      pageSize: filter?.pageSize
     };
 
     return this.userService.getAllUsers(vendorFilter).pipe(
       map((response: AdminUserListResponse): VendorListResponse => ({
         ...response,
-        items: response.items.map((item) => this.toVendorItem(item)),
-      })),
+        items: response.items.map((item) => this.toVendorItem(item))
+      }))
     );
   }
 
@@ -72,21 +76,21 @@ export class VendorService {
       categories,
       businessDetail: business
         ? {
-            businessName: business.bussinessName,
-            categories,
-            storeName: business.storeName,
-            gstin: business.gstin,
-            pan: business.pan,
-            city: business.city,
-            rejectionReason: business.rejectionReason ?? null,
-          }
-        : undefined,
+          businessName: business.bussinessName,
+          categories,
+          storeName: business.storeName,
+          gstin: business.gstin,
+          pan: business.pan,
+          city: business.city,
+          rejectionReason: business.rejectionReason ?? null
+        }
+        : undefined
     };
   }
 
   updateVendorStatus(
     userId: number,
-    requestData: VendorVerifyRequest,
+    requestData: VendorVerifyRequest
   ): Observable<VendorVerifyResponse> {
     const url = `${this.verifyAPI}/${userId}/verify`;
     return this.http.patch<VendorVerifyResponse>(url, requestData);

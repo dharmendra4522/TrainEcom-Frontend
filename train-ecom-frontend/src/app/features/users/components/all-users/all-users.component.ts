@@ -5,7 +5,7 @@ import {
   Output,
   EventEmitter,
   OnInit,
-  OnDestroy,
+  OnDestroy
 } from '@angular/core';
 import { UserService } from '../../../../core/services/user.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -17,19 +17,21 @@ import {
   debounceTime,
   distinctUntilChanged,
   switchMap,
-  takeUntil,
+  takeUntil
 } from 'rxjs';
 import {
   AdminUser,
   AdminUserFilterParams,
   AdminUserListResponse,
+  UserFilterColumn,
+  UserListField
 } from '../../../../core/models/user.model';
-import { Role, ROLE_NAME_MAP } from '../../../../core/models/auth.model';
+import { Role } from '../../../../core/models/auth.model';
 import { VendorStatus } from '../../../../core/models/vendor.model';
 import {
   TableAction,
   TableActionEvent,
-  TableColumn,
+  TableColumn
 } from '../../../../core/models/table.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -37,7 +39,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html',
-  styleUrl: './all-users.component.css',
+  styleUrl: './all-users.component.css'
 })
 export class AllUsersComponent implements OnInit, OnDestroy {
   @Input() fixedRole: Role | number = Role.Customer;
@@ -63,24 +65,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   pageSize: number = 10;
   pageIndex: number = 0;
   showHeaderFilter: boolean = true;
-
-  statusOptions: Array<{ label: string; value: VendorStatus | 'All' }> = [
-    { label: 'All Status', value: 'All' },
-    { label: 'Active', value: VendorStatus.Active },
-    { label: 'Blocked', value: VendorStatus.Blocked },
-  ];
-
-  roleOptions: Array<{ label: string; value: Role | 'All' }> = [];
+  headerFilters: Record<string, string> = {};
+  selectedStatusIds: number[] = [];
 
   filterForm = new FormGroup({
-    search: new FormControl(''),
-    status: new FormControl<VendorStatus | 'All'>('All'),
+    search: new FormControl('')
   });
 
   ngOnInit(): void {
     this.setupUserLoading();
     this.setupSearchStream();
-    this.loadRoleOptions();
     this.loadUsers();
   }
 
@@ -91,20 +85,18 @@ export class AllUsersComponent implements OnInit, OnDestroy {
           this.userService.getAllUsers(this.getFilterParams()).pipe(
             catchError(() => {
               this.notification.showError(
-                'Failed to fetch users. Please try again later.',
+                'Failed to fetch users. Please try again later.'
               );
               this.isLoading = false;
               return EMPTY;
             })
           )
         ),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((response: AdminUserListResponse) => {
         const mappedUsers = response.items.map((user) => {
-          const isBlockedUser =
-            user.isBlocked === true ||
-            Number(user.status) === VendorStatus.Blocked;
+          const isBlockedUser = this.isBlockedRow(user);
           return {
             ...user,
             statusDisplay: isBlockedUser ? 'Blocked' : 'Active',
@@ -137,30 +129,13 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadRoleOptions(): void {
-    const allowedRoles = [
-      Role.Customer,
-      Role.Vendor,
-      Role.Accounting,
-      Role.OfficeAdmin
-    ];
-    this.roleOptions = [
-      { label: 'All Roles', value: 'All' },
-      ...allowedRoles.map((role) => ({
-        label: ROLE_NAME_MAP[role] || `Role ${role}`,
-        value: role,
-      })),
-    ];
-  }
-
   private setupSearchStream(): void {
     this.filterForm.valueChanges
       .pipe(
         debounceTime(300),
         distinctUntilChanged(
           (previous, current) =>
-            previous.search === current.search &&
-            previous.status === current.status,
+            previous.search === current.search
         ),
         takeUntil(this.destroy$)
       )
@@ -171,36 +146,46 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   private getFilterParams(): AdminUserFilterParams {
+    const headerSearch = this.getHeaderSearchValue();
+
     return {
-      search: this.searchQuery || undefined,
+      search: headerSearch || this.searchQuery || undefined,
+      searchField: headerSearch
+        ? this.getSearchField()
+        : undefined,
       role: this.fixedRole,
       status:
-        this.selectedStatus === 'All' ? undefined : this.selectedStatus,
+        this.selectedStatusIds.length
+          ? this.selectedStatusIds
+          : undefined,
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize
     };
   }
 
+
   columns: TableColumn[] = [
-    { key: 'name', label: 'Name', truncate: false, filterable: true, filterType:'search' },
-    { key: 'email', label: 'Email', truncate: true, filterable: true, filterType:'search' },
-    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType:'search' },
-    { key: 'formattedAddress', label: 'Location', truncate: true, filterable: true, filterType:'search' },
+    { key: 'userId', label: 'ID', type: 'number', truncate: false, filterable: true, filterType: 'search' },
+    { key: 'name', label: 'Name', truncate: false, filterable: true, filterType: 'search' },
+    { key: 'email', label: 'Email', truncate: true, filterable: true, filterType: 'search' },
+    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType: 'search' },
+    { key: 'formattedAddress', label: 'Location', truncate: true, filterable: true, filterType: 'search' },
     {
       key: 'statusDisplay',
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'userStatusClass',
-      filterable: true, filterType:'dropdown'
-    },
+      filterable: true, filterType: 'dropdown'
+    }
   ];
 
   actions: TableAction[] = [
     {
       actionKey: 'toggleBlock',
-      icon: 'block',
+      icon: (row) => this.isBlockedRow(row) ? 'lock_open' : 'block',
+      label: (row) => this.isBlockedRow(row) ? 'Unblock' : 'Block',
       color: 'warn',
-      tooltip: 'Block / Unblock User',
+      tooltip: 'Block / Unblock User'
     },
     {
       actionKey: 'delete',
@@ -215,6 +200,17 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     this.userLoadRequests$.next();
   }
 
+  private isBlockedRow(row: unknown): boolean {
+    if (!this.isRecord(row)) {
+      return false;
+    }
+    return row['isBlocked'] === true || Number(row['status']) === VendorStatus.Blocked;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+  }
+
   onTableScroll(): void {
     if (!this.isLoading && this.allUsers.length < this.totalRecords) {
       this.pageIndex++;
@@ -223,7 +219,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   toggleUserStatus(user: AdminUser): void {
-    const newBlockStatus = !user.isBlocked;
+    const newBlockStatus = !this.isBlockedRow(user);
     const action = newBlockStatus ? 'block' : 'unblock';
 
     this.userService
@@ -239,22 +235,23 @@ export class AllUsersComponent implements OnInit, OnDestroy {
           this.notification.showError(
             `Failed to ${action} user. ${errorMessage}`
           );
-        },
+        }
       });
   }
 
   onActionClick(event: TableActionEvent): void {
     const user = event.row as AdminUser;
     if (event.action === 'toggleBlock') {
-      const actionName = user.isBlocked ? 'unblock' : 'block';
+      const isBlocked = this.isBlockedRow(user);
+      const actionName = isBlocked ? 'unblock' : 'block';
 
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
           message: `Are you sure you want to ${actionName} ${user.name}?`,
-          yesLabel: user.isBlocked ? 'Unblock' : 'Block',
+          yesLabel: isBlocked ? 'Unblock' : 'Block',
           noLabel: 'Cancel'
-        },
+        }
       });
 
       dialogRef.afterClosed().subscribe((confirmed) => {
@@ -286,7 +283,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
                 err?.error?.message ||
                 'User delete karne mein safalta nahi mili.';
               this.notification.showError(errorMessage);
-            },
+            }
           });
         }
       });
@@ -296,20 +293,113 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   get searchQuery(): string {
     return this.filterForm.get('search')?.value || '';
   }
-  get selectedStatus(): VendorStatus | 'All' {
-    return this.filterForm.get('status')?.value || 'All';
+
+  // get selected column 
+  private getSearchField(): UserListField | undefined {
+    const activeKey = Object.keys(this.headerFilters).find(
+      key => this.headerFilters[key]?.trim()
+    );
+    switch (activeKey) {
+      case UserFilterColumn.UserId:
+        return UserListField.UserID;
+      case UserFilterColumn.Name:
+        return UserListField.Name;
+      case UserFilterColumn.Email:
+        return UserListField.Email;
+      case UserFilterColumn.PhoneNumber:
+        return UserListField.PhoneNumber;
+      case UserFilterColumn.FormattedAddress:
+        return UserListField.AddressCity;
+      default:
+        return undefined;
+    }
   }
 
-  get selectedRole(): Role | 'All' {
-    return this.filterForm.get('role')?.value || 'All';
+  // handle header search
+  private getHeaderSearchValue(): string | undefined {
+    return (
+      this.headerFilters[UserFilterColumn.UserId] || this.headerFilters[UserFilterColumn.Name] || this.headerFilters[UserFilterColumn.Email] || this.headerFilters[UserFilterColumn.PhoneNumber] || this.headerFilters[UserFilterColumn.FormattedAddress] || undefined
+    );
+  }
+
+  // handle status map
+  dropdownOptionsMap = {
+    statusDisplay: [
+      {
+        id: VendorStatus.Active,
+        label: 'Active',
+      },
+      {
+        id: VendorStatus.Blocked,
+        label: 'Blocked',
+      },
+    ],
+  };
+
+  selectedFiltersMap: Record<string, (string | number)[]> = {
+    statusDisplay: [],
+  };
+
+  // handle dropdown selection change
+  onDropdownSelectionChange(event: {
+    columnKey: string;
+    option: {
+      id: string | number;
+      label: string;
+    };
+  }): void {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
+      return;
+    }
+    const selected =
+      this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [];
+    const exists =
+      selected.includes(event.option.id);
+
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      statusDisplay: exists
+        ? selected.filter(
+          x => x !== event.option.id
+        )
+        : [...selected, event.option.id]
+    };
+  }
+
+  onFilterApply(event: { columnKey: string }): void {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
+      return;
+    }
+    this.selectedStatusIds = (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? []).map(Number);
+    this.pageIndex = 0;
+    this.loadUsers();
+  }
+
+  onFilterClear(columnKey: string): void {
+    if (columnKey !== UserFilterColumn.StatusDisplay) {
+      return;
+    }
+    this.selectedStatusIds = [];
+    this.selectedFiltersMap = {
+      ...this.selectedFiltersMap,
+      statusDisplay: []
+    };
+    this.pageIndex = 0;
+    this.loadUsers();
   }
 
   resetFilters(): void {
     this.searchReset.emit();
     this.filterForm.setValue(
-      { search: '', status: 'All' },
-      { emitEvent: false },
+      { search: '' },
+      { emitEvent: false }
     );
+    this.pageIndex = 0;
+    this.loadUsers();
+  }
+
+  onHeaderFilterChange(filters: Record<string, string>): void {
+    this.headerFilters = filters;
     this.pageIndex = 0;
     this.loadUsers();
   }

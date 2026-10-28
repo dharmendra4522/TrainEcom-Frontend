@@ -1,5 +1,5 @@
 export interface Brand extends Record<string, unknown> {
-  id: number | string;
+  id: number;
   name: string;
   description: string;
   productCount?: number;
@@ -16,7 +16,6 @@ export interface UpdateBrandRequest {
   description: string;
 }
 
-
 export interface PaginatedBrandResponse {
   items: Brand[];
   pageNumber: number;
@@ -24,4 +23,10 @@ export interface PaginatedBrandResponse {
   totalRecords: number;
   totalPages: number;
   numberOfProducts?: number;
+}
+
+export enum BrandListField {
+  Name = 1,
+  Description = 2,
+  ID = 3
 }
