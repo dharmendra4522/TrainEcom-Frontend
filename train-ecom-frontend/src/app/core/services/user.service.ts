@@ -7,7 +7,7 @@ import {
   AdminUserFilterParams,
   AdminUserListResponse,
   UpdateUserStatusPayload,
-  ApprovalStatus,
+  ApprovalStatus
 } from '../models/user.model';
 import { Observable, of, tap, map } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -15,7 +15,7 @@ import { Role } from '../models/auth.model';
 import { VendorStatus } from '../models/vendor.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UserService {
   private profileUrl = `${environment.apiBaseUrl}/auth/profile`;
@@ -117,7 +117,7 @@ export class UserService {
       active: VendorStatus.Active,
       pending: VendorStatus.Pending,
       rejected: VendorStatus.Rejected,
-      blocked: VendorStatus.Blocked,
+      blocked: VendorStatus.Blocked
     };
     if (value === 'all') return undefined;
     const numericStatus = Number(value);
@@ -142,7 +142,7 @@ export class UserService {
       vendor: Role.Vendor,
       admin: Role.Admin,
       accounting: Role.Accounting,
-      officeadmin: Role.OfficeAdmin,
+      officeadmin: Role.OfficeAdmin
     };
     return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;
   }
@@ -160,7 +160,7 @@ export class UserService {
     const statusMap: Record<string, number> = {
       pending: ApprovalStatus.Pending,
       approved: ApprovalStatus.Approved,
-      rejected: ApprovalStatus.Rejected,
+      rejected: ApprovalStatus.Rejected
     };
     return statusMap[normalized] ?? Number(normalized) ?? undefined;
   }
@@ -171,33 +171,46 @@ export class UserService {
   ): Observable<AdminUserListResponse> {
     let params = new HttpParams();
     if (filter) {
-      const searchValue = filter.Search ?? filter.search;
-      const roleValue = filter.Role ?? filter.role;
-      const approvalValue = filter.ApprovalStatus ?? filter.approvalStatus;
-      const statusValue = filter.Status ?? filter.status ?? filter.UserStatus;
-      const pageNumberValue = filter.PageNumber ?? filter.pageNumber;
-      const pageSizeValue = filter.PageSize ?? filter.pageSize;
-
-      if (searchValue) {
-        params = params.set('Search', String(searchValue));
+      if (filter.search) {
+        params = params.set('search', filter.search);
       }
-      const normalizedApproval = this.normalizeApprovalStatus(approvalValue);
-      if (normalizedApproval !== undefined) {
-        params = params.set('ApprovalStatus', String(normalizedApproval));
+      if (filter.searchField !== undefined) {
+        params = params.set('searchField', filter.searchField.toString());
       }
-      const normalizedRole = this.normalizeRole(roleValue);
+      if (filter.requestField !== undefined) {
+        params = params.set('requestField', filter.requestField.toString());
+      }
+      const normalizedRole = this.normalizeRole(filter.role);
       if (normalizedRole !== undefined) {
-        params = params.set('Role', String(normalizedRole));
+        params = params.set('role', String(normalizedRole));
       }
-      const normalizedStatus = this.normalizeStatus(statusValue);
-      if (normalizedStatus !== undefined) {
-        params = params.set('Status', String(normalizedStatus));
+      filter.status?.forEach((status) => {
+        const normalizedStatus = this.normalizeStatus(status);
+
+        if (normalizedStatus !== undefined) {
+          params = params.append(
+            'statusIds',
+            normalizedStatus.toString()
+          );
+        }
+      });
+      const normalizedApproval = this.normalizeApprovalStatus(
+        filter.approvalStatus,
+      );
+      if (normalizedApproval !== undefined) {
+        params = params.set('approvalStatus', String(normalizedApproval));
       }
-      if (pageNumberValue !== undefined) {
-        params = params.set('PageNumber', pageNumberValue.toString());
+      filter.filterIds?.forEach((id) => {
+        params = params.append('filterIds', id.toString());
+      });
+      filter.bussinessCategoriesIds?.forEach((id) => {
+        params = params.append('bussinessCategoriesIds', id.toString());
+      });
+      if (filter.pageNumber !== undefined) {
+        params = params.set('pageNumber', filter.pageNumber.toString());
       }
-      if (pageSizeValue !== undefined) {
-        params = params.set('PageSize', pageSizeValue.toString());
+      if (filter.pageSize !== undefined) {
+        params = params.set('pageSize', filter.pageSize.toString());
       }
     }
     const url = `${environment.apiBaseUrl}/admin/users/all`;
