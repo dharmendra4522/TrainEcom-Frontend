@@ -1,4 +1,4 @@
-import type { AdminUserFilterParams, ApprovalStatus } from './user.model';
+import type { ApprovalStatus } from './user.model';
 
 export enum VendorStatus {
   Active = 1,
@@ -52,7 +52,7 @@ export interface VendorListResponse {
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
- documentLabel?: string;
+  documentLabel?: string;
 }
 
 export interface VendorDetails {
@@ -111,9 +111,3 @@ export interface VendorProfileEditValues {
   ifscCode: string;
   rejectionReason: string;
 }
-
-export interface VendorFilterParams extends AdminUserFilterParams {
-  status?: VendorStatus | number | string;
-}
-
-export type vendorFilterParams = VendorFilterParams;

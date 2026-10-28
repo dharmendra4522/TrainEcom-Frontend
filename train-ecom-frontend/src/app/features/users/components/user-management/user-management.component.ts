@@ -57,4 +57,8 @@ export class UserManagementComponent implements OnInit {
       this.globalSearch.setValue('');
     }
   }
+
+  clearAllFilters(): void {
+    this.globalSearch.setValue('');
+  }
 }
