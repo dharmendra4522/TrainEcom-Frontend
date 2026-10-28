@@ -37,7 +37,7 @@ export interface SubCategoryList extends Record<string, unknown> {
   id: number;
   subCategoryName: string;
   parentCategoryName: string;
-  parentCategoryId?: number | string | null;
+  parentCategoryId?: number | null;
   description: string;
   productCount: number;
 }
@@ -50,3 +50,24 @@ export interface PaginatedSubCategoryResponse {
   totalPages: number;
 }
 
+export interface SubCategoryFilterParams {
+  parentCategoryIds?: number[];
+  search?: string;
+  searchField?: SubCategoryListField;
+  requestField?: SubCategoryListField;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export enum CategoryListField {
+  Name = 1,
+  Description = 2,
+  ID = 3
+}
+
+export enum SubCategoryListField {
+  SubCategoryName = 1,
+  Description = 2,
+  ParentCategoryname = 3,
+  ID = 4
+}

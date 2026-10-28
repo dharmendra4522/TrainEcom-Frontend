@@ -3,6 +3,7 @@
   [isLoading]="isLoading"
   [columns]="columns"
   [actions]="actions"
+  [showIndex]="false"
   [enableRowClick]="false"
   [showInlineActions]="false"
   [showPaginator]="false"
@@ -11,7 +12,13 @@
   (actionClick)="handleSubCategoryAction($event)"
   (loadMore)="onTableScroll()"
   [showheaderFilter]="showHeaderFilter"
+  [dropdownOptionsMap]="dropdownOptionsMap"
+  [selectedFiltersMap]="selectedFiltersMap"
   (filterChanged)="onTableFilterChanged($event)"
   (filterCleared)="onTableFilterCleared($event)"
+  (dropdownSearchChange)="onDropdownSearchChanged($event)"
+  (dropdownSelectionChange)="onDropdownSelectionChanged($event)"
+  (filterApply)="onFilterApply($event)"
+  (filterClear)="onFilterClear($event)"
 >
 </app-generic-table>
