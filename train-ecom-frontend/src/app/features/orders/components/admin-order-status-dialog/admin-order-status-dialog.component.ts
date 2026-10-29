@@ -1,12 +1,12 @@
 import { Component, Inject, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { OrderStatus, PaymentMethod } from '../../../../core/models/order.model';
+import { OrderStatus } from '../../../../core/models/order.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OrderHistoryService } from '../../../../core/services/order-history.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PortalKey } from '../../../../core/config/management-access.config';
-import { normalizeOrderStatus, normalizePaymentMethod } from '../../../../core/utils/role.utils';
+import { normalizeOrderStatus } from '../../../../core/utils/role.utils';
 @Component({
   selector: 'app-admin-order-status-dialog',
   templateUrl: './admin-order-status-dialog.component.html',
@@ -18,15 +18,18 @@ export class AdminOrderStatusDialogComponent {
   private notification = inject(NotificationService);
   private orderService = inject(OrderHistoryService);
 
-
   form!: FormGroup;
   isUpdating: boolean = false;
-  statuses: OrderStatus[] = Object.values(OrderStatus).filter(
-    (val) => typeof val === 'number'
-  ) as OrderStatus[];
+  statuses = Object.values(OrderStatus)
+    .filter((value) => typeof value === 'number')
+    .map((status) => ({
+      value: status as OrderStatus,
+      label: normalizeOrderStatus(status as OrderStatus),
+    }));
+  currentStatusLabel: string = '';
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: {
-    orderId: string;
+    orderId: number;
     currentStatus: OrderStatus;
     portal: PortalKey;
   }) {
@@ -34,10 +37,11 @@ export class AdminOrderStatusDialogComponent {
       status: [data.currentStatus, Validators.required],
       remark: ['']
     });
+    this.currentStatusLabel = normalizeOrderStatus(data.currentStatus);
   }
 
   // helper method to check if the selected status is different from the current status
-  isStatusDisabled(status: OrderStatus | string | number): boolean {
+  isStatusDisabled(status: OrderStatus): boolean {
     const statusHierarchy: OrderStatus[] = [
       OrderStatus.Active,
       OrderStatus.Shipped,
@@ -45,14 +49,11 @@ export class AdminOrderStatusDialogComponent {
       OrderStatus.Cancelled
     ];
     const numericStatus = typeof status === 'string' ? OrderStatus[status as keyof typeof OrderStatus] : status;
-    
     const currentIndex = statusHierarchy.indexOf(this.data.currentStatus);
     const selectedIndex = statusHierarchy.indexOf(numericStatus as OrderStatus);
-
     if (this.data.currentStatus === OrderStatus.Delivered && numericStatus === OrderStatus.Cancelled) {
       return true;
     }
-
     return selectedIndex <= currentIndex;
   }
 
@@ -96,11 +97,6 @@ export class AdminOrderStatusDialogComponent {
 
   onCancel(): void {
     this.dialogRef.close(false);
-  }
-
-  // Helper for template dropdown text
-  normalizeOrderStatus(status: OrderStatus | string | number): string {
-    return normalizeOrderStatus(status);
   }
 
 }

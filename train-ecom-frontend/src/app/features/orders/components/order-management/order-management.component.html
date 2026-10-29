@@ -15,152 +15,26 @@
           subscriptSizing="dynamic"
           floatLabel="always"
         >
-          <mat-label>Search Order / Customer</mat-label>
+          <mat-label>Search Order</mat-label>
           <mat-icon matPrefix class="text-secondary">search</mat-icon>
           <input
             matInput
             formControlName="search"
             placeholder="Search name or ID..."
           />
-        </mat-form-field>
-      </div>
-    </div>
-
-    <!-- Filters Section -->
-    <div class="row g-3 mb-4 align-items-center">
-      <!-- Order Status Filter -->
-      <div class="col-12 col-sm-6 col-md-2">
-        <mat-form-field
-          appearance="outline"
-          class="compact-order-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>Order Status</mat-label>
-          <mat-select
-            [(ngModel)]="selectedStatus"
-            (selectionChange)="onFilterChange()"
-            placeholder="Select Status"
+          <button
+            *ngIf="searchQuery"
+            mat-icon-button
+            matSuffix
+            type="button"
+            color="warn"
+            aria-label="Clear order search"
+            title="Clear search"
+            (click)="resetFilters()"
           >
-            <mat-option
-              *ngFor="let status of orderStatusOptions"
-              [value]="status.value"
-            >
-              {{ status.label }}
-            </mat-option>
-          </mat-select>
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
-      </div>
-
-      <!-- Payment Status Filter -->
-      <div class="col-12 col-sm-6 col-md-2">
-        <mat-form-field
-          appearance="outline"
-          class="compact-order-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>Payment Status</mat-label>
-          <mat-select
-            [(ngModel)]="selectedPaymentStatus"
-            (selectionChange)="onFilterChange()"
-            placeholder="Select Status"
-          >
-            <mat-option
-              *ngFor="let payment of paymentStatusOptions"
-              [value]="payment.value"
-            >
-              {{ payment.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- From Date -->
-      <div class="col-6 col-sm-4 col-md-2">
-        <mat-form-field
-          appearance="outline"
-          class="compact-order-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>From Date</mat-label>
-          <input
-            matInput
-            [matDatepicker]="fromPicker"
-            [(ngModel)]="fromDate"
-            placeholder="DD-MM-YYYY"
-            [max]="maxDate"
-            readonly
-          />
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="fromPicker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #fromPicker></mat-datepicker>
-        </mat-form-field>
-      </div>
-
-      <!-- To Date -->
-      <div class="col-6 col-sm-4 col-md-2">
-        <mat-form-field
-          appearance="outline"
-          class="compact-order-field w-100 mb-0"
-          subscriptSizing="dynamic"
-          floatLabel="always"
-        >
-          <mat-label>To Date</mat-label>
-          <input
-            matInput
-            [matDatepicker]="toPicker"
-            [(ngModel)]="toDate"
-            placeholder="DD-MM-YYYY"
-            [max]="maxDate"
-            readonly
-          />
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="toPicker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #toPicker></mat-datepicker>
-        </mat-form-field>
-      </div>
-
-      <!-- Apply Date Filter Button -->
-      <div
-        class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
-        *ngIf="fromDate || toDate"
-      >
-        <button
-          mat-flat-button
-          color="primary"
-          class="compact-order-button w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
-          (click)="applyDateFilter()"
-        >
-          <mat-icon>filter_alt</mat-icon> Apply
-        </button>
-      </div>
-
-      <!-- Reset Button -->
-      <div
-        class="col-12 col-sm-4 col-md-1 d-flex align-items-center"
-        *ngIf="
-          searchQuery ||
-          selectedStatus ||
-          selectedPaymentStatus ||
-          fromDate ||
-          toDate
-        "
-      >
-        <button
-          mat-stroked-button
-          color="warn"
-          class="compact-order-button w-100 d-flex align-items-center justify-content-center gap-1 px-1 rounded-3"
-          (click)="resetFilters()"
-          title="Reset Filters"
-        >
-          <mat-icon>clear</mat-icon> Reset
-        </button>
       </div>
     </div>
   </div>
@@ -169,6 +43,7 @@
   <app-generic-table
     [data]="orders"
     [columns]="columns"
+    [showIndex]="false"
     [isLoading]="isLoading"
     [showPaginator]="false"
     [totalRecords]="totalRecords"
@@ -176,6 +51,18 @@
     emptyMessage="No orders found matching the filter criteria."
     (rowClick)="navigateToOrderDetails($event)"
     [showheaderFilter]="showFilterHeader"
+    [dropdownOptionsMap]="dropdownOptionsMap"
+    [dropdownLoadingMap]="dropdownLoadingMap"
+    [selectedFiltersMap]="selectedFiltersMap"
+    [rangeBoundsMap]="rangeBoundsMap"
+    [selectedRangesMap]="selectedRangesMap"
+    [filterResetToken]="filterResetToken"
+    (dropdownSelectionChange)="onDropdownSelectionChanged($event)"
+    (filterApply)="onFilterApply($event)"
+    (filterClear)="onFilterClear($event)"
+    (filterChanged)="onTableFilterChanged($event)"
+    (priceRangeChange)="onRangeFilterChanged($event)"
+    (dateFilterChange)="onDateFilterChanged($event)"
   >
   </app-generic-table>
 </div>

@@ -14,7 +14,7 @@ export interface BrandCategoryDialogData {
   initialData?: {
     name: string;
     description: string;
-    parentCategoryId?: number | string | null;
+    parentCategoryId?: number | null;
     parentCategoryName?: string | null;
   };
 }
@@ -39,7 +39,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
   );
 
   form!: FormGroup;
-  parentCategories: Array<{ id: number | string; name: string }> = [];
+  parentCategories: Array<{ id: number; name: string }> = [];
   filteredParentCategories: Array<{ id: number | string; name: string }> = [];
   parentCategorySearchControl = new FormControl('', { nonNullable: true });
   private hasParentCategoriesLoaded = false;
@@ -58,12 +58,12 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       name: [
         this.data.initialData?.name || '',
-        [Validators.required, Validators.maxLength(100), noSpaceAllow()],
+        [Validators.required, Validators.maxLength(100), noSpaceAllow()]
       ],
       description: [
         this.data.initialData?.description || '',
-        [Validators.maxLength(500), noSpaceAllow()],
-      ],
+        [Validators.maxLength(500), noSpaceAllow()]
+      ]
     });
   }
 
@@ -72,8 +72,8 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
       'parentCategoryId',
       this.fb.control(
         this.data.initialData?.parentCategoryId ?? '',
-        [Validators.required],
-      ),
+        [Validators.required]
+      )
     );
 
     this.loadParentCategories();
@@ -93,7 +93,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
 
     this.filteredParentCategories = searchTerm
       ? this.parentCategories.filter((category) =>
-        category.name.toLowerCase().includes(searchTerm),
+        category.name.toLowerCase().includes(searchTerm)
       )
       : [...this.parentCategories];
   }
@@ -112,7 +112,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
         next: (categories: Category[]) => {
           this.parentCategories = categories.map((category) => ({
             id: category.id,
-            name: category.name,
+            name: category.name
           }));
           this.filteredParentCategories = [...this.parentCategories];
 
@@ -124,7 +124,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
             (category) => category.id === initialParentId,
           ) ?? this.parentCategories.find(
             (category) =>
-              category.name.trim().toLocaleLowerCase() === initialParentName,
+              category.name.trim().toLocaleLowerCase() === initialParentName
           );
 
           if (selectedParent) {

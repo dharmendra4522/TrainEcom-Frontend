@@ -1,6 +1,6 @@
 <div class="container-fluid mt-2 px-0">
   <div class="sticky-top-section mb-4">
-    <div class="row align-items-start g-3">
+    <div class="row align-items-start justify-content-between g-3">
       <!-- title section -->
       <div class="col-12 col-lg-6">
         <h2 class="fs-4 fw-bold text-dark m-0">Brand Management</h2>
@@ -8,28 +8,26 @@
       </div>
 
     <!-- search section -->
-      <div class="col-12 col-lg-5">
-        <div class="row g-2 align-items-center">
-          <div class="col-12 col-sm">
-            <mat-form-field appearance="outline" class="custom-search-field w-100 mb-0 pb-0" subscriptSizing="dynamic" floatLabel="always">
-              <mat-label>Search brands</mat-label>
-              <mat-icon matPrefix class="text-secondary">search</mat-icon>
-              <input matInput [formControl]="searchControl" placeholder="Search by brand name or description...">
-            </mat-form-field>
-          </div>
+      <div class="col-12 col-lg-6 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-lg-end gap-2">
+        <mat-form-field appearance="outline" class="custom-search-field brand-search-field mb-0 pb-0" subscriptSizing="dynamic" floatLabel="always">
+          <mat-label>Search brands</mat-label>
+          <mat-icon matPrefix class="text-secondary">search</mat-icon>
+          <input matInput [formControl]="searchControl" placeholder="Search...">
+          <button
+            *ngIf="searchControl.value"
+            mat-icon-button
+            matSuffix
+            type="button"
+            color="warn"
+            aria-label="Reset brand search"
+            title="Reset Search"
+            (click)="resetSearch()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
 
-          <div class="col-12 col-sm-auto">
-            <button mat-stroked-button color="warn" [disabled]="!searchControl.value"
-              class="brand-toolbar-button d-flex align-items-center justify-content-center gap-1 rounded-3 px-3 w-100"
-              (click)="resetSearch()" title="Reset Search">
-              <mat-icon>clear</mat-icon> Reset
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-1 text-lg-end">
-        <button mat-raised-button color="primary" (click)="openBrandDialog()" class="brand-toolbar-button w-100">
+        <button mat-raised-button color="primary" (click)="openBrandDialog()" class="brand-toolbar-button flex-shrink-0">
           <mat-icon>add</mat-icon> Add
         </button>
       </div>
@@ -44,6 +42,7 @@
     [data]="(paginatedBrands$ | async) || []" 
     [isLoading]="(isLoading$ | async) || false"
     [columns]="columns" 
+    [showIndex]="false"
     [actions]="actions" 
     [enableRowClick]="false"
     [showInlineActions]="false" 
@@ -56,6 +55,4 @@
     (filterChanged)="onTableFilterChanged($event)"
     (filterCleared)="onTableFilterCleared($event)">
   </app-generic-table>
-
-
 </div>

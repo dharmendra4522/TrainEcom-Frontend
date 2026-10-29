@@ -4,7 +4,7 @@ import { CategoryService } from '../../services/category.service';
 import { NotificationService } from '../../services/notification.service';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from './category.action';
-import { selectAllCategories, selectCategoryPageNumber, selectCategoryPageSize, selectCategoryTotalRecords, selectPaginatedCategories, selectCategoryPagesCache } from './category.selectors';
+import { selectAllCategories, selectCategoryTotalRecords, selectCategoryPagesCache } from './category.selectors';
 import { withLatestFrom, map, catchError, of, exhaustMap, switchMap, } from 'rxjs';
 
 @Injectable()
@@ -25,19 +25,19 @@ export class CategoryEffects {
         return this.categoryService.getAllCategories().pipe(
           map((categories) =>
             CategoryActions.loadCategoriesSuccess({
-              categories: categories || [],
-            }),
+              categories: categories || []
+            })
           ),
           catchError((error) =>
             of(
               CategoryActions.loadCategoriesFailure({
-                error: error?.message || 'Failed to load categories',
-              }),
-            ),
-          ),
-        );
+                error: error?.message || 'Failed to load categories'
+              })
+            )
+          )
+        )
       })
-    ),
+    )
   );
 
   loadPaginatedCategories$ = createEffect(() =>
@@ -45,11 +45,11 @@ export class CategoryEffects {
       ofType(CategoryActions.loadPaginatedCategories),
       withLatestFrom(
         this.store.select(selectCategoryPagesCache),
-        this.store.select(selectCategoryTotalRecords),
+        this.store.select(selectCategoryTotalRecords)
       ),
       switchMap(([action, pagesCache, totalRecords]) => {
-        const { pageNumber, pageSize, search, refresh } = action;
-        const cacheKey = search ? `search-${search.trim()}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
+        const { pageNumber, pageSize, search, refresh,searchField } = action;
+        const cacheKey = search ? `search-${search.trim()}-${searchField}-${pageNumber}-${pageSize}` : `${pageNumber}-${pageSize}`;
 
         if (!refresh && pagesCache[cacheKey]) {
           return of(CategoryActions.loadPaginatedCategoriesSuccess({
@@ -62,7 +62,7 @@ export class CategoryEffects {
           }));
         }
 
-        return this.categoryService.getPaginatedCategories(pageNumber, pageSize, search).pipe(
+        return this.categoryService.getPaginatedCategories(pageNumber, pageSize, search, searchField).pipe(
           map((response) => CategoryActions.loadPaginatedCategoriesSuccess({
             categories: response.items,
             totalRecords: response.totalRecords,
@@ -72,31 +72,31 @@ export class CategoryEffects {
             cacheKey
           })),
           catchError((error) => of(CategoryActions.loadPaginatedCategoriesFailure({
-            error: error?.message || 'Failed to load categories',
-          }))),
-        );
-      }),
-    ),
+            error: error?.message || 'Failed to load categories'
+          })))
+        )
+      })
+    )
   );
 
   loadSingleCategory$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(CategoryActions.loadSingleCategory),
       exhaustMap(({ categoryId }) =>
-        this.categoryService.getCategoryById(String(categoryId)).pipe(
+        this.categoryService.getCategoryById(categoryId).pipe(
           map((category) =>
-            CategoryActions.loadSingleCategorySuccess({ category }),
+            CategoryActions.loadSingleCategorySuccess({ category })
           ),
           catchError((error) =>
             of(
               CategoryActions.loadSingleCategoryFailure({
-                error: error?.message || 'Failed to load category',
-              }),
-            ),
-          ),
-        ),
-      ),
-    );
+                error: error?.message || 'Failed to load category'
+              })
+            )
+          )
+        )
+      )
+    )
   });
 
   createCategory$ = createEffect(() => {
@@ -111,17 +111,17 @@ export class CategoryEffects {
           catchError((error) => {
             this.notification.showError(error?.message || 'Failed to create category');
             return of(CategoryActions.createCategoryFailure({ error: error?.message || 'Failed to create category' }));
-          }),
-        ),
-      ),
-    );
+          })
+        )
+      )
+    )
   });
 
   updateCategory$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(CategoryActions.updateCategory),
       exhaustMap(({ categoryId, category }) =>
-        this.categoryService.updateCategory(String(categoryId), category).pipe(
+        this.categoryService.updateCategory(categoryId, category).pipe(
           map((updatedCategory) => {
             this.notification.showSuccess('Category updated successfully!');
             return CategoryActions.updateCategorySuccess({ category: updatedCategory });
@@ -129,27 +129,27 @@ export class CategoryEffects {
           catchError((error) => {
             this.notification.showError(error?.message || 'Failed to update category');
             return of(CategoryActions.updateCategoryFailure({ error: error?.message || 'Failed to update category' }));
-          }),
-        ),
-      ),
-    );
+          })
+        )
+      )
+    )
   });
 
   deleteCategory$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(CategoryActions.deleteCategory),
       exhaustMap(({ categoryId }) =>
-        this.categoryService.deleteCategory(String(categoryId)).pipe(
+        this.categoryService.deleteCategory(categoryId).pipe(
           map(() => {
             this.notification.showSuccess('Category deleted successfully.');
-            return CategoryActions.deleteCategorySuccess({ categoryId: String(categoryId) });
+            return CategoryActions.deleteCategorySuccess({ categoryId });
           }),
           catchError((error) => {
             this.notification.showError(error?.message || 'Failed to delete category');
             return of(CategoryActions.deleteCategoryFailure({ error: error?.message || 'Failed to delete category' }));
-          }),
-        ),
-      ),
-    );
+          })
+        )
+      )
+    )
   });
 }

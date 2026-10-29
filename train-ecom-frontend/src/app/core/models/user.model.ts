@@ -113,7 +113,7 @@ export interface UpdateProfilePayload {
   oldPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
-  bussinessDetails? :{
+  bussinessDetails?: {
     bussinessName: string | null;
     storeName: string | null;
     bussinessDescription: string | null;
@@ -189,18 +189,16 @@ export interface AdminUserListResponse {
 }
 
 export interface AdminUserFilterParams {
-  Search?: string;
   search?: string;
-  Role?: Role | number;
-  role?: Role | number | string;
-  Status?: number | string;
-  ApprovalStatus?: ApprovalStatus | number;
-  approvalStatus?: ApprovalStatus | number | string;
-  UserStatus?: UserStatusFilter | number;
-  status?: number | string;
-  PageNumber?: number;
+  searchField?: UserListField;
+  requestField?: UserListField;
+  role?: Role | number;
+  status?: number[];
+  approvalStatus?: ApprovalStatus | number;
+  userStatus?: UserStatusFilter | number;
+  filterIds?: number[];
+  bussinessCategoriesIds?: number[];
   pageNumber?: number;
-  PageSize?: number;
   pageSize?: number;
 }
 
@@ -223,4 +221,35 @@ export interface BusinessAddress {
   state: string;
   country: string;
   postalCode: number;
+}
+
+export enum UserFilterColumn {
+  UserId = 'userId',
+  Name = 'name',
+  Email = 'email',
+  PhoneNumber = 'phoneNumber',
+  FormattedAddress = 'formattedAddress',
+  BussinessName = 'bussinessName',
+  GSTIN = 'gstinNumber',
+  PAN = 'panNumber',
+  StoreName = 'storeName',
+  StatusDisplay = 'statusDisplay',
+  CategoriesDisplay = 'categoriesDisplay'
+}
+
+export enum UserListField {
+  Name = 1,
+  Email = 2,
+  PhoneNumber = 3,
+  AddressCity = 4,
+  AddressState = 5,
+  AddressCountry = 6,
+  ProductCount = 7,
+  BussinessName = 8,
+  StoreName = 9,
+  City = 10,
+  GSTIN = 11,
+  PAN = 12,
+  BussinessCategories = 13,
+  UserID= 14
 }

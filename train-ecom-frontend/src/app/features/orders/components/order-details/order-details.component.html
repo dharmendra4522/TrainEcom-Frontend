@@ -1,159 +1,253 @@
-<div class=" py-3 py-md-4 px-2 px-sm-3">
+<div class="py-3 py-md-4 px-2 px-sm-3">
   <!-- Top Header & Back Button -->
-  <div class="d-flex flex-column align-items-start mb-3 mb-md-4 flex-wrap gap-3">
-    <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1 flex-shrink-0 rounded-3"
-      (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-      <span class="d-none d-sm-inline">{{ isManagementMode ? 'Back to Order Management' : 'Back to Orders' }}</span>
-      <span class="d-inline d-sm-none">Back</span>
+  <div
+    class="order-details-header d-flex flex-row align-items-center mb-3 mb-md-4 flex-wrap gap-2"
+  >
+    <button
+      mat-icon-button
+      color="primary"
+      class="order-details-back-button flex-shrink-0"
+      (click)="goBack()"
+      aria-label="Go back"
+    >
+      <mat-icon>arrow_back_ios</mat-icon>
     </button>
     <app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
-  </div> 
+  </div>
 
   <div class="row g-3 g-md-4" *ngIf="orderDetail">
     <!-- Left Column: Main Order Details -->
     <div class="col-12 col-lg-8">
-
       <!-- Order Info Banner Card -->
-      <mat-card class="order-info-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
+      <mat-card
+        class="order-info-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
         <div
-          class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+          class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3"
+        >
           <div>
-            <span class="badge px-3 py-2 rounded-pill fw-bold fs-6 mb-2 d-inline-block"
-              [ngClass]="getStatusClass(orderDetail.orderStatus)">
-              {{ formattedOrderStatus }}
+            <span
+              class="badge px-3 py-2 rounded-pill fw-bold fs-6 mb-2 d-inline-block"
+              [ngClass]="statusClass"
+            >
+              {{ orderStatusLabel }}
             </span>
             <div class="text-secondary small">
-              Ordered on: <span class="fw-semibold text-dark">{{ orderDetail.orderDate | date:'medium':'+0530' }}</span>
+              Ordered on:
+              <span class="fw-semibold text-dark">{{
+                orderDetail.orderDate | date: "medium" : "+0530"
+              }}</span>
             </div>
           </div>
 
-
-
-          <div class="d-flex flex-column align-items-stretch align-items-sm-end gap-2 w-100 w-sm-auto">
-            <div class="d-flex align-items-center gap-2 flex-wrap justify-content-sm-end">
+          <div
+            class="d-flex flex-column align-items-stretch align-items-sm-end gap-2 w-100 w-sm-auto"
+          >
+            <div
+              class="d-flex align-items-center gap-2 flex-wrap justify-content-sm-end"
+            >
               <!-- Customer button to track order -->
-              <button *ngIf="!isManagementMode" mat-flat-button color="primary"
+              <button
+                *ngIf="!isManagementMode"
+                mat-flat-button
+                color="primary"
                 class="d-flex align-items-center justify-content-center gap-1 py-2 px-3 rounded-3 flex-grow-1 flex-sm-grow-0"
-                (click)="openTrackingDialog()">
+                (click)="openTrackingDialog()"
+              >
                 <mat-icon>local_shipping</mat-icon> Track Order
               </button>
 
               <!-- Admin button to update order status -->
-              <button *ngIf="isManagementMode" mat-flat-button color="accent"
+              <button
+                *ngIf="isManagementMode"
+                mat-flat-button
+                [disabled]="isUpdateStatusDisabled"
+                color="accent"
                 class="d-flex align-items-center justify-content-center gap-1 py-2 px-3 rounded-3 flex-grow-1 flex-sm-grow-0"
-                (click)="openUpdateStatusDialog()">
+                (click)="openUpdateStatusDialog()"
+              >
                 <mat-icon>edit</mat-icon> Update Status
               </button>
             </div>
             <div class="text-secondary small text-start text-sm-end w-100 mt-1">
-              <span class="fw-semibold text-dark">Remark:</span> {{ orderDetail.remark || 'No remarks provided' }}
+              <span class="fw-semibold text-dark">Remark:</span>
+              {{ orderDetail.remark || "No remarks provided" }}
             </div>
           </div>
         </div>
       </mat-card>
 
       <!-- Customer Details Card (Only for Admin) -->
-      <mat-card *ngIf="isManagementMode && orderDetail.customerDetail"
-        class="customer-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
-        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
+      <mat-card
+        *ngIf="isManagementMode && orderDetail.customerDetail"
+        class="customer-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
+        <h5
+          class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5"
+        >
           <mat-icon class="text-primary">person</mat-icon>
           Customer Details
         </h5>
         <div class="bg-light p-3 rounded-3 border">
-          <h6 class="fw-bold text-dark mb-2">{{ orderDetail.customerDetail.customerName }}</h6>
-          <div class="d-flex align-items-center text-secondary small mb-1 text-break">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">email</mat-icon>
-            <span>Email: <span class="text-dark fw-medium">{{ orderDetail.customerDetail.email }}</span></span>
+          <h6 class="fw-bold text-dark mb-2">
+            {{ orderDetail.customerDetail.customerName }}
+          </h6>
+          <div
+            class="d-flex align-items-center text-secondary small mb-1 text-break"
+          >
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">email</mat-icon>
+            <span
+              >Email:
+              <span class="text-dark fw-medium">{{
+                orderDetail.customerDetail.email
+              }}</span></span
+            >
           </div>
           <div class="d-flex align-items-center text-secondary small mt-1">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">phone</mat-icon>
-            <span>Phone: <span class="text-dark fw-medium">{{ orderDetail.customerDetail.phoneNumber }}</span></span>
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">phone</mat-icon>
+            <span
+              >Phone:
+              <span class="text-dark fw-medium">{{
+                orderDetail.customerDetail.phoneNumber
+              }}</span></span
+            >
           </div>
         </div>
       </mat-card>
 
       <!-- Ordered Items Card -->
-      <mat-card class="products-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
-        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
+      <mat-card
+        class="products-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
+        <h5
+          class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5"
+        >
           <mat-icon class="text-primary">inventory_2</mat-icon>
           Ordered Items ({{ orderDetail.totalItems }})
         </h5>
 
         <div class="products-list">
-          <div *ngFor="let item of orderDetail.items" class="product-item py-3 border-bottom last-border-none">
-
+          <div
+            *ngFor="let item of orderDetail.items"
+            class="product-item py-3 border-bottom last-border-none"
+          >
             <!-- Top Row: Left (Image, Title, Qty) & Right (Total Price at Top-Right) -->
             <div class="d-flex align-items-start justify-content-between gap-2">
-
               <!-- Left: Image & Product Details (max-width prevents pushing price off-screen on mobile) -->
-              <div class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 min-w-0"
-                style="max-width: calc(100% - 85px);">
-                <div class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0">
-                  <img [src]="item.thumbnailUrl || 'assets/placeholder.jpg'" appImgFallback [alt]="item.productName"
-                    class="img-fluid object-fit-cover w-100 h-100">
+              <div
+                class="d-flex align-items-center gap-2 gap-sm-3 flex-grow-1 min-w-0 img-size"
+              >
+                <div
+                  class="item-img-wrapper rounded-3 overflow-hidden border bg-light flex-shrink-0"
+                >
+                  <img
+                    [src]="item.thumbnailUrl || 'assets/placeholder.jpg'"
+                    appImgFallback
+                    [alt]="item.productName"
+                    class="img-fluid object-fit-cover w-100 h-100"
+                  />
                 </div>
 
-                <div class="flex-grow-1" style="min-width: 0;">
-                  <h6 class="fw-bold text-dark text-truncate mb-1 fs-6 truncate" [title]="item.productName">
+                <div class="flex-grow-1 product-name">
+                  <h6
+                    class="fw-bold text-dark text-truncate mb-1 fs-6 truncate"
+                    [title]="item.productName"
+                  >
                     {{ item.productName }}
                   </h6>
                   <div class="text-secondary small">
-                    Qty: {{ item.quantity }} &times; ₹{{ item.unitPrice | number:'1.2-2' }}
+                    Qty: {{ item.quantity }} &times; ₹{{
+                      item.unitPrice | number: "1.2-2"
+                    }}
                   </div>
                 </div>
               </div>
 
               <div class="text-end flex-shrink-0 ms-auto ps-2">
-                <span class="text-muted small d-none d-sm-inline me-1">Total:</span>
-                <span class="fw-bold text-dark fs-6 text-nowrap">₹{{ item.totalPrice | number:'1.2-2' }}</span>
+                <span class="text-muted small d-none d-sm-inline me-1"
+                  >Total:</span
+                >
+                <span class="fw-bold text-dark fs-6 text-nowrap"
+                  >₹{{ item.totalPrice | number: "1.2-2" }}</span
+                >
               </div>
             </div>
 
-            <div class="d-flex align-items-center justify-content-start justify-content-sm-end gap-2 mt-1 mt-sm-0 pt-0"
-             *ngIf="!isManagementMode && isDelivered">
-
+            <div
+              class="d-flex align-items-center justify-content-start justify-content-sm-end gap-2 mt-1 mt-sm-0 pt-0"
+              *ngIf="!isManagementMode && isDelivered"
+            >
               <!-- Rate Product Button (Borderless Text Button) -->
-              <button mat-button color="primary"
+              <button
+                mat-button
+                color="primary"
                 class="border-0 bg-transparent text-primary p-0 min-w-0 rate-product-btn"
-                (click)="openReviewDialog(item.productId, item.productName, item.reviewSummary)">
-                <mat-icon style="font-size: 16px; width: 16px; height: 16px;" class="align-middle me-1">star</mat-icon>
+                (click)="
+                  openReviewDialog(
+                    item.productId,
+                    item.productName,
+                    item.reviewSummary
+                  )
+                "
+              >
+                <mat-icon class="align-middle me-1 star-icon">star</mat-icon>
                 <span class="small fw-semibold">
-                  {{ item.reviewSummary?.reviewId ? 'Update Review' : 'Rate Product' }}
+                  {{
+                    item.reviewSummary?.reviewId
+                      ? "Update Review"
+                      : "Rate Product"
+                  }}
                 </span>
               </button>
 
               <!-- Delete Review Icon Button -->
-              <button *ngIf="item.reviewSummary?.reviewId" type="button"
+              <button
+                *ngIf="item.reviewSummary?.reviewId"
+                type="button"
                 class="btn btn-link text-danger p-0 ms-1 d-inline-flex align-items-center gap-1 text-decoration-none border-0 bg-transparent delete-review-btn"
-                (click)="onDeleteReview(item.reviewSummary!.reviewId)" title="Delete Review">
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px;"
-                  class="text-danger align-middle">delete</mat-icon>
+                (click)="onDeleteReview(item.reviewSummary!.reviewId)"
+                title="Delete Review"
+              >
+                <mat-icon class="text-danger align-middle star-icon"
+                  >delete</mat-icon
+                >
               </button>
             </div>
-
           </div>
         </div>
       </mat-card>
 
       <!-- Delivery Address Card -->
-      <mat-card class="address-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
-        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
+      <mat-card
+        class="address-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
+        <h5
+          class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5"
+        >
           <mat-icon class="text-primary">local_shipping</mat-icon>
           Delivery Address
         </h5>
         <div class="bg-light p-3 rounded-3 border">
-          <h6 class="fw-bold text-dark mb-1">{{ orderDetail.deliveryAddress.fullName }}</h6>
+          <h6 class="fw-bold text-dark mb-1">
+            {{ orderDetail.deliveryAddress.fullName }}
+          </h6>
           <p class="text-secondary small mb-2 text-break leading-relaxed">
             {{ orderDetail.deliveryAddress.addressLine1 }},
-            <span *ngIf="orderDetail.deliveryAddress.addressLine2">{{ orderDetail.deliveryAddress.addressLine2 }},
+            <span *ngIf="orderDetail.deliveryAddress.addressLine2"
+              >{{ orderDetail.deliveryAddress.addressLine2 }},
             </span>
-            {{ orderDetail.deliveryAddress.city }}, {{ orderDetail.deliveryAddress.state }} - {{
-            orderDetail.deliveryAddress.postalCode }}
+            {{ orderDetail.deliveryAddress.city }},
+            {{ orderDetail.deliveryAddress.state }} -
+            {{ orderDetail.deliveryAddress.postalCode }}
           </p>
           <div class="d-flex align-items-center text-secondary small mt-2">
-            <mat-icon class="fs-6 me-2 flex-shrink-0" style="width: 16px; height: 16px;">phone</mat-icon>
-            <span>Phone: <span class="text-dark fw-medium">{{ orderDetail.deliveryAddress.phoneNumber }}</span></span>
+            <mat-icon class="fs-6 me-2 flex-shrink-0 icon-size">phone</mat-icon>
+            <span
+              >Phone:
+              <span class="text-dark fw-medium">{{
+                orderDetail.deliveryAddress.phoneNumber
+              }}</span></span
+            >
           </div>
         </div>
       </mat-card>
@@ -162,40 +256,69 @@
     <!-- Right Column: Payment & Price Summary -->
     <div class="col-12 col-lg-4">
       <!-- Payment Information Card -->
-      <mat-card class="payment-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
-        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
+      <mat-card
+        class="payment-card mb-3 mb-md-4 shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
+        <h5
+          class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5"
+        >
           <mat-icon class="text-primary">payment</mat-icon>
           Payment Information
         </h5>
-        <div class="d-flex justify-content-between align-items-center mb-2 small">
+        <div
+          class="d-flex justify-content-between align-items-center mb-2 small"
+        >
           <span class="text-secondary">Method:</span>
-          <span class="fw-semibold text-dark">{{ getNormalizePaymentMathod(orderDetail.payment.paymentMethod) }}</span>
+          <span class="fw-semibold text-dark">{{ paymentMethodLabel }}</span>
         </div>
-        <div class="d-flex justify-content-between align-items-center mb-2 small">
+        <div
+          class="d-flex justify-content-between align-items-center mb-2 small"
+        >
           <span class="text-secondary">Status:</span>
-          <span class="fw-semibold text-success">{{ getNormalizePaymentStatus(orderDetail.payment.paymentStatus) }}</span>
+          <span
+            class="badge rounded-pill fw-semibold"
+            [ngClass]="paymentStatusClass"
+          >
+            {{ paymentStatusLabel }}
+          </span>
         </div>
-        <div class="d-flex justify-content-between align-items-center mb-2 small" *ngIf="orderDetail.payment.paidAt">
+        <div
+          class="d-flex justify-content-between align-items-center mb-2 small"
+          *ngIf="orderDetail.payment.paidAt"
+        >
           <span class="text-secondary">Paid At:</span>
-          <span class="fw-semibold text-dark">{{ orderDetail.payment.paidAt | date:'medium':'+0530' }}</span>
+          <span class="fw-semibold text-dark">{{
+            orderDetail.payment.paidAt | date: "medium" : "+0530"
+          }}</span>
         </div>
-        <div class="d-flex justify-content-between align-items-center small gap-2 mt-2 pt-2 border-top"
-          *ngIf="orderDetail.payment.transactionId">
+        <div
+          class="d-flex justify-content-between align-items-center small gap-2 mt-2 pt-2 border-top"
+          *ngIf="orderDetail.payment.transactionId"
+        >
           <span class="text-secondary flex-shrink-0">Txn ID:</span>
-          <span class="text-muted text-truncate font-monospace small" [title]="orderDetail.payment.transactionId">{{
-            orderDetail.payment.transactionId }}</span>
+          <span
+            class="text-muted text-truncate font-monospace small"
+            [title]="orderDetail.payment.transactionId"
+            >{{ orderDetail.payment.transactionId }}</span
+          >
         </div>
       </mat-card>
 
       <!-- Price Summary Card -->
-      <mat-card class="summary-card shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white">
-        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5">
+      <mat-card
+        class="summary-card shadow-sm border-0 rounded-4 p-3 p-sm-4 bg-white"
+      >
+        <h5
+          class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6 fs-sm-5"
+        >
           <mat-icon class="text-primary">receipt</mat-icon>
           Price Details
         </h5>
         <div class="d-flex justify-content-between mb-2 small text-secondary">
           <span>Total Items Price</span>
-          <span class="fw-semibold text-dark">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2' }}</span>
+          <span class="fw-semibold text-dark"
+            >₹{{ orderDetail.priceSummary.totalAmount | number: "1.2-2" }}</span
+          >
         </div>
         <div class="d-flex justify-content-between mb-2 small text-secondary">
           <span>Shipping Charges</span>
@@ -204,15 +327,28 @@
         <mat-divider class="my-3"></mat-divider>
         <div class="d-flex justify-content-between align-items-baseline mb-4">
           <span class="fw-bold text-dark">Total Amount</span>
-          <span class="fw-bold text-primary fs-4">₹{{ orderDetail.priceSummary.totalAmount | number:'1.2-2' }}</span>
+          <span class="fw-bold text-primary fs-4"
+            >₹{{ orderDetail.priceSummary.totalAmount | number: "1.2-2" }}</span
+          >
         </div>
 
-        <button mat-flat-button color="warn" class="w-100 py-3 rounded-3 fw-bold cancel-btn"
-          *ngIf="!isManagementMode && orderDetail.canCancel" [disabled]="isCancelling"
-          (click)="onCancelOrder(orderDetail.orderId)">
-          <span class="d-flex align-items-center justify-content-center gap-2 w-100">
-            <mat-spinner *ngIf="isCancelling" diameter="20" class="custom-spinner"></mat-spinner>
-            <span>{{ isCancelling ? 'Cancelling...' : 'Cancel Order' }}</span>
+        <button
+          mat-flat-button
+          color="warn"
+          class="w-100 py-3 rounded-3 fw-bold cancel-btn"
+          *ngIf="!isManagementMode && orderDetail.canCancel"
+          [disabled]="isCancelling"
+          (click)="onCancelOrder(orderDetail.orderId)"
+        >
+          <span
+            class="d-flex align-items-center justify-content-center gap-2 w-100"
+          >
+            <mat-spinner
+              *ngIf="isCancelling"
+              diameter="20"
+              class="custom-spinner"
+            ></mat-spinner>
+            <span>{{ isCancelling ? "Cancelling..." : "Cancel Order" }}</span>
           </span>
         </button>
       </mat-card>
