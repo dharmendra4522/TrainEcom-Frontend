@@ -1,6 +1,4 @@
 import { Component, inject, Input } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { NotificationService } from '../../../../core/services/notification.service';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import { Router } from '@angular/router';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
@@ -23,6 +21,7 @@ export class CategoryChartComponent {
   @Input() portal: PortalKey = 'admin';
   @Input() isVendor: boolean = false;
   public totalCategories: number = 0;
+  public categoryIds: number[] = [];
 
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = {
@@ -31,8 +30,10 @@ export class CategoryChartComponent {
   };
   public productChartOptions = getProductChartOptions(
     this.router,
-    this.portalRoutes
+    this.portalRoutes,
+    this.categoryIds
   );
+
 
   ngOnInit(): void {
     this.fetchCategoryData();
@@ -46,6 +47,15 @@ export class CategoryChartComponent {
         const labels = data.summary.map(
           category => category.categoryName
         );
+        const categoryId = data.summary.map(
+          id => id.categoryId
+        );
+        this.productChartOptions = getProductChartOptions(
+          this.router,
+          this.portalRoutes,
+          categoryId
+        );
+        this.categoryIds = categoryId;
         const datasets: {
           label: string;
           data: number[];
