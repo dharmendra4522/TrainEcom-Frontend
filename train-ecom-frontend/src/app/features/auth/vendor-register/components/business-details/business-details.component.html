@@ -44,15 +44,22 @@
     </div>
   </div>
 
- <!-- select category -->
+  <!-- select category -->
   <mat-form-field appearance="outline" class="w-100">
     <mat-label>Select Business Category</mat-label>
     <mat-icon matIconPrefix class="me-2 text-secondary">category</mat-icon>
+    <mat-icon
+      matSuffix
+      *ngIf="registerForm.get('businessCategory')?.value?.length"
+      (click)="clearAllCategories($event)"
+      class="cursor-pointer"
+    >
+      clear
+    </mat-icon>
     <mat-select formControlName="businessCategory" multiple>
-      
-      <mat-option 
-        class="search-option-wrapper" 
-        (click)="$event.stopPropagation()" 
+      <mat-option
+        class="search-option-wrapper"
+        (click)="$event.stopPropagation()"
         (keydown)="$event.stopPropagation()"
       >
         <mat-form-field
@@ -67,7 +74,14 @@
             (click)="$event.stopPropagation()"
             (keydown)="$event.stopPropagation()"
           />
-          <mat-icon matSuffix>search</mat-icon>
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-icon
+            matSuffix
+            *ngIf="categoryFilter.value"
+            (click)="clearCategoryFilter($event)"
+            class="cursor-pointer"
+            >clear</mat-icon
+          >
         </mat-form-field>
       </mat-option>
 
@@ -97,7 +111,10 @@
     </mat-error>
   </mat-form-field>
 
-  <div class="d-flex justify-content-end align-items-center gap-2 mt-3" *ngIf="!isEditMode">
+  <div
+    class="d-flex justify-content-end align-items-center gap-2 mt-3"
+    *ngIf="!isEditMode"
+  >
     <button
       mat-stroked-button
       color="primary"
