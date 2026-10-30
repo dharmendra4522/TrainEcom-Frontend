@@ -96,7 +96,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   isLoadingValue: boolean = false;
   showHeaderFilter: boolean = true;
   filterResetToken = 0;
-  private activeColumnSearchKey: 'name' | 'description' | null = null;
+  private activeColumnSearchKey: 'id' | 'name' | 'description' | null = null;
   rangeBoundsMap: Record<string, Range> = {
     price: { min: 0, max: 0 },
     stockQuantity: { min: 0, max: 0 }
@@ -512,9 +512,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return {
       search,
       searchField:
-        key === 'name'
-          ? ProductListField.Name
-          : ProductListField.Description
+        key === 'id'
+          ? ProductListField.ID
+          : key === 'name'
+            ? ProductListField.Name
+            : ProductListField.Description
     };
   }
 
@@ -843,7 +845,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   onTableFilterChanged(filters: Record<string, string>): void {
     const previousFilters = this.columnFilters;
-    const searchKeys: Array<'name' | 'description'> = ['name', 'description'];
+    const searchKeys: Array<'id' | 'name' | 'description'> = [
+      'id',
+      'name',
+      'description'
+    ];
     const changedSearchKey = searchKeys.find(
       (key) => filters[key] !== previousFilters[key],
     );
@@ -853,9 +859,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.activeColumnSearchKey &&
       !filters[this.activeColumnSearchKey]?.trim()
     ) {
-      const otherKey =
-        this.activeColumnSearchKey === 'name' ? 'description' : 'name';
-      this.activeColumnSearchKey = filters[otherKey]?.trim() ? otherKey : null;
+      this.activeColumnSearchKey =
+        searchKeys.find(
+          (key) =>
+            key !== this.activeColumnSearchKey &&
+            filters[key]?.trim()
+        ) ?? null;
     }
     this.columnFilters = { ...filters };
     this.pageNumber = 1;
