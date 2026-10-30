@@ -123,7 +123,9 @@ export interface UpdateProfilePayload {
     bankAccountNumber: string | null;
     ifscCode: string | null;
     newCategoryIds?: number[] | string[] | null;
-    documentUrls?: string[] | null
+    gstDocument?: File;
+    businessDocument?: File;
+    businessLogo?: File;
   };
   defaultAddress?: {
     addressLine1?: string | null;
@@ -245,5 +247,5 @@ export enum UserListField {
   GSTIN = 11,
   PAN = 12,
   BussinessCategories = 13,
-  UserID= 14
+  UserID = 14
 }

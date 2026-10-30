@@ -13,7 +13,7 @@ import { Observable, of, tap, map } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Role } from '../models/auth.model';
 import { VendorStatus } from '../models/vendor.model';
-
+import { createVendorFormData } from '../../features/users/components/vendor-profile-edit/vendor-profile-edit.utils';
 @Injectable({
   providedIn: 'root'
 })
@@ -23,8 +23,6 @@ export class UserService {
 
   private http = inject(HttpClient);
   private addressesCache: Address[] | null = null;
-
-  constructor() {}
 
   clearCache(): void {
     this.addressesCache = null;
@@ -47,9 +45,10 @@ export class UserService {
   }
 
   updateUserProfile(
-    profileData: UpdateProfilePayload,
+    profileData: UpdateProfilePayload
   ): Observable<UserProfile> {
     const url = `${this.profileUrl}/update`;
+    const formData = createVendorFormData(profileData);
     const payload: UpdateProfilePayload = { ...profileData };
     if (payload.bussinessDetails) {
       const businessDetails = payload.bussinessDetails as Record<
@@ -59,8 +58,9 @@ export class UserService {
       businessDetails['bussinessName'] = payload.bussinessDetails.bussinessName;
       businessDetails['bussinessDescription'] =
         payload.bussinessDetails.bussinessDescription;
+      
     }
-    return this.http.put<UserProfile>(url, payload);
+    return this.http.put<UserProfile>(url, formData);
   }
 
   getAllAddress(): Observable<Address[]> {

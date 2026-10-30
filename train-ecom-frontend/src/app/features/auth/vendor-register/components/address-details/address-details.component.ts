@@ -78,10 +78,10 @@ export class AddressDetailsComponent {
   //handle map the address response
   private mapAddressResponse(address: NominatimAddress): AutoFilledAddress {
     return {
-      addressLine1: [address.house_number, address.road].filter(Boolean).join(', '),
+      addressLine1: [address.house_number, address.road, address.industrial, address.suburb].filter(Boolean).join(', '),
       country: address.country ?? '',
       state: address.state ?? '',
-      city: address.city || address.town || address.village || address.hamlet || '',
+      city: address.city || '',
       postalCode: address.postcode ?? ''
     }
   }
@@ -131,6 +131,9 @@ export class AddressDetailsComponent {
       city: data.city,
       postalCode: data.postalCode
     });
+    this.registerForm.get('country')?.markAsDirty();
+    this.registerForm.get('state')?.markAsDirty();
+    this.registerForm.get('city')?.markAsDirty();
   }
 
 }

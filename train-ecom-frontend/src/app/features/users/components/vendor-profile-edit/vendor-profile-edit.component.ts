@@ -18,7 +18,7 @@ import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { filter, Observable, take } from 'rxjs';
-import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import { selectAllCategories, selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
 import {
   UpdateProfilePayload,
   UserProfile
@@ -60,7 +60,7 @@ export class VendorProfileEditComponent implements OnChanges {
   isPasswordChangeMode: boolean = false;
   private categoryOptions: Category[] = [];
   isSaving: boolean = false;
-  categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  categories$: Observable<Category[]> = this.store.select(selectPaginatedCategories);
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
   cities: ICity[] = [];
@@ -162,7 +162,7 @@ export class VendorProfileEditComponent implements OnChanges {
 
   // handle category load fron store and set to form
   private loadCategories(): void {
-    this.store.dispatch(CategoryActions.loadCategories());
+    this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10 }));
     this.categories$
       .pipe(
         filter((categories) => categories.length > 0),
@@ -526,7 +526,9 @@ export class VendorProfileEditComponent implements OnChanges {
           : null,
         ifscCode: value.ifscCode ?? null,
         newCategoryIds: this.getSelectedCategoryIds(),
-        documentUrls: this.userProfileData?.vendorDetails?.documentUrls || []
+        gstDocument: value.gstDocument instanceof File ? value.gstDocument : undefined,
+        businessDocument: value.businessDocument instanceof File ? value.businessDocument : undefined,
+        businessLogo: value.businessLogo instanceof File ? value.businessLogo : undefined
       }
     };
     if (this.isPasswordChangeMode) {

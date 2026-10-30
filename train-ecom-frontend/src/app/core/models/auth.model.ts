@@ -153,6 +153,8 @@ export interface NominatimAddress {
   postcode?: string;
   road?: string;
   house_number?: string;
+  industrial?: string;
+  suburb?: string;
 }
 
 export interface AutoFilledAddress{
