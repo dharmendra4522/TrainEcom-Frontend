@@ -2,7 +2,22 @@
   class="vendor-step d-flex flex-column gap-3"
   [formGroup]="registerForm"
 >
-  <h4 class="fw-bold text-primary border-bottom pb-2">Business Address</h4>
+  <div
+    class="d-flex flex-md-row flex-column justify-content-between align-items-center border-bottom pb-2"
+  >
+    <h4 class="fw-bold text-primary mb-0">Business Address</h4>
+
+    <button
+    [disabled]="isLoading"
+      mat-stroked-button
+      color="primary"
+      type="button"
+      (click)="getCurrentLocation()"
+    >
+      <mat-icon>{{isLoading ? 'autorenew' : 'my_location'}}</mat-icon>
+      Use Current Location
+    </button>
+  </div>
 
   <div class="row gx-4 gy-3 justify-content-between">
     <div
@@ -83,7 +98,9 @@
     >
       <mat-form-field appearance="outline" class="custom-field-width">
         <mat-label>City</mat-label>
-        <mat-icon matIconPrefix class="me-2 text-secondary">location_city</mat-icon>
+        <mat-icon matIconPrefix class="me-2 text-secondary"
+          >location_city</mat-icon
+        >
         <mat-select formControlName="city">
           <mat-option *ngFor="let city of cities" [value]="city.name">{{
             city.name
@@ -116,7 +133,10 @@
   </div>
 
   <!-- Navigation -->
-  <div class="d-flex justify-content-end gap-2 align-items-center mt-3" *ngIf="!isEditMode">
+  <div
+    class="d-flex justify-content-end gap-2 align-items-center mt-3"
+    *ngIf="!isEditMode"
+  >
     <button
       mat-stroked-button
       color="primary"

@@ -25,7 +25,7 @@ import {
 } from 'country-state-city';
 import { Observable } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
-import { selectAllCategories } from '../../../../core/store/category/category.selectors';
+import { selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { UserService } from '../../../../core/services/user.service';
@@ -43,7 +43,7 @@ import {
 @Component({
   selector: 'app-vendor-profile',
   templateUrl: './vendor-profile.component.html',
-  styleUrl: './vendor-profile.component.css',
+  styleUrl: './vendor-profile.component.css'
 })
 export class VendorProfileComponent implements OnInit {
   private store = inject(Store);
@@ -63,7 +63,7 @@ export class VendorProfileComponent implements OnInit {
   isPasswordChangeMode: boolean = false;
   isSaving: boolean = false;
   authStatus: string | null = null;
-  categories$: Observable<Category[]> = this.store.select(selectAllCategories);
+  categories$: Observable<Category[]> = this.store.select(selectPaginatedCategories);
   private categoryOptions: Category[] = [];
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
@@ -157,11 +157,13 @@ export class VendorProfileComponent implements OnInit {
 
   // handle category load fron store and set to form
   private loadCategories(): void {
-    this.store.dispatch(CategoryActions.loadCategories());
+    this.store.dispatch(
+      CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10 })
+    );
     this.categories$
       .pipe(
         filter((categories) => categories.length > 0),
-        take(1),
+        take(1)
       )
       .subscribe((categories) => {
         this.categoryOptions = categories;

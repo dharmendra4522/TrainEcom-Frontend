@@ -1,4 +1,4 @@
-import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { VendorRegisterFormValues } from '../../core/models/auth.model';
 import { ErrorStateMatcher } from '@angular/material/core';
 
@@ -277,3 +277,12 @@ export function bankDetailsValidator(): ValidatorFn | null {
     return null;
   };
 }
+
+// comman name field validaor
+export const nameValidator = Validators.compose([
+  Validators.required,
+  Validators.minLength(3),
+  noSpaceAllow(),
+  Validators.pattern(/^[a-zA-Z\s]+$/)
+])
+

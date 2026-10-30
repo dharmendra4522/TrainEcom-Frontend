@@ -138,3 +138,27 @@ export interface VendorRegisterResponse {
   message: string;
 }
 
+export interface NominatimResponse {
+  display_name: string;
+  address: NominatimAddress;
+}
+
+export interface NominatimAddress {
+  city?: string;
+  town?: string;
+  village?: string;
+  hamlet?: string;
+  state?: string;
+  country?: string;
+  postcode?: string;
+  road?: string;
+  house_number?: string;
+}
+
+export interface AutoFilledAddress{
+  addressLine1: string;
+  country: string;
+  state: string;
+  city: string;
+  postalCode: string;
+}
