@@ -22,6 +22,8 @@ export class CategoryChartComponent {
   @Input() isVendor: boolean = false;
   public totalCategories: number = 0;
   public categoryIds: number[] = [];
+  public label: string[] = [];
+  public categoryId: number[] = [];
 
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = {
@@ -44,18 +46,17 @@ export class CategoryChartComponent {
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
       next: (data: CategoryProductSummaryResponse) => {
         this.totalCategories = data.totalCategories;
-        const labels = data.summary.map(
-          category => category.categoryName
-        );
-        const categoryId = data.summary.map(
-          id => id.categoryId
-        );
+        data.summary.map(item => {
+          this.label.push(item.categoryName);
+          this.categoryId.push(item.categoryId);
+        }
+        )
         this.productChartOptions = getProductChartOptions(
           this.router,
           this.portalRoutes,
-          categoryId
+          this.categoryId
         );
-        this.categoryIds = categoryId;
+        this.categoryIds = this.categoryId;
         const datasets: {
           label: string;
           data: number[];
@@ -77,7 +78,7 @@ export class CategoryChartComponent {
                 ) {
                   subCategoryMap.set(
                     subCategory.subCategoryName,
-                    new Array(labels.length).fill(0)
+                    new Array(this.label.length).fill(0)
                   );
                 }
                 subCategoryMap.get(
@@ -110,12 +111,12 @@ export class CategoryChartComponent {
           );
 
         this.productChartData = {
-          labels,
+          labels: this.label,
           datasets
         };
       },
       error: (err: Error) => {
-        console.error('Failed to fetch category data',err);
+        console.error('Failed to fetch category data', err);
       }
     });
   }
