@@ -22,8 +22,7 @@ export class CategoryChartComponent {
   @Input() isVendor: boolean = false;
   public totalCategories: number = 0;
   public categoryIds: number[] = [];
-  public label: string[] = [];
-  public categoryId: number[] = [];
+  public labels: string[] = [];
 
   public productChartType: ChartType = 'bar';
   public productChartData: ChartData<'bar'> = {
@@ -46,17 +45,17 @@ export class CategoryChartComponent {
     this.dashboardService.fetchCategoryWiseProductCount().subscribe({
       next: (data: CategoryProductSummaryResponse) => {
         this.totalCategories = data.totalCategories;
-        data.summary.map(item => {
-          this.label.push(item.categoryName);
-          this.categoryId.push(item.categoryId);
+        data.summary.forEach(item => {
+          this.labels.push(item.categoryName);
+          this.categoryIds.push(item.categoryId)
         }
         )
         this.productChartOptions = getProductChartOptions(
           this.router,
           this.portalRoutes,
-          this.categoryId
+          this.categoryIds
         );
-        this.categoryIds = this.categoryId;
+        this.categoryIds = this.categoryIds;
         const datasets: {
           label: string;
           data: number[];
@@ -78,7 +77,7 @@ export class CategoryChartComponent {
                 ) {
                   subCategoryMap.set(
                     subCategory.subCategoryName,
-                    new Array(this.label.length).fill(0)
+                    new Array(this.labels.length).fill(0)
                   );
                 }
                 subCategoryMap.get(
@@ -111,7 +110,7 @@ export class CategoryChartComponent {
           );
 
         this.productChartData = {
-          labels: this.label,
+          labels: this.labels,
           datasets
         };
       },
