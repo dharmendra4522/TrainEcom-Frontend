@@ -64,3 +64,16 @@
 ::ng-deep .mat-mdc-paginator-range-actions {
     flex-shrink: 0;
 }
+
+.icon-size{
+    width: 48px; 
+    height: 48px
+}
+
+.order-list{
+    cursor: pointer;
+}
+
+.product-contain{
+    min-width: 0;
+}

@@ -1,33 +1,33 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Brand } from '../../../../core/models/brand.model';
+import { Brand, BrandListField, CreateBrandRequest, UpdateBrandRequest } from '../../../../core/models/brand.model';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import {
   TableColumn,
   TableAction,
-  TableActionEvent,
+  TableActionEvent
 } from '../../../../core/models/table.model';
 import { Store } from '@ngrx/store';
 import * as BrandActions from '../../../../core/store/brand/brand.action';
 import {
   selectBrandLoading,
   selectBrandTotalRecords,
-  selectPaginatedBrands,
+  selectPaginatedBrands
 } from '../../../../core/store/brand/brand.selectors';
 import { Observable, Subject } from 'rxjs';
 import {
   distinctUntilChanged,
   debounceTime,
-  takeUntil,
+  takeUntil
 } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
-import { map, filter } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-brand',
   templateUrl: './brand.component.html',
-  styleUrl: './brand.component.css',
+  styleUrl: './brand.component.css'
 })
 export class BrandComponent implements OnInit, OnDestroy {
   private matDialog = inject(MatDialog);
@@ -35,11 +35,11 @@ export class BrandComponent implements OnInit, OnDestroy {
   private confirmDialog = inject(ConfirmDialogServiceService);
 
   paginatedBrands$: Observable<Brand[]> = this.store.select(
-    selectPaginatedBrands,
+    selectPaginatedBrands
   );
   isLoading$: Observable<boolean> = this.store.select(selectBrandLoading);
   totalRecords$: Observable<number> = this.store.select(
-    selectBrandTotalRecords,
+    selectBrandTotalRecords
   );
 
   searchControl = new FormControl('', { nonNullable: true });
@@ -53,11 +53,13 @@ export class BrandComponent implements OnInit, OnDestroy {
   private totalRecordsCount = 0;
   private isLoadingValue = false;
   showHeaderFilter: boolean = true;
+  headerFilters: Record<string, string> = {};
 
   columns: TableColumn[] = [
+    { key: 'id', label: 'ID', filterable: true, filterType: 'search', clickable: true },
     { key: 'name', label: 'Brand Name', filterable: true, filterType: 'search' },
     { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
-    { key: 'numberOfProducts', label: 'Total Products', filterable: true, filterType: 'search' }
+    { key: 'numberOfProducts', label: 'Total Products', filterable: true, filterType: 'search', filterDisabled: true }
   ];
 
   actions: TableAction[] = [
@@ -102,7 +104,7 @@ export class BrandComponent implements OnInit, OnDestroy {
         map((searchTerm) => searchTerm.trim()),
         distinctUntilChanged(),
         debounceTime(300),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((searchTerm) => {
         this.currentPage = 0;
@@ -131,13 +133,15 @@ export class BrandComponent implements OnInit, OnDestroy {
     this.searchControl.setValue('');
   }
 
-  private loadBrand(pageIndex: number, pageSize: number, search: string): void {
+  private loadBrand(pageIndex: number, pageSize: number, search?: string): void {
+    const headerSearch = this.getHeaderSearchValue();
     this.store.dispatch(
       BrandActions.loadPaginatedBrands({
         pageNumber: pageIndex + 1,
         pageSize,
-        search: search.trim() !== '' ? search.trim() : undefined,
-      }),
+        search: headerSearch || search?.trim() || undefined,
+        searchField: headerSearch ? this.getSearchField() : undefined
+      })
     );
   }
 
@@ -151,8 +155,8 @@ export class BrandComponent implements OnInit, OnDestroy {
         isEdit: isEdit,
         initialData: brand
           ? { name: brand.name, description: brand.description }
-          : null,
-      },
+          : null
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -166,50 +170,80 @@ export class BrandComponent implements OnInit, OnDestroy {
     });
   }
 
-  createBrand(payload: { name: string; description: string }): void {
-    this.store.dispatch(BrandActions.createBrand({ brand: payload as Brand }));
+  createBrand(payload: CreateBrandRequest): void {
+    this.store.dispatch(BrandActions.createBrand({ brand: payload }));
   }
 
   updateBrand(
-    id: string | number,
-    payload: { name: string; description: string },
+    id: number,
+    payload: UpdateBrandRequest
   ): void {
     this.store.dispatch(
       BrandActions.updateBrand({
-        brandId: String(id),
-        brand: payload as Brand,
-      }),
+        brandId: id,
+        brand: payload
+      })
     );
   }
 
-  deleteBrand(brandId: string | number): void {
+  deleteBrand(brandId: number): void {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this brand?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .subscribe((confirmed) => {
         if (confirmed) {
           this.store.dispatch(
-            BrandActions.deleteBrand({ brandId: String(brandId) }),
+            BrandActions.deleteBrand({ brandId: brandId })
           );
         }
       });
   }
 
   // handle header filter search
-  onTableFilterChanged(filters: Record<string, string>): void {
-    const searchText = Object.values(filters).find(v => v !== undefined && v !== null)?.trim() || '';
-    if (this.searchControl.value !== searchText) {
-      this.searchControl.setValue(searchText, { emitEvent: false });
-    }
+  onTableFilterChanged(
+    filters: Record<string, string>
+  ): void {
+    this.headerFilters = filters;
     this.currentPage = 0;
-    this.loadBrand(this.currentPage, this.pageSize, searchText);
+    this.loadBrand(
+      this.currentPage,
+      this.pageSize
+    );
   }
 
+  // handle header filter clear
   onTableFilterCleared(_columnKey: string): void {
-    this.searchControl.setValue('', { emitEvent: false });
+    this.headerFilters = {};
+    this.currentPage = 0;
+    this.loadBrand(
+      this.currentPage,
+      this.pageSize
+    );
+  }
+
+  // handle header filter search
+  private getHeaderSearchValue(): string | undefined {
+    return this.headerFilters['id'] || this.headerFilters['name'] || undefined;
+  }
+
+  private getSearchField(): BrandListField | undefined {
+    const activeKey = this.headerFilters['id']
+      ? 'id'
+      : this.headerFilters['name']
+        ? 'name'
+        : undefined;
+
+    switch (activeKey) {
+      case 'id':
+        return BrandListField.ID;
+      case 'name':
+        return BrandListField.Name;
+      default:
+        return undefined;
+    }
   }
 
   ngOnDestroy(): void {

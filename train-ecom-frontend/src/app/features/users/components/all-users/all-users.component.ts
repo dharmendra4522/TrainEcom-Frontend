@@ -149,17 +149,17 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     const headerSearch = this.getHeaderSearchValue();
 
     return {
-      Search: headerSearch || this.searchQuery || undefined,
-      SearchField: headerSearch
+      search: headerSearch || this.searchQuery || undefined,
+      searchField: headerSearch
         ? this.getSearchField()
         : undefined,
-      Role: this.fixedRole,
-      Status:
+      role: this.fixedRole,
+      status:
         this.selectedStatusIds.length
           ? this.selectedStatusIds
           : undefined,
-      PageNumber: this.pageIndex + 1,
-      PageSize: this.pageSize
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
     };
   }
 
@@ -348,11 +348,11 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       label: string;
     };
   }): void {
-    if (event.columnKey !== 'statusDisplay') {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
     const selected =
-      this.selectedFiltersMap['statusDisplay'] ?? [];
+      this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [];
     const exists =
       selected.includes(event.option.id);
 
@@ -367,16 +367,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   }
 
   onFilterApply(event: { columnKey: string }): void {
-    if (event.columnKey !== 'statusDisplay') {
+    if (event.columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
-    this.selectedStatusIds = (this.selectedFiltersMap['statusDisplay'] ?? []).map(Number);
+    this.selectedStatusIds = (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? []).map(Number);
     this.pageIndex = 0;
     this.loadUsers();
   }
 
   onFilterClear(columnKey: string): void {
-    if (columnKey !== 'statusDisplay') {
+    if (columnKey !== UserFilterColumn.StatusDisplay) {
       return;
     }
     this.selectedStatusIds = [];

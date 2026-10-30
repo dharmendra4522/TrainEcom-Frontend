@@ -8,9 +8,7 @@ import {
 import { normalizeApprovalStatus } from '../../../../core/utils/role.utils';
 import { selectAuthStatus } from '../../../../core/store/auth/auth.selectors';
 import { DocumentType } from '../../../../core/models/vendor.model';
-import {
-  VENDOR_PROFILE_TABS,
-} from './vendor-profile.constants';
+import { VENDOR_PROFILE_TABS } from './vendor-profile.constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({

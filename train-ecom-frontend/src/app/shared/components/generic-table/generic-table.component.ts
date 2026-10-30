@@ -76,6 +76,11 @@ export class GenericTableComponent {
   @Output() filterCleared = new EventEmitter<string>();
   @Output() priceRangeChange = new EventEmitter<{ columnKey: string } & Range>();
   @Output() stockRangeChange = new EventEmitter<{ columnKey: string } & Range>();
+  @Output() dateFilterChange = new EventEmitter<{
+    columnKey: string;
+    date: Date | null;
+    formattedDate: string | null;
+  }>();
 
   originalData: Record<string, unknown>[] = [];
   filterValues: Record<string, string> = {};
@@ -453,30 +458,54 @@ export class GenericTableComponent {
     return Object.keys(selected).length;
   }
 
+  // handle date filters
   getDateFilterValue(key: string): Date | null {
     const value = this.filterValues[key];
     if (!value) {
       return null;
     }
-
-    const [year, month, day] = value.split('-').map(Number);
-    if (!year || !month || !day) {
+    const parts = value.split('-');
+    if (parts.length !== 3) {
       return null;
     }
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
 
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+      return null;
+    }
     return new Date(year, month - 1, day);
+  }
+
+  private formatDateToString(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   onDateFilterChange(key: string, value: Date | null): void {
     if (!value) {
       delete this.filterValues[key];
-    } else {
-      const year = value.getFullYear();
-      const month = String(value.getMonth() + 1).padStart(2, '0');
-      const day = String(value.getDate()).padStart(2, '0');
-      this.filterValues[key] = `${year}-${month}-${day}`;
+      this.applyCombinedFilters();
+      this.dateFilterChange.emit({
+        columnKey: key,
+        date: null,
+        formattedDate: null,
+      });
+      return;
     }
+
+    const formattedDate = this.formatDateToString(value);
+    this.filterValues[key] = formattedDate;
     this.applyCombinedFilters();
+
+    this.dateFilterChange.emit({
+      columnKey: key,
+      date: value,
+      formattedDate,
+    });
   }
 
   // Clear date filter
@@ -484,6 +513,11 @@ export class GenericTableComponent {
     event.stopPropagation();
     delete this.filterValues[key];
     this.applyCombinedFilters();
+    this.dateFilterChange.emit({
+      columnKey: key,
+      date: null,
+      formattedDate: null,
+    });
   }
 
 

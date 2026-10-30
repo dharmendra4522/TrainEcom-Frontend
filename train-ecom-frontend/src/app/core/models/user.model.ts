@@ -183,17 +183,17 @@ export interface AdminUserListResponse {
 }
 
 export interface AdminUserFilterParams {
-  Search?: string;
-  SearchField?: UserListField;
-  RequestField?: UserListField;
-  Role?: Role | number;
-  Status?: number[];
-  ApprovalStatus?: ApprovalStatus | number;
-  UserStatus?: UserStatusFilter | number;
-  FilterIds?: number[];
-  BussinessCategoriesIds?: number[];
-  PageNumber?: number;
-  PageSize?: number;
+  search?: string;
+  searchField?: UserListField;
+  requestField?: UserListField;
+  role?: Role | number;
+  status?: number[];
+  approvalStatus?: ApprovalStatus | number;
+  userStatus?: UserStatusFilter | number;
+  filterIds?: number[];
+  bussinessCategoriesIds?: number[];
+  pageNumber?: number;
+  pageSize?: number;
 }
 
 export interface UpdateUserStatusPayload {
