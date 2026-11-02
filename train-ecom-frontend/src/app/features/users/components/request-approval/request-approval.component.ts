@@ -196,13 +196,13 @@ export class RequestApprovalComponent {
   }
 
   private filterApply(val: string): void {
-    const search = val.trim().toLowerCase();
+    const searchTerm = val.trim().toLowerCase();
     this.filterData = this.tableData.filter(item =>
-      item.id.toString().includes(search) ||
-      item.requestBy.toLowerCase().includes(search) ||
-      item.requestDate.toLowerCase().includes(search) ||
-      item.requestMesage.toLowerCase().includes(search) ||
-      item.requestType.some(type => type.toLowerCase().includes(search))
+      item.id.toString().includes(searchTerm) ||
+      item.requestBy.toLowerCase().includes(searchTerm) ||
+      item.requestDate.toLowerCase().includes(searchTerm) ||
+      item.requestMesage.toLowerCase().includes(searchTerm) ||
+      item.requestType.some(type => type.toLowerCase().includes(searchTerm))
     );
   }
 
@@ -234,6 +234,7 @@ export class RequestApprovalComponent {
     })
     dialogRef.afterClosed().subscribe({
       next: (respose) => {
+        this.tableData.length
         console.log('request Accept', respose)
       }
     })
@@ -270,5 +271,5 @@ export class RequestApprovalComponent {
     this.currentPage = nextPage;
     this.hasMoreData = this.filterData.length < this.tableData.length;
   }
-
+  
 }

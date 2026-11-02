@@ -66,6 +66,7 @@ export class UserManagementComponent implements OnInit {
   onRequestClick(): void{
     const dialogRef = this.dialog.open(RequestApprovalComponent, {
       width: '1000px',
+      disableClose: true
     });
     dialogRef.afterClosed().subscribe(result => {
       console.log('Close dialog')

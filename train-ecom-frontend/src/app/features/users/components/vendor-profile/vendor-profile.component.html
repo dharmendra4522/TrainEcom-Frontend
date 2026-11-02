@@ -43,6 +43,7 @@
                 {{ field.label }}
               </span>
 
+              <!-- for documents -->
               <ng-container *ngIf="field.isLink; else normalField">
                 <div class="p-3 bg-light rounded border">
                   <a
@@ -62,26 +63,46 @@
                 </div>
               </ng-container>
 
+              <!-- for category field -->
               <ng-template #normalField>
                 <ng-container *ngIf="field.isList; else normalValue">
-                  <div class="p-3 bg-light rounded border">
-                    <span
-                      *ngFor="let cat of vendorCategories"
-                      class="badge bg-light text-dark border px-3 py-2 me-2"
+                  <div
+                    class="d-flex flex-row justify-content-between align-items-center p-3 bg-light rounded border"
+                  >
+                    <div class="d-flex flex-wrap gap-2">
+                      <span
+                        *ngFor="let cat of vendorCategories"
+                        class="badge bg-light text-dark border px-3 py-2"
+                      >
+                        {{ cat }}
+                      </span>
+                    </div>
+                    <mat-icon
+                      *ngIf="field.reviewHint && isApprovedVendor"
+                      class="custom-icon"
+                      [matTooltip]="field.reviewHint"
+                      >information</mat-icon
                     >
-                      {{ cat }}
-                    </span>
                   </div>
                 </ng-container>
+
+                <!-- for normal fields -->
                 <ng-template #normalValue>
-                  <div class="p-3 bg-light rounded border text-dark fs-6">
-                    {{ fieldValues[field.key] || "N/A" }}
+                  <div
+                    class="d-flex flex-row justify-content-between p-3 bg-light rounded border text-dark fs-6"
+                  >
+                    <span>
+                      {{ fieldValues[field.key] || "N/A" }}
+                    </span>
+                    <mat-icon
+                      *ngIf="field.reviewHint && isApprovedVendor"
+                      class="custom-icon"
+                      [matTooltip]="field.reviewHint"
+                      >information</mat-icon
+                    >
                   </div>
                 </ng-template>
               </ng-template>
-              <mat-hint *ngIf="field.reviewHint && isApprovedVendor" class="hint-text">{{
-                field.reviewHint
-              }}</mat-hint>
             </div>
           </div>
         </div>

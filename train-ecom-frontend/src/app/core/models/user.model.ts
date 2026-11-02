@@ -127,6 +127,8 @@ export interface UpdateProfilePayload {
     businessDocument?: File;
     businessLogo?: File;
   };
+  requestedMessage?: string;
+  requestedField?: string[];
   defaultAddress?: {
     addressLine1?: string | null;
     addressLine2?: string | null;

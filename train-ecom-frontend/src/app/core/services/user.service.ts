@@ -1,15 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import {
-  Address,
-  UserProfile,
-  UpdateProfilePayload,
-  AdminUserFilterParams,
-  AdminUserListResponse,
-  UpdateUserStatusPayload,
-  ApprovalStatus
-} from '../models/user.model';
-import { Observable, of, tap, map } from 'rxjs';
+import { Address, UserProfile, UpdateProfilePayload, AdminUserFilterParams, AdminUserListResponse, UpdateUserStatusPayload, ApprovalStatus } from '../models/user.model';
+import { Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Role } from '../models/auth.model';
 import { VendorStatus } from '../models/vendor.model';
@@ -29,38 +21,15 @@ export class UserService {
   }
 
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(this.profileUrl).pipe(
-      map((profile) => {
-        if (profile.vendorDetails) {
-          const vd = profile.vendorDetails as Record<string, unknown> &
-            typeof profile.vendorDetails;
-          if ('bussinessName' in vd)
-            vd.bussinessName = vd['bussinessName'] as string;
-          if ('bussinessDescription' in vd)
-            vd.bussinessDescription = vd['bussinessDescription'] as string;
-        }
-        return profile;
-      }),
-    );
+    return this.http.get<UserProfile>(this.profileUrl);
   }
 
   updateUserProfile(
-    profileData: UpdateProfilePayload
+    profileData: Partial<UpdateProfilePayload>
   ): Observable<UserProfile> {
     const url = `${this.profileUrl}/update`;
     const formData = createVendorFormData(profileData);
-    const payload: UpdateProfilePayload = { ...profileData };
-    if (payload.bussinessDetails) {
-      const businessDetails = payload.bussinessDetails as Record<
-        string,
-        unknown
-      >;
-      businessDetails['bussinessName'] = payload.bussinessDetails.bussinessName;
-      businessDetails['bussinessDescription'] =
-        payload.bussinessDetails.bussinessDescription;
-      
-    }
-    return this.http.put<UserProfile>(url, formData);
+    return this.http.patch<UserProfile>(url, formData);
   }
 
   getAllAddress(): Observable<Address[]> {
@@ -167,7 +136,7 @@ export class UserService {
 
   // Admin: Fetch all users
   getAllUsers(
-    filter?: AdminUserFilterParams,
+    filter?: AdminUserFilterParams
   ): Observable<AdminUserListResponse> {
     let params = new HttpParams();
     if (filter) {

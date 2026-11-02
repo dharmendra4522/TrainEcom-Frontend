@@ -111,8 +111,8 @@ export interface VendorProfileEditValues {
   city: string;
   country: string;
   state: string;
-  postalCode: string | number;
-  bankAccountNumber: string | number;
+  postalCode: string ;
+  bankAccountNumber: string;
   acountHolderName: string;
   ifscCode: string;
   businessDocument: File | string | null;

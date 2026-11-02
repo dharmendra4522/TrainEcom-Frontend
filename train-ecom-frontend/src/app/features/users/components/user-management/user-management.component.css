@@ -45,3 +45,7 @@
 .request-btn{
   white-space: nowrap;
 }
+
+.header-container{
+  padding: 15px;
+}

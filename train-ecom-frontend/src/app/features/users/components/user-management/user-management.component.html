@@ -1,7 +1,9 @@
 <div class="container-fluid mt-2 px-0 user-management-container">
   <div class="sticky-top-section bg-white pb-2">
     <!-- Header -->
-    <div class="row align-items-center justify-content-between mb-3 g-3">
+    <div
+      class="header-container row align-items-center justify-content-between mb-3 g-3"
+    >
       <div class="col-12 col-lg">
         <h2 class="fs-4 fw-bold text-dark m-0">User Management</h2>
         <p class="text-muted small m-0">View and manage all users.</p>
@@ -34,12 +36,14 @@
       </div>
       <div class="col-auto" *ngIf="activeTab === 'vendors'">
         <button
+          [matBadge]="requestCount"
+          matBadgeColor="warn"
           mat-raised-button
           color="primary"
           class="request-btn"
           (click)="onRequestClick()"
         >
-          Request Approval
+          Update Request
         </button>
       </div>
     </div>

@@ -1,48 +1,74 @@
 import { UpdateProfilePayload } from "../../../../core/models/user.model";
-
-
-export function createVendorFormData(payload: UpdateProfilePayload): FormData {
-    const formData = new FormData;
+ 
+export function createVendorFormData(payload: Partial<UpdateProfilePayload>): FormData {
+  const formData = new FormData();
+ 
+  if (payload.name) {
     formData.append('Name', payload.name);
+  }
+  if (payload.phoneNumber) {
     formData.append('PhoneNumber', payload.phoneNumber);
-    if (payload.oldPassword) {
-        formData.append('OldPassword', payload.oldPassword);
+  }
+  if (payload.oldPassword) {
+    formData.append('OldPassword', payload.oldPassword);
+  }
+  if (payload.newPassword) {
+    formData.append('NewPassword', payload.newPassword);
+  }
+  if (payload.confirmPassword) {
+    formData.append('ConfirmPassword', payload.confirmPassword);
+  }
+ 
+  const business = payload.bussinessDetails;
+  if (business) {
+    if (business.bussinessDescription !== undefined && business.bussinessDescription !== null) {
+      formData.append('BussinessDetails.BussinessDescription', business.bussinessDescription);
     }
-    if (payload.newPassword) {
-        formData.append('NewPassword', payload.newPassword);
+    if (business.storeName !== undefined && business.storeName !== null) {
+      formData.append('BussinessDetails.StoreName', business.storeName);
     }
-    if (payload.confirmPassword) {
-        formData.append('ConfirmPassword', payload.confirmPassword);
+    if (business.addressLine1 !== undefined && business.addressLine1 !== null) {
+      formData.append('BussinessDetails.AddressLine1', business.addressLine1);
     }
-    const business = payload.bussinessDetails;
-    formData.append('BussinessDetails.BussinessDescription', business?.bussinessDescription ?? '');
-    formData.append('BussinessDetails.StoreName', business?.storeName ?? '');
-    formData.append('BussinessDetails.AddressLine1', business?.addressLine1 ?? '');
-    formData.append('BussinessDetails.AddressLine2', business?.addressLine2 ?? '');
-    formData.append('BussinessDetails.City', business?.city ?? '');
-    formData.append('BussinessDetails.State', business?.state ?? '');
-    formData.append('BussinessDetails.Country', business?.country ?? '');
-    formData.append('BussinessDetails.PostalCode', business?.postalCode ?? '');
-    if (payload.bussinessDetails?.bankAccountNumber) {
-        formData.append('BussinessDetails.BankAccountNumber', business?.bankAccountNumber ?? '');
+    if (business.addressLine2 !== undefined && business.addressLine2 !== null) {
+      formData.append('BussinessDetails.AddressLine2', business.addressLine2);
     }
-    if (payload.bussinessDetails?.ifscCode) {
-        formData.append('BussinessDetails.IFSCCode', business?.ifscCode ?? '');
+    if (business.city !== undefined && business.city !== null) {
+      formData.append('BussinessDetails.City', business.city);
     }
-
-    business?.newCategoryIds?.forEach((catId) => {
-        formData.append('BussinessDetails.newCategoryIds', String(catId))
-    });
-
-    if (payload.bussinessDetails?.gstDocument instanceof File) {
-        formData.append('BussinessDetails.GSTDocument', business?.gstDocument ?? '');
+    if (business.state !== undefined && business.state !== null) {
+      formData.append('BussinessDetails.State', business.state);
     }
-    if (payload.bussinessDetails?.businessDocument instanceof File) {
-        formData.append('BussinessDetails.BussinessDocument', business?.businessDocument ?? '');
+    if (business.country !== undefined && business.country !== null) {
+      formData.append('BussinessDetails.Country', business.country);
     }
-    if (payload.bussinessDetails?.businessLogo instanceof File) {
-        formData.append('BussinessDetails.BussinessLogo', business?.businessLogo ?? '');
+    if (business.postalCode !== undefined && business.postalCode !== null) {
+      formData.append('BussinessDetails.PostalCode', business.postalCode);
     }
-    return formData;
-
+    if (business.bankAccountNumber !== undefined && business.bankAccountNumber !== null) {
+      formData.append('BussinessDetails.BankAccountNumber', business.bankAccountNumber);
+    }
+    if (business.ifscCode !== undefined && business.ifscCode !== null) {
+      formData.append('BussinessDetails.IFSCCode', business.ifscCode);
+    }
+    if (business.newCategoryIds && business.newCategoryIds.length > 0) {
+      business.newCategoryIds.forEach((catId) => {
+        formData.append('BussinessDetails.newCategoryIds', String(catId));
+      });
+    }
+    if (business.gstDocument instanceof File) {
+      formData.append('BussinessDetails.GSTDocument', business.gstDocument);
+    }
+    if (business.businessDocument instanceof File) {
+      formData.append('BussinessDetails.BussinessDocument', business.businessDocument);
+    }
+    if (business.businessLogo instanceof File) {
+      formData.append('BussinessDetails.BussinessLogo', business.businessLogo);
+    }
+  }
+  if (payload.requestedMessage) {
+    formData.append('RequestMessage', payload.requestedMessage);
+  }
+ 
+  return formData;
 }

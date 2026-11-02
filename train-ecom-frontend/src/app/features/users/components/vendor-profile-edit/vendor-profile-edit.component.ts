@@ -1,41 +1,16 @@
-import {
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-  SimpleChanges,
-  OnChanges
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { Component, EventEmitter, inject, Input, Output, SimpleChanges, OnChanges } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { bankDetailsValidator, fileValidator, noSpaceAllow } from '../../../auth/register.utils';
 import { Category } from '../../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import * as UserActions from '../../../../core/store/user/user.actions';
 import { filter, Observable, take } from 'rxjs';
-import { selectAllCategories, selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
-import {
-  UpdateProfilePayload,
-  UserProfile
-} from '../../../../core/models/user.model';
-import {
-  City,
-  Country,
-  ICity,
-  ICountry,
-  IState,
-  State
-} from 'country-state-city';
+import { selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
+import { UpdateProfilePayload, UserProfile } from '../../../../core/models/user.model';
+import { City, Country, ICity, ICountry, IState, State } from 'country-state-city';
 import { PendingFieldChanges } from '../../../../core/models/request-approve.model';
-import {
-  DocumentType,
-  VendorProfileEditValues
-} from '../../../../core/models/vendor.model';
+import { DocumentType, VendorProfileEditValues } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { normalizeCategoryIds, passwordMatchValidator } from '../../users.utils';
@@ -66,7 +41,7 @@ export class VendorProfileEditComponent implements OnChanges {
   cities: ICity[] = [];
   pendingChangesMap: Record<string, PendingFieldChanges> = {};
   readonly isStep5Valid: boolean = true;
-  maxFileSize: number = 5;
+  private maxFileSize: number = 5;
   public isOldPasswordVisible: boolean = false;
   public isNewPasswordVisible: boolean = false;
   public isConfirmPasswordVisible: boolean = false;
@@ -508,6 +483,8 @@ export class VendorProfileEditComponent implements OnChanges {
     const payload: UpdateProfilePayload = {
       name: `${value.firstName?.trim() || ''} ${value.lastName?.trim() || ''}`.trim(),
       phoneNumber: value.phoneNumber,
+      requestedMessage: this.createUpdateMessage(),
+      requestedField: this.getUpdatedField(),
       bussinessDetails: {
         bussinessName: value.businessName ?? null,
         storeName: value.displayName ?? null,
@@ -517,13 +494,11 @@ export class VendorProfileEditComponent implements OnChanges {
         city: value.city ?? null,
         state: value.state ?? null,
         country: value.country ?? null,
-        postalCode: value.postalCode ? String(value.postalCode) : null,
+        postalCode: value.postalCode ?? null,
         gstin: value.gstin ?? null,
         pan: value.panNumber ?? null,
         accountHolderName: value.acountHolderName ?? null,
-        bankAccountNumber: value.bankAccountNumber
-          ? String(value.bankAccountNumber)
-          : null,
+        bankAccountNumber: value.bankAccountNumber ?? null,
         ifscCode: value.ifscCode ?? null,
         newCategoryIds: this.getSelectedCategoryIds(),
         gstDocument: value.gstDocument instanceof File ? value.gstDocument : undefined,
@@ -531,6 +506,7 @@ export class VendorProfileEditComponent implements OnChanges {
         businessLogo: value.businessLogo instanceof File ? value.businessLogo : undefined
       }
     };
+    
     if (this.isPasswordChangeMode) {
       payload.oldPassword = value.oldPassword;
       payload.newPassword = value.newPassword;
@@ -625,6 +601,18 @@ export class VendorProfileEditComponent implements OnChanges {
 
   public toggleConfirmPasswordVisibility(): void {
     this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
+  }
+
+  //get updated fields
+  private getUpdatedField(): string[] {
+    return Object.values(this.pendingChangesMap).map((item) => item.fieldName);
+  }
+
+  // create update message based on updated fields
+  private createUpdateMessage(): string {
+    const fields = this.getUpdatedField();
+    const message = fields.length ? `Vendor wanto to update following field: ${fields.join(',')}` : '';
+    return message;
   }
 
 }

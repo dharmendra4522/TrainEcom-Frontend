@@ -113,7 +113,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       label: 'Status',
       type: 'badge',
       badgeClassKey: 'vendorStatusClass',
+       truncate: false,
       filterable: true, filterType: 'dropdown'
+    },
+    {
+      key: 'request',
+      label: 'Update Request',
+      type: 'boolean',
     }
   ];
 
