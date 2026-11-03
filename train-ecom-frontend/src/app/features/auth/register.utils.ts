@@ -106,10 +106,10 @@ export function createVendorFormData(
   if (formValue.ifscCode) {
     formData.append('BussinessDetails.IFSCCode', formValue.ifscCode);
   }
-  if (formValue.acountHolderName) {
+  if (formValue.accountHolderName) {
     formData.append(
       'BussinessDetails.AccountHolderName',
-      formValue.acountHolderName,
+      formValue.accountHolderName,
     );
   }
 
@@ -225,7 +225,7 @@ export function trimControlValue(control: AbstractControl | null): void {
 export function bankDetailsValidator(): ValidatorFn | null {
   return (group: AbstractControl): ValidationErrors | null => {
     const accNumber = group.get('bankAccountNumber');
-    const accHolderName = group.get('acountHolderName');
+    const accHolderName = group.get('accountHolderName');
     const ifscCode = group.get('ifscCode');
 
     if (!accNumber || !accHolderName || !ifscCode) {

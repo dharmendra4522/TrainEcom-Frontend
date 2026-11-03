@@ -120,7 +120,7 @@ export interface VendorProfileEditValues {
   state: string;
   postalCode: string;
   bankAccountNumber: string;
-  acountHolderName: string;
+  accountHolderName: string;
   ifscCode: string;
   businessDocument: File | string | null;
   gstDocument: File | string | null;

@@ -121,7 +121,7 @@ export class VendorProfileEditComponent implements OnChanges {
           Validators.compose([Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)])
         ],
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
-        acountHolderName: ['', Validators.compose([Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()])],
+        accountHolderName: ['', Validators.compose([Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()])],
         ifscCode: ['', Validators.compose([Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)])],
         gstDocument: ['', [fileValidator(['application/pdf'], this.maxFileSize)]],
         businessDocument: ['', [fileValidator(['application/pdf'], this.maxFileSize)]],
@@ -182,7 +182,7 @@ export class VendorProfileEditComponent implements OnChanges {
       country: location.country,
       postalCode: vendor?.postalCode ?? '',
       bankAccountNumber: vendor?.bankAccountNumber ?? '',
-      acountHolderName: vendor?.accountHolderName ?? '',
+      accountHolderName: vendor?.accountHolderName ?? '',
       ifscCode: vendor?.ifscCode ?? ''
     });
 
@@ -285,7 +285,7 @@ export class VendorProfileEditComponent implements OnChanges {
   get isStep4Valid(): boolean {
     return this.controlValid(
       'bankAccountNumber',
-      'acountHolderName',
+      'accountHolderName',
       'ifscCode'
     )
   }
@@ -310,7 +310,7 @@ export class VendorProfileEditComponent implements OnChanges {
       businessDocument: 'Registration Document',
       businessLogo: 'Business Logo',
       bankAccountNumber: 'Bank Account Number',
-      acountHolderName: 'Account Holder Name',
+      accountHolderName: 'Account Holder Name',
       ifscCode: 'IFSC Code'
     };
     return Object.keys(this.editForm.controls)
@@ -422,14 +422,14 @@ export class VendorProfileEditComponent implements OnChanges {
       );
     }
     if (
-      value.acountHolderName &&
-      value.acountHolderName !== this.userProfileData?.vendorDetails?.accountHolderName
+      value.accountHolderName &&
+      value.accountHolderName !== this.userProfileData?.vendorDetails?.accountHolderName
     ) {
       this.addPendingChange(
         'accountHolderName',
         'Account Holder Name',
         this.userProfileData?.vendorDetails?.accountHolderName,
-        value.acountHolderName
+        value.accountHolderName
       );
     }
     if (
@@ -522,8 +522,8 @@ export class VendorProfileEditComponent implements OnChanges {
     if (value.postalCode !== vendor?.postalCode) {
       businessDetails.postalCode = value.postalCode;
     }
-    if (value.acountHolderName !== vendor?.accountHolderName) {
-      businessDetails.accountHolderName = value.acountHolderName;
+    if (value.accountHolderName !== vendor?.accountHolderName) {
+      businessDetails.accountHolderName = value.accountHolderName;
     }
     if (value.bankAccountNumber !== vendor?.bankAccountNumber) {
       businessDetails.bankAccountNumber = value.bankAccountNumber;
@@ -532,9 +532,7 @@ export class VendorProfileEditComponent implements OnChanges {
       businessDetails.ifscCode = value.ifscCode;
     }
     const selectedCategoryIds = this.getSelectedCategoryIds();
-    console.log('category ids', selectedCategoryIds);
     const originalCategoryIds = normalizeCategoryIds(vendor?.categories, this.categoryOptions);
-    console.log('original category id:', originalCategoryIds)
     if (JSON.stringify(selectedCategoryIds) !== JSON.stringify(originalCategoryIds)) {
       businessDetails.newCategoryIds = selectedCategoryIds;
     }
@@ -658,7 +656,7 @@ export class VendorProfileEditComponent implements OnChanges {
   // create update message based on updated fields
   private createUpdateMessage(): string {
     const fields = this.getUpdatedField();
-    const message = fields.length ? `Vendor wanto to update following field: ${fields.join(',')}` : '';
+    const message = fields.length ? `Vendor wanto to update following field: ${fields.join(',')} ` : '';
     return message;
   }
 

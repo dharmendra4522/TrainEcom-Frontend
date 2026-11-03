@@ -75,13 +75,13 @@
         <input
           matInput
           type="text"
-          formControlName="acountHolderName"
+          formControlName="accountHolderName"
           placeholder="Enter account holder name"
           [disabled]="isEditMode"
-          (blur)="onBlurTrim('acountHolderName')"
+          (blur)="onBlurTrim('accountHolderName')"
         />
         <mat-error>
-          {{ getErrorMessage("acountHolderName", "Account Holder Name") }}
+          {{ getErrorMessage("accountHolderName", "Account Holder Name") }}
         </mat-error>
       </mat-form-field>
     </div>

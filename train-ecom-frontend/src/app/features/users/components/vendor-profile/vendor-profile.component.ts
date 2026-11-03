@@ -47,7 +47,6 @@ export class VendorProfileComponent implements OnInit {
       if (!profile) {
         return;
       }
-      console.log('before edit: ', profile)
       this.userProfileData = profile;
       this.setDocumentUrls();
       this.setVendorCategories();

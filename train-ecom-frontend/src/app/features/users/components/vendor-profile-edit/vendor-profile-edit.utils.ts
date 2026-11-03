@@ -45,6 +45,9 @@ export function createVendorFormData(payload: Partial<UpdateProfilePayload>): Fo
     if (business.postalCode !== undefined && business.postalCode !== null) {
       formData.append('BussinessDetails.PostalCode', business.postalCode);
     }
+    if (business.accountHolderName !== undefined && business.accountHolderName !== null) {
+      formData.append('BussinessDetails.AccountHolderName', business.accountHolderName);
+    }
     if (business.bankAccountNumber !== undefined && business.bankAccountNumber !== null) {
       formData.append('BussinessDetails.BankAccountNumber', business.bankAccountNumber);
     }

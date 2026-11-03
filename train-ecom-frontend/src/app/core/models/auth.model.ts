@@ -129,7 +129,7 @@ export interface VendorRegisterFormValues {
   state: string;
   postalCode: string;
   bankAccountNumber?: string | number;
-  acountHolderName?: string;
+  accountHolderName?: string;
   ifscCode?: string;
 }
 

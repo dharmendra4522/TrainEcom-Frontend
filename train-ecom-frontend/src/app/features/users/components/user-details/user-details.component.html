@@ -61,10 +61,9 @@
     <!-- Details section -->
     <div class="row g-4">
       <!-- left section -->
-      <div class="col-12 col-lg-8 d-flex flex-column gap-4">
+      <div class="col-12 col-lg-7 d-flex flex-column gap-4">
         <!-- card 1 -->
-        <mat-card class="rounded-3">
-          <div class="p-4">
+        <mat-card class="rounded-3 p-4">
             <h5
               class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
             >
@@ -101,7 +100,6 @@
                 </div>
               </ng-container>
             </div>
-          </div>
         </mat-card>
 
         <!-- card 2 -->
@@ -165,7 +163,7 @@
       </div>
 
       <!-- right section -->
-      <div class="col-12 col-lg-4 d-flex flex-column gap-4">
+      <div class="col-12 col-lg-5 d-flex flex-column gap-4">
         <!-- card 1 (Bank Details) -->
         <mat-card class="rounded-3">
           <div class="card-body p-4">
@@ -192,7 +190,7 @@
                       >New Account Holder Name</label
                     >
                     <span class="fw-semibold text-dark">{{
-                      vendorDetails?.accountHolderName || "Not Provided"
+                      vendorDetails?.newAccountHolderName || "Not Provided"
                     }}</span>
                   </ng-container>
                 </div>
