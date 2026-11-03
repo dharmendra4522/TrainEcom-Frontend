@@ -14,6 +14,7 @@ import { DocumentType, VendorProfileEditValues } from '../../../../core/models/v
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { normalizeCategoryIds, passwordMatchValidator } from '../../users.utils';
+import { selectUserProfile } from '../../../../core/store/user/user.selectors';
 
 @Component({
   selector: 'app-vendor-profile-edit',
@@ -347,6 +348,7 @@ export class VendorProfileEditComponent implements OnChanges {
       control?.setValue(file);
       control?.markAsTouched();
       control?.updateValueAndValidity();
+      control?.markAsDirty();
       if (control?.invalid) {
         input.value = '';
       }
@@ -381,6 +383,7 @@ export class VendorProfileEditComponent implements OnChanges {
 
   // Collect pending changes
   private collectPendingChanges(value: VendorProfileEditValues): void {
+    this.pendingChangesMap = {};
     this.trackBasicChanges(value);
     this.trackDocumentChanges(value);
   }
@@ -479,34 +482,79 @@ export class VendorProfileEditComponent implements OnChanges {
   }
 
   // Build the payload for updating the user profile
-  private buildPayload(value: VendorProfileEditValues): UpdateProfilePayload {
-    const payload: UpdateProfilePayload = {
-      name: `${value.firstName?.trim() || ''} ${value.lastName?.trim() || ''}`.trim(),
-      phoneNumber: value.phoneNumber,
-      requestedMessage: this.createUpdateMessage(),
-      requestedField: this.getUpdatedField(),
-      bussinessDetails: {
-        bussinessName: value.businessName ?? null,
-        storeName: value.displayName ?? null,
-        bussinessDescription: value.bussinessDescription ?? null,
-        addressLine1: value.addressLine1 ?? null,
-        addressLine2: value.addressLine2 ?? null,
-        city: value.city ?? null,
-        state: value.state ?? null,
-        country: value.country ?? null,
-        postalCode: value.postalCode ?? null,
-        gstin: value.gstin ?? null,
-        pan: value.panNumber ?? null,
-        accountHolderName: value.acountHolderName ?? null,
-        bankAccountNumber: value.bankAccountNumber ?? null,
-        ifscCode: value.ifscCode ?? null,
-        newCategoryIds: this.getSelectedCategoryIds(),
-        gstDocument: value.gstDocument instanceof File ? value.gstDocument : undefined,
-        businessDocument: value.businessDocument instanceof File ? value.businessDocument : undefined,
-        businessLogo: value.businessLogo instanceof File ? value.businessLogo : undefined
-      }
-    };
-    
+  private buildPayload(value: VendorProfileEditValues): Partial<UpdateProfilePayload> {
+    const payload: Partial<UpdateProfilePayload> = {};
+    const namePart = (this.userProfileData?.name ?? '')?.trim().split(/\s+/);
+    const firstName = namePart[0] ?? '';
+    const lastName = namePart.splice(1).join(' ');
+    const name = `${value.firstName.trim()} ${value.lastName.trim()}`.trim();
+    if (value.firstName !== firstName || value.lastName !== lastName) {
+      payload.name = name;
+    }
+    if (value.phoneNumber !== (this.userProfileData?.phoneNumber ?? '')) {
+      payload.phoneNumber = value.phoneNumber;
+    }
+    const vendor = this.userProfileData?.vendorDetails;
+    const businessDetails: NonNullable<UpdateProfilePayload['bussinessDetails']> = {};
+
+    if (value.displayName !== vendor?.storeName) {
+      businessDetails.storeName = value.displayName;
+    }
+
+    if (value.bussinessDescription !== vendor?.bussinessDescription) {
+      businessDetails.bussinessDescription = value.bussinessDescription;
+    }
+    if (value.addressLine1 !== vendor?.addressLine1) {
+      businessDetails.addressLine1 = value.addressLine1;
+    }
+    if (value.addressLine2 !== vendor?.addressLine2) {
+      businessDetails.addressLine2 = value.addressLine2;
+    }
+    if (value.country !== vendor?.country) {
+      businessDetails.country = value.country
+    }
+    if (value.state !== vendor?.state) {
+      businessDetails.state = value.state;
+    }
+    if (value.city !== vendor?.city) {
+      businessDetails.city = value.city;
+    }
+    if (value.postalCode !== vendor?.postalCode) {
+      businessDetails.postalCode = value.postalCode;
+    }
+    if (value.acountHolderName !== vendor?.accountHolderName) {
+      businessDetails.accountHolderName = value.acountHolderName;
+    }
+    if (value.bankAccountNumber !== vendor?.bankAccountNumber) {
+      businessDetails.bankAccountNumber = value.bankAccountNumber;
+    }
+    if (value.ifscCode !== vendor?.ifscCode) {
+      businessDetails.ifscCode = value.ifscCode;
+    }
+    const selectedCategoryIds = this.getSelectedCategoryIds();
+    console.log('category ids', selectedCategoryIds);
+    const originalCategoryIds = normalizeCategoryIds(vendor?.categories, this.categoryOptions);
+    console.log('original category id:', originalCategoryIds)
+    if (JSON.stringify(selectedCategoryIds) !== JSON.stringify(originalCategoryIds)) {
+      businessDetails.newCategoryIds = selectedCategoryIds;
+    }
+    if (value.gstDocument instanceof File) {
+      businessDetails.gstDocument = value.gstDocument;
+    }
+    if (value.businessDocument instanceof File) {
+      businessDetails.businessDocument = value.businessDocument;
+    }
+    if (value.businessLogo instanceof File) {
+      businessDetails.businessLogo = value.businessLogo;
+    }
+    if (Object.keys(businessDetails).length > 0) {
+      payload.bussinessDetails = businessDetails;
+    }
+    const requestedMessage = this.createUpdateMessage();
+    if (requestedMessage) {
+      payload.requestedMessage = requestedMessage;
+    }
+
     if (this.isPasswordChangeMode) {
       payload.oldPassword = value.oldPassword;
       payload.newPassword = value.newPassword;
@@ -519,14 +567,13 @@ export class VendorProfileEditComponent implements OnChanges {
   private updateProfile(payload: UpdateProfilePayload): void {
     this.isSaving = true;
     this.userService.updateUserProfile(payload).subscribe({
-      next: (profile) => {
+      next: () => {
         this.isSaving = false;
         this.isPasswordChangeMode = false;
-        this.userProfileData = profile;
-        this.store.dispatch(UserActions.loadProfileSuccess({ profile }));
         this.notificationService.showSuccess('Profile updated successfully');
         this.onProfileUpdate.emit();
         this.onEditModeToggle.emit(false);
+        this.store.dispatch(UserActions.loadProfileReq());
       },
       error: (error: { error?: { message?: string } }) => {
         this.isSaving = false;

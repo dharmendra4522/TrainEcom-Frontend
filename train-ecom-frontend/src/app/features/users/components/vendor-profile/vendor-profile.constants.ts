@@ -7,16 +7,16 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
     fields: [
       { label: 'Full Name', key: 'name' },
       { label: 'Email Address', key: 'email' },
-      { label: 'Phone Number', key: 'phoneNumber', reviewHint: 'Your Number is under review' }
+      { label: 'Phone Number', key: 'phoneNumber' }
     ]
   },
   {
     label: 'Business',
     fields: [
       { label: 'Business Name', key: 'bussinessName' },
-      { label: 'Display Name', key: 'storeName', reviewHint: 'Your new Display name is under review' },
+      { label: 'Display Name', key: 'storeName' },
       { label: 'Business Description', key: 'bussinessDescription' },
-      { label: 'Categories', key: 'categories', isList: true, reviewHint: 'Your new categories is under review' }
+      { label: 'Categories', key: 'categories', isList: true }
     ]
   },
   {
@@ -35,9 +35,9 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
     fields: [
       { label: 'GSTIN', key: 'gstin' },
       { label: 'PAN Number', key: 'pan' },
-      { label: 'Account Holder Name', key: 'accountHolderName', reviewHint: 'New Account Holder name is under review' },
-      { label: 'Bank Account Number', key: 'bankAccountNumber', reviewHint: 'New Account Number is under review' },
-      { label: 'IFSC Code', key: 'ifscCode', reviewHint: 'New Ifsc code is under review' }
+      { label: 'Account Holder Name', key: 'accountHolderName' },
+      { label: 'Bank Account Number', key: 'bankAccountNumber' },
+      { label: 'IFSC Code', key: 'ifscCode' }
     ]
   },
   {
@@ -47,23 +47,15 @@ export const VENDOR_PROFILE_TABS: VendorTabConfig[] = [
         label: 'Business Registration Document',
         key: 'doc1',
         isLink: true,
-        docType: DocumentType.BussinessDocument,
-        reviewHint: 'Your new business Doc is under review'
+        docType: DocumentType.BussinessDocument
       },
-      { label: 'GST Document', key: 'doc2', isLink: true, docType: DocumentType.GSTDocument, reviewHint: 'Your new GST Doc is under review' },
+      { label: 'GST Document', key: 'doc2', isLink: true, docType: DocumentType.GSTDocument },
       {
-        label: 'Business Logo / Other Document',
+        label: 'Business Logo',
         key: 'doc3',
         isLink: true,
-        docType: DocumentType.Logo,
-        reviewHint: 'Your new business logo in under review'
+        docType: DocumentType.Logo
       }
     ]
   }
 ];
-
-
-// approval request fields
-export const APPROVAL_REQUIRED_FIELDS = new Set([
-  'phoneNumber', 'displayName', 'businessCategory', 'accountHolderName', 'bankAccountNumber', 'ifscCode', 'businessDocument', 'gstDocument', 'businessLogo'
-])

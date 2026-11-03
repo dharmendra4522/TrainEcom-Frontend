@@ -22,7 +22,7 @@ export class UserManagementComponent implements OnInit {
   selectedindex: number = 0;
   globalSearch = new FormControl('');
   searchQueryText: string = '';
-  requestCount = 0;
+  requestCount = 10;
 
   get roleNumber(): number {
     return this.activeTab === 'customers' ? Role.Customer : Role.Vendor;

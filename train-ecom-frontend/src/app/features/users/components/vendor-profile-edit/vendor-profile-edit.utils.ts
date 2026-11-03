@@ -1,24 +1,24 @@
 import { UpdateProfilePayload } from "../../../../core/models/user.model";
- 
+
 export function createVendorFormData(payload: Partial<UpdateProfilePayload>): FormData {
   const formData = new FormData();
- 
-  if (payload.name) {
+
+  if (payload.name !== undefined && payload.name !== null) {
     formData.append('Name', payload.name);
   }
-  if (payload.phoneNumber) {
+  if (payload.phoneNumber !== undefined && payload.phoneNumber !== null) {
     formData.append('PhoneNumber', payload.phoneNumber);
   }
-  if (payload.oldPassword) {
+  if (payload.oldPassword !== undefined && payload.oldPassword !== null) {
     formData.append('OldPassword', payload.oldPassword);
   }
-  if (payload.newPassword) {
+  if (payload.newPassword !== undefined && payload.newPassword !== null) {
     formData.append('NewPassword', payload.newPassword);
   }
-  if (payload.confirmPassword) {
+  if (payload.confirmPassword !== undefined && payload.confirmPassword !== null) {
     formData.append('ConfirmPassword', payload.confirmPassword);
   }
- 
+
   const business = payload.bussinessDetails;
   if (business) {
     if (business.bussinessDescription !== undefined && business.bussinessDescription !== null) {
@@ -66,9 +66,9 @@ export function createVendorFormData(payload: Partial<UpdateProfilePayload>): Fo
       formData.append('BussinessDetails.BussinessLogo', business.businessLogo);
     }
   }
-  if (payload.requestedMessage) {
+  if (payload.requestedMessage !== undefined && payload.requestedMessage !== null) {
     formData.append('RequestMessage', payload.requestedMessage);
   }
- 
+
   return formData;
 }

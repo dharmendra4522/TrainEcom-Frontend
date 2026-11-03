@@ -30,30 +30,30 @@
         <div
           class="m-0 text-muted small d-flex flex-wrap align-items-center gap-2"
         >
-            <span>Current Status Of Vendor:</span>
-            <span
-              class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill py-1 px-2"
-            >
-              {{ vendorStatusDisplay }}
-            </span>
+          <span>Current Status Of Vendor:</span>
+          <span
+            class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill py-1 px-2"
+          >
+            {{ vendorStatusDisplay }}
+          </span>
         </div>
         <div class="d-inline-flex align-items-center gap-2 flex-shrink-0">
-              <button
-                mat-flat-button
-                color="primary"
-                (click)="onApprove()"
-                [disabled]="isApproveDisabled"
-              >
-                <mat-icon>check_circle</mat-icon>Approve
-              </button>
-              <button
-                mat-flat-button
-                color="warn"
-                (click)="onReject()"
-                [disabled]="isApproveDisabled"
-              >
-                <mat-icon>cancel</mat-icon>Reject
-              </button>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="onApprove()"
+            [disabled]="isApproveDisabled"
+          >
+            <mat-icon>check_circle</mat-icon>Approve
+          </button>
+          <button
+            mat-flat-button
+            color="warn"
+            (click)="onReject()"
+            [disabled]="isApproveDisabled"
+          >
+            <mat-icon>cancel</mat-icon>Reject
+          </button>
         </div>
       </div>
     </div>
@@ -63,8 +63,8 @@
       <!-- left section -->
       <div class="col-12 col-lg-8 d-flex flex-column gap-4">
         <!-- card 1 -->
-        <div class="card border-0 shadow-sm rounded-3">
-          <div class="card-body p-4">
+        <mat-card class="rounded-3">
+          <div class="p-4">
             <h5
               class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
             >
@@ -72,30 +72,40 @@
               Contact Information
             </h5>
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="text-muted small d-block">Vendor Name</label>
                 <span class="fw-semibold text-dark">{{
                   vendorDetails?.vendorName || "-"
                 }}</span>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="text-muted small d-block">Email Address</label>
                 <span class="fw-semibold text-dark">{{
                   vendorDetails?.email || "-"
                 }}</span>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="text-muted small d-block">Phone Number</label>
                 <span class="fw-semibold text-dark">{{
                   vendorDetails?.phoneNumber || "-"
                 }}</span>
               </div>
+              <ng-container *ngIf="vendorDetails?.newPhoneNumber">
+                <div class="col-md-3">
+                  <label class="text-muted small d-block"
+                    >New Phone Number</label
+                  >
+                  <span class="fw-semibold text-dark">{{
+                    vendorDetails?.newPhoneNumber
+                  }}</span>
+                </div>
+              </ng-container>
             </div>
           </div>
-        </div>
+        </mat-card>
 
         <!-- card 2 -->
-        <div class="card border-0 shadow-sm rounded-3">
+        <mat-card class="rounded-3">
           <div class="card-body p-4">
             <h5
               class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
@@ -105,17 +115,27 @@
             </h5>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="text-muted small d-block">Store Name</label>
+                <label class="text-muted small d-block">Business Name</label>
                 <span class="fw-semibold text-dark">{{
-                  vendorDetails?.storeName || "-"
+                  vendorDetails?.bussinessName || "-"
                 }}</span>
               </div>
               <div class="col-md-4">
                 <label class="text-muted small d-block">Display Name</label>
                 <span class="fw-semibold text-dark">{{
-                  vendorDetails?.bussinessName || "-"
+                  vendorDetails?.storeName || "-"
                 }}</span>
               </div>
+              <ng-container *ngIf="vendorDetails?.newStoreName">
+                <div class="col-md-4">
+                  <label class="text-muted small d-block"
+                    >New Display Name</label
+                  >
+                  <span class="fw-semibold text-dark">{{
+                    vendorDetails?.newStoreName || "yetdyfy"
+                  }}</span>
+                </div>
+              </ng-container>
               <div class="col-md-4">
                 <label class="text-muted small d-block">GST Number </label>
                 <span class="fw-semibold text-dark font-monospace">{{
@@ -141,13 +161,13 @@
               </div>
             </div>
           </div>
-        </div>
+        </mat-card>
       </div>
 
       <!-- right section -->
       <div class="col-12 col-lg-4 d-flex flex-column gap-4">
         <!-- card 1 (Bank Details) -->
-        <div class="card border-0 shadow-sm rounded-3">
+        <mat-card class="rounded-3">
           <div class="card-body p-4">
             <h5
               class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
@@ -157,31 +177,69 @@
             </h5>
 
             <div class="d-flex flex-column gap-3">
-              <div>
-                <label class="text-muted small d-block"
-                  >Account Holder Name</label
-                >
-                <span class="fw-semibold text-dark">{{
-                  vendorDetails?.accountHolderName || "Not Provided"
-                }}</span>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="text-muted small d-block"
+                    >Account Holder Name</label
+                  >
+                  <span class="fw-semibold text-dark">{{
+                    vendorDetails?.accountHolderName || "Not Provided"
+                  }}</span>
+                </div>
+                <div class="col-12 col-md-6">
+                  <ng-container *ngIf="vendorDetails?.newAccountHolderName">
+                    <label class="text-muted small d-block"
+                      >New Account Holder Name</label
+                    >
+                    <span class="fw-semibold text-dark">{{
+                      vendorDetails?.accountHolderName || "Not Provided"
+                    }}</span>
+                  </ng-container>
+                </div>
               </div>
-              <div>
-                <label class="text-muted small d-block">Account Number</label>
-                <strong class="text-dark font-monospace">{{
-                  vendorDetails?.bankAccountNumber || "Not Provided"
-                }}</strong>
+
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="text-muted small d-block">Account Number</label>
+                  <strong class="text-dark font-monospace">{{
+                    vendorDetails?.bankAccountNumber || "Not Provided"
+                  }}</strong>
+                </div>
+                <div class="col-12 col-md-6">
+                  <ng-container *ngIf="vendorDetails?.newBankAccountNumber">
+                    <label class="text-muted small d-block"
+                      >New Account Number</label
+                    >
+                    <strong class="text-dark font-monospace">{{
+                      vendorDetails?.newBankAccountNumber || "adasasdasdas"
+                    }}</strong>
+                  </ng-container>
+                </div>
               </div>
-              <div>
-                <label class="text-muted small d-block">IFSC Code</label>
-                <strong class="text-dark font-monospace">{{
-                  vendorDetails?.ifscCode || "Not Provided"
-                }}</strong>
+
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="text-muted small d-block">IFSC Code</label>
+                  <strong class="text-dark font-monospace">{{
+                    vendorDetails?.ifscCode || "Not Provided"
+                  }}</strong>
+                </div>
+                <div class="col-12 col-md-6">
+                  <ng-container *ngIf="vendorDetails?.newIfscCode">
+                    <label class="text-muted small d-block"
+                      >New IFSC Code</label
+                    >
+                    <strong class="text-dark font-monospace">{{
+                      vendorDetails?.newIfscCode || "edwedwd45sds5"
+                    }}</strong>
+                  </ng-container>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </mat-card>
 
-        <div class="card border-0 shadow-sm rounded-3">
+        <mat-card class="rounded-3">
           <div class="card-body p-4">
             <h5
               class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
@@ -214,38 +272,71 @@
                 </span>
               </div>
             </div>
+            <ng-container *ngIf="vendorDetails?.newCategories">
+              <div class="mb-3">
+                <span class="text-muted small d-block mb-1"
+                  >New Categories</span
+                >
+                <div class="d-flex flex-wrap gap-1">
+                  <span
+                    *ngFor="let cat of vendorDetails?.newCategories"
+                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"
+                  >
+                    {{ cat }}
+                  </span>
+                </div>
+              </div>
+            </ng-container>
 
             <div>
-              <span class="text-muted small d-block mb-1">Documents</span>
+              <span class="text-muted small d-block mb-2">Documents</span>
               <ng-container *ngIf="vendorDetails as details; else noDocs">
                 <div *ngIf="details.documents.length; else noDocs">
-                  <ul class="list-unstyled m-0">
-                    <li
-                      *ngFor="let doc of details.documents"
-                      class="small text-truncate"
+                  <div *ngFor="let doc of details.documents" class="mb-3">
+                    <!-- currrent document -->
+                    <div
+                      class="d-flex justify-content-between align-items-start"
                     >
-                    <span class="text-muted fw-semibold d-block">
-                     {{ doc.documentLabel }}
-                    </span>
+                      <span class="text-muted fw-semibold">
+                        {{ doc.documentLabel }}
+                      </span>
                       <a
                         *ngIf="getDocumentUrl(doc) as documentUrl"
                         [href]="documentUrl"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="text-decoration-none"
-                        >View Document</a
                       >
-                      
-                    </li>
-                  </ul>
+                        View Document
+                      </a>
+                    </div>
+                    <!-- new document -->
+                    <div
+                      *ngIf="doc.newDocumentUrl"
+                      class="d-flex justify-content-between align-items-start mt-1"
+                    >
+                      <span class="text-muted fw-semibold">
+                        New {{ doc.documentLabel }}
+                      </span>
+                      <a
+                        [href]="doc.newDocumentUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-decoration-none"
+                      >
+                        View New Document
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </ng-container>
+
               <ng-template #noDocs>
-                <span class="text-muted small">No documents uploaded.</span>
+                <span class="text-muted small"> No documents uploaded. </span>
               </ng-template>
             </div>
           </div>
-        </div>
+        </mat-card>
       </div>
     </div>
   </div>

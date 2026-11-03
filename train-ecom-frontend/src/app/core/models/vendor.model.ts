@@ -58,6 +58,7 @@ export interface VendorListResponse {
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
+  newDocumentUrl?: string
   documentLabel?: string;
 }
 
@@ -66,9 +67,11 @@ export interface VendorDetails {
   vendorName: string;
   email: string;
   phoneNumber: string;
+  newPhoneNumber?: string | null;
   bussinessName: string;
   bussinessDescription: string;
   storeName: string;
+  newStoreName?: string | null;
   gstin: string;
   pan: string;
   addressLine1: string;
@@ -78,10 +81,14 @@ export interface VendorDetails {
   country: string;
   postalCode: number;
   bankAccountNumber: string;
+  newBankAccountNumber?: string | null;
   ifscCode: string;
+  newIfscCode?: string | null;
   accountHolderName: string;
+  newAccountHolderName?: string | null;
   documents: VendorDocument[];
   categories: string[];
+  newCategories?: string[] | null;
   status?: ApprovalStatus | number;
 }
 
@@ -111,7 +118,7 @@ export interface VendorProfileEditValues {
   city: string;
   country: string;
   state: string;
-  postalCode: string ;
+  postalCode: string;
   bankAccountNumber: string;
   acountHolderName: string;
   ifscCode: string;
@@ -127,7 +134,6 @@ export interface ProfileFieldConfig {
   isList?: boolean;
   isLink?: boolean;
   docType?: DocumentType;
-  reviewHint?: string;
 }
 
 export interface VendorTabConfig {

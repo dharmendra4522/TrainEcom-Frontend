@@ -27,6 +27,7 @@ export class VendorProfileComponent implements OnInit {
   fieldValues: Record<string, string | null> = {};
   readonly tabs = VENDOR_PROFILE_TABS;
   vendorCategories: string[] = [];
+  reviewHints: Record<string, string> = {};
 
   ngOnInit(): void {
     this.subscribeAuthStatus();
@@ -46,10 +47,12 @@ export class VendorProfileComponent implements OnInit {
       if (!profile) {
         return;
       }
+      console.log('before edit: ', profile)
       this.userProfileData = profile;
       this.setDocumentUrls();
       this.setVendorCategories();
       this.setFieldValues(profile);
+      this.buildReviewHint(profile);
     });
   }
 
@@ -93,6 +96,25 @@ export class VendorProfileComponent implements OnInit {
       bankAccountNumber: vendor?.bankAccountNumber ?? null,
       ifscCode: vendor?.ifscCode ?? null
     };
+  }
+
+  // handle hint text dynamically
+  private buildReviewHint(profile: UserProfile): void {
+    const vendor = profile.vendorDetails;
+    const businessDoc = profile.vendorDetails?.documents?.find(d => d.documentType === DocumentType.BussinessDocument);
+    const gstDoc = profile.vendorDetails?.documents?.find(d => d.documentType === DocumentType.GSTDocument);
+    const businessLogo = profile.vendorDetails?.documents?.find(d => d.documentType === DocumentType.Logo);
+    this.reviewHints = {
+      phoneNumber: profile.newPhoneNumber ? `Your new phone number "${profile.newPhoneNumber}" is under review` : '',
+      storeName: vendor?.newStoreName ? `Your new display name "${vendor.newStoreName}" is under review` : '',
+      categories: vendor?.newCategories ? `Your New categories "${vendor.newCategories}" is under review` : '',
+      accountHolderName: vendor?.newAccountHolderName ? `Your new Account holder name "${vendor.newAccountHolderName}" is under review` : '',
+      bankAccountNumber: vendor?.newBankAccountNumber ? `Your new Account number "${vendor.newBankAccountNumber}" is under review` : '',
+      ifscCode: vendor?.newIfscCode ? `Your new IFSC Code "${vendor.newIfscCode}" is under review` : '',
+      doc1: businessDoc?.newDocumentUrl ? 'Your new Business Register document is under review' : '',
+      doc2: gstDoc?.newDocumentUrl ? 'Your new GST Document is under review' : '',
+      doc3: businessLogo?.newDocumentUrl ? 'Your new Business Logo in under review' : '',
+    }
   }
 
 

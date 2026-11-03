@@ -57,15 +57,11 @@ export class UserDetailsComponent {
       error: (err) => {
         this.notificationService.showError(
           'Failed to load vendor details',
-          String(err),
+          String(err)
         );
         this.isLoading = false;
       },
     });
-  }
-
-  transformId(id: number | string): string {
-    return String(id).substring(0, 6).concat('...');
   }
 
   getDocumentUrl(
@@ -146,9 +142,9 @@ export class UserDetailsComponent {
   getDocumentLabel(type: number): string {
     switch (type) {
       case DocumentType.Logo:
-        return 'Business Logo / Other Document';
+        return 'Business Logo';
       case DocumentType.BussinessDocument:
-        return 'Business Registration Document';
+        return 'Business Document';
       case DocumentType.GSTDocument:
         return 'GST Document';
       default:
