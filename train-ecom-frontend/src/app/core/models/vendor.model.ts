@@ -7,6 +7,12 @@ export enum VendorStatus {
   Blocked = 4,
 }
 
+export enum DocumentType {
+  Logo = 1,
+  BussinessDocument = 2,
+  GSTDocument = 3
+}
+
 export interface VendorItem {
   vendorId: number;
   userId: number;
@@ -52,6 +58,7 @@ export interface VendorListResponse {
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
+  newDocumentUrl?: string
   documentLabel?: string;
 }
 
@@ -60,9 +67,11 @@ export interface VendorDetails {
   vendorName: string;
   email: string;
   phoneNumber: string;
+  newPhoneNumber?: string | null;
   bussinessName: string;
   bussinessDescription: string;
   storeName: string;
+  newStoreName?: string | null;
   gstin: string;
   pan: string;
   addressLine1: string;
@@ -72,10 +81,14 @@ export interface VendorDetails {
   country: string;
   postalCode: number;
   bankAccountNumber: string;
+  newBankAccountNumber?: string | null;
   ifscCode: string;
+  newIfscCode?: string | null;
   accountHolderName: string;
+  newAccountHolderName?: string | null;
   documents: VendorDocument[];
   categories: string[];
+  newCategories?: string[] | null;
   status?: ApprovalStatus | number;
 }
 
@@ -105,9 +118,25 @@ export interface VendorProfileEditValues {
   city: string;
   country: string;
   state: string;
-  postalCode: string | number;
-  bankAccountNumber: string | number;
-  acountHolderName: string;
+  postalCode: string;
+  bankAccountNumber: string;
+  accountHolderName: string;
   ifscCode: string;
+  businessDocument: File | string | null;
+  gstDocument: File | string | null;
+  businessLogo: File | string | null;
   rejectionReason: string;
+}
+
+export interface ProfileFieldConfig {
+  label: string;
+  key: string;
+  isList?: boolean;
+  isLink?: boolean;
+  docType?: DocumentType;
+}
+
+export interface VendorTabConfig {
+  label: string;
+  fields: ProfileFieldConfig[];
 }

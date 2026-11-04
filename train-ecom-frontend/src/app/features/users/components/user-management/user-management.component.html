@@ -1,50 +1,76 @@
 <div class="container-fluid mt-2 px-0 user-management-container">
   <div class="sticky-top-section bg-white pb-2">
     <!-- Header -->
-    <div class="row align-items-center justify-content-between mb-3 g-3">
-
-      <div class="col-12 col-md-6">
-        <h2 class="fs-4 fw-bold text-dark m-0">
-          User Management
-        </h2>
-        <p class="text-muted small m-0">
-          View and manage all users.
-        </p>
+    <div
+      class="header-container row align-items-center justify-content-between mb-3 g-3"
+    >
+      <div class="col-12 col-lg">
+        <h2 class="fs-4 fw-bold text-dark m-0">User Management</h2>
+        <p class="text-muted small m-0">View and manage all users.</p>
       </div>
 
-      <!-- Search input section in header -->
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="user-search-field w-100 mb-0 pb-0" subscriptSizing="dynamic" floatLabel="always">
+      <div class="col-12 col-md-6 col-lg-4">
+        <mat-form-field
+          appearance="outline"
+          class="user-search-field w-100 mb-0"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+        >
           <mat-label>Search users...</mat-label>
-          <mat-icon matPrefix class="text-secondary">search</mat-icon>
-          <input matInput placeholder="Type to search..." [formControl]="globalSearch">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            placeholder="Type to search..."
+            [formControl]="globalSearch"
+          />
           <button
             *ngIf="globalSearch.value"
             mat-icon-button
             matSuffix
             type="button"
-            aria-label="Clear search"
-            title="Clear search"
             (click)="clearAllFilters()"
           >
             <mat-icon>close</mat-icon>
           </button>
         </mat-form-field>
       </div>
+      <div class="col-auto" *ngIf="activeTab === 'vendors'">
+        <button
+          [matBadge]="requestCount"
+          matBadgeColor="warn"
+          mat-raised-button
+          color="primary"
+          class="request-btn"
+          (click)="onRequestClick()"
+        >
+          Update Request
+        </button>
+      </div>
     </div>
 
     <!-- new navigation tab -->
-    <mat-tab-group [selectedIndex]="selectedindex" (selectedTabChange)="onTabChange($event)" class="">
-      <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
-      </mat-tab>
+    <mat-tab-group
+      [selectedIndex]="selectedindex"
+      (selectedTabChange)="onTabChange($event)"
+      class=""
+    >
+      <mat-tab *ngFor="let tab of tabs" [label]="tab.label"> </mat-tab>
     </mat-tab-group>
   </div>
 
   <!-- Content area -->
   <div class="tab-content-area row">
-    <div class="col-12" >
-      <app-all-users *ngIf="activeTab === 'customers'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-all-users>
-      <app-vendor-management *ngIf="activeTab === 'vendors'" [externalSearchQuery]="searchQueryText" (searchReset)="globalSearch.setValue('')"></app-vendor-management>
+    <div class="col-12">
+      <app-all-users
+        *ngIf="activeTab === 'customers'"
+        [externalSearchQuery]="searchQueryText"
+        (searchReset)="globalSearch.setValue('')"
+      ></app-all-users>
+      <app-vendor-management
+        *ngIf="activeTab === 'vendors'"
+        [externalSearchQuery]="searchQueryText"
+        (searchReset)="globalSearch.setValue('')"
+      ></app-vendor-management>
     </div>
   </div>
 </div>

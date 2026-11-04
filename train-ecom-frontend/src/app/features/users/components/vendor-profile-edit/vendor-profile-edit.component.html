@@ -1,0 +1,116 @@
+<div class="container-fluid">
+  <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+    <!-- Header -->
+    <div
+      class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3"
+    >
+      <h2 class="fw-bold text-dark m-0">Edit Profile</h2>
+    </div>
+    <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
+      <mat-tab-group animationDuration="300ms">
+        <!-- Personal -->
+
+        <mat-tab label="General">
+          <div class="p-4">
+            <app-personal-details
+              [registerForm]="editForm"
+              [isStep1Valid]="isStep1Valid"
+              [isEditMode]="true"
+              [isPasswordChangeMode]="isPasswordChangeMode"
+              [isOldPassView]="isOldPasswordVisible"
+              [isNewPassView]="isNewPasswordVisible"
+              [isEditConfirmPassView]="isConfirmPasswordVisible"
+              (togglePasswordChange)="togglePasswordChange()"
+              (toggleOldPassword)="toggleOldPasswordVisibility()"
+              (toggleNewPassword)="toggleNewPasswordVisibility()"
+              (toggleEditConfirmPassword)="toggleConfirmPasswordVisibility()"
+            >
+            </app-personal-details>
+          </div>
+        </mat-tab>
+
+        <!-- Business -->
+        <mat-tab label="Business">
+          <div class="p-4">
+            <app-business-details
+              [registerForm]="editForm"
+              [categories$]="categories$"
+              [isStep2Valid]="isStep2Valid"
+              [isEditMode]="true"
+            >
+            </app-business-details>
+          </div>
+        </mat-tab>
+        <!-- Address -->
+        <mat-tab label="Address">
+          <div class="p-4">
+            <app-address-details
+              [registerForm]="editForm"
+              [countries]="countries"
+              [states]="states"
+              [cities]="cities"
+              [isStep3Valid]="isStep3Valid"
+              [isEditMode]="true"
+              (countryChange)="onCountryChange($event.value)"
+              (stateChange)="onStateChange($event.value)"
+            >
+            </app-address-details>
+          </div>
+        </mat-tab>
+        <!-- Tax & Bank -->
+        <mat-tab label="Account & Tax">
+          <div class="p-4">
+            <app-tax-bank-details
+              [registerForm]="editForm"
+              [isStep4Valid]="isStep4Valid"
+              [isEditMode]="true"
+            >
+            </app-tax-bank-details>
+          </div>
+        </mat-tab>
+
+        <!-- Documents -->
+        <mat-tab label="Documents">
+          <div class="p-4">
+            <app-documents-details
+              [registerForm]="editForm"
+              [isLoading]="isSaving"
+              [isEditMode]="true"
+              (fileSelect)="onFileSelect($event.event, $event.controlName)"
+            >
+            </app-documents-details>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+
+      <!-- Validation Message -->
+      <div
+        *ngIf="editForm.touched && invalidFieldLabels.length"
+        class="text-danger small mt-3"
+      >
+        Please fix:
+        {{ invalidFieldLabels.join(", ") }}
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-4">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="onEditModeToggle.emit(false)"
+        >
+          Cancel
+        </button>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="isSaving || editForm.pristine"
+        >
+          {{ isSaving ? "Saving..." : "Save Changes" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
