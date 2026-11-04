@@ -2,42 +2,46 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
-  MatDialogRef,
+  MatDialogRef
 } from '@angular/material/dialog';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'; // 👈 Yeh import karein
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReplaySubject } from 'rxjs';
 import { DashboardService } from '../../../core/services/dashboard.service';
 
 export interface FilterDialogData {
   year?: number | null;
   vendors?: number[];
+  isVendor?: boolean;
+  fromDate?: Date | null;
+  toDate?: Date | null;
 }
-
 export interface FilterDialogResult {
   year: number | null;
   vendors: number[];
+  fromDate: Date | null;
+  toDate: Date | null;
   count: number;
   cleared?: boolean;
 }
-
 interface VendorOption {
   id: number;
   name: string;
 }
-
 @Component({
   selector: 'app-filter-dialog',
   templateUrl: './filter-dialog.component.html',
-  styleUrl: './filter-dialog.component.css',
+  styleUrl: './filter-dialog.component.css'
 })
 export class FilterDialogComponent {
   private dialogRef = inject(MatDialogRef<FilterDialogComponent>);
-  private data = inject<FilterDialogData>(MAT_DIALOG_DATA);
+  public data = inject<FilterDialogData>(MAT_DIALOG_DATA);
   private dashboardService = inject(DashboardService);
 
   public filterForm = new FormGroup({
     year: new FormControl<number | null>(null),
     vendors: new FormControl<number[]>([], { nonNullable: true }),
+    fromDate: new FormControl<Date | null>(null),
+    toDate: new FormControl<Date | null>(null)
   });
   public years: number[] = [];
   public vendorOptions: VendorOption[] = [];
@@ -61,11 +65,15 @@ export class FilterDialogComponent {
   ngOnInit(): void {
     this.generateYears();
     this.filteredYear.next(this.years.slice());
-    this.fetchVendors();
+    if (!this.data.isVendor) {
+      this.fetchVendors();
+    }
 
     this.filterForm.setValue({
       year: this.data.year ?? null,
       vendors: this.data.vendors ?? [],
+      fromDate: this.data.fromDate ?? null,
+      toDate: this.data.toDate ?? null
     });
   }
 
@@ -75,14 +83,14 @@ export class FilterDialogComponent {
         this.vendorOptions = vendors.map(v => ({ id: v.vendorId, name: v.vendorName }));
         this.filteredVendors.next(this.vendorOptions.slice());
       },
-      error: (err) => console.error('Failed to load vendors', err),
+      error: (err) => console.error('Failed to load vendors', err)
     });
   }
 
   private filterYears(): void {
     const search = this.yearFilterForm.value.trim();
     this.filteredYear.next(
-      this.years.filter((year) => year.toString().includes(search)),
+      this.years.filter((year) => year.toString().includes(search))
     );
   }
 
@@ -90,8 +98,8 @@ export class FilterDialogComponent {
     const search = this.vendorFilterForm.value.trim().toLowerCase();
     this.filteredVendors.next(
       this.vendorOptions.filter((vendor) =>
-        vendor.name.toLowerCase().includes(search),
-      ),
+        vendor.name.toLowerCase().includes(search)
+      )
     );
   }
 
@@ -104,12 +112,23 @@ export class FilterDialogComponent {
   }
 
   public applyFilter(): void {
-    const { year, vendors } = this.filterForm.getRawValue();
-    if (year !== null || vendors.length > 0) {
+    const { year, vendors, fromDate, toDate } = this.filterForm.getRawValue();
+    if (
+      year !== null ||
+      vendors.length > 0 ||
+      fromDate !== null ||
+      toDate !== null
+    ) {
       this.dialogRef.close({
         year,
         vendors,
-        count: (year !== null ? 1 : 0) + (vendors.length > 0 ? 1 : 0),
+        fromDate,
+        toDate,
+        count:
+          (year !== null ? 1 : 0) +
+          (vendors.length > 0 ? 1 : 0) +
+          (fromDate !== null ? 1 : 0) +
+          (toDate !== null ? 1 : 0)
       });
     }
   }
@@ -122,8 +141,10 @@ export class FilterDialogComponent {
     this.dialogRef.close({
       year: null,
       vendors: [],
+      fromDate: null,
+      toDate: null,
       count: 0,
-      cleared: true,
+      cleared: true
     });
   }
 
@@ -133,5 +154,13 @@ export class FilterDialogComponent {
 
   public clearVendorSelection(): void {
     this.filterForm.controls.vendors.setValue([]);
+  }
+
+  public clearFromDate(): void {
+    this.filterForm.controls.fromDate.setValue(null);
+  }
+
+  public clearToDate(): void {
+    this.filterForm.controls.toDate.setValue(null);
   }
 }

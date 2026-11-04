@@ -5,6 +5,7 @@ import { PortalKey } from '../../../../core/config/management-access.config';
 import { Role } from '../../../../core/models/auth.model';
 import { OrderStatus } from '../../../../core/models/order.model';
 
+// user chart
 export function getUserChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
@@ -67,9 +68,12 @@ export function getUserChartOptions(
   };
 }
 
+
+// category chart
 export function getProductChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
+  categoryIds: number[]
 ): ChartConfiguration['options'] {
   return {
     responsive: true,
@@ -77,11 +81,11 @@ export function getProductChartOptions(
     onClick: (event, elements, chart) => {
       if (elements && elements.length > 0) {
         const index = elements[0].index;
-        const categoryName = chart.data.labels?.[index];
-        if (categoryName) {
+        const categoryId = categoryIds[index];
+        if (categoryId) {
           const portal = portalRoutes.currentPortal() ?? 'admin';
           router.navigate(portalRoutes.products(portal, 'manage'), {
-            queryParams: { categoryName }
+            queryParams: { categoryId }
           });
         }
       }
@@ -92,19 +96,42 @@ export function getProductChartOptions(
         target.style.cursor = chartElement.length > 0 ? 'pointer' : 'default';
     },
     plugins: {
-      legend: { display: false },
-      datalabels: { display: false }
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.parsed.y ?? 0;
+            return `${context.dataset.label}: ${value} Products`;
+          }
+        }
+      },
+      datalabels: {
+        display: false
+      }
     },
     scales: {
       x: {
-        grid: { display: false },
-        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+        stacked: true,
+        grid: {
+          display: false
+        },
+        ticks: {
+          autoSkip: false,
+          maxRotation: 45,
+          minRotation: 45
+        }
       },
-      y: { beginAtZero: true }
+      y: {
+        stacked: true,
+        beginAtZero: true
+      }
     }
   };
 }
 
+// revenue chart
 export const revenueChartOptions: ChartConfiguration['options'] = {
   responsive: true,
   maintainAspectRatio: false,
@@ -121,6 +148,7 @@ export const revenueChartOptions: ChartConfiguration['options'] = {
   }
 };
 
+// order chart
 export const orderChartOptions: ChartConfiguration['options'] = {
   responsive: true,
   maintainAspectRatio: false,
@@ -181,7 +209,17 @@ export function getOrderChartOptions(
       datalabels: { display: false },
     },
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          callback: function (value) {
+            return Number.isInteger(Number(value))
+              ? value
+              : '';
+          }
+        }
+      }
     }
   };
 }

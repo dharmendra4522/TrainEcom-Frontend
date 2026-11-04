@@ -6,7 +6,7 @@ import {
   DashboardData,
   RecentOrder,
   DashboardOrderRow,
-  DashboardStatItem,
+  DashboardStatItem
 } from '../../../../core/models/dashboard.model';
 import { PortalRouteService } from '../../../../core/services/portal-route.service';
 import { PortalKey } from '../../../../core/config/management-access.config';
@@ -14,19 +14,19 @@ import {
   buildDashboardStats,
   getOrderStatusBadgeClass,
   getPaymentStatusBadgeClass,
-  INITIAL_ADMIN_STATS,
+  INITIAL_ADMIN_STATS
 } from './dashboard.utils';
 import { ApprovalStatus } from '../../../../core/models/user.model';
 import {
   normalizeApprovalStatus,
-  normalizeOrderStatus,
+  normalizeOrderStatus
 } from '../../../../core/utils/role.utils';
 import { OrderStatus } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
+  styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
   isApproved: boolean = true;
@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit {
   public totalCustomers: number = 0;
   public totalAdminUsers: number = 0;
   public totalVendors: number = 0;
+  public totalStaffUsers: number = 0;
   public totalOrders: number = 0;
   public activeOrders: number = 0;
   public deliveredOrders: number = 0;
@@ -58,7 +59,7 @@ export class DashboardComponent implements OnInit {
       label: 'Order Status',
       type: 'badge',
       badgeClassKey: 'orderStatusClass'
-    },
+    }
   ];
 
   private portalRoutes = inject(PortalRouteService);
@@ -68,25 +69,23 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
 
     if (this.portal === 'vendor') {
       this.isVendor = true;
-      this.isLoadingStats = false;
-      this.stats = INITIAL_ADMIN_STATS;
       if (this.checkVendorPending()) {
         this.isApproved = false;
         this.isLoadingStats = false;
         return;
       }
-    } else {
-      // for Admin
+      
       this.isApproved = true;
-      this.fetchDashboardData();
     }
+    this.isApproved = true;
+    this.fetchDashboardData();
   }
 
   private checkVendorPending(): boolean {
@@ -105,6 +104,7 @@ export class DashboardComponent implements OnInit {
         this.totalCustomers = data.totalCustomers;
         this.totalVendors = data.totalVendors;
         this.totalAdminUsers = data.totalAdminUsers;
+        this.totalStaffUsers = data.totalStaffUsers ?? 0;
         this.shippedOrders = data.shippedOrders;
         this.totalOrders = data.totalOrders;
         this.activeOrders = data.activeOrders;
@@ -115,16 +115,12 @@ export class DashboardComponent implements OnInit {
       error: (err: Error) => {
         console.error('Failed to fetch dashboard data', err);
         this.isLoadingStats = false;
-      },
+      }
     });
   }
 
   // Update the stats cards based on the fetched dashboard data
   private updateStatsCards(data: DashboardData): void {
-    if (this.portal === 'vendor') {
-      this.stats = [];
-      return;
-    }
     this.stats = buildDashboardStats(data, this.portalRoutes, this.portal);
   }
 
@@ -142,7 +138,7 @@ export class DashboardComponent implements OnInit {
       orderDate: order.orderDate,
       totalAmount: order.totalPrice,
       orderStatus: normalizeOrderStatus(order.orderStatus),
-      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus),
+      orderStatusClass: getOrderStatusBadgeClass(order.orderStatus)
     };
   }
 

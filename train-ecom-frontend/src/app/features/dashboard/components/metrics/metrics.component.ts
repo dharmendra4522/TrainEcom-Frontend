@@ -21,6 +21,7 @@ export class MetricsComponent {
   @Input() totalCustomers: number = 0;
   @Input() totalVendors: number = 0;
   @Input() totalAdminUsers: number = 0;
+  @Input() totalStaffUsers: number = 0;
   @Input() totalOrders: number = 0;
   @Input() activeOrders: number = 0;
   @Input() deliveredOrders: number = 0;
