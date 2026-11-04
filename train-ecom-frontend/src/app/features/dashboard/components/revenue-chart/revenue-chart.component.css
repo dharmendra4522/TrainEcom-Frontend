@@ -1,0 +1,36 @@
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.spinner-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.bar-chart {
+  display: block;
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.icon-btn {
+  min-width: unset !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  line-height: normal !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn mat-icon {
+  margin: 0 !important;
+}

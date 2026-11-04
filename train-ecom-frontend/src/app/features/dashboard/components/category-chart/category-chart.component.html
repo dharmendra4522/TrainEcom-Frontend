@@ -1,0 +1,23 @@
+<mat-card class="p-3 chart-card w-100">
+  <ng-container *ngIf="isLoading; else categoryContentLoaded">
+    <div class="spinner-container">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+  </ng-container>
+  <ng-template #categoryContentLoaded>
+    <div>
+      <h5 class="card-title m-0 fw-bold">Category</h5>
+      <span class="fw-bold fs-5 text-dark" *ngIf="totalCategories > 0">
+        {{ totalCategories }}</span
+      >
+    </div>
+    <div class="bar-chart">
+      <canvas
+        baseChart
+        [data]="productChartData"
+        [type]="productChartType"
+        [options]="productChartOptions"
+      ></canvas>
+    </div>
+  </ng-template>
+</mat-card>
