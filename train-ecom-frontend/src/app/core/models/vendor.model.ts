@@ -88,7 +88,7 @@ export interface VendorDetails {
   newAccountHolderName?: string | null;
   documents: VendorDocument[];
   categories: string[];
-  newCategories?: string[] | null;
+  newCategories?: string[];
   status?: ApprovalStatus | number;
 }
 

@@ -45,7 +45,9 @@
 
               <!-- for documents -->
               <ng-container *ngIf="field.isLink; else normalField">
-                <div class="d-flex flex-row justify-content-between p-3 bg-light rounded border">
+                <div
+                  class="d-flex flex-row justify-content-between p-3 bg-light rounded border"
+                >
                   <a
                     *ngIf="field.docType && documentUrlMap[field.docType]"
                     [href]="documentUrlMap[field.docType]"
@@ -55,10 +57,10 @@
                     View Document
                   </a>
                   <mat-icon
-                   *ngIf="reviewHints[field.key] && isApprovedVendor"
-                  class="custom-icon"
-                  [matTooltip]="reviewHints[field.key]
-                  ">
+                    *ngIf="reviewHints[field.key] && isApprovedVendor"
+                    class="custom-icon"
+                    [matTooltip]="reviewHints[field.key]"
+                  >
                     information
                   </mat-icon>
                   <span

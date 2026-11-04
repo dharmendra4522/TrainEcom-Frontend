@@ -64,99 +64,93 @@
       <div class="col-12 col-lg-7 d-flex flex-column gap-4">
         <!-- card 1 -->
         <mat-card class="rounded-3 p-4">
-            <h5
-              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
-            >
-              <mat-icon class="text-primary fs-5">person</mat-icon> Basic &
-              Contact Information
-            </h5>
-            <div class="row g-3">
-              <div class="col-md-3">
-                <label class="text-muted small d-block">Vendor Name</label>
-                <span class="fw-semibold text-dark">{{
-                  vendorDetails?.vendorName || "-"
-                }}</span>
-              </div>
-              <div class="col-md-3">
-                <label class="text-muted small d-block">Email Address</label>
-                <span class="fw-semibold text-dark">{{
-                  vendorDetails?.email || "-"
-                }}</span>
-              </div>
-              <div class="col-md-3">
-                <label class="text-muted small d-block">Phone Number</label>
-                <span class="fw-semibold text-dark">{{
-                  vendorDetails?.phoneNumber || "-"
-                }}</span>
-              </div>
-              <ng-container *ngIf="vendorDetails?.newPhoneNumber">
-                <div class="col-md-3">
-                  <label class="text-muted small d-block"
-                    >New Phone Number</label
-                  >
-                  <span class="fw-semibold text-dark">{{
-                    vendorDetails?.newPhoneNumber
-                  }}</span>
-                </div>
-              </ng-container>
+          <h5
+            class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+          >
+            <mat-icon class="text-primary fs-5">person</mat-icon> Basic &
+            Contact Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="text-muted small d-block">Vendor Name</label>
+              <span class="fw-semibold text-dark">{{
+                vendorDetails?.vendorName || "-"
+              }}</span>
             </div>
+            <div class="col-md-3">
+              <label class="text-muted small d-block">Email Address</label>
+              <span class="fw-semibold text-dark">{{
+                vendorDetails?.email || "-"
+              }}</span>
+            </div>
+            <div class="col-md-3">
+              <label class="text-muted small d-block">Phone Number</label>
+              <span class="fw-semibold text-dark">{{
+                vendorDetails?.phoneNumber || "-"
+              }}</span>
+            </div>
+            <ng-container *ngIf="vendorDetails?.newPhoneNumber">
+              <div class="col-md-3">
+                <label class="text-muted small d-block">New Phone Number</label>
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.newPhoneNumber
+                }}</span>
+              </div>
+            </ng-container>
+          </div>
         </mat-card>
 
         <!-- card 2 -->
-        <mat-card class="rounded-3">
-          <div class="card-body p-4">
-            <h5
-              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
-            >
-              <mat-icon class="text-primary fs-5">store</mat-icon> Business &
-              Legal Information
-            </h5>
-            <div class="row g-3">
+        <mat-card class="rounded-3 p-3">
+          <h5
+            class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+          >
+            <mat-icon class="text-primary fs-5">store</mat-icon> Business &
+            Legal Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="text-muted small d-block">Business Name</label>
+              <span class="fw-semibold text-dark">{{
+                vendorDetails?.bussinessName || "-"
+              }}</span>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small d-block">Display Name</label>
+              <span class="fw-semibold text-dark">{{
+                vendorDetails?.storeName || "-"
+              }}</span>
+            </div>
+            <ng-container *ngIf="vendorDetails?.newStoreName">
               <div class="col-md-4">
-                <label class="text-muted small d-block">Business Name</label>
+                <label class="text-muted small d-block">New Display Name</label>
                 <span class="fw-semibold text-dark">{{
-                  vendorDetails?.bussinessName || "-"
+                  vendorDetails?.newStoreName
                 }}</span>
               </div>
-              <div class="col-md-4">
-                <label class="text-muted small d-block">Display Name</label>
-                <span class="fw-semibold text-dark">{{
-                  vendorDetails?.storeName || "-"
-                }}</span>
-              </div>
-              <ng-container *ngIf="vendorDetails?.newStoreName">
-                <div class="col-md-4">
-                  <label class="text-muted small d-block"
-                    >New Display Name</label
-                  >
-                  <span class="fw-semibold text-dark">{{
-                    vendorDetails?.newStoreName || "yetdyfy"
-                  }}</span>
-                </div>
-              </ng-container>
-              <div class="col-md-4">
-                <label class="text-muted small d-block">GST Number </label>
-                <span class="fw-semibold text-dark font-monospace">{{
-                  vendorDetails?.gstin || "-"
-                }}</span>
-              </div>
-              <div class="col-md-4">
-                <label class="text-muted small d-block">PAN Number </label>
-                <span class="fw-semibold text-dark font-monospace">{{
-                  vendorDetails?.pan || "-"
-                }}</span>
-              </div>
-              <div class="col-12">
-                <label class="text-muted small d-block"
-                  >Business Description
-                </label>
-                <p class="text-dark mb-0 bg-light p-2 rounded-2 small">
-                  {{
-                    vendorDetails?.bussinessDescription ||
-                      "No Business Description Provided"
-                  }}
-                </p>
-              </div>
+            </ng-container>
+            <div class="col-md-4">
+              <label class="text-muted small d-block">GST Number </label>
+              <span class="fw-semibold text-dark font-monospace">{{
+                vendorDetails?.gstin || "-"
+              }}</span>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small d-block">PAN Number </label>
+              <span class="fw-semibold text-dark font-monospace">{{
+                vendorDetails?.pan || "-"
+              }}</span>
+            </div>
+            <div class="col-12">
+              <label class="text-muted small d-block"
+                >Business Description
+              </label>
+              <p class="text-dark mb-0 bg-light p-2 rounded-2 small">
+                {{
+                  vendorDetails?.bussinessDescription ||
+                    "No Business Description Provided"
+                }}
+              </p>
             </div>
           </div>
         </mat-card>
@@ -165,174 +159,164 @@
       <!-- right section -->
       <div class="col-12 col-lg-5 d-flex flex-column gap-4">
         <!-- card 1 (Bank Details) -->
-        <mat-card class="rounded-3">
-          <div class="card-body p-4">
-            <h5
-              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
-            >
-              <mat-icon class="text-primary fs-5">account_balance</mat-icon>
-              Account Details
-            </h5>
+        <mat-card class="rounded-3 p-3">
+          <h5
+            class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+          >
+            <mat-icon class="text-primary fs-5">account_balance</mat-icon>
+            Account Details
+          </h5>
 
-            <div class="d-flex flex-column gap-3">
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
+          <div class="d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="text-muted small d-block"
+                  >Account Holder Name</label
+                >
+                <span class="fw-semibold text-dark">{{
+                  vendorDetails?.accountHolderName || "Not Provided"
+                }}</span>
+              </div>
+              <div class="col-12 col-md-6">
+                <ng-container *ngIf="vendorDetails?.newAccountHolderName">
                   <label class="text-muted small d-block"
-                    >Account Holder Name</label
+                    >New Account Holder Name</label
                   >
                   <span class="fw-semibold text-dark">{{
-                    vendorDetails?.accountHolderName || "Not Provided"
+                    vendorDetails?.newAccountHolderName || "Not Provided"
                   }}</span>
-                </div>
-                <div class="col-12 col-md-6">
-                  <ng-container *ngIf="vendorDetails?.newAccountHolderName">
-                    <label class="text-muted small d-block"
-                      >New Account Holder Name</label
-                    >
-                    <span class="fw-semibold text-dark">{{
-                      vendorDetails?.newAccountHolderName || "Not Provided"
-                    }}</span>
-                  </ng-container>
-                </div>
+                </ng-container>
               </div>
+            </div>
 
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <label class="text-muted small d-block">Account Number</label>
-                  <strong class="text-dark font-monospace">{{
-                    vendorDetails?.bankAccountNumber || "Not Provided"
-                  }}</strong>
-                </div>
-                <div class="col-12 col-md-6">
-                  <ng-container *ngIf="vendorDetails?.newBankAccountNumber">
-                    <label class="text-muted small d-block"
-                      >New Account Number</label
-                    >
-                    <strong class="text-dark font-monospace">{{
-                      vendorDetails?.newBankAccountNumber || "adasasdasdas"
-                    }}</strong>
-                  </ng-container>
-                </div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="text-muted small d-block">Account Number</label>
+                <strong class="text-dark font-monospace">{{
+                  vendorDetails?.bankAccountNumber || "Not Provided"
+                }}</strong>
               </div>
-
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <label class="text-muted small d-block">IFSC Code</label>
+              <div class="col-12 col-md-6">
+                <ng-container *ngIf="vendorDetails?.newBankAccountNumber">
+                  <label class="text-muted small d-block"
+                    >New Account Number</label
+                  >
                   <strong class="text-dark font-monospace">{{
-                    vendorDetails?.ifscCode || "Not Provided"
+                    vendorDetails?.newBankAccountNumber || "adasasdasdas"
                   }}</strong>
-                </div>
-                <div class="col-12 col-md-6">
-                  <ng-container *ngIf="vendorDetails?.newIfscCode">
-                    <label class="text-muted small d-block"
-                      >New IFSC Code</label
-                    >
-                    <strong class="text-dark font-monospace">{{
-                      vendorDetails?.newIfscCode || "edwedwd45sds5"
-                    }}</strong>
-                  </ng-container>
-                </div>
+                </ng-container>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="text-muted small d-block">IFSC Code</label>
+                <strong class="text-dark font-monospace">{{
+                  vendorDetails?.ifscCode || "Not Provided"
+                }}</strong>
+              </div>
+              <div class="col-12 col-md-6">
+                <ng-container *ngIf="vendorDetails?.newIfscCode">
+                  <label class="text-muted small d-block">New IFSC Code</label>
+                  <strong class="text-dark font-monospace">{{
+                    vendorDetails?.newIfscCode || "edwedwd45sds5"
+                  }}</strong>
+                </ng-container>
               </div>
             </div>
           </div>
         </mat-card>
 
-        <mat-card class="rounded-3">
-          <div class="card-body p-4">
-            <h5
-              class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
-            >
-              <mat-icon class="text-primary fs-5">location_on</mat-icon> Address
-              & Categories
-            </h5>
+        <mat-card class="rounded-3 p-3">
+          <h5
+            class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2"
+          >
+            <mat-icon class="text-primary fs-5">location_on</mat-icon> Address &
+            Categories
+          </h5>
 
-            <div class="mb-3">
-              <span class="text-muted small d-block">Registered Address</span>
-              <p class="text-dark mb-0 small">
-                {{ vendorDetails?.addressLine1 }}
-                <span *ngIf="vendorDetails?.addressLine2"
-                  >, {{ vendorDetails?.addressLine2 }}</span
-                ><br />
-                {{ vendorDetails?.city }}, {{ vendorDetails?.state }} -
-                {{ vendorDetails?.postalCode }}<br />
-                {{ vendorDetails?.country }}
-              </p>
+          <div class="mb-3">
+            <span class="text-muted small d-block">Registered Address</span>
+            <p class="text-dark mb-0 small">
+              {{ vendorDetails?.addressLine1 }}
+              <span *ngIf="vendorDetails?.addressLine2"
+                >, {{ vendorDetails?.addressLine2 }}</span
+              ><br />
+              {{ vendorDetails?.city }}, {{ vendorDetails?.state }} -
+              {{ vendorDetails?.postalCode }}<br />
+              {{ vendorDetails?.country }}
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <span class="text-muted small d-block mb-1">Categories</span>
+            <div class="d-flex flex-wrap gap-1">
+              <span
+                *ngFor="let cat of vendorDetails?.categories"
+                class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"
+              >
+                {{ cat }}
+              </span>
             </div>
-
+          </div>
+          <ng-container *ngIf="vendorDetails?.newCategories">
             <div class="mb-3">
-              <span class="text-muted small d-block mb-1">Categories</span>
+              <span class="text-muted small d-block mb-1">New Categories</span>
               <div class="d-flex flex-wrap gap-1">
                 <span
-                  *ngFor="let cat of vendorDetails?.categories"
+                  *ngFor="let cat of vendorDetails?.newCategories"
                   class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"
                 >
                   {{ cat }}
                 </span>
               </div>
             </div>
-            <ng-container *ngIf="vendorDetails?.newCategories">
-              <div class="mb-3">
-                <span class="text-muted small d-block mb-1"
-                  >New Categories</span
-                >
-                <div class="d-flex flex-wrap gap-1">
-                  <span
-                    *ngFor="let cat of vendorDetails?.newCategories"
-                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"
+          </ng-container>
+
+          <div>
+            <span class="text-muted small d-block mb-2">Documents</span>
+            <ng-container *ngIf="vendorDetails as details; else noDocs">
+              <div *ngIf="details.documents.length; else noDocs">
+                <div *ngFor="let doc of details.documents" class="mb-3">
+                  <!-- currrent document -->
+                  <div class="d-flex justify-content-between align-items-start">
+                    <span class="text-muted fw-semibold">
+                      {{ doc.documentLabel }}
+                    </span>
+                    <a
+                      *ngIf="getDocumentUrl(doc) as documentUrl"
+                      [href]="documentUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      View Document
+                    </a>
+                  </div>
+                  <!-- new document -->
+                  <div
+                    *ngIf="doc.newDocumentUrl"
+                    class="d-flex justify-content-between align-items-start mt-1"
                   >
-                    {{ cat }}
-                  </span>
+                    <span class="text-muted fw-semibold">
+                      New {{ doc.documentLabel }}
+                    </span>
+                    <a
+                      [href]="doc.newDocumentUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      View New Document
+                    </a>
+                  </div>
                 </div>
               </div>
             </ng-container>
 
-            <div>
-              <span class="text-muted small d-block mb-2">Documents</span>
-              <ng-container *ngIf="vendorDetails as details; else noDocs">
-                <div *ngIf="details.documents.length; else noDocs">
-                  <div *ngFor="let doc of details.documents" class="mb-3">
-                    <!-- currrent document -->
-                    <div
-                      class="d-flex justify-content-between align-items-start"
-                    >
-                      <span class="text-muted fw-semibold">
-                        {{ doc.documentLabel }}
-                      </span>
-                      <a
-                        *ngIf="getDocumentUrl(doc) as documentUrl"
-                        [href]="documentUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-decoration-none"
-                      >
-                        View Document
-                      </a>
-                    </div>
-                    <!-- new document -->
-                    <div
-                      *ngIf="doc.newDocumentUrl"
-                      class="d-flex justify-content-between align-items-start mt-1"
-                    >
-                      <span class="text-muted fw-semibold">
-                        New {{ doc.documentLabel }}
-                      </span>
-                      <a
-                        [href]="doc.newDocumentUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-decoration-none"
-                      >
-                        View New Document
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-
-              <ng-template #noDocs>
-                <span class="text-muted small"> No documents uploaded. </span>
-              </ng-template>
-            </div>
+            <ng-template #noDocs>
+              <span class="text-muted small"> No documents uploaded. </span>
+            </ng-template>
           </div>
         </mat-card>
       </div>

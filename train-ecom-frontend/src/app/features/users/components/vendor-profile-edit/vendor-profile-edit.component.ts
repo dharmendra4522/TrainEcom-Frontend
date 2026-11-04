@@ -14,7 +14,6 @@ import { DocumentType, VendorProfileEditValues } from '../../../../core/models/v
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { normalizeCategoryIds, passwordMatchValidator } from '../../users.utils';
-import { selectUserProfile } from '../../../../core/store/user/user.selectors';
 
 @Component({
   selector: 'app-vendor-profile-edit',
@@ -495,7 +494,7 @@ export class VendorProfileEditComponent implements OnChanges {
       payload.phoneNumber = value.phoneNumber;
     }
     const vendor = this.userProfileData?.vendorDetails;
-    const businessDetails: NonNullable<UpdateProfilePayload['bussinessDetails']> = {};
+    const businessDetails: UpdateProfilePayload['bussinessDetails'] = {};
 
     if (value.displayName !== vendor?.storeName) {
       businessDetails.storeName = value.displayName;
