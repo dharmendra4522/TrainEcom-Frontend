@@ -204,20 +204,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.portal = this.portalRoutes.currentPortal() ?? 'admin';
-    const initialCategory =
-      this.route.snapshot.queryParamMap.get('category');
-    const initialCategoryId = this.parseCategoryId(initialCategory);
-    if (initialCategoryId !== null) {
-      this.categoryControl.setValue(initialCategoryId, { emitEvent: false });
-    }
-
     this.loadInitialMetadata();
     this.initSubscriptions();
     this.setupSearchFilter();
     this.route.queryParamMap
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-        const categoryId = this.parseCategoryId(params.get('category'));
+        const categoryId = this.parseCategoryId(params.get('categoryId'));
         if (this.categoryControl.value !== categoryId) {
           this.categoryControl.setValue(categoryId);
         }

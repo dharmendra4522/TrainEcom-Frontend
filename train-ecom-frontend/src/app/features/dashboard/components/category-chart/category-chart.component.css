@@ -1,0 +1,21 @@
+.chart-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.chart-card ng-container + div,
+.spinner-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bar-chart {
+  display: block;
+  position: relative;
+  height: 300px;
+  width: 100%;
+}

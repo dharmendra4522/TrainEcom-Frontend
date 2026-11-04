@@ -73,6 +73,7 @@ export function getUserChartOptions(
 export function getProductChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
+  categoryIds: number[]
 ): ChartConfiguration['options'] {
   return {
     responsive: true,
@@ -80,11 +81,11 @@ export function getProductChartOptions(
     onClick: (event, elements, chart) => {
       if (elements && elements.length > 0) {
         const index = elements[0].index;
-        const categoryName = chart.data.labels?.[index];
-        if (categoryName) {
+        const categoryId = categoryIds[index];
+        if (categoryId) {
           const portal = portalRoutes.currentPortal() ?? 'admin';
           router.navigate(portalRoutes.products(portal, 'manage'), {
-            queryParams: { categoryName }
+            queryParams: { categoryId }
           });
         }
       }

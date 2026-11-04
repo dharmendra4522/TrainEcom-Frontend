@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import {
   AdminOrderFilterParams,
   AdminOrderItem,
+  LegacyAdminOrderFilterParams,
   OrderListField,
   OrderStatus,
   PaymentStatus
@@ -28,10 +29,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { getOrderStatusClass, getPaymentStatusClass } from '../../../../shared/utils/status-badge.utils';
 import { Range } from '../../../../shared/components/multiselect-dropdown/multiselect-dropdown.component';
 
-interface LegacyAdminOrderFilterParams extends AdminOrderFilterParams {
-  Month?: number;
-  Year?: number;
-}
 
 @Component({
   selector: 'app-order-management',
@@ -51,7 +48,7 @@ export class OrderManagementComponent implements OnInit {
   showFilterHeader: boolean = true;
 
   filterForm = new FormGroup({
-    search: new FormControl(''),
+    search: new FormControl('')
   });
 
   // Pagination State
@@ -237,20 +234,20 @@ export class OrderManagementComponent implements OnInit {
     const selectedAmountRange = this.selectedRangesMap['totalAmount'];
 
     return {
-      Search: search,
-      SearchField: searchField,
-      OrderStatus: selectedStatuses.length > 0 ? selectedStatuses : undefined,
-      PaymentStatus:
+      search: search,
+      searchField: searchField,
+      orderStatus: selectedStatuses.length > 0 ? selectedStatuses : undefined,
+      paymentStatus:
         selectedPaymentStatuses.length > 0
           ? selectedPaymentStatuses
           : undefined,
-      OrderDate: this.selectedOrderDate,
-      MinOrderAmount: selectedAmountRange?.min,
-      MaxOrderAmount: selectedAmountRange?.max,
-      Month: this.selectedMonth,
-      Year: this.selectedYear,
-      PageNumber: this.pageIndex + 1,
-      PageSize: this.pageSize
+      orderDate: this.selectedOrderDate,
+      minOrderAmount: selectedAmountRange?.min,
+      maxOrderAmount: selectedAmountRange?.max,
+      month: this.selectedMonth,
+      year: this.selectedYear,
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
     };
   }
 
@@ -309,19 +306,19 @@ export class OrderManagementComponent implements OnInit {
     if (this.columnFilters['orderId']?.trim()) {
       return {
         term: this.columnFilters['orderId'].trim(),
-        field: OrderListField.OrderId,
+        field: OrderListField.OrderId
       };
     }
     if (this.columnFilters['customerName']?.trim()) {
       return {
         term: this.columnFilters['customerName'].trim(),
-        field: OrderListField.CustomerName,
+        field: OrderListField.CustomerName
       };
     }
     if (this.columnFilters['totalItems']?.trim()) {
       return {
         term: this.columnFilters['totalItems'].trim(),
-        field: OrderListField.Items,
+        field: OrderListField.Items
       };
     }
     return undefined;
@@ -334,14 +331,14 @@ export class OrderManagementComponent implements OnInit {
   private getSelectedOrderStatuses(): OrderStatus[] {
     const selectedValues = this.selectedFiltersMap['orderStatus'] ?? [];
     return selectedValues.filter(
-      (value): value is OrderStatus => typeof value === 'number',
+      (value): value is OrderStatus => typeof value === 'number'
     );
   }
 
   private getSelectedPaymentStatuses(): PaymentStatus[] {
     const selectedValues = this.selectedFiltersMap['paymentStatus'] ?? [];
     return selectedValues.filter(
-      (value): value is PaymentStatus => typeof value === 'number',
+      (value): value is PaymentStatus => typeof value === 'number'
     );
   }
 
@@ -378,7 +375,7 @@ export class OrderManagementComponent implements OnInit {
     } else if (columnKey === 'orderStatus' || columnKey === 'paymentStatus') {
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,
-        [columnKey]: [],
+        [columnKey]: []
       };
     }
     this.pageIndex = 0;
@@ -402,7 +399,7 @@ export class OrderManagementComponent implements OnInit {
     }
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-      [event.columnKey]: selectedValues,
+      [event.columnKey]: selectedValues
     };
   }
 
@@ -412,7 +409,7 @@ export class OrderManagementComponent implements OnInit {
     }
     this.selectedRangesMap = {
       ...this.selectedRangesMap,
-      totalAmount: { min: range.min, max: range.max },
+      totalAmount: { min: range.min, max: range.max }
     };
   }
 
@@ -438,7 +435,7 @@ export class OrderManagementComponent implements OnInit {
     this.filterForm.patchValue({ search: '' }, { emitEvent: false });
     this.selectedFiltersMap = {
       orderStatus: [],
-      paymentStatus: [],
+      paymentStatus: []
     };
     this.selectedRangesMap = {};
     this.columnFilters = {};
@@ -454,9 +451,9 @@ export class OrderManagementComponent implements OnInit {
         orderStatus: null,
         paymentStatus: null,
         month: null,
-        year: null,
+        year: null
       },
-      queryParamsHandling: 'merge',
+      queryParamsHandling: 'merge'
     });
   }
 
@@ -464,11 +461,11 @@ export class OrderManagementComponent implements OnInit {
     const orderId = row['orderId'];
     if (typeof orderId === 'string' && orderId !== '') {
       this.router.navigate(
-        this.portalRoutes.orders(this.portal, 'details', orderId),
+        this.portalRoutes.orders(this.portal, 'details', orderId)
       );
     } else if (typeof orderId === 'number' && Number.isFinite(orderId)) {
       this.router.navigate(
-        this.portalRoutes.orders(this.portal, 'details', orderId.toString()),
+        this.portalRoutes.orders(this.portal, 'details', orderId.toString())
       );
     }
   }

@@ -5,7 +5,7 @@ import { Category } from '../../../core/models/category.model';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import * as CategoryActions from '../../../core/store/category/category.action';
-import { selectAllCategories } from '../../../core/store/category/category.selectors';
+import { selectPaginatedCategories } from '../../../core/store/category/category.selectors';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Country, State, City } from 'country-state-city';
 import { ICountry, IState, ICity } from 'country-state-city';
@@ -19,6 +19,7 @@ import {
   bankDetailsValidator,
   createVendorFormData,
   fileValidator,
+  nameValidator,
   noSpaceAllow,
   passwordMatchValidator
 } from '../register.utils';
@@ -48,6 +49,8 @@ export class VendorRegisterComponent implements OnInit {
 
   // for tab navigation
   currentStep: number = 1;
+  maxFileSize: number = 5;
+  minLength: number = 3;
 
   ngOnInit() {
     this.initializeForm();
@@ -64,66 +67,48 @@ export class VendorRegisterComponent implements OnInit {
   private initializeForm(): void {
     this.registerForm = this.fb.group(
       {
-        firstName: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(3),
-            noSpaceAllow(),
-            Validators.pattern(/^[a-zA-Z\s]+$/)
-          ]
-        ],
-        lastName: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(3),
-            noSpaceAllow(),
-            Validators.pattern(/^[a-zA-Z\s]+$/)
-          ]
-        ],
+        firstName: ['', nameValidator],
+        lastName: ['', nameValidator],
         phoneNumber: [
           '',
-          [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]
+          Validators.compose([Validators.required, Validators.pattern(/^[6-9]\d{9}$/)])
         ],
-        email: ['', [Validators.required, Validators.email]],
+        email: ['', Validators.compose([Validators.required, Validators.email])],
         password: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.minLength(8),
-            Validators.pattern(
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-            )
-          ]
+            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+          ])
         ],
         confirmPassword: ['', [Validators.required]],
-        businessName: ['', [Validators.required, Validators.minLength(3)]],
-        displayName: ['', [Validators.required, Validators.minLength(3)]],
+        businessName: ['', Validators.compose([Validators.required, Validators.minLength(this.minLength)])],
+        displayName: ['', Validators.compose([Validators.required, Validators.minLength(this.minLength)])],
         bussinessDescription: [
           '',
-          [Validators.required, Validators.minLength(10), noSpaceAllow()]
+          Validators.compose([Validators.required, Validators.minLength(10), noSpaceAllow()])
         ],
         businessCategory: [[], Validators.required],
-        gstDocument: ['', [fileValidator(['application/pdf'], 5)]],
-        businessDocument: ['', [fileValidator(['application/pdf'], 5)]],
+        gstDocument: ['', Validators.compose([fileValidator(['application/pdf'], this.maxFileSize)])],
+        businessDocument: ['', Validators.compose([fileValidator(['application/pdf'], this.maxFileSize)])],
         businessLogo: [
           '',
-          [
+          Validators.compose([
             fileValidator(
               ['image/jpeg', 'image/png', 'image/jpeg', 'image/webp'],
-              5
+              this.maxFileSize
             )
-          ]
+          ])
         ],
         gstin: [
           '',
-          [
+          Validators.compose([
             Validators.required,
             Validators.pattern(
               /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/
             )
-          ]
+          ])
         ],
         panNumber: [
           '',
@@ -136,15 +121,15 @@ export class VendorRegisterComponent implements OnInit {
         state: ['', Validators.required],
         postalCode: [
           '',
-          [Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)]
+          Validators.compose([Validators.required, Validators.pattern(/^(?!0{6})\d{6}$/)])
         ],
 
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
         acountHolderName: [
           '',
-          [Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()]
+          Validators.compose([Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()])
         ],
-        ifscCode: ['', [Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]]
+        ifscCode: ['', Validators.compose([Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)])]
       },
       { validators: [passwordMatchValidator, bankDetailsValidator()] }
     );
@@ -221,7 +206,8 @@ export class VendorRegisterComponent implements OnInit {
     });
   }
 
-  viewPassord(): void {
+  // these methods are used to hide/show the password, confirm password 
+  viewPassword(): void {
     this.isPasswordView = !this.isPasswordView;
   }
 
@@ -229,12 +215,13 @@ export class VendorRegisterComponent implements OnInit {
     this.isConfirmPassView = !this.isConfirmPassView;
   }
 
+  // fetch all category from store
   fetchAllCategory(): void {
-    this.store.dispatch(CategoryActions.loadCategories());
-
-    this.categories$ = this.store.select(selectAllCategories);
+    this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10 }));
+    this.categories$ = this.store.select(selectPaginatedCategories);
   }
 
+  // handle the file selection for gstDocument, businessDocument, and businessLogo
   onFileSelect(event: Event, controlName: string): void {
     const inputEvent = event.target as HTMLInputElement;
     if (inputEvent.files && inputEvent.files.length > 0) {

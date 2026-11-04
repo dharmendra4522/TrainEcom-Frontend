@@ -1,9 +1,12 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
+import { loadPaginatedBrandsSuccess } from './../../../../../core/store/brand/brand.action';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Category } from '../../../../../core/models/category.model';
 import { getFieldError, trimControlValue } from '../../../register.utils';
+import { Store } from '@ngrx/store';
+import * as CategoryActions from '../../../../../core/store/category/category.action'
 
 @Component({
   selector: 'app-business-details',
@@ -11,6 +14,8 @@ import { getFieldError, trimControlValue } from '../../../register.utils';
   styleUrl: './business-details.component.css',
 })
 export class BusinessDetailsComponent implements OnInit, OnDestroy {
+  private store = inject(Store);
+
   @Input() registerForm!: FormGroup;
   @Input() categories$!: Observable<Category[]>;
   @Input() isStep2Valid: boolean = false;
@@ -22,10 +27,18 @@ export class BusinessDetailsComponent implements OnInit, OnDestroy {
   public categoryFilter: FormControl = new FormControl('');
   public allCategories: Category[] = [];
   public filteredCategories: Category[] = [];
-  
+
   private destroy$ = new Subject<void>();
 
   public ngOnInit(): void {
+    this.categoryFilter.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(search => {
+      const searchTerm = search?.toLowerCase().trim() || undefined;
+      this.store.dispatch(CategoryActions.loadPaginatedCategories({ pageNumber: 1, pageSize: 10, search: searchTerm, refresh: true }));
+    })
     // Categories stream ko subscribe karke local array mein save karein
     if (this.categories$) {
       this.categories$.pipe(takeUntil(this.destroy$)).subscribe((cats) => {
@@ -33,24 +46,6 @@ export class BusinessDetailsComponent implements OnInit, OnDestroy {
         this.filteredCategories = this.allCategories;
       });
     }
-
-    // Search input change hone par list filter karein
-    this.categoryFilter.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((searchTerm) => {
-        this.filterCategories(searchTerm);
-      });
-  }
-
-  private filterCategories(search: string): void {
-    if (!search) {
-      this.filteredCategories = this.allCategories;
-      return;
-    }
-    const filterValue = search.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((cat) =>
-      cat.name.toLowerCase().includes(filterValue)
-    );
   }
 
   public ngOnDestroy(): void {
@@ -73,5 +68,17 @@ export class BusinessDetailsComponent implements OnInit, OnDestroy {
   onBlurTrim(controlName: string): void {
     const control = this.registerForm.get(controlName);
     trimControlValue(control);
+  }
+
+  // clear filter input
+  clearCategoryFilter(event: MouseEvent): void {
+    event.stopPropagation();
+    this.categoryFilter.setValue('');
+  }
+  // handle category selection
+  clearAllCategories(event: MouseEvent): void {
+    event.stopPropagation();
+    this.registerForm.get('businessCategory')?.setValue([]);
+    this.registerForm.get('businessCategory')?.markAsTouched();
   }
 }

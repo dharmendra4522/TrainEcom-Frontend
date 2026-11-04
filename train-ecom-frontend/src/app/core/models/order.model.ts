@@ -4,7 +4,7 @@ import { OrderItemReviewSummary } from './review.model';
 export { PaymentMethod, OrderStatus, PaymentStatus };
 
 export interface OrderListItem extends Record<string, unknown> {
-  orderId: number | string;
+  orderId: number;
   orderDate: string;
   totalAmount: number;
   orderStatus: OrderStatus;
@@ -14,7 +14,7 @@ export interface OrderListItem extends Record<string, unknown> {
 }
 
 export interface AdminOrderItem extends Record<string, unknown> {
-  orderId: number | string;
+  orderId: number;
   customerName: string;
   totalAmount: number;
   totalItems: number;
@@ -33,19 +33,24 @@ export interface AdminOrderListResponse {
 }
 
 export interface AdminOrderFilterParams {
-  Search?: string;
-  SearchField?: OrderListField;
-  OrderStatus?: OrderStatus[];
-  PaymentStatus?: PaymentStatus[];
-  OrderDate?: string;
-  MinOrderAmount?: number;
-  MaxOrderAmount?: number;
-  PageNumber?: number;
-  PageSize?: number;
+  search?: string;
+  searchField?: OrderListField;
+  orderStatus?: OrderStatus[];
+  paymentStatus?: PaymentStatus[];
+  orderDate?: string;
+  minOrderAmount?: number;
+  maxOrderAmount?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface LegacyAdminOrderFilterParams extends AdminOrderFilterParams {
+  month?: number;
+  year?: number;
 }
 
 export interface OrderHistoryItem {
-  orderId: number | string;
+  orderId: number;
   orderName: string;
   orderDate: string;
   totalAmount: number;
@@ -68,13 +73,13 @@ export interface OrderHistoryFilterParams {
   search?: string;
   fromDate?: string;
   toDate?: string;
-  orderStatus?: OrderStatus | string;
+  orderStatus?: OrderStatus;
   pageNumber?: number;
   pageSize?: number;
 }
 
 export interface OrderItemDetail {
-  productId: number | string;
+  productId: number;
   productName: string;
   thumbnailUrl: string;
   quantity: number;
@@ -102,7 +107,7 @@ export interface PaymentDetail {
 }
 
 export interface OrderDetailsResponse {
-  orderId: number | string;
+  orderId: number;
   orderDate: string;
   orderStatus: OrderStatus;
   remark?: string | null;
@@ -129,13 +134,13 @@ export interface OrderTrackingStep {
 }
 
 export interface OrderTrackingResponse {
-  orderId: number | string;
+  orderId: number;
   currentStatus: string;
   trackingSteps: OrderTrackingStep[];
 }
 
 export interface UpdateOrderStatusResponse {
-  orderId: number | string;
+  orderId: number;
   orderStatus: OrderStatus;
   message: string;
 }
@@ -145,3 +150,21 @@ export enum OrderListField {
   CustomerName = 2,
   Items = 3
 }
+
+export type OrderHistoryViewModel = OrderHistoryItem & {
+  orderStatusLabel: string;
+  paymentStatusLabel: string;
+  orderStatusClass: string;
+  paymentStatusClass: string;
+  imageUrl: string;
+};
+
+export type TrackingStepViewModel = OrderTrackingStep & {
+  statusLabel: string;
+  isCancelled: boolean;
+};
+
+export type TrackingViewModel = OrderTrackingResponse & {
+  currentStatusLabel: string;
+  trackingSteps: TrackingStepViewModel[];
+};

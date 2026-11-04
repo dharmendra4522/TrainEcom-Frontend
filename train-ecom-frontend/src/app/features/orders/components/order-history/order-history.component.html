@@ -6,28 +6,13 @@
     >
       <div>
         <h2 class="fw-bold text-dark m-0 fs-4 fs-sm-2">Order History</h2>
-        <p class="text-muted small m-0">
-          Track and manage your order history
-        </p>
+        <p class="text-muted small m-0">Track and manage your order history</p>
       </div>
     </div>
 
     <!-- Filters Card -->
     <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
       <div class="row g-3 align-items-center">
-        <!-- Search Input -->
-        <!-- <div class="col-12 col-md-6 col-xl-3">
-          <mat-form-field appearance="outline" class="w-100 density-compact">
-            <mat-label>Search by Order ID or Name</mat-label>
-            <input
-              matInput
-              (input)="onSearchInput($event)"
-              placeholder="Enter Order ID or Product name..."
-            />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-        </div> -->
-
         <!-- Order Status Filter -->
         <div class="col-12 col-sm-6 col-md-3 col-xl-3">
           <mat-form-field appearance="outline" class="w-100 density-compact">
@@ -39,9 +24,9 @@
               <mat-option value="">All Status</mat-option>
               <mat-option
                 *ngFor="let status of orderStatusOptions"
-                [value]="status"
+                [value]="status.value"
               >
-                {{ normalizeOrderStatus(status) }}
+                {{ status.label }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -95,6 +80,7 @@
             mat-flat-button
             color="primary"
             class="flex-grow-1"
+            [disabled]="!fromDate && !toDate"
             (click)="applyDateFilter()"
             title="Apply Filter"
           >
@@ -104,6 +90,7 @@
             mat-stroked-button
             color="warn"
             class="flex-grow-1"
+            [disabled]="!fromDate && !toDate && !selectedStatus"
             (click)="resetFilters()"
             title="Reset Filters"
           >
@@ -125,9 +112,7 @@
     *ngIf="!isLoading && orderHistory.length === 0"
     class="text-center py-5 bg-white rounded-4 shadow-sm px-3"
   >
-    <mat-icon class="fs-1 text-secondary mb-2 icon-size"
-      >receipt_long</mat-icon
-    >
+    <mat-icon class="fs-1 text-secondary mb-2 icon-size">receipt_long</mat-icon>
     <h6 class="fw-bold text-dark mb-1">No Orders Found</h6>
     <p class="text-secondary small mb-0">
       No orders match your filter criteria.
@@ -151,9 +136,7 @@
               class="ratio ratio-1x1 bg-light rounded-2 rounded-sm-3 overflow-hidden border order-thumb"
             >
               <img
-                [src]="
-                  getImageUrl(order.thumbnailUrl) || 'assets/placeholder.jpg'
-                "
+                [src]="order.imageUrl"
                 appImgFallback
                 [alt]="order.orderName || 'Order Item'"
                 class="object-fit-cover w-100 h-100"
@@ -187,16 +170,16 @@
               <div class="d-flex align-items-center gap-1 gap-sm-2 flex-wrap">
                 <span
                   class="badge px-2 py-1 rounded-pill small fw-semibold"
-                  [ngClass]="getOrderStatusClass(order.orderStatus)"
+                  [ngClass]="order.orderStatusClass"
                 >
-                  {{ normalizeOrderStatus(order.orderStatus) }}
+                  {{ order.orderStatusLabel }}
                 </span>
                 <span
                   *ngIf="order.paymentStatus !== undefined"
                   class="badge px-2 py-1 rounded-pill small fw-semibold"
-                  [ngClass]="getPaymentStatusClass(order.paymentStatus)"
+                  [ngClass]="order.paymentStatusClass"
                 >
-                  {{ normalizePaymentStatus(order.paymentStatus) }}
+                  {{ order.paymentStatusLabel }}
                 </span>
                 <span class="text-muted small fs-7"
                   >Items: {{ order.totalItems }}</span

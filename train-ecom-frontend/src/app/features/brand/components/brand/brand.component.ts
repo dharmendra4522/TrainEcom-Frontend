@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Brand, BrandListField } from '../../../../core/models/brand.model';
+import { Brand, BrandListField, CreateBrandRequest, UpdateBrandRequest } from '../../../../core/models/brand.model';
 import { BrandCategoryDialogComponent } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import {
   TableColumn,
@@ -56,7 +56,7 @@ export class BrandComponent implements OnInit, OnDestroy {
   headerFilters: Record<string, string> = {};
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', filterable: true, filterType: 'search', clickable: true},
+    { key: 'id', label: 'ID', filterable: true, filterType: 'search', clickable: true },
     { key: 'name', label: 'Brand Name', filterable: true, filterType: 'search' },
     { key: 'description', label: 'Description', filterable: true, filterType: 'search', filterDisabled: true },
     { key: 'numberOfProducts', label: 'Total Products', filterable: true, filterType: 'search', filterDisabled: true }
@@ -170,18 +170,18 @@ export class BrandComponent implements OnInit, OnDestroy {
     });
   }
 
-  createBrand(payload: { name: string; description: string }): void {
-    this.store.dispatch(BrandActions.createBrand({ brand: payload as Brand }));
+  createBrand(payload: CreateBrandRequest): void {
+    this.store.dispatch(BrandActions.createBrand({ brand: payload }));
   }
 
   updateBrand(
     id: number,
-    payload: { name: string; description: string }
+    payload: UpdateBrandRequest
   ): void {
     this.store.dispatch(
       BrandActions.updateBrand({
         brandId: id,
-        brand: payload as Brand
+        brand: payload
       })
     );
   }
@@ -204,25 +204,25 @@ export class BrandComponent implements OnInit, OnDestroy {
 
   // handle header filter search
   onTableFilterChanged(
-  filters: Record<string, string>
-): void {
-  this.headerFilters = filters;
-  this.currentPage = 0;
-  this.loadBrand(
-    this.currentPage,
-    this.pageSize
-  );
-}
+    filters: Record<string, string>
+  ): void {
+    this.headerFilters = filters;
+    this.currentPage = 0;
+    this.loadBrand(
+      this.currentPage,
+      this.pageSize
+    );
+  }
 
-// handle header filter clear
+  // handle header filter clear
   onTableFilterCleared(_columnKey: string): void {
-  this.headerFilters = {};
-  this.currentPage = 0;
-  this.loadBrand(
-    this.currentPage,
-    this.pageSize
-  );
-}
+    this.headerFilters = {};
+    this.currentPage = 0;
+    this.loadBrand(
+      this.currentPage,
+      this.pageSize
+    );
+  }
 
   // handle header filter search
   private getHeaderSearchValue(): string | undefined {
@@ -231,18 +231,18 @@ export class BrandComponent implements OnInit, OnDestroy {
 
   private getSearchField(): BrandListField | undefined {
     const activeKey = this.headerFilters['id']
-     ? 'id'
-     : this.headerFilters['name']
-       ? 'name'
-       : undefined;
+      ? 'id'
+      : this.headerFilters['name']
+        ? 'name'
+        : undefined;
 
     switch (activeKey) {
-     case 'id':
-       return BrandListField.ID;
-     case 'name':
-       return BrandListField.Name;
-     default:
-       return undefined;
+      case 'id':
+        return BrandListField.ID;
+      case 'name':
+        return BrandListField.Name;
+      default:
+        return undefined;
     }
   }
 

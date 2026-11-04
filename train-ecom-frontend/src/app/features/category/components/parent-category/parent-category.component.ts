@@ -8,31 +8,31 @@ import {
   map,
   switchMap,
   take,
-  takeUntil,
+  takeUntil
 } from 'rxjs/operators';
 import {
   Category,
   CategoryListField,
-  UpdateCategoryRequest,
+  UpdateCategoryRequest
 } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import {
   TableAction,
   TableActionEvent,
-  TableColumn,
+  TableColumn
 } from '../../../../core/models/table.model';
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import * as CategoryActions from '../../../../core/store/category/category.action';
 import {
   selectCategoryLoading,
   selectCategoryTotalRecords,
-  selectPaginatedCategories,
+  selectPaginatedCategories
 } from '../../../../core/store/category/category.selectors';
 import {
   BrandCategoryDialogComponent,
   BrandCategoryDialogData,
-  BrandCategoryDialogResult,
+  BrandCategoryDialogResult
 } from '../../../../shared/components/brand-category-dialog/brand-category-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -52,15 +52,16 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   paginatedCategories$: Observable<Category[]> = this.store.select(
-    selectPaginatedCategories,
+    selectPaginatedCategories
   );
   isLoading$: Observable<boolean> = this.store.select(selectCategoryLoading);
   totalRecords$: Observable<number> = this.store.select(
-    selectCategoryTotalRecords,
+    selectCategoryTotalRecords
   );
 
-  currentPage = 1;
-  pageSize = 15;
+  currentPage: number = 1;
+  pageSize: number = 15;
+  pageNumber: number = 1
   showHeaderFilter: boolean = true;
   headerFilters: Record<string, string> = {};
 
@@ -117,7 +118,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.loadPage(1, this.pageSize, this.searchControl.value);
+    this.loadPage(this.pageNumber, this.pageSize, this.searchControl.value);
     this.setupSearchFilter();
   }
 
@@ -129,7 +130,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
         distinctUntilChanged(),
         switchMap((searchTerm) => {
           this.currentPage = 1;
-          this.loadPage(1, this.pageSize, searchTerm);
+          this.loadPage(this.pageNumber, this.pageSize, searchTerm);
           return EMPTY;
         }),
         takeUntil(this.destroy$),
@@ -172,7 +173,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
     pageNumber: number,
     pageSize: number,
     search: string,
-    refresh = false,
+    refresh = false
   ): void {
     this.currentPage = pageNumber;
     const headerSearch = this.getSearchValue();
@@ -183,12 +184,12 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
         search: headerSearch || search.trim() || undefined,
         searchField: headerSearch ? this.getSearchField() : undefined,
         refresh
-      }),
+      })
     );
   }
 
   private updateCategory(
-    id: string | number,
+    id: number,
     payload: UpdateCategoryRequest
   ): void {
     this.categoryService
@@ -197,23 +198,23 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.notificationService.showSuccess('Category updated successfully.');
-          this.loadPage(1, this.pageSize, this.searchControl.value, true);
+          this.loadPage(this.pageNumber, this.pageSize, this.searchControl.value, true);
         },
         error: (error) => {
           console.error('Error updating category:', error);
           this.notificationService.showError(
-            'Failed to update category. Please try again.',
+            'Failed to update category. Please try again.'
           );
-        },
+        }
       });
   }
 
-  private deleteCategory(id: string | number): void {
+  private deleteCategory(id: number): void {
     this.confirmDialog
       .confirm(
         'Are you sure you want to delete this category?',
         'Delete',
-        'Cancel',
+        'Cancel'
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((confirmed: boolean) => {
@@ -224,16 +225,15 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
             .subscribe({
               next: () => {
                 this.notificationService.showSuccess(
-                  'Category deleted successfully.',
+                  'Category deleted successfully.'
                 );
                 this.loadPage(1, this.pageSize, this.searchControl.value, true);
               },
               error: (error) => {
-                console.error('Error deleting category:', error);
                 this.notificationService.showError(
-                  'Failed to delete category. Please try again.',
+                  'Failed to delete category. Please try again.'
                 );
-              },
+              }
             });
         }
       });
@@ -244,7 +244,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
       title: 'Edit Category',
       type: 'Category',
       isEdit: true,
-      initialData: { name: category.name, description: category.description },
+      initialData: { name: category.name, description: category.description }
     };
     const dialogRef = this.dialog.open<
       BrandCategoryDialogComponent,
@@ -252,7 +252,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
       BrandCategoryDialogResult
     >(BrandCategoryDialogComponent, {
       width: '500px',
-      data,
+      data
     });
 
     dialogRef
@@ -262,7 +262,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
         if (result && category.id) {
           const payload: UpdateCategoryRequest = {
             name: result.name,
-            description: result.description,
+            description: result.description
           };
           this.updateCategory(category.id, payload);
         }
@@ -306,7 +306,7 @@ export class ParentCategoryComponent implements OnInit, OnDestroy {
     this.headerFilters = filters;
     this.currentPage = 1;
     this.loadPage(
-      1,
+      this.currentPage,
       this.pageSize,
       ''
     );

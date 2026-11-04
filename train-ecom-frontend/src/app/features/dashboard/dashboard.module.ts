@@ -7,13 +7,19 @@ import { SharedModule } from '../../shared/shared.module';
 import { BaseChartDirective } from 'ng2-charts';
 import { MetricsComponent } from './components/metrics/metrics.component';
 import { ChartsComponent } from './components/charts/charts.component';
+import { OrderChartComponent } from './components/order-chart/order-chart.component';
+import { CategoryChartComponent } from './components/category-chart/category-chart.component';
+import { RevenueChartComponent } from './components/revenue-chart/revenue-chart.component';
 
 
 @NgModule({
   declarations: [
     DashboardComponent,
     MetricsComponent,
-    ChartsComponent
+    ChartsComponent,
+    OrderChartComponent,
+    CategoryChartComponent,
+    RevenueChartComponent
   ],
   imports: [
     CommonModule,

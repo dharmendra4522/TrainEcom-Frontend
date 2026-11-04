@@ -32,16 +32,16 @@ export class VendorService {
 
   getVendors(filter?: AdminUserFilterParams): Observable<VendorListResponse> {
     const vendorFilter: AdminUserFilterParams = {
-      Search: filter?.Search,
-      SearchField: filter?.SearchField,
-      RequestField: filter?.RequestField,
-      Role: Role.Vendor,
-      Status: filter?.Status,
-      ApprovalStatus: filter?.ApprovalStatus,
-      FilterIds: filter?.FilterIds,
-      BussinessCategoriesIds: filter?.BussinessCategoriesIds,
-      PageNumber: filter?.PageNumber,
-      PageSize: filter?.PageSize
+      search: filter?.search,
+      searchField: filter?.searchField,
+      requestField: filter?.requestField,
+      role: Role.Vendor,
+      status: filter?.status,
+      approvalStatus: filter?.approvalStatus,
+      filterIds: filter?.filterIds,
+      bussinessCategoriesIds: filter?.bussinessCategoriesIds,
+      pageNumber: filter?.pageNumber,
+      pageSize: filter?.pageSize
     };
 
     return this.userService.getAllUsers(vendorFilter).pipe(

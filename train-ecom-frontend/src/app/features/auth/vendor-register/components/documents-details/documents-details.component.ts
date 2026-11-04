@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { getFieldError, trimControlValue } from '../../../register.utils';
+import { getFieldError } from '../../../register.utils';
 
 @Component({
   selector: 'app-documents-details',
   templateUrl: './documents-details.component.html',
-  styleUrl: './documents-details.component.css',
+  styleUrl: './documents-details.component.css'
 })
 export class DocumentsDetailsComponent {
   @Input() registerForm!: FormGroup;

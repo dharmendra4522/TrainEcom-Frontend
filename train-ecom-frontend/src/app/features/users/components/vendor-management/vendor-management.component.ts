@@ -7,7 +7,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { AdminUserFilterParams, ApprovalStatus, UserListField } from '../../../../core/models/user.model';
+import { AdminUserFilterParams, ApprovalStatus, UserFilterColumn, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import {
   TableAction,
@@ -28,7 +28,6 @@ import {
   takeUntil,
   startWith,
   switchMap,
-  take
 } from 'rxjs';
 import {
   VendorItem,
@@ -48,7 +47,7 @@ import { CategoryService } from '../../../../core/services/category.service';
 @Component({
   selector: 'app-vendor-management',
   templateUrl: './vendor-management.component.html',
-  styleUrl: './vendor-management.component.css',
+  styleUrl: './vendor-management.component.css'
 })
 export class VendorManagementComponent implements OnInit, OnDestroy {
   @Input() set externalSearchQuery(value: string) {
@@ -318,20 +317,20 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     const headerSearch = this.getHeaderSearchValue();
 
     return {
-      Search: headerSearch || this.searchQuery || undefined,
-      SearchField: headerSearch
+      search: headerSearch || this.searchQuery || undefined,
+      searchField: headerSearch
         ? this.getSearchField()
         : undefined,
-      Status:
+      status:
         this.selectedStatusIds.length
           ? this.selectedStatusIds
           : undefined,
-      BussinessCategoriesIds:
+      bussinessCategoriesIds:
         this.selectedCategoryIds.length
           ? this.selectedCategoryIds
           : undefined,
-      PageNumber: this.pageIndex + 1,
-      PageSize: this.pageSize
+      pageNumber: this.pageIndex + 1,
+      pageSize: this.pageSize
     };
   }
 
@@ -659,14 +658,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     columnKey: string;
     searchTerm: string;
   }): void {
-    if (event.columnKey !== 'categoriesDisplay') {
+    if (event.columnKey !== UserFilterColumn.CategoriesDisplay) {
       return;
     }
     this.categorySearchRequests$.next(event.searchTerm.trim());
   }
 
   onDropdownOpened(columnKey: string): void {
-    if (columnKey === 'categoriesDisplay') {
+    if (columnKey === UserFilterColumn.CategoriesDisplay) {
       this.categorySearchRequests$.next('');
     }
   }
@@ -680,14 +679,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   // handle header search
   private getHeaderSearchValue(): string | undefined {
     return (
-      this.headerFilters['userId'] ||
-      this.headerFilters['name'] ||
-      this.headerFilters['phoneNumber'] ||
-      this.headerFilters['email'] ||
-      this.headerFilters['bussinessName'] ||
-      this.headerFilters['gstinNumber'] ||
-      this.headerFilters['panNumber'] ||
-      this.headerFilters['storeName'] ||
+      this.headerFilters[UserFilterColumn.UserId] ||
+      this.headerFilters[UserFilterColumn.Name] ||
+      this.headerFilters[UserFilterColumn.PhoneNumber] ||
+      this.headerFilters[UserFilterColumn.Email] ||
+      this.headerFilters[UserFilterColumn.BussinessName] ||
+      this.headerFilters[UserFilterColumn.GSTIN] ||
+      this.headerFilters[UserFilterColumn.PAN] ||
+      this.headerFilters[UserFilterColumn.StoreName] ||
       undefined
     );
   }
@@ -697,21 +696,21 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       key => this.headerFilters[key]?.trim()
     );
     switch (activeKey) {
-      case 'userId':
+      case UserFilterColumn.UserId:
         return UserListField.UserID;
-      case 'name':
+      case UserFilterColumn.Name:
         return UserListField.Name;
-      case 'phoneNumber':
+      case UserFilterColumn.PhoneNumber:
         return UserListField.PhoneNumber;
-      case 'email':
+      case UserFilterColumn.Email:
         return UserListField.Email;
-      case 'bussinessName':
+      case UserFilterColumn.BussinessName:
         return UserListField.BussinessName;
-      case 'gstinNumber':
+      case UserFilterColumn.GSTIN:
         return UserListField.GSTIN;
-      case 'panNumber':
+      case UserFilterColumn.PAN:
         return UserListField.PAN;
-      case 'storeName':
+      case UserFilterColumn.StoreName:
         return UserListField.StoreName;
       default:
         return undefined;
@@ -741,13 +740,10 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
     const selected =
       this.selectedFiltersMap[event.columnKey] ?? [];
-
     const exists =
       selected.includes(event.option.id);
-
     this.selectedFiltersMap = {
       ...this.selectedFiltersMap,
-
       [event.columnKey]: exists
         ? selected.filter(
           x => x !== event.option.id
@@ -760,14 +756,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   onFilterApply(event: {
     columnKey: string;
   }): void {
-    if (event.columnKey === 'statusDisplay') {
+    if (event.columnKey === UserFilterColumn.StatusDisplay) {
       this.selectedStatusIds =
-        (this.selectedFiltersMap['statusDisplay'] ?? [])
+        (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [])
           .map(Number);
     }
-    if (event.columnKey === 'categoriesDisplay') {
+    if (event.columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds =
-        (this.selectedFiltersMap['categoriesDisplay'] ?? [])
+        (this.selectedFiltersMap[UserFilterColumn.CategoriesDisplay] ?? [])
           .map(Number);
     }
     this.pageIndex = 0;
@@ -776,14 +772,14 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   //handle clear filter 
   onFilterClear(columnKey: string): void {
-    if (columnKey === 'statusDisplay') {
+    if (columnKey === UserFilterColumn.StatusDisplay) {
       this.selectedStatusIds = [];
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,
         statusDisplay: []
       };
     }
-    if (columnKey === 'categoriesDisplay') {
+    if (columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds = [];
       this.selectedFiltersMap = {
         ...this.selectedFiltersMap,
