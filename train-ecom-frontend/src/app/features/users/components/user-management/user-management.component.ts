@@ -5,8 +5,6 @@ import { Role } from '../../../../core/models/auth.model';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { RequestApprovalComponent } from '../request-approval/request-approval.component';
-import { RequestApprovalService } from '../../../../core/services/request-approval.service';
-import { VendorProfileUpdateItem } from '../../../../core/models/request-approve.model';
 export interface TabItem {
   label: string;
   value: 'customers' | 'vendors';
@@ -19,12 +17,13 @@ export interface TabItem {
 export class UserManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  // private requestService = inject(RequestApprovalService);
 
   activeTab: 'customers' | 'vendors' = 'customers';
   selectedindex: number = 0;
   globalSearch = new FormControl('');
   searchQueryText: string = '';
+  vendorRefershToken: number = 0;
+
 
   get roleNumber(): number {
     return this.activeTab === 'customers' ? Role.Customer : Role.Vendor;
@@ -65,14 +64,16 @@ export class UserManagementComponent implements OnInit {
     this.globalSearch.setValue('');
   }
 
+  // handle open request approval dialog
   onRequestDialog(): void {
     const dialogRef = this.dialog.open(RequestApprovalComponent, {
-      width: '1000px',
+      width: '1400px',
       disableClose: true
     });
-    dialogRef.componentInstance.searchChange
     dialogRef.afterClosed().subscribe(result => {
-      console.log('Close dialog')
-    })
+      if (result?.refreshToken) {
+        this.vendorRefershToken++;
+      }
+    });
   }
 }

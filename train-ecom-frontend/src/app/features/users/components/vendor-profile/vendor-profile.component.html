@@ -87,7 +87,7 @@
                       </span>
                     </div>
                     <mat-icon
-                      *ngIf="reviewHints[field.key] && isApprovedVendor"
+                      *ngIf="reviewHints[field.key] && isApprovedVendor && userProfileData.vendorDetails?.newCategories?.length"
                       class="custom-icon"
                       [matTooltip]="reviewHints[field.key]"
                       >information</mat-icon

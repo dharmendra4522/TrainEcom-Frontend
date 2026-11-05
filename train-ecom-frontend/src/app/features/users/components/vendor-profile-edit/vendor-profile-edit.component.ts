@@ -324,18 +324,8 @@ export class VendorProfileEditComponent implements OnChanges {
 
   // Get selected category names from the form
   private getSelectedCategoryNames(): string[] {
-    const selectedCategories = this.editForm.get('businessCategory')?.value;
-    if (!Array.isArray(selectedCategories)) {
-      return [];
-    }
-    const categoryNames: string[] = [];
-    for (const cat of selectedCategories) {
-      const matched = this.categoryOptions.find((option) => option.id === cat);
-      if (matched) {
-        categoryNames.push(matched.name);
-      }
-    }
-    return categoryNames;
+    const selectedIds = this.getSelectedCategoryIds();
+    return this.categoryOptions.filter((option) => selectedIds.includes(option.id)).map((option) => option.name);
   }
 
   // Event handler for file selection for document uploads
@@ -655,7 +645,7 @@ export class VendorProfileEditComponent implements OnChanges {
   // create update message based on updated fields
   private createUpdateMessage(): string {
     const fields = this.getUpdatedField();
-    const message = fields.length ? `Vendor wanto to update following field: ${fields.join(',')} ` : '';
+    const message = fields.length ? `Vendor want's to update following field: ${fields.join(',')} ` : '';
     return message;
   }
 
