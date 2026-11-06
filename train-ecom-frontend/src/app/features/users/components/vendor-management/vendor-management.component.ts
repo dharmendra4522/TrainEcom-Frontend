@@ -1,12 +1,12 @@
 import { Component, inject, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
-import { AdminUserFilterParams, ApprovalStatus, UserFilterColumn, UserListField } from '../../../../core/models/user.model';
+import { AdminUser, AdminUserFilterParams, AdminUserListResponse, ApprovalStatus, UserFilterColumn, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
 import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EMPTY, catchError, debounceTime, distinctUntilChanged, finalize, of, Subject, takeUntil, startWith, switchMap, } from 'rxjs';
-import { VendorItem, VendorListResponse, VendorStatus, VendorTableItem } from '../../../../core/models/vendor.model';
+import { VendorStatus, VendorTableItem } from '../../../../core/models/vendor.model';
 import { Category } from '../../../../core/models/category.model';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -234,44 +234,45 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe((response: VendorListResponse) => {
-        const mappedVendors = response.items.map(
-          (vendor: VendorItem): VendorTableItem => {
-            const businessName = vendor.businessDetail?.businessName ?? 'N/A';
-            const categories = vendor.categories ?? [];
-            const currentStatus = vendor.status ?? VendorStatus.Pending;
-
-            return {
-              ...vendor,
-              id: vendor.userId,
-              name: vendor.name ?? 'N/A',
-              bussinessName: businessName,
-              categoriesDisplay:
-                Array.isArray(categories) && categories.length > 0
-                  ? categories.join(', ')
-                  : 'N/A',
-              productCount: vendor.productCount ?? 0,
-              storeName: vendor.storeName ?? 'N/A',
-              gstinNumber: vendor.gstin ?? 'N/A',
-              panNumber: vendor.pan ?? 'N/A',
-              statusDisplay: this.getVendorStatusLabel(currentStatus),
-              vendorStatusClass: this.getStatusBadgeClass(currentStatus),
-              requestStatusDisplay: this.getRequestStatusLabel(vendor.requestStatus),
-              vendorRequestClass: this.getRequestBadgeClass(vendor.requestStatus),
-              requestRejectionReason: vendor.requestRejectionReason,
-              rejectionReason: vendor.rejectionReason ?? null
-            };
-          }
+      .subscribe((response: AdminUserListResponse) => {
+        const mappedVendors = response.items.map(vendor =>
+          this.mapVendorToTableItem(vendor)
         );
         if (this.pageIndex === 0) {
           this.vendors = mappedVendors;
         } else {
           this.vendors = [...this.vendors, ...mappedVendors];
         }
-
         this.totalRecords = response.totalRecords;
         this.isLoading = false;
-      });
+      }
+      );
+  }
+
+  // handle vendor to table item mapping
+  private mapVendorToTableItem(
+    vendor: AdminUser
+  ): VendorTableItem {
+    const businessDetails = vendor.bussinessDetail;
+    const categories = businessDetails?.bussinessCategories ?? [];
+    const currentStatus = vendor.status ?? VendorStatus.Pending;
+    return {
+      ...vendor,
+      vendorId: vendor.userId,
+      id: vendor.userId,
+      bussinessName: businessDetails?.bussinessName ?? 'N/A',
+      categoriesDisplay: categories.length > 0 ? categories.join(', ') : 'N/A',
+      productCount: vendor.productCount ?? 0,
+      storeName: businessDetails?.storeName ?? 'N/A',
+      gstinNumber: businessDetails?.gstin ?? 'N/A',
+      panNumber: businessDetails?.pan ?? 'N/A',
+      statusDisplay: this.getVendorStatusLabel(currentStatus),
+      vendorStatusClass: this.getStatusBadgeClass(currentStatus),
+      requestStatusDisplay: this.getRequestStatusLabel(vendor.requestStatus),
+      vendorRequestClass: this.getRequestBadgeClass(vendor.requestStatus),
+      requestRejectionReason: vendor.requestRejectionReason,
+      rejectionReason: businessDetails?.rejectionReason ?? null
+    };
   }
 
   private searchStream(): void {
@@ -412,9 +413,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
     if (!vendor) return;
 
     const vendorId = vendor.userId ?? vendor.vendorId ?? vendor.id;
-    const vendorName = (vendor.businessName ||
-      vendor.name ||
-      'Vendor') as string;
+    const vendorName = vendor.name || 'Vendor';
     const currentStatus = this.getApprovalStatus(vendor.status);
 
     switch (event.action) {
@@ -448,7 +447,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private getApprovalStatus(
-    status: VendorStatus | number | undefined,
+    status: VendorStatus | number | null | undefined,
   ): ApprovalStatus {
     switch (status) {
       case VendorStatus.Active:
@@ -472,7 +471,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        message: `Kya aap sach mein ${vendorName} ko delete karna chahte hain?`,
+        message: `Are you sure you want to delete ${vendorName}?`,
         yesLabel: 'Delete',
         noLabel: 'Cancel'
       },
@@ -615,7 +614,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        message: `Kya aap sach mein ${vendorName} ko ${actionName} karna chahte hain?`,
+        message: `Are you sure you want to ${actionName} this vendor (${vendorName})?`,
         yesLabel: newBlockStatus ? 'Block' : 'Unblock',
         noLabel: 'Cancel',
       },

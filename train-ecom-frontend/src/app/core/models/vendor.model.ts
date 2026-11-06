@@ -1,5 +1,5 @@
 import { RequestStatus, RequestType } from './request-approve.model';
-import type { ApprovalStatus } from './user.model';
+import type { AdminUser, ApprovalStatus } from './user.model';
 
 export enum VendorStatus {
   Active = 1,
@@ -14,50 +14,19 @@ export enum DocumentType {
   GSTDocument = 3
 }
 
-export interface VendorItem {
-  vendorId: number;
-  userId: number;
-  name?: string;
-  businessName?: string;
-  email: string;
-  phoneNumber: string;
-  city?: string;
-  gstin?: string;
-  pan?: string;
-  storeName?: string;
-  productCount?: number;
-  isBlocked?: boolean;
-  categories?: string[];
-  status?: VendorStatus | number;
-  approvalStatus?: ApprovalStatus | number;
-  requestStatus?: RequestStatus | number;
-  requestRejectionReason?: string | null;
-  rejectionReason?: string | null;
-  businessDetail?: {
-    businessName?: string;
-    categories?: string[];
-    storeName?: string;
-    gstin?: string;
-    pan?: string;
-    city?: string;
-    rejectionReason?: string | null;
-  };
-}
-export interface VendorTableItem extends VendorItem {
+export interface VendorTableItem extends AdminUser {
   id: number;
+  vendorId: number;
+  bussinessName: string;
+  storeName: string;
+  categoriesDisplay: string;
+  gstinNumber: string;
+  panNumber: string;
+  rejectionReason: string | null;
   statusDisplay: string;
   vendorStatusClass: string;
   requestStatusDisplay: string;
   vendorRequestClass: string;
-  [key: string]: unknown;
-}
-
-export interface VendorListResponse {
-  items: VendorItem[];
-  pageNumber: number;
-  pageSize: number;
-  totalRecords: number;
-  totalPages: number;
 }
 
 export interface VendorDocument {
