@@ -1,3 +1,4 @@
+import { RequestStatus, RequestType } from './request-approve.model';
 import type { ApprovalStatus } from './user.model';
 
 export enum VendorStatus {
@@ -29,6 +30,8 @@ export interface VendorItem {
   categories?: string[];
   status?: VendorStatus | number;
   approvalStatus?: ApprovalStatus | number;
+  requestStatus?: RequestStatus | number;
+  requestRejectionReason?: string | null;
   rejectionReason?: string | null;
   businessDetail?: {
     businessName?: string;
@@ -44,6 +47,8 @@ export interface VendorTableItem extends VendorItem {
   id: number;
   statusDisplay: string;
   vendorStatusClass: string;
+  requestStatusDisplay: string;
+  vendorRequestClass: string;
   [key: string]: unknown;
 }
 
@@ -88,7 +93,7 @@ export interface VendorDetails {
   newAccountHolderName?: string | null;
   documents: VendorDocument[];
   categories: string[];
-  newCategories?: string[] | null;
+  newCategories?: string[];
   status?: ApprovalStatus | number;
 }
 

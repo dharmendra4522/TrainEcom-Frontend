@@ -36,12 +36,11 @@
       </div>
       <div class="col-auto" *ngIf="activeTab === 'vendors'">
         <button
-          [matBadge]="requestCount"
           matBadgeColor="warn"
           mat-raised-button
           color="primary"
           class="request-btn"
-          (click)="onRequestClick()"
+          (click)="onRequestDialog()"
         >
           Update Request
         </button>
@@ -69,6 +68,7 @@
       <app-vendor-management
         *ngIf="activeTab === 'vendors'"
         [externalSearchQuery]="searchQueryText"
+        [refreshToken]="vendorRefershToken"
         (searchReset)="globalSearch.setValue('')"
       ></app-vendor-management>
     </div>

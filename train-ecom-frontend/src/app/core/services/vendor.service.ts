@@ -28,7 +28,6 @@ export class VendorService {
   private verifyAPI = `${environment.apiBaseUrl}/admin/user`;
   private detailsAPI = `${environment.apiBaseUrl}/admin/vendors`;
 
-  constructor() { }
 
   getVendors(filter?: AdminUserFilterParams): Observable<VendorListResponse> {
     const vendorFilter: AdminUserFilterParams = {
@@ -40,6 +39,7 @@ export class VendorService {
       approvalStatus: filter?.approvalStatus,
       filterIds: filter?.filterIds,
       bussinessCategoriesIds: filter?.bussinessCategoriesIds,
+      requestFilterIds: filter?.requestFilterIds,
       pageNumber: filter?.pageNumber,
       pageSize: filter?.pageSize
     };
@@ -70,6 +70,8 @@ export class VendorService {
       pan: business?.pan,
       status: item.status ?? VendorStatus.Pending,
       approvalStatus: item.approvalStatus ?? undefined,
+      requestStatus: item.requestStatus,
+      requestRejectionReason: item.requestRejectionReason,
       isBlocked:
         item.isBlocked === true || item.status === VendorStatus.Blocked,
       rejectionReason: business?.rejectionReason ?? null,

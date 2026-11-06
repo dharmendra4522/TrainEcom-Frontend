@@ -14,7 +14,6 @@ import { DocumentType, VendorProfileEditValues } from '../../../../core/models/v
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { normalizeCategoryIds, passwordMatchValidator } from '../../users.utils';
-import { selectUserProfile } from '../../../../core/store/user/user.selectors';
 
 @Component({
   selector: 'app-vendor-profile-edit',
@@ -325,18 +324,8 @@ export class VendorProfileEditComponent implements OnChanges {
 
   // Get selected category names from the form
   private getSelectedCategoryNames(): string[] {
-    const selectedCategories = this.editForm.get('businessCategory')?.value;
-    if (!Array.isArray(selectedCategories)) {
-      return [];
-    }
-    const categoryNames: string[] = [];
-    for (const cat of selectedCategories) {
-      const matched = this.categoryOptions.find((option) => option.id === cat);
-      if (matched) {
-        categoryNames.push(matched.name);
-      }
-    }
-    return categoryNames;
+    const selectedIds = this.getSelectedCategoryIds();
+    return this.categoryOptions.filter((option) => selectedIds.includes(option.id)).map((option) => option.name);
   }
 
   // Event handler for file selection for document uploads
@@ -495,7 +484,7 @@ export class VendorProfileEditComponent implements OnChanges {
       payload.phoneNumber = value.phoneNumber;
     }
     const vendor = this.userProfileData?.vendorDetails;
-    const businessDetails: NonNullable<UpdateProfilePayload['bussinessDetails']> = {};
+    const businessDetails: UpdateProfilePayload['bussinessDetails'] = {};
 
     if (value.displayName !== vendor?.storeName) {
       businessDetails.storeName = value.displayName;
@@ -656,7 +645,7 @@ export class VendorProfileEditComponent implements OnChanges {
   // create update message based on updated fields
   private createUpdateMessage(): string {
     const fields = this.getUpdatedField();
-    const message = fields.length ? `Vendor wanto to update following field: ${fields.join(',')} ` : '';
+    const message = fields.length ? `Vendor want's to update following field: ${fields.join(',')} ` : '';
     return message;
   }
 

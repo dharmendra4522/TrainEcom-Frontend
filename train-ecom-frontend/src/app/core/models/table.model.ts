@@ -8,9 +8,10 @@ export interface TableColumn {
   role?: Role;
   badgeClassKey?: string;
   filterable?: boolean;
-  filterType?: 'dropdown' | 'search'| 'date' | 'price-range' | 'stock-range';
+  filterType?: 'dropdown' | 'search' | 'date' | 'price-range' | 'stock-range';
   filterDisabled?: boolean;
   clickable?: boolean;
+  tooltipKey?: string;
 }
 
 export interface TableAction<T = unknown> {

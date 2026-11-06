@@ -1,4 +1,5 @@
 import type { Role } from './auth.model';
+import { RequestStatus } from './request-approve.model';
 
 export enum UserStatusFilter {
   All = 1,
@@ -128,6 +129,8 @@ export interface AdminUser extends Record<string, unknown> {
   role?: Role | number;
   status?: number | null;
   approvalStatus?: ApprovalStatus | number | null;
+  requestStatus?: RequestStatus;
+  requestRejectionReason?: string | null;
   address: {
     addressLine1: string;
     addressLine2?: string;
@@ -175,6 +178,7 @@ export interface AdminUserFilterParams {
   status?: number[];
   approvalStatus?: ApprovalStatus | number;
   userStatus?: UserStatusFilter | number;
+  requestFilterIds?: number[];
   filterIds?: number[];
   bussinessCategoriesIds?: number[];
   pageNumber?: number;
@@ -213,7 +217,8 @@ export enum UserFilterColumn {
   PAN = 'panNumber',
   StoreName = 'storeName',
   StatusDisplay = 'statusDisplay',
-  CategoriesDisplay = 'categoriesDisplay'
+  CategoriesDisplay = 'categoriesDisplay',
+  RequestStatusDisplay = 'requestStatusDisplay'
 }
 
 export enum UserListField {

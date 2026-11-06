@@ -149,6 +149,9 @@ export class UserService {
       if (filter.requestField !== undefined) {
         params = params.set('requestField', filter.requestField.toString());
       }
+      filter.requestFilterIds?.forEach((id) => {
+        params = params.append('requestFilterIds', id.toString());
+      })
       const normalizedRole = this.normalizeRole(filter.role);
       if (normalizedRole !== undefined) {
         params = params.set('role', String(normalizedRole));
@@ -168,7 +171,7 @@ export class UserService {
       );
       if (normalizedApproval !== undefined) {
         params = params.set('approvalStatus', String(normalizedApproval));
-      }
+      };
       filter.filterIds?.forEach((id) => {
         params = params.append('filterIds', id.toString());
       });

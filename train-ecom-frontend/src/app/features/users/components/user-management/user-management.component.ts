@@ -22,7 +22,8 @@ export class UserManagementComponent implements OnInit {
   selectedindex: number = 0;
   globalSearch = new FormControl('');
   searchQueryText: string = '';
-  requestCount = 10;
+  vendorRefershToken: number = 0;
+
 
   get roleNumber(): number {
     return this.activeTab === 'customers' ? Role.Customer : Role.Vendor;
@@ -63,13 +64,16 @@ export class UserManagementComponent implements OnInit {
     this.globalSearch.setValue('');
   }
 
-  onRequestClick(): void{
+  // handle open request approval dialog
+  onRequestDialog(): void {
     const dialogRef = this.dialog.open(RequestApprovalComponent, {
-      width: '1000px',
+      width: '1400px',
       disableClose: true
     });
     dialogRef.afterClosed().subscribe(result => {
-      console.log('Close dialog')
-    })
+      if (result?.refreshToken) {
+        this.vendorRefershToken++;
+      }
+    });
   }
 }

@@ -1,61 +1,34 @@
-import {
-  Component,
-  inject,
-  Input,
-  Output,
-  EventEmitter,
-  OnInit,
-  OnDestroy,
-} from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { AdminUserFilterParams, ApprovalStatus, UserFilterColumn, UserListField } from '../../../../core/models/user.model';
 import { PageEvent } from '@angular/material/paginator';
-import {
-  TableAction,
-  TableActionEvent,
-  TableColumn
-} from '../../../../core/models/table.model';
+import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  EMPTY,
-  catchError,
-  debounceTime,
-  distinctUntilChanged,
-  finalize,
-  of,
-  Subject,
-  takeUntil,
-  startWith,
-  switchMap,
-} from 'rxjs';
-import {
-  VendorItem,
-  VendorListResponse,
-  VendorStatus,
-  VendorTableItem
-} from '../../../../core/models/vendor.model';
+import { EMPTY, catchError, debounceTime, distinctUntilChanged, finalize, of, Subject, takeUntil, startWith, switchMap, } from 'rxjs';
+import { VendorItem, VendorListResponse, VendorStatus, VendorTableItem } from '../../../../core/models/vendor.model';
 import { Category } from '../../../../core/models/category.model';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { Router } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
-import { Store } from '@ngrx/store';
 import { CategoryService } from '../../../../core/services/category.service';
+import { RequestStatus } from '../../../../core/models/request-approve.model';
 
 @Component({
   selector: 'app-vendor-management',
   templateUrl: './vendor-management.component.html',
   styleUrl: './vendor-management.component.css'
 })
-export class VendorManagementComponent implements OnInit, OnDestroy {
+export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
   @Input() set externalSearchQuery(value: string) {
     if (this.filterForm.get('search')?.value !== value) {
       this.filterForm.patchValue({ search: value }, { emitEvent: true });
     }
   }
   @Output() searchReset = new EventEmitter<void>();
+  @Input() refreshToken: number = 0;
 
   private vendorService = inject(VendorService);
   private userService = inject(UserService);
@@ -65,7 +38,6 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   private vendorLoadRequests$ = new Subject<void>();
   private categorySearchRequests$ = new Subject<string>();
   private router = inject(Router);
-  private store = inject(Store);
   private categorySevice = inject(CategoryService);
 
   isLoading: boolean = false;
@@ -86,10 +58,12 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
   headerFilters: Record<string, string> = {};
   selectedFiltersMap: Record<string, (string | number)[]> = {
     statusDisplay: [],
-    categoriesDisplay: []
+    categoriesDisplay: [],
+    requestStatusDisplay: []
   };
   selectedStatusIds: number[] = [];
   selectedCategoryIds: number[] = [];
+  selectedRequestStatusIds: number[] = [];
   dropdownLoadingMap: Record<string, boolean> = {};
 
   filterForm = new FormGroup({
@@ -108,19 +82,8 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
     { key: 'panNumber', label: 'PAN No.', truncate: true, filterable: true, filterType: 'search' },
     { key: 'productCount', label: 'Product Count', truncate: false, filterable: true, filterType: 'search', filterDisabled: true },
     { key: 'storeName', label: 'Display Name', truncate: true, filterable: true, filterType: 'search' },
-    {
-      key: 'statusDisplay',
-      label: 'Status',
-      type: 'badge',
-      badgeClassKey: 'vendorStatusClass',
-       truncate: false,
-      filterable: true, filterType: 'dropdown'
-    },
-    {
-      key: 'request',
-      label: 'Update Request',
-      type: 'boolean',
-    }
+    { key: 'statusDisplay', label: 'Status', type: 'badge', badgeClassKey: 'vendorStatusClass', truncate: false, filterable: true, filterType: 'dropdown', tooltipKey: 'rejectionReason' },
+    { key: 'requestStatusDisplay', label: 'Update Request', type: 'badge', badgeClassKey: 'vendorRequestClass', truncate: true, filterable: true, filterType: 'dropdown', tooltipKey: 'requestRejectionReason' }
   ];
 
   actions: TableAction[] = [
@@ -193,6 +156,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
 
   private isVendorTableItem(row: unknown): row is VendorTableItem {
     return typeof row === 'object' && row !== null;
+  }
+
+  ngOnChanges(change: SimpleChanges): void {
+    if (change['refreshToken'] && !change['refreshToken'].firstChange) {
+      this.pageIndex = 0;
+      this.loadVendors();
+    }
   }
 
   ngOnInit() {
@@ -286,6 +256,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
               panNumber: vendor.pan ?? 'N/A',
               statusDisplay: this.getVendorStatusLabel(currentStatus),
               vendorStatusClass: this.getStatusBadgeClass(currentStatus),
+              requestStatusDisplay: this.getRequestStatusLabel(vendor.requestStatus),
+              vendorRequestClass: this.getRequestBadgeClass(vendor.requestStatus),
+              requestRejectionReason: vendor.requestRejectionReason,
               rejectionReason: vendor.rejectionReason ?? null
             };
           }
@@ -331,6 +304,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         this.selectedStatusIds.length
           ? this.selectedStatusIds
           : undefined,
+      requestFilterIds: this.selectedRequestStatusIds.length ? this.selectedRequestStatusIds : undefined,
       bussinessCategoriesIds:
         this.selectedCategoryIds.length
           ? this.selectedCategoryIds
@@ -338,6 +312,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize
     };
+
   }
 
   loadVendors(): void {
@@ -357,6 +332,34 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         return 'Blocked';
       default:
         return 'Unknown';
+    }
+  }
+
+  // get requet status label
+  private getRequestStatusLabel(status: RequestStatus | undefined): string {
+    switch (status) {
+      case RequestStatus.Approved:
+        return 'Approve';
+      case RequestStatus.Pending:
+        return 'Pending';
+      case RequestStatus.Rejected:
+        return "Rejected";
+      default:
+        return 'No Request'
+    }
+  }
+
+  // get the request badge class
+  private getRequestBadgeClass(status: RequestStatus | undefined): string {
+    switch (status) {
+      case RequestStatus.Approved:
+        return 'bg-success-subtle text-success border border-success-subtle';
+      case RequestStatus.Pending:
+        return 'bg-warning-subtle text-warning border border-warning-subtle';
+      case RequestStatus.Rejected:
+        return 'bg-danger-subtle text-danger border border-danger-subtle';
+      default:
+        return 'bg-secondary-subtle text-secondary border border-secondary-subtle';
     }
   }
 
@@ -733,6 +736,11 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         { id: VendorStatus.Rejected, label: 'Rejected' },
         { id: VendorStatus.Blocked, label: 'Blocked' }
       ],
+      requestStatusDisplay: [
+        { id: RequestStatus.Approved, label: 'Approve' },
+        { id: RequestStatus.Pending, label: 'Pending' },
+        { id: RequestStatus.Rejected, label: 'Reject' }
+      ],
       categoriesDisplay: []
     };
 
@@ -767,6 +775,9 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         (this.selectedFiltersMap[UserFilterColumn.StatusDisplay] ?? [])
           .map(Number);
     }
+    if (event.columnKey === UserFilterColumn.RequestStatusDisplay) {
+      this.selectedRequestStatusIds = (this.selectedFiltersMap[UserFilterColumn.RequestStatusDisplay] ?? []).map(Number)
+    }
     if (event.columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds =
         (this.selectedFiltersMap[UserFilterColumn.CategoriesDisplay] ?? [])
@@ -784,6 +795,13 @@ export class VendorManagementComponent implements OnInit, OnDestroy {
         ...this.selectedFiltersMap,
         statusDisplay: []
       };
+    }
+    if (columnKey === UserFilterColumn.RequestStatusDisplay) {
+      this.selectedRequestStatusIds = [];
+      this.selectedFiltersMap = {
+        ...this.selectedFiltersMap,
+        requestStatusDisplay: []
+      }
     }
     if (columnKey === UserFilterColumn.CategoriesDisplay) {
       this.selectedCategoryIds = [];
