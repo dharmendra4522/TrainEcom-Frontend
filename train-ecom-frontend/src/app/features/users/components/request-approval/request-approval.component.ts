@@ -1,10 +1,10 @@
 import { FormControl } from '@angular/forms';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
-import { RequestStatus, RequestType, VendorProfileUpdateItem } from '../../../../core/models/request-approve.model';
+import { debounceTime, distinctUntilChanged, Observable, Subject, switchMap, takeUntil } from 'rxjs';
+import { RequestStatus, RequestType, VendorProfileUpdateItem, VendorProfileUpdateListResponse } from '../../../../core/models/request-approve.model';
 import { Router } from '@angular/router';
 import { RequestApprovalService } from '../../../../core/services/request-approval.service';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
@@ -21,6 +21,7 @@ export class RequestApprovalComponent {
   private dialogRef = inject(MatDialogRef<RequestApprovalComponent>);
   private requestApprovalService = inject(RequestApprovalService);
   private notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   searchControl = new FormControl('');
   private pageNumber: number = 1;
@@ -31,9 +32,6 @@ export class RequestApprovalComponent {
   requestList: VendorProfileUpdateItem[] = [];
   isRefreshRequired: boolean = false;
 
-  @Output() loadMore = new EventEmitter();
-  @Output() requestCountChange = new EventEmitter<number>();
-  @Output() searchChange = new EventEmitter<string>();
 
   // table column data
   columns: TableColumn[] = [
@@ -105,13 +103,9 @@ export class RequestApprovalComponent {
   // handle the fetching all list of requested vendore for profile update
   private fetchRequestList(): void {
     this.isLoading = true;
-    this.requestApprovalService.fetchRequestList(this.pageNumber, this.pageSize, this.searchTerm, RequestStatus.Pending).subscribe({
+    this.getRequestList().subscribe({
       next: (response) => {
-        this.requestList = response.items.map(item => ({
-          ...item,
-          requestTypeLabel: this.getRequestTypeLabel(item.requestType)
-        }));
-        this.hasMoreData = response.pageNumber < response.totalPages;
+        this.updateRequestList(response);
         this.isLoading = false;
       },
       error: () => {
@@ -126,7 +120,7 @@ export class RequestApprovalComponent {
       case RequestType.ProfileUpdate:
         return 'Profile Update'
       default:
-        return 'Unknow'
+        return 'Unknown'
     }
   }
 
@@ -134,18 +128,35 @@ export class RequestApprovalComponent {
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
+      takeUntil(this.destroy$),
       switchMap(search => {
         this.pageNumber = 1;
-        return this.requestApprovalService.fetchRequestList(this.pageNumber, this.pageSize, search ?? '', RequestStatus.Pending);
+        this.searchTerm = search ?? '';
+        return this.getRequestList();
       })
     ).subscribe(response => {
-      this.requestList = response.items.map(item => ({
-        ...item,
-        requestTypeLabel: this.getRequestTypeLabel(item.requestType)
-      }));
-      this.hasMoreData = response.pageNumber < response.totalPages;
-    })
+      this.updateRequestList(response);
+    });
   }
+
+  private getRequestList(): Observable<VendorProfileUpdateListResponse> {
+    return this.requestApprovalService.fetchRequestList(this.pageNumber, this.pageSize, this.searchTerm, RequestStatus.Pending);
+  }
+
+  // handle the request list update
+  private updateRequestList(
+    response: VendorProfileUpdateListResponse
+  ): void {
+    const mappedItems = response.items.map(item => ({
+      ...item,
+      requestTypeLabel: this.getRequestTypeLabel(
+        item.requestType
+      )
+    }));
+    this.requestList = this.pageNumber === 1 ? mappedItems : [...this.requestList, ...mappedItems];
+    this.hasMoreData = response.pageNumber < response.totalPages;
+  }
+
 
   // handle table action click
   onActionClick(event: TableActionEvent): void {
@@ -160,7 +171,7 @@ export class RequestApprovalComponent {
         this.onViewProfile(event.row as VendorProfileUpdateItem);
         break;
       default:
-        console.warn('unknow action');
+        console.warn('unknown action');
         break;
     }
   }
@@ -192,7 +203,7 @@ export class RequestApprovalComponent {
             this.fetchRequestList();
           },
           error: (err) => {
-            console.log('faild to update vendor status', err);
+            this.notificationService.showError('Something is wrong to update profile request', err);
           }
         })
       }
@@ -224,10 +235,9 @@ export class RequestApprovalComponent {
           this.pageNumber = 1;
           this.fetchRequestList();
         }, error: (err) => {
-          console.log('faild to update vendor status', err)
+          this.notificationService.showError('Something is wrong to update profile request', err);
         }
       })
-
     })
   }
 
@@ -237,8 +247,17 @@ export class RequestApprovalComponent {
     this.dialog.closeAll();
   }
 
-  closeDialog(): void {
+  //handle row click to view profile
+  onRowClick(row: VendorProfileUpdateItem | Record<string, unknown>): void {
+    const user = row as VendorProfileUpdateItem;
+    const userId = user?.userId;
+    if (user && userId) {
+      this.router.navigate([`/admin/users/manage/${userId}`]);
+    }
     this.dialog.closeAll();
+  }
+
+  closeDialog(): void {
     this.dialogRef.close({
       refreshToken: this.isRefreshRequired
     })
@@ -251,6 +270,12 @@ export class RequestApprovalComponent {
     }
     this.isLoading = true;
     this.pageNumber++;
+    this.fetchRequestList();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

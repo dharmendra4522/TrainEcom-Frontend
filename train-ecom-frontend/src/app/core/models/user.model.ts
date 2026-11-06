@@ -104,7 +104,7 @@ export interface UpdateProfilePayload {
     accountHolderName?: string | null;
     bankAccountNumber?: string | null;
     ifscCode?: string | null;
-    newCategoryIds?: number[] | string[] | null;
+    newCategoryIds?: number[] | null;
     gstDocument?: File;
     businessDocument?: File;
     businessLogo?: File;
@@ -121,6 +121,20 @@ export interface UpdateProfilePayload {
   };
 }
 
+export interface AdminVendorBusinessDetail {
+  bussinessName?: string;
+  bussinessDescription?: string;
+  storeName?: string;
+  gstin?: string;
+  pan?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  rejectionReason?: string | null;
+  bussinessCategories?: string[];
+}
+
 export interface AdminUser extends Record<string, unknown> {
   userId: number;
   name: string;
@@ -129,8 +143,10 @@ export interface AdminUser extends Record<string, unknown> {
   role?: Role | number;
   status?: number | null;
   approvalStatus?: ApprovalStatus | number | null;
+  isApproved?: ApprovalStatus | number | null;
   requestStatus?: RequestStatus;
   requestRejectionReason?: string | null;
+  isBlocked?: boolean;
   address: {
     addressLine1: string;
     addressLine2?: string;
@@ -138,28 +154,9 @@ export interface AdminUser extends Record<string, unknown> {
     state: string;
     country: string;
     postalCode: string;
-  };
-  isBlocked: boolean;
+  } | null;
   productCount?: number;
-  storeName?: string;
-  gstin?: string;
-  pan?: string;
-  isApproved?: ApprovalStatus | number | null;
-  userStatusClass?: string;
   bussinessDetail?: AdminVendorBusinessDetail | null;
-  bussinessName?: string;
-  categories?: string[];
-  bussinessCategories?: string[];
-}
-
-export interface AdminVendorBusinessDetail {
-  bussinessName?: string;
-  bussinessCategories?: string[];
-  storeName?: string;
-  gstin?: string;
-  pan?: string;
-  city?: string;
-  rejectionReason?: string | null;
 }
 
 export interface AdminUserListResponse {

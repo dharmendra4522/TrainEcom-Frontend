@@ -68,6 +68,7 @@ export class UserManagementComponent implements OnInit {
   onRequestDialog(): void {
     const dialogRef = this.dialog.open(RequestApprovalComponent, {
       width: '1400px',
+      maxHeight: '70vh',
       disableClose: true
     });
     dialogRef.afterClosed().subscribe(result => {

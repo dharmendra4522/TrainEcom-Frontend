@@ -85,11 +85,11 @@
 
       <!-- Validation Message -->
       <div
-        *ngIf="editForm.touched && invalidFieldLabels.length"
-        class="text-danger small mt-3"
+        *ngIf="editForm.touched && invalidFieldMessages.length"
+        class="text-danger small"
       >
         Please fix:
-        {{ invalidFieldLabels.join(", ") }}
+        {{ invalidFieldMessages }}
       </div>
 
       <!-- Actions -->

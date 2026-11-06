@@ -72,7 +72,7 @@
               Contact Information
             </h5>
             <div class="row g-3">
-              <div class="col-md-3">
+              <div class="col">
                 <label class="text-muted small d-block">Vendor Name</label>
                 <span class="fw-semibold text-dark">{{
                   vendor.vendorName || "-"
@@ -80,18 +80,18 @@
               </div>
               <div class="col-md-3">
                 <label class="text-muted small d-block">Email Address</label>
-                <span class="fw-semibold text-dark">{{
+                <span class="fw-semibold text-dark text-break">{{
                   vendor.email || "-"
                 }}</span>
               </div>
-              <div class="col-md-3">
+              <div class="col">
                 <label class="text-muted small d-block">Phone Number</label>
                 <span class="fw-semibold text-dark">{{
                   vendor.phoneNumber || "-"
                 }}</span>
               </div>
               <ng-container *ngIf="vendor.newPhoneNumber">
-                <div class="col-md-3">
+                <div class="col">
                   <label class="text-muted small d-block"
                     >New Phone Number</label
                   >

@@ -1,40 +1,40 @@
-<div class="container">
+<div class="container request-dialog">
   <!-- header section -->
-  <div class="d-flex justify-content-start justify-content-md-between">
-    <h3 mat-dialog-title>List Of Requested Vendors</h3>
-    <button mat-icon-button (click)="closeDialog()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  <hr />
-  <!-- list -->
-  <div>
-    <div>
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Search users...</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput placeholder="Input" [formControl]="searchControl" />
-        <button
-          *ngIf="searchControl.value"
-          mat-icon-button
-          matSuffix
-          type="button"
-          (click)="searchControl.setValue('')"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
+  <div class="dialog-header">
+    <div class="d-flex justify-content-start justify-content-md-between">
+      <h3 mat-dialog-title>List Of Requested Vendors</h3>
+      <button mat-icon-button (click)="closeDialog()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
-    <div>
-      <app-generic-table
-        [data]="requestList"
-        [columns]="columns"
-        [showIndex]="false"
-        [actions]="actions"
-        (actionClick)="onActionClick($event)"
-        (loadMore)="loadMoreData()"
+    <mat-divider class="my-3"></mat-divider>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Search users...</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Input" [formControl]="searchControl" />
+      <button
+        *ngIf="searchControl.value"
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="searchControl.setValue('')"
       >
-      </app-generic-table>
-    </div>
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <app-generic-table
+      [data]="requestList"
+      [columns]="columns"
+      [showIndex]="false"
+      [actions]="actions"
+      (actionClick)="onActionClick($event)"
+      (rowClick)="onRowClick($event)"
+      (loadMore)="loadMoreData()"
+    >
+    </app-generic-table>
   </div>
 </div>

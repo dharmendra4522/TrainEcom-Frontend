@@ -9,8 +9,7 @@ import { filter, Observable, take } from 'rxjs';
 import { selectPaginatedCategories } from '../../../../core/store/category/category.selectors';
 import { UpdateProfilePayload, UserProfile } from '../../../../core/models/user.model';
 import { City, Country, ICity, ICountry, IState, State } from 'country-state-city';
-import { PendingFieldChanges } from '../../../../core/models/request-approve.model';
-import { DocumentType, VendorProfileEditValues } from '../../../../core/models/vendor.model';
+import { VendorProfileEditValues } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { UserService } from '../../../../core/services/user.service';
 import { normalizeCategoryIds, passwordMatchValidator } from '../../users.utils';
@@ -39,8 +38,6 @@ export class VendorProfileEditComponent implements OnChanges {
   countries: ICountry[] = Country.getAllCountries();
   states: IState[] = [];
   cities: ICity[] = [];
-  pendingChangesMap: Record<string, PendingFieldChanges> = {};
-  readonly isStep5Valid: boolean = true;
   private maxFileSize: number = 5;
   public isOldPasswordVisible: boolean = false;
   public isNewPasswordVisible: boolean = false;
@@ -350,7 +347,6 @@ export class VendorProfileEditComponent implements OnChanges {
       return;
     }
     const value = this.editForm.value as VendorProfileEditValues;
-    this.collectPendingChanges(value);
     const payload = this.buildPayload(value);
     this.updateProfile(payload);
   }
@@ -370,105 +366,41 @@ export class VendorProfileEditComponent implements OnChanges {
     return true;
   }
 
-  // Collect pending changes
-  private collectPendingChanges(value: VendorProfileEditValues): void {
-    this.pendingChangesMap = {};
-    this.trackBasicChanges(value);
-    this.trackDocumentChanges(value);
-  }
-
-  // track basic changes and add them to pending changes
-  private trackBasicChanges(value: VendorProfileEditValues): void {
-    if (
-      value.phoneNumber &&
-      value.phoneNumber !== this.userProfileData?.phoneNumber
-    ) {
-      this.addPendingChange(
-        'phoneNumber',
-        'Phone Number',
-        this.userProfileData?.phoneNumber,
-        value.phoneNumber
-      );
+  private collectUpdatedFields(value: VendorProfileEditValues): string[] {
+    const fields: string[] = [];
+    const vendor = this.userProfileData?.vendorDetails;
+    if (value.phoneNumber !== this.userProfileData?.phoneNumber) {
+      fields.push('Phone Number');
     }
-    if (value.displayName && value.displayName !== this.userProfileData?.vendorDetails?.storeName) {
-      this.addPendingChange(
-        'storeName',
-        'Display Name',
-        this.userProfileData?.vendorDetails?.storeName,
-        value.displayName
-      );
+    if (value.displayName !== vendor?.storeName) {
+      fields.push('Display Name');
     }
-    const selectedCategoryNames = this.getSelectedCategoryNames();
-    if (
-      JSON.stringify(selectedCategoryNames) !==
-      JSON.stringify(this.userProfileData?.vendorDetails?.categories ?? [])
-    ) {
-      this.addPendingChange(
-        'categories',
-        'Categories',
-        this.userProfileData?.vendorDetails?.categories ?? [],
-        selectedCategoryNames
-      );
+    if (value.accountHolderName !== vendor?.accountHolderName) {
+      fields.push('Account Holder Name');
     }
-    if (
-      value.accountHolderName &&
-      value.accountHolderName !== this.userProfileData?.vendorDetails?.accountHolderName
-    ) {
-      this.addPendingChange(
-        'accountHolderName',
-        'Account Holder Name',
-        this.userProfileData?.vendorDetails?.accountHolderName,
-        value.accountHolderName
-      );
+    if (value.bankAccountNumber !== vendor?.bankAccountNumber) {
+      fields.push('Bank Account Number');
     }
-    if (
-      value.bankAccountNumber &&
-      value.bankAccountNumber !== this.userProfileData?.vendorDetails?.bankAccountNumber
-    ) {
-      this.addPendingChange(
-        'bankAccountNumber',
-        'Bank Account Number',
-        this.userProfileData?.vendorDetails?.bankAccountNumber,
-        value.bankAccountNumber
-      );
+    if (value.ifscCode !== vendor?.ifscCode) {
+      fields.push('IFSC Code');
     }
-    if (value.ifscCode && value.ifscCode !== this.userProfileData?.vendorDetails?.ifscCode) {
-      this.addPendingChange(
-        'ifscCode',
-        'IFSC Code',
-        this.userProfileData?.vendorDetails?.ifscCode,
-        value.ifscCode
-      );
+    const collectedCategoryIds = this.getSelectedCategoryIds();
+    const originalCategoryIds = normalizeCategoryIds(vendor?.categories, this.categoryOptions);
+    if (JSON.stringify(collectedCategoryIds) !== JSON.stringify(originalCategoryIds)) {
+      fields.push('Categories');
     }
-  }
-
-  // Track document changes and add them to pending changes
-  private trackDocumentChanges(value: VendorProfileEditValues): void {
     if (value.businessDocument instanceof File) {
-      this.addPendingChange(
-        'businessDocument',
-        'Business Registration Document',
-        this.getDocumentUrl(DocumentType.BussinessDocument),
-        value.businessDocument.name
-      );
+      fields.push('Business Registration Document');
     }
     if (value.gstDocument instanceof File) {
-      this.addPendingChange(
-        'gstDocument',
-        'GST Document',
-        this.getDocumentUrl(DocumentType.GSTDocument),
-        value.gstDocument.name
-      );
+      fields.push('GST Document');
     }
     if (value.businessLogo instanceof File) {
-      this.addPendingChange(
-        'businessLogo',
-        'Business Logo',
-        this.getDocumentUrl(DocumentType.Logo),
-        value.businessLogo.name
-      );
+      fields.push('Business Logo');
     }
+    return fields;
   }
+
 
   // Build the payload for updating the user profile
   private buildPayload(value: VendorProfileEditValues): Partial<UpdateProfilePayload> {
@@ -537,7 +469,7 @@ export class VendorProfileEditComponent implements OnChanges {
     if (Object.keys(businessDetails).length > 0) {
       payload.bussinessDetails = businessDetails;
     }
-    const requestedMessage = this.createUpdateMessage();
+    const requestedMessage = this.createUpdateMessage(value);
     if (requestedMessage) {
       payload.requestedMessage = requestedMessage;
     }
@@ -569,23 +501,6 @@ export class VendorProfileEditComponent implements OnChanges {
         )
       }
     });
-  }
-
-  // helper method to add a pending change to the pendingChangesMap
-  private addPendingChange(
-    fieldKey: string,
-    fieldName: string,
-    oldValue: unknown,
-    newValue: unknown
-  ): void {
-    this.pendingChangesMap[fieldKey] = {
-      fieldKey,
-      fieldName,
-      oldValue,
-      newValue,
-      status: 'PENDING',
-      requestAt: new Date().toISOString()
-    }
   }
 
   // Get the document URL for a specific document type
@@ -637,16 +552,15 @@ export class VendorProfileEditComponent implements OnChanges {
     this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
   }
 
-  //get updated fields
-  private getUpdatedField(): string[] {
-    return Object.values(this.pendingChangesMap).map((item) => item.fieldName);
-  }
-
   // create update message based on updated fields
-  private createUpdateMessage(): string {
-    const fields = this.getUpdatedField();
-    const message = fields.length ? `Vendor want's to update following field: ${fields.join(',')} ` : '';
+  private createUpdateMessage(value: VendorProfileEditValues): string {
+    const fields = this.collectUpdatedFields(value);
+    const message = fields.length ? `Vendor wants to update following field: ${fields.join(',')} ` : '';
     return message;
   }
-
+  
+  // get invalid field message
+  get invalidFieldMessages(): string{
+    return this.invalidFieldLabels.join(', ');
+  }
 }
