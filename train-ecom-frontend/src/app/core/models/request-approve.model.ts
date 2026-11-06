@@ -1,4 +1,3 @@
-export type PendingChangeStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 export enum RequestStatus {
     Pending = 1,
     Rejected = 2,
@@ -37,25 +36,4 @@ export interface VerifyProfileRequestPayload {
 
 export interface VerifyProfileResponse {
     message: string
-}
-export interface Element extends Record<string, unknown> {
-    id: number;
-    requestBy: string;
-    requestDate: string;
-    requestType: string[];
-    requestMesage: string
-}
-
-export interface PendingFieldChanges<T = unknown> {
-    fieldKey: string;
-    fieldName: string;
-    oldValue: T;
-    newValue: T;
-    status: PendingChangeStatus;
-    requestAt: string
-}
-
-export interface VendorPendingProfileRequest {
-    vendorId: number;
-    changes: Record<string, PendingFieldChanges>
 }

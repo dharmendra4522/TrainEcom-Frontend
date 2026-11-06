@@ -74,7 +74,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
   columns: TableColumn[] = [
     { key: 'userId', label: 'ID', type: 'number', truncate: false, filterable: true, filterType: 'search', clickable: true },
     { key: 'name', label: 'Name', truncate: false, filterable: true, filterType: 'search' },
-    { key: 'phoneNumber', label: 'Phone', filterable: true, filterType: 'search' },
+    { key: 'phoneNumber', label: 'Phone', truncate: true, filterable: true, filterType: 'search' },
     { key: 'email', label: 'Email', truncate: true, filterable: true, filterType: 'search' },
     { key: 'bussinessName', label: 'Business Name', truncate: true, filterable: true, filterType: 'search' },
     { key: 'categoriesDisplay', label: 'Categories', truncate: true, filterable: true, filterType: 'dropdown' },
@@ -83,7 +83,7 @@ export class VendorManagementComponent implements OnInit, OnDestroy, OnChanges {
     { key: 'productCount', label: 'Product Count', truncate: false, filterable: true, filterType: 'search', filterDisabled: true },
     { key: 'storeName', label: 'Display Name', truncate: true, filterable: true, filterType: 'search' },
     { key: 'statusDisplay', label: 'Status', type: 'badge', badgeClassKey: 'vendorStatusClass', truncate: false, filterable: true, filterType: 'dropdown', tooltipKey: 'rejectionReason' },
-    { key: 'requestStatusDisplay', label: 'Update Request', type: 'badge', badgeClassKey: 'vendorRequestClass', truncate: true, filterable: true, filterType: 'dropdown', tooltipKey: 'requestRejectionReason' }
+    { key: 'requestStatusDisplay', label: 'Update Request', type: 'badge', badgeClassKey: 'vendorRequestClass', truncate: false, filterable: true, filterType: 'dropdown', tooltipKey: 'requestRejectionReason' }
   ];
 
   actions: TableAction[] = [

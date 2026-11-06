@@ -423,3 +423,8 @@ tr.cursor-pointer {
   min-width: 140px !important;
   width: 140px !important;
 }
+
+.custom-mat-table .mat-column-requestStatusDisplay {
+  min-width: 140px !important;
+  width: 140px !important;
+}
