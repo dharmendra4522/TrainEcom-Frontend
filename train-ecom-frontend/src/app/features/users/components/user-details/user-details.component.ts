@@ -75,25 +75,32 @@ export class UserDetailsComponent {
 
   // handle approve action
   public onApprove(): void {
+    debugger;
     const vendorName = this.vendorDetails?.vendorName;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        data: {
-          message: `Are you sure you want to approve ${vendorName}?`,
-          yesLabel: 'Approve',
-          noLabel: 'Cancel'
-        }
+        message: `Are you sure you want to approve ${vendorName}?`,
+        yesLabel: 'Approve',
+        noLabel: 'Cancel'
       }
     })
-    dialogRef.afterClosed().subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Vendor profile create request is approved', 'close');
-        this.loadVendorDetail();
-      },
-      error: () => {
-        this.notificationService.showError('faild to update vendor profile update request', 'close');
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        return;
       }
+      const payload = { status: ApprovalStatus.Approved, rejectionReason: '' };
+      debugger;
+      this.vendorService.updateVendorStatus(this.vendorId, payload).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Vendor profile create request is approved', 'close');
+          this.loadVendorDetail();
+        },
+
+        error: () => {
+          this.notificationService.showError('faild to update vendor profile update request', 'close');
+        }
+      })
     })
   }
 
@@ -112,7 +119,7 @@ export class UserDetailsComponent {
         return;
       }
       const payload = {
-        status: VendorStatus.Rejected,
+        status: ApprovalStatus.Rejected,
         rejectionReason: result.message
       }
       this.vendorService.updateVendorStatus(this.vendorId, payload).subscribe({

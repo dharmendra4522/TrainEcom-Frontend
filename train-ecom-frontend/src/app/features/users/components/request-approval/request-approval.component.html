@@ -11,7 +11,7 @@
     <mat-form-field appearance="outline" class="w-100">
       <mat-label>Search users...</mat-label>
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="Input" [formControl]="searchControl" />
+      <input matInput placeholder="Search..." [formControl]="searchControl" />
       <button
         *ngIf="searchControl.value"
         mat-icon-button
