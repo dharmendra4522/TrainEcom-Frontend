@@ -1,0 +1,16 @@
+<div class="container-fluid px-0">
+  <!-- staff Table -->
+  <app-generic-table
+    [columns]="columns"
+    [data]="staffUsers"
+    [showIndex]="false"
+    [totalRecords]="totalRecord"
+    [showPaginator]="false"
+    [actions]="actions"
+    [isLoading]="isLoading"
+    (actionClick)="onAction($event)"
+    [showInlineActions]="false"
+    [showheaderFilter]="showHeaderFilter"
+    (filterChanged)="onHeaderFilterChange($event)"
+  ></app-generic-table>
+</div>

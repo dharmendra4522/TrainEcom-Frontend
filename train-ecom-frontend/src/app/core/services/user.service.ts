@@ -141,7 +141,7 @@ export class UserService {
       customer: Role.Customer,
       vendor: Role.Vendor,
       admin: Role.Admin,
-      accounting: Role.Accounting,
+      accounting: Role.Accountant,
       officeadmin: Role.OfficeAdmin
     };
     return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;

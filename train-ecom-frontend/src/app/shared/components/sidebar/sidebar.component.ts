@@ -3,13 +3,10 @@ import { Input } from '@angular/core';
 import { MenuItem } from '../../../core/models/menu-item.model';
 import { inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Router } from '@angular/router';
 import * as AuthActions from '../../../core/store/auth/auth.actions';
 import { selectUserRole } from '../../../core/store/auth/auth.selectors';
 import { getRoleMenuItems } from '../../../core/config/role-permission.config';
 import { Role } from '../../../core/models/auth.model';
-
 
 @Component({
   selector: 'app-sidebar',

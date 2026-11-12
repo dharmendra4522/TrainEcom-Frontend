@@ -7,8 +7,13 @@ import { UserManagementComponent } from './components/user-management/user-manag
 import { customerGuard } from '../../core/guards/customer.guard';
 import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
-import { VendorManagementComponent } from './components/vendor-management/vendor-management.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
+import { managementAccessGuard } from '../../core/guards/management-access.guard';
+
+const managementRouteData = {
+  feature: 'users.manage',
+  pageMode: 'management'
+}
 
 const routes: Routes = [
   // Profile route accessible by both Customer (/account/profile) and Admin (/admin/profile)
@@ -16,26 +21,28 @@ const routes: Routes = [
   {
     path: 'address',
     canActivate: [customerGuard],
-    component: AddressComponent,
+    component: AddressComponent
   },
   {
     path: 'wishlist',
     canActivate: [customerGuard],
-    component: WishlistComponent,
+    component: WishlistComponent
   },
 
-  // Admin User Management routes (/admin/users/manage)
+  // Admin/vendor User Management routes (/admin/users/manage)
   {
     path: 'manage',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: UserManagementComponent,
+    data: managementRouteData
   },
 
   // user details page
   {
     path: 'manage/:id',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, managementAccessGuard],
     component: UserDetailsComponent,
+    data: managementRouteData
   },
 
   // Default empty route when lazy loaded at /admin/profile
@@ -46,4 +53,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class UsersRoutingModule {}
+export class UsersRoutingModule { }

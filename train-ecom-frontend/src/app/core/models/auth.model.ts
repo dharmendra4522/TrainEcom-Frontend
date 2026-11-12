@@ -4,8 +4,13 @@ export enum Role {
   Customer = 1,
   Vendor = 2,
   Admin = 3,
-  Accounting = 4,
+  Accountant = 4,
   OfficeAdmin = 5,
+  StoreMananger = 6,
+  InventoryManager = 7,
+  OrderManager = 8,
+  CustomerSupport = 9,
+  ProductEditor = 10
 }
 
 export enum RegistrationRole {
@@ -17,8 +22,13 @@ export const ROLE_NAME_MAP: Record<number, string> = {
   [Role.Customer]: 'Customer',
   [Role.Vendor]: 'Vendor',
   [Role.Admin]: 'Admin',
-  [Role.Accounting]: 'Accounting',
+  [Role.Accountant]: 'Accounting',
   [Role.OfficeAdmin]: 'OfficeAdmin',
+  [Role.StoreMananger]: 'StoreManager',
+  [Role.InventoryManager]: 'InventoryManager',
+  [Role.OrderManager]: 'OrderManager',
+  [Role.CustomerSupport]: 'CustomerSupport',
+  [Role.ProductEditor]: 'ProductEditor'
 };
 
 export interface LoginRequest {
@@ -155,7 +165,7 @@ export interface NominatimAddress {
   house_number?: string;
 }
 
-export interface AutoFilledAddress{
+export interface AutoFilledAddress {
   addressLine1: string;
   country: string;
   state: string;
