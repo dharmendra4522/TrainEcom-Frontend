@@ -12,7 +12,7 @@ export interface StaffUser extends Record<string, unknown> {
     name: string;
     email: string;
     phoneNumber: string,
-    role: Role;
+    role: Role[];
     isBlocked: boolean;
 }
 
@@ -28,6 +28,7 @@ export interface StaffUserFilter {
     searchTerm?: string;
     searchField?: StaffUsersListField;
     roleFilter?: Role[];
+    statusFilter?: number[];
     pageNumber: number;
     pageSize: number;
 }
@@ -37,9 +38,18 @@ export interface CreateStaffUser {
     email: string;
     phoneNumber: string;
     password: string;
-    role: Role;
+    role: Role[];
 }
 
 export interface CreateStaffUserResponse {
     message: string;
+}
+
+export enum StaffFilterColumn {
+    Id = 'id',
+    Name = 'name',
+    Email = 'email',
+    PhoneNumber = 'phoneNumber',
+    RoleLabel = 'roleLabel',
+    StatusLabel = 'statusLabel'
 }

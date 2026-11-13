@@ -9,8 +9,14 @@
     [actions]="actions"
     [isLoading]="isLoading"
     (actionClick)="onAction($event)"
+    (loadMore)="onTableScroll()"
     [showInlineActions]="false"
     [showheaderFilter]="showHeaderFilter"
     (filterChanged)="onHeaderFilterChange($event)"
+    [dropdownOptionsMap]="dropdownOptionsMap"
+    [selectedFiltersMap]="selectedFiltersMap"
+    (dropdownSelectionChange)="onDropdownSelectionChange($event)"
+    (filterApply)="onFilterApply($event)"
+    (filterClear)="onFilterClear($event)"
   ></app-generic-table>
 </div>

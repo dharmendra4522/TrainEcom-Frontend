@@ -2,13 +2,13 @@
   <div class="sticky-top-section bg-white pb-2">
     <!-- Header -->
     <div class="row align-items-center justify-content-between mb-3 g-3 p-2">
-      <div class="col-12 col-md-6">
-        <h2 class="fs-4 fw-bold text-dark m-0">User Management</h2>
-        <p class="text-muted small m-0">View and manage all users.</p>
+      <div class="col-12 col-md-5">
+        <h2 class="fs-4 fw-bold text-dark m-0">{{(userRole$ | async) === role.Vendor ? 'Staff Management' : 'User Management'}}</h2>
+        <p class="text-muted small m-0">{{(userRole$ | async) === role.Vendor ? 'View and manage all staff users.' : 'View and manage all users.'}}</p>
       </div>
 
       <!-- Search input section in header -->
-      <div class="col-12 col-md-5">
+      <div class="col-12" [ngClass]="(userRole$ | async) === role.Vendor ? 'col-md-5' : 'col-md-4'">
         <mat-form-field
           appearance="outline"
           class="user-search-field w-100 mb-0 pb-0"
@@ -36,8 +36,9 @@
         </mat-form-field>
       </div>
       <ng-container *ngIf="(userRole$ | async) === role.Vendor">
-        <div class="col-12 col-md-1">
-          <button mat-raised-button color="primary" (click)="onAddStaf()">
+        <div class="col-12 col-md-2 text-md-end">
+          <button mat-raised-button color="primary" class="w-100 w-md-auto custom-add-button" (click)="onAddStaf()">
+            <mat-icon>add</mat-icon>
             Add Staf Users
           </button>
         </div>
@@ -72,7 +73,9 @@
     </div>
     <ng-container *ngIf="(userRole$ | async) === role.Vendor">
       <app-all-staff-users [externalSearchQuery]="searchQueryText"
-        (searchReset)="globalSearch.setValue('')">
+        (searchReset)="globalSearch.setValue('')"
+        [refreshSignal]="refreshSignal"
+        >
       </app-all-staff-users>
     </ng-container>
   </div>

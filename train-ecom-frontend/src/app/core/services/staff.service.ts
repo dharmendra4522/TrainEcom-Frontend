@@ -10,11 +10,11 @@ import { CreateStaffUser, CreateStaffUserResponse, StaffUserFilter, StaffuserLis
 export class StaffService {
   private http = inject(HttpClient);
   private baseAPI = `${environment.apiBaseUrl}/vendors`
-  private createStaffUserAPI = `${environment.apiBaseUrl}/users/create`;
+  private staffUserAPI = `${environment.apiBaseUrl}/users`;
 
   // api for create new staff user
   addStaffUsers(payload: CreateStaffUser): Observable<CreateStaffUserResponse> {
-    return this.http.post<CreateStaffUserResponse>(`${this.createStaffUserAPI}`, payload);
+    return this.http.post<CreateStaffUserResponse>(`${this.staffUserAPI}/create`, payload);
   }
 
   // api to fetch all the staff users
@@ -31,8 +31,31 @@ export class StaffService {
     if (filter.roleFilter?.length) {
       filter.roleFilter.forEach(role => {
         params = params.append('roleFilter', role)
-      })
+      });
+    }
+    if (filter.statusFilter?.length) {
+      filter.statusFilter.forEach(status => {
+        params = params.append('statusFilter', status)
+      });
     }
     return this.http.get<StaffuserListResponse>(`${this.baseAPI}/staff/users/all`, { params });
   }
+
+  // update staff user details api
+  updateStaffUserDetails(userId: number, payload: Partial<CreateStaffUser>): Observable<CreateStaffUserResponse> {
+    return this.http.put<CreateStaffUserResponse>(`${this.staffUserAPI}/${userId}/update`, payload);
+  }
+
+  // update staff user status api
+  updateStaffUserStatus(userId: number, isBlocked: boolean): Observable<CreateStaffUserResponse> {
+    const payload = { isBlocked };
+    return this.http.patch<CreateStaffUserResponse>(`${this.staffUserAPI}/${userId}/update-status`, payload);
+  }
+
+  // delete staff user api
+  deleteStaffUser(userId: number): Observable<CreateStaffUserResponse> {
+    return this.http.delete<CreateStaffUserResponse>(`${this.staffUserAPI}/${userId}/delete`);
+  }
+
+
 }

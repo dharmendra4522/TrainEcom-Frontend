@@ -1,6 +1,6 @@
 <div class="container">
   <div class="d-flex flex-row justify-content-between p-2">
-    <h2>Add Staff User</h2>
+    <h2>{{ data?.isEdit ? "Update Staff User" : "Add Staff User" }}</h2>
     <button mat-icon-button (click)="onClose()">
       <mat-icon>close</mat-icon>
     </button>
@@ -8,6 +8,7 @@
   <mat-divider class="py-2"></mat-divider>
   <form [formGroup]="staffForm" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="outline" class="w-100">
+      <mat-icon matPrefix>person</mat-icon>
       <mat-label>Staff Name</mat-label>
       <input
         matInput
@@ -21,23 +22,26 @@
       </mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
+      <mat-icon matPrefix>email</mat-icon>
       <mat-label>Staff Email</mat-label>
       <input
         matInput
         type="email"
         placeholder="Enter Staff Email"
         formControlName="staffEmail"
-        (blur)="onBlurTrim('staffName')"
+        (blur)="onBlurTrim('staffEmail')"
       />
       <mat-error>
         {{ getErrorMessage("staffEmail", "Staff Email") }}
       </mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
+      <mat-icon matPrefix>phone</mat-icon>
       <mat-label>Staff Phone Number</mat-label>
       <input
         matInput
         type="text"
+        maxlength="10"
         placeholder="Phone no..."
         formControlName="staffPhoneNumber"
       />
@@ -46,8 +50,13 @@
       </mat-error>
     </mat-form-field>
     <mat-form-field appearance="outline" class="w-100">
+      <mat-icon matPrefix>person</mat-icon>
       <mat-label>Select Staff Role</mat-label>
-      <mat-select placeholder="Select Staff Role" formControlName="staffRole">
+      <mat-select
+        placeholder="Select Staff Role"
+        formControlName="staffRole"
+        multiple
+      >
         <mat-option *ngFor="let role of roleOptions" [value]="role.value">{{
           role.label
         }}</mat-option>
@@ -56,23 +65,31 @@
         {{ getErrorMessage("staffRole", "Staff Role") }}
       </mat-error>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="w-100">
-      <mat-label>Password</mat-label>
-      <input
-        matInput
-        [type]="isPasswordView ? 'text' : 'password'"
-        placeholder="Enter password"
-        formControlName="staffPassword"
-      />
-      <button mat-icon-button matIconSuffix (click)="viewPassword()">
-        <mat-icon>{{
-          isPasswordView ? "visibility " : "visibility_off"
-        }}</mat-icon>
-      </button>
-      <mat-error>
-        {{ getErrorMessage("staffPassword", "Password") }}
-      </mat-error>
-    </mat-form-field>
+    <ng-container *ngIf="!data?.isEdit">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-icon matPrefix>lock</mat-icon>
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="isPasswordView ? 'text' : 'password'"
+          placeholder="Enter password"
+          formControlName="staffPassword"
+        />
+        <button
+          mat-icon-button
+          type="button"
+          matIconSuffix
+          (click)="viewPassword()"
+        >
+          <mat-icon>{{
+            isPasswordView ? "visibility " : "visibility_off"
+          }}</mat-icon>
+        </button>
+        <mat-error>
+          {{ getErrorMessage("staffPassword", "Password") }}
+        </mat-error>
+      </mat-form-field>
+    </ng-container>
     <div class="d-flex justify-content-end gap-3">
       <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
       <button
@@ -86,7 +103,9 @@
           diameter="20"
           strokeWidth="3"
         ></mat-spinner>
-        <span *ngIf="!isSubmitting">Submit</span>
+        <span *ngIf="!isSubmitting">{{
+          data?.isEdit ? "Update" : "Submit"
+        }}</span>
       </button>
     </div>
   </form>

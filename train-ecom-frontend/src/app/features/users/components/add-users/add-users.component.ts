@@ -1,11 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { getFieldError, trimControlValue } from '../../../auth/register.utils';
 import { Store } from '@ngrx/store';
 import { Role } from '../../../../core/models/auth.model';
 import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
 import { StaffService } from '../../../../core/services/staff.service';
+import { StaffUser } from '../../../../core/models/staffUser.model';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-add-users',
@@ -17,6 +19,8 @@ export class AddUsersComponent {
   private dialogRef = inject(MatDialogRef<AddUsersComponent>);
   private store = inject(Store);
   private staffService = inject(StaffService);
+  private notificationService = inject(NotificationService);
+  public data = inject(MAT_DIALOG_DATA, { optional: true });
 
   isSubmitting: boolean = false;
   staffForm!: FormGroup;
@@ -26,14 +30,17 @@ export class AddUsersComponent {
 
   ngOnInit(): void {
     this.initializeForm();
+    if (this.data?.isEdit && this.data?.staffData) {
+      this.patchFormValues(this.data.staffData);
+    }
   }
 
   private initializeForm(): void {
     this.staffForm = this.fb.group({
       staffName: ['', Validators.required],
       staffEmail: ['', Validators.compose([Validators.required, Validators.email])],
-      staffPhoneNumber: ['', Validators.required],
-      staffRole: ['', Validators.required],
+      staffPhoneNumber: ['', Validators.compose([Validators.required, Validators.pattern(/^[6-9]\d{9}$/)])],
+      staffRole: [[], Validators.required],
       staffPassword: [
         '',
         Validators.compose([
@@ -41,8 +48,22 @@ export class AddUsersComponent {
           Validators.minLength(8),
           Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
         ])
-      ],
+      ]
     })
+  }
+
+  // patch form values for edit
+  private patchFormValues(staffUser: StaffUser): void {
+    this.staffForm.patchValue({
+      staffName: staffUser.name,
+      staffEmail: staffUser.email,
+      staffPhoneNumber: staffUser.phoneNumber,
+      staffRole: Array.isArray(staffUser.role) ? staffUser.role : [staffUser.role]
+    });
+    this.staffForm.get('staffEmail')?.disable();
+    const passwordControl = this.staffForm.get('staffPassword');
+    passwordControl?.clearValidators();
+    passwordControl?.updateValueAndValidity();
   }
 
   // handle form submition
@@ -59,16 +80,34 @@ export class AddUsersComponent {
       role: this.staffForm.get('staffRole')?.value,
       password: this.staffForm.get('staffPassword')?.value
     }
-    console.log('form data', payload);
-    this.staffService.addStaffUsers(payload).subscribe({
-      next: (response) => {
-        console.log('Staff user added successfully:', response);
-        this.isSubmitting = false;
+    if (this.data?.isEdit && this.data?.staffData) {
+      this.updateStaffUser(this.data.staffData.id, payload);
+    }
+    else {
+      this.staffService.addStaffUsers(payload).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Staff user added successfully', 'Close');
+          this.isSubmitting = false;
+          this.dialogRef.close(true);
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          this.notificationService.showError('Failed to add staff user', 'Close');
+        }
+      });
+    }
+  }
+
+  // handle update staff user
+  private updateStaffUser(userId: number, updatedData: Partial<StaffUser>): void {
+    this.staffService.updateStaffUserDetails(userId, updatedData).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Staff user updated successfully', 'Close');
         this.dialogRef.close(true);
       },
-      error: (error) => {
+      error: () => {
+        this.notificationService.showError('Failed to update staff user', 'Close');
         this.isSubmitting = false;
-        console.error('Error adding staff user:', error);
       }
     });
   }
@@ -76,11 +115,11 @@ export class AddUsersComponent {
   // role options for dropdown
   roleOptions = [
     { label: 'Accountant', value: Role.Accountant },
-    { label: 'StoreMananger', value: Role.StoreMananger },
-    { label: 'InventoryManager', value: Role.InventoryManager },
-    { label: 'OrderManager ', value: Role.OrderManager },
-    { label: 'CustomerSupport ', value: Role.CustomerSupport },
-    { label: 'ProductEditor ', value: Role.ProductEditor }
+    { label: 'Store Mananger', value: Role.StoreMananger },
+    { label: 'Inventory Manager', value: Role.InventoryManager },
+    { label: 'Order Manager ', value: Role.OrderManager },
+    { label: 'Customer Support ', value: Role.CustomerSupport },
+    { label: 'Product Editor ', value: Role.ProductEditor }
   ]
 
   // handle close dialog

@@ -30,6 +30,7 @@ export class UserManagementComponent implements OnInit {
   searchQueryText: string = '';
   readonly role = Role;
   userRole$ = this.store.select(selectUserRole);
+  refreshSignal: number = 0;
 
   tabs: TabItem[] = [
     { label: 'Customers', value: 'customers' },
@@ -69,10 +70,16 @@ export class UserManagementComponent implements OnInit {
 
   // handle add staf 
   onAddStaf(): void {
-    this.dialog.open(AddUsersComponent, {
+    const dialogRef = this.dialog.open(AddUsersComponent, {
       width: '600px',
       height: '550px',
       disableClose: true
-    })
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.refreshSignal++;
+      }
+    });
   }
+
 }
