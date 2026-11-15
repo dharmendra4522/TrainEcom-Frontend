@@ -1,23 +1,34 @@
 <div class="container-fluid mt-2 px-0 user-management-container">
   <div class="sticky-top-section bg-white pb-2">
     <!-- Header -->
-    <div
-      class="header-container row align-items-center justify-content-between mb-3 g-3"
-    >
-      <div class="col-12 col-lg">
-        <h2 class="fs-4 fw-bold text-dark m-0">User Management</h2>
-        <p class="text-muted small m-0">View and manage all users.</p>
+    <div class="row align-items-center justify-content-between mb-3 g-3 p-2">
+      <div class="col-12 col-md-5">
+        <h2 class="fs-4 fw-bold text-dark m-0">
+          {{
+            (userRole$ | async) === role.Vendor
+              ? "Staff Management"
+              : "User Management"
+          }}
+        </h2>
+        <p class="text-muted small m-0">
+          {{
+            (userRole$ | async) === role.Vendor
+              ? "View and manage all staff users."
+              : "View and manage all users."
+          }}
+        </p>
       </div>
 
-      <div class="col-12 col-md-6 col-lg-4">
+      <!-- Search input section in header -->
+      <div class="col-12 col-md-5">
         <mat-form-field
           appearance="outline"
-          class="user-search-field w-100 mb-0"
+          class="user-search-field w-100 mb-0 pb-0"
           subscriptSizing="dynamic"
           floatLabel="always"
         >
           <mat-label>Search users...</mat-label>
-          <mat-icon matPrefix>search</mat-icon>
+          <mat-icon matPrefix class="text-secondary">search</mat-icon>
           <input
             matInput
             placeholder="Type to search..."
@@ -34,32 +45,53 @@
           </button>
         </mat-form-field>
       </div>
-      <div class="col-auto" *ngIf="activeTab === 'vendors'">
+      <!-- Admin Update Request Button -->
+      <div
+        class="col-12 col-md-2 text-md-end"
+        *ngIf="(userRole$ | async) === role.Admin && activeTab === 'vendors'"
+      >
         <button
           matBadgeColor="warn"
           mat-raised-button
           color="primary"
-          class="request-btn"
+          class="w-100 w-md-auto custom-add-button"
           (click)="onRequestDialog()"
         >
           Update Request
         </button>
       </div>
+
+      <!-- Vendor Add Staff Button -->
+      <ng-container *ngIf="(userRole$ | async) === role.Vendor">
+        <div class="col-12 col-md-2 text-md-end">
+          <button
+            mat-raised-button
+            color="primary"
+            class="w-100 w-md-auto custom-add-button"
+            (click)="onAddStaf()"
+          >
+            <mat-icon>add</mat-icon>
+            Add Staff Users
+          </button>
+        </div>
+      </ng-container>
     </div>
 
-    <!-- new navigation tab -->
-    <mat-tab-group
-      [selectedIndex]="selectedindex"
-      (selectedTabChange)="onTabChange($event)"
-      class=""
-    >
-      <mat-tab *ngFor="let tab of tabs" [label]="tab.label"> </mat-tab>
-    </mat-tab-group>
+    <!-- Tabs only for Admin -->
+    <ng-container *ngIf="(userRole$ | async) === role.Admin">
+      <mat-tab-group
+        [selectedIndex]="selectedindex"
+        (selectedTabChange)="onTabChange($event)"
+        class=""
+      >
+        <mat-tab *ngFor="let tab of tabs" [label]="tab.label"></mat-tab>
+      </mat-tab-group>
+    </ng-container>
   </div>
 
   <!-- Content area -->
   <div class="tab-content-area row">
-    <div class="col-12">
+    <div class="col-12" *ngIf="(userRole$ | async) === role.Admin">
       <app-all-users
         *ngIf="activeTab === 'customers'"
         [externalSearchQuery]="searchQueryText"
@@ -72,5 +104,13 @@
         (searchReset)="globalSearch.setValue('')"
       ></app-vendor-management>
     </div>
+    <ng-container *ngIf="(userRole$ | async) === role.Vendor">
+      <app-all-staff-users
+        [externalSearchQuery]="searchQueryText"
+        (searchReset)="globalSearch.setValue('')"
+        [refreshSignal]="refreshSignal"
+      >
+      </app-all-staff-users>
+    </ng-container>
   </div>
 </div>

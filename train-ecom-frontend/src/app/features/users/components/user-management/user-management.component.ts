@@ -5,6 +5,10 @@ import { Role } from '../../../../core/models/auth.model';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { RequestApprovalComponent } from '../request-approval/request-approval.component';
+import { AddUsersComponent } from '../add-users/add-users.component';
+import { Store } from '@ngrx/store';
+import { selectUserRole } from '../../../../core/store/auth/auth.selectors';
+
 export interface TabItem {
   label: string;
   value: 'customers' | 'vendors';
@@ -17,6 +21,7 @@ export interface TabItem {
 export class UserManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
+  private store = inject(Store);
 
   activeTab: 'customers' | 'vendors' = 'customers';
   selectedindex: number = 0;
@@ -28,6 +33,9 @@ export class UserManagementComponent implements OnInit {
   get roleNumber(): number {
     return this.activeTab === 'customers' ? Role.Customer : Role.Vendor;
   }
+  readonly role = Role;
+  userRole$ = this.store.select(selectUserRole);
+  refreshSignal: number = 0;
 
   tabs: TabItem[] = [
     { label: 'Customers', value: 'customers' },
@@ -77,4 +85,19 @@ export class UserManagementComponent implements OnInit {
       }
     });
   }
+
+  // handle add staf 
+  onAddStaf(): void {
+    const dialogRef = this.dialog.open(AddUsersComponent, {
+      width: '600px',
+      height: '550px',
+      disableClose: true
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.refreshSignal++;
+      }
+    });
+  }
+
 }

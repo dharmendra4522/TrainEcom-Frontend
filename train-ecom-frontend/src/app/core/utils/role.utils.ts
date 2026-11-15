@@ -21,7 +21,7 @@ export function normalizeRole(
     customer: Role.Customer,
     vendor: Role.Vendor,
     admin: Role.Admin,
-    accounting: Role.Accounting,
+    accounting: Role.Accountant,
     officeadmin: Role.OfficeAdmin,
     office_admin: Role.OfficeAdmin,
     officeadminrole: Role.OfficeAdmin,

@@ -1,0 +1,22 @@
+<div class="container-fluid px-0">
+  <!-- staff Table -->
+  <app-generic-table
+    [columns]="columns"
+    [data]="staffUsers"
+    [showIndex]="false"
+    [totalRecords]="totalRecord"
+    [showPaginator]="false"
+    [actions]="actions"
+    [isLoading]="isLoading"
+    (actionClick)="onAction($event)"
+    (loadMore)="onTableScroll()"
+    [showInlineActions]="false"
+    [showheaderFilter]="showHeaderFilter"
+    (filterChanged)="onHeaderFilterChange($event)"
+    [dropdownOptionsMap]="dropdownOptionsMap"
+    [selectedFiltersMap]="selectedFiltersMap"
+    (dropdownSelectionChange)="onDropdownSelectionChange($event)"
+    (filterApply)="onFilterApply($event)"
+    (filterClear)="onFilterClear($event)"
+  ></app-generic-table>
+</div>

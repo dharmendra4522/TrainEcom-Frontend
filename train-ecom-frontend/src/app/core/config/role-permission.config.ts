@@ -37,6 +37,14 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     allowInPendingState: false,
   },
   {
+    key: 'admin-users',
+    label: 'Manage Users',
+    icon: 'people',
+    route: '/vendor/users',
+    allowedRoles: [Role.Vendor],
+    allowInPendingState: false
+  },
+  {
     key: 'vendor-profile',
     label: 'Profile',
     icon: 'person',

@@ -1,7 +1,7 @@
 import { Role } from '../models/auth.model';
 
 export type PortalKey = 'admin' | 'vendor';
-export type ManagementFeature = 'products.manage' | 'orders.manage';
+export type ManagementFeature = 'products.manage' | 'orders.manage' | 'users.manage';
 
 /** Central access for manage reusable screens. */
 export const PORTAL_ACCESS: Record<PortalKey, readonly Role[]> = {
@@ -16,11 +16,14 @@ export const FEATURE_ACCESS: Record<
   admin: {
     'products.manage': [Role.Admin],
     'orders.manage': [Role.Admin],
+    'users.manage': [Role.Admin]
   },
   vendor: {
     'products.manage': [Role.Vendor],
     'orders.manage': [Role.Vendor],
+    'users.manage': [Role.Vendor]
   },
+
 };
 
 export function isPortalKey(value: string | undefined): value is PortalKey {
@@ -30,5 +33,5 @@ export function isPortalKey(value: string | undefined): value is PortalKey {
 export function isManagementFeature(
   value: unknown,
 ): value is ManagementFeature {
-  return value === 'products.manage' || value === 'orders.manage';
+  return value === 'products.manage' || value === 'orders.manage' || value === 'users.manage';
 }

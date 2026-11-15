@@ -110,6 +110,17 @@ const routes: Routes = [
             ],
           },
           {
+            path: 'users',
+            canActivate: [vendorApprovedGuard],
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'manage' },
+              {
+                path: '',
+                loadChildren: () => import('./features/users/users.module').then((m) => m.UsersModule)
+              }
+            ]
+          },
+          {
             path: 'profile',
             loadChildren: () =>
               import('./features/users/users.module').then(
@@ -279,4 +290,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

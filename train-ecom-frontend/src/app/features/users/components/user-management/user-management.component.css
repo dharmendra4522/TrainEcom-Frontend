@@ -49,3 +49,6 @@
 .header-container{
   padding: 15px;
 }
+.custom-add-button {
+  height: 48px !important;
+}

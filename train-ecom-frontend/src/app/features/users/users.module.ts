@@ -17,6 +17,8 @@ import { VendorProfileComponent } from './components/vendor-profile/vendor-profi
 import { AuthModule } from '../auth/auth.module';
 import { RequestApprovalComponent } from './components/request-approval/request-approval.component';
 import { VendorProfileEditComponent } from './components/vendor-profile-edit/vendor-profile-edit.component';
+import { AddUsersComponent } from './components/add-users/add-users.component';
+import { AllStaffUsersComponent } from './components/all-staff-users/all-staff-users.component';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -29,7 +31,9 @@ import { VendorProfileEditComponent } from './components/vendor-profile-edit/ven
     ProfileEditComponent,
     VendorProfileComponent,
     RequestApprovalComponent,
-    VendorProfileEditComponent
+    VendorProfileEditComponent,
+    AddUsersComponent,
+    AllStaffUsersComponent
   ],
   imports: [
     CommonModule,
