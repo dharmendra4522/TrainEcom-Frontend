@@ -25,47 +25,60 @@
         </div>
 
         <div *ngIf="!isEditMode" class="view-mode">
-          <div class="detail-row">
-            <span class="label">Name:</span>
-            <span class="value text-break">{{ userProfile.name }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">Email:</span>
-            <span class="value text-break">{{ userProfile.email }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">Phone:</span>
-            <span class="value text-break"
-              >{{
-                userProfile.phoneNumber &&
-                !userProfile.phoneNumber.startsWith("+91")
-                  ? "+91 "
-                  : ""
-              }}{{ userProfile.phoneNumber }}</span
-            >
-          </div>
-
-          <!-- Customer Address Section -->
-          <ng-container *appRole="roleEnum.Customer">
-            <div class="address-section" *ngIf="userProfile.defaultAddress">
-              <div class="detail-row">
-                <span class="label">Address:</span>
-                <span class="value text-break">
-                  {{ userProfile.defaultAddress.addressLine1 }},
-                  {{
-                    userProfile.defaultAddress.addressLine2
-                      ? userProfile.defaultAddress.addressLine2 + ", "
-                      : ""
-                  }}
-                  {{ userProfile.defaultAddress.city }},
-                  {{ userProfile.defaultAddress.state }} -
-                  {{ userProfile.defaultAddress.postalCode }}
-                </span>
-              </div>
+          <div class="profile-details">
+            <div class="detail-row">
+              <span class="label">Name:</span>
+              <span class="value text-break">{{ userProfile.name }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email:</span>
+              <span class="value text-break">{{ userProfile.email }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Phone:</span>
+              <span class="value text-break"
+                >{{
+                  userProfile.phoneNumber &&
+                  !userProfile.phoneNumber.startsWith("+91")
+                    ? "+91 "
+                    : ""
+                }}{{ userProfile.phoneNumber }}</span
+              >
             </div>
 
-            <div class="address-section" *ngIf="!userProfile.defaultAddress">
-              <p>No default address set.</p>
+            <!-- Customer Address Section -->
+            <ng-container *appRole="roleEnum.Customer">
+              <div class="address-section" *ngIf="userProfile.defaultAddress">
+                <div class="detail-row">
+                  <span class="label">Address:</span>
+                  <span class="value text-break">
+                    {{ userProfile.defaultAddress.addressLine1 }},
+                    {{
+                      userProfile.defaultAddress.addressLine2
+                        ? userProfile.defaultAddress.addressLine2 + ", "
+                        : ""
+                    }}
+                    {{ userProfile.defaultAddress.city }},
+                    {{ userProfile.defaultAddress.state }} -
+                    {{ userProfile.defaultAddress.postalCode }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="address-section" *ngIf="!userProfile.defaultAddress">
+                <p>No default address set.</p>
+              </div>
+            </ng-container>
+          </div>
+
+          <ng-container *ngIf="userProfile.profileImage">
+            <div class="profile-Image-card">
+              <img
+                *ngIf="userProfile.profileImage"
+                [src]="userProfile.profileImage"
+                [alt]="userProfile.name"
+                class="profile-image"
+              />
             </div>
           </ng-container>
         </div>

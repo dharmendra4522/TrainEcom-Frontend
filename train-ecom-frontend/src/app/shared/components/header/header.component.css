@@ -1,7 +1,7 @@
 :host {
   display: contents;
 }
- 
+
 .main-header {
   position: sticky !important;
   top: 0 !important;
@@ -38,22 +38,22 @@
   order: 4;
   flex: 0 0 auto;
 }
- 
+
 .spacer {
   flex: 1 1 auto;
 }
- 
+
 .logo-text {
   font-size: 1.5rem;
   letter-spacing: -0.5px;
   cursor: pointer;
 }
- 
+
 .nav-item-btn {
   border-radius: 8px;
   transition: all 0.2s ease-in-out;
 }
- 
+
 .nav-item-btn:hover {
   background-color: #f1f5f9;
   color: #0d6efd !important;
@@ -71,29 +71,29 @@
   background-color: rgba(13, 110, 253, 0.08) !important;
   border-radius: 8px;
 }
- 
+
 .search-box {
   width: 280px;
   height: 40px;
   background-color: #f8fafc;
   transition: all 0.25s ease-in-out;
 }
- 
+
 .search-box input {
   outline: none;
   font-size: 13.5px;
 }
- 
+
 .search-box input::placeholder {
   color: #94a3b8;
 }
- 
+
 .search-box:focus-within {
   background-color: #ffffff !important;
   border-color: #0d6efd !important;
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
 }
- 
+
 .icon-circle-btn {
   display: inline-flex !important;
   align-items: center !important;
@@ -106,11 +106,11 @@
   background-color: transparent !important;
   transition: background-color 0.2s ease, transform 0.15s ease !important;
 }
- 
+
 .icon-circle-btn:hover {
   background-color: #f1f5f9 !important;
 }
- 
+
 .icon-circle-btn mat-icon,
 .sidebar-toggle-btn mat-icon {
   display: flex !important;
@@ -121,30 +121,30 @@
   font-size: 22px !important;
   margin: 0 !important;
 }
- 
+
 .user-greeting-pill {
   height: 40px;
   transition: all 0.2s ease;
 }
- 
+
 .user-greeting-pill:hover {
   background-color: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
 }
- 
+
 .avatar-circle {
   width: 28px;
   height: 28px;
 }
- 
+
 .cursor-pointer {
   cursor: pointer;
 }
- 
+
 .fs-7 {
   font-size: 0.825rem;
 }
- 
+
 ::ng-deep .custom-profile-menu {
   min-width: 220px !important;
 }
@@ -152,7 +152,7 @@
 @media (max-width: 768px) {
   .main-header {
     display: flex;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
     align-content: center;
     padding: 0 16px !important;
     height: auto !important;
@@ -178,4 +178,15 @@
     flex: 0 0 100%;
     width: 100%;
   }
+}
+
+.avatar-image,
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.avatar-image {
+  object-fit: cover;
 }
