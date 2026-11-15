@@ -3,12 +3,9 @@ import { StaffService } from '../../../../core/services/staff.service';
 import { StaffFilterColumn, StaffUser, StaffUserFilter, StaffUsersListField } from '../../../../core/models/staffUser.model';
 import { TableAction, TableActionEvent, TableColumn } from '../../../../core/models/table.model';
 import { FormControl, FormGroup } from '@angular/forms';
-import { distinctUntilChanged } from 'rxjs/internal/operators/distinctUntilChanged';
-import { debounceTime } from 'rxjs/internal/operators/debounceTime';
+import { debounceTime, distinctUntilChanged, switchMap, startWith} from 'rxjs';
 import { Role } from '../../../../core/models/auth.model';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { VendorStatus } from '../../../../core/models/vendor.model';
-import { startWith } from 'rxjs/internal/operators/startWith';
 import { MatDialog } from '@angular/material/dialog';
 import { AddUsersComponent } from '../add-users/add-users.component';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -101,12 +98,7 @@ export class AllStaffUsersComponent {
     this.isLoading = true;
     this.staffService.fetchStaffUsers(this.getFilterParams()).subscribe({
       next: (response) => {
-        const mappedStaffUsers = response.items.map(user => ({
-          ...user,
-          statusLabel: user.isBlocked ? 'Blocked' : 'Active',
-          statusClass: user.isBlocked ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle',
-          roleLabel: this.getRoleLabel(user.role)
-        }));
+        const mappedStaffUsers = response.items.map(user => this.mapStaffUser(user));
         if (this.pageNumber === 1) {
           this.staffUsers = mappedStaffUsers;
         } else {
@@ -133,12 +125,7 @@ export class AllStaffUsersComponent {
       })
     ).subscribe({
       next: (response) => {
-        this.staffUsers = response.items.map(user => ({
-          ...user,
-          statusLabel: user.isBlocked ? 'Blocked' : 'Active',
-          statusClass: user.isBlocked ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle',
-          roleLabel: this.getRoleLabel(user.role)
-        }));
+        this.staffUsers = response.items.map(user => this.mapStaffUser(user));
         this.totalRecord = response.totalRecords;
         this.isLoading = false;
       }, error: () => {
@@ -146,6 +133,19 @@ export class AllStaffUsersComponent {
       }
     });
   }
+
+  // handle mapping of staff user data for display
+  private mapStaffUser(user: StaffUser): StaffUser {
+  return {
+    ...user,
+    statusLabel: user.isBlocked ? 'Blocked' : 'Active',
+    statusClass: user.isBlocked
+      ? 'bg-danger-subtle text-danger border border-danger-subtle'
+      : 'bg-success-subtle text-success border border-success-subtle',
+    roleLabel: this.getRoleLabel(user.role)
+  };
+}
+
 
   // handle table scroll for pagination
   onTableScroll(): void {
