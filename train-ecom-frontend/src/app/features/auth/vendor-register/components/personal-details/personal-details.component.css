@@ -16,3 +16,49 @@ h4 {
     width: 95%;
   }
 }
+
+.profile-preview {
+  position: relative;
+  margin-bottom: 12px;
+  width: 140px;
+  height: 140px;
+}
+
+.profile-preview-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+.placholder-img {
+  position: relative;
+  margin-bottom: 12px;
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-img-icon {
+  position: absolute;
+  background-color: grey;
+  right: 5px;
+  width: 36px;
+  height: 36px;
+  top: 8px;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.placholder-img mat-icon {
+  font-size: 56px;
+}

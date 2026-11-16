@@ -77,12 +77,17 @@
                     [alt]="userProfileData.name"
                     class="vendor-profile-image"
                   />
-
+                  <!-- Placeholder for no image -->
                   <div
-                    *ngIf="!userProfileData.profileImage"
-                    class="text-muted"
+                    matTooltip="No profile image available"
+                    matTooltipPosition="below"
                   >
-                    No Profile Image
+                    <img
+                      *ngIf="!userProfileData.profileImage"
+                      src="assets/profile-placeholder.jpg"
+                      alt="No Image"
+                      class="vendor-profile-image"
+                    />
                   </div>
                 </div>
               </div>
@@ -142,7 +147,11 @@
                         </span>
                       </div>
                       <mat-icon
-                      *ngIf="reviewHints[field.key] && isApprovedVendor && userProfileData.vendorDetails?.newCategories?.length"
+                        *ngIf="
+                          reviewHints[field.key] &&
+                          isApprovedVendor &&
+                          userProfileData.vendorDetails?.newCategories?.length
+                        "
                         class="custom-icon"
                         [matTooltip]="reviewHints[field.key]"
                         >information</mat-icon

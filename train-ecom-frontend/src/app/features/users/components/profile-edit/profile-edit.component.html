@@ -3,7 +3,12 @@
     <!-- Basic User Fields -->
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Name</mat-label>
-      <input matInput formControlName="name" placeholder="Enter name" (blur)="onBlurTrim('name')" />
+      <input
+        matInput
+        formControlName="name"
+        placeholder="Enter name"
+        (blur)="onBlurTrim('name')"
+      />
       <mat-error>{{ getErrorMessage("name", "Name") }}</mat-error>
     </mat-form-field>
 
@@ -27,23 +32,48 @@
     </mat-form-field>
 
     <div class="mb-3">
-      <label class="d-block mb-2 fw-medium">Profile Image (Optional)</label>
+      <label class="d-block mb-2 fw-medium">
+        Update Profile Image(optional)
+      </label>
 
-      <button mat-stroked-button type="button" (click)="fileInput.click()">
-        <mat-icon>upload</mat-icon>
-        Upload Image
-      </button>
-
-      <input
-        #fileInput
-        hidden
-        type="file"
-        accept="image/*"
-        (change)="onImageSelected($event)"
-      />
-      <div *ngIf="selectedImage" class="mt-2">
-        <span class="fw-medium">Selected Image:</span>
-        <span class="text-break">{{ selectedImage.name }}</span>
+      <div class="profile-preview mb-3">
+        <!-- New selected image preview -->
+        <img
+          *ngIf="previewImage"
+          [src]="previewImage"
+          alt="Preview"
+          class="profile-preview-image"
+        />
+        <!-- Existing profile image -->
+        <img
+          *ngIf="!previewImage && currentProfileImage"
+          [src]="currentProfileImage"
+          alt="Profile"
+          class="profile-preview-image"
+        />
+        <!-- Placeholder for no image -->
+        <img
+          *ngIf="!previewImage && !currentProfileImage"
+          src="assets/profile-placeholder.jpg"
+          alt="no image"
+          class="profile-preview-image"
+        />
+        <!-- Edit icon -->
+        <div
+          class="edit-img-icon"
+          (click)="fileInput.click()"
+          matTooltip="Upload Image"
+          matTooltipPosition="below"
+        >
+          <mat-icon>edit</mat-icon>
+        </div>
+        <input
+          #fileInput
+          hidden
+          type="file"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+        />
       </div>
     </div>
 
@@ -146,9 +176,9 @@
         mat-flat-button
         color="primary"
         type="submit"
-        [disabled]="profileForm.invalid || !isFormChanged"
+        [disabled]="profileForm.invalid || !isFormChanged || isLoading"
       >
-        Save Changes
+        {{ isLoading ? "Saving..." : "Save Changes" }}
       </button>
     </div>
   </form>

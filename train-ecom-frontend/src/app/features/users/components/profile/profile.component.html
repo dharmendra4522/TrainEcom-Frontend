@@ -8,10 +8,10 @@
     *ngIf="{ loading: isLoading$ | async, error: error$ | async } as state"
   >
     <div class="profile-content">
-
       <div *ngIf="state.loading" class="loading">
         <mat-spinner diameter="30"></mat-spinner>
-        Loading profile...</div>
+        Loading profile...
+      </div>
 
       <div
         *ngIf="!state.loading && !state.error && userProfile"
@@ -71,16 +71,26 @@
             </ng-container>
           </div>
 
-          <ng-container *ngIf="userProfile.profileImage">
-            <div class="profile-Image-card">
-              <img
-                *ngIf="userProfile.profileImage"
-                [src]="userProfile.profileImage"
-                [alt]="userProfile.name"
-                class="profile-image"
-              />
-            </div>
-          </ng-container>
+          <div class="profile-Image-card">
+            <img
+              *ngIf="userProfile.profileImage"
+              [src]="userProfile.profileImage"
+              [alt]="userProfile.name"
+              class="profile-image"
+            />
+          </div>
+          <!-- placeholder image -->
+          <div
+            matTooltip="No profile image available"
+            matTooltipPosition="below"
+          >
+            <img
+              *ngIf="!userProfile.profileImage"
+              src="assets/profile-placeholder.jpg"
+              alt="No Image"
+              class="profile-image"
+            />
+          </div>
         </div>
 
         <app-profile-edit
@@ -92,9 +102,7 @@
       </div>
 
       <div *ngIf="!state.loading && state.error" class="empty-state">
-        <h3 class="not-load">
-          Oops! Could not load profile.
-        </h3>
+        <h3 class="not-load">Oops! Could not load profile.</h3>
         <p class="state-error">{{ state.error }}</p>
         <button
           class="btn-save"
