@@ -75,7 +75,6 @@ export class UserDetailsComponent {
 
   // handle approve action
   public onApprove(): void {
-    debugger;
     const vendorName = this.vendorDetails?.vendorName;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
@@ -90,7 +89,6 @@ export class UserDetailsComponent {
         return;
       }
       const payload = { status: ApprovalStatus.Approved, rejectionReason: '' };
-      debugger;
       this.vendorService.updateVendorStatus(this.vendorId, payload).subscribe({
         next: () => {
           this.notificationService.showSuccess('Vendor profile create request is approved', 'close');
