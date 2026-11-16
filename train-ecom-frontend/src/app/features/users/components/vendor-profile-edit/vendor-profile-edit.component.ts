@@ -42,6 +42,7 @@ export class VendorProfileEditComponent implements OnChanges {
   public isOldPasswordVisible: boolean = false;
   public isNewPasswordVisible: boolean = false;
   public isConfirmPasswordVisible: boolean = false;
+  selectedProfileImage: File | null = null;
 
   // handle changes in inputs property and patch form values
   ngOnChanges(changes: SimpleChanges): void {
@@ -415,6 +416,9 @@ export class VendorProfileEditComponent implements OnChanges {
     if (value.phoneNumber !== (this.userProfileData?.phoneNumber ?? '')) {
       payload.phoneNumber = value.phoneNumber;
     }
+    if(this.selectedProfileImage) {
+      payload.profileImage = this.selectedProfileImage;
+    }
     const vendor = this.userProfileData?.vendorDetails;
     const businessDetails: UpdateProfilePayload['bussinessDetails'] = {};
 
@@ -562,5 +566,10 @@ export class VendorProfileEditComponent implements OnChanges {
   // get invalid field message
   get invalidFieldMessages(): string{
     return this.invalidFieldLabels.join(', ');
+  }
+
+  onProfileImageSelected(file: File): void {
+    this.selectedProfileImage = file;
+    this.editForm.markAsDirty();
   }
 }

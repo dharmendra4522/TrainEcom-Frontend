@@ -9,6 +9,9 @@ export function createVendorFormData(payload: Partial<UpdateProfilePayload>): Fo
   if (payload.phoneNumber !== undefined && payload.phoneNumber !== null) {
     formData.append('PhoneNumber', payload.phoneNumber);
   }
+  if(payload.profileImage instanceof File) {
+    formData.append('ProfileImage', payload.profileImage);
+  }
   if (payload.oldPassword !== undefined && payload.oldPassword !== null) {
     formData.append('OldPassword', payload.oldPassword);
   }
