@@ -8,15 +8,16 @@ export interface TableColumn {
   role?: Role;
   badgeClassKey?: string;
   filterable?: boolean;
-  filterType?: 'dropdown' | 'search'| 'date' | 'price-range' | 'stock-range';
+  filterType?: 'dropdown' | 'search' | 'date' | 'price-range' | 'stock-range';
   filterDisabled?: boolean;
   clickable?: boolean;
+  tooltipKey?: string;
 }
 
 export interface TableAction<T = unknown> {
   actionKey: string;
   icon: string | ((row: T) => string);
-  color: 'primary' | 'warn' | 'accent' | ((row: T) => string);
+  color: 'primary' | 'warn' | 'accent' | 'info' | 'secondary' | ((row: T) => string);
   disabled?: boolean | ((row: T) => boolean);
   hideWhenDisabled?: boolean;
   tooltip?: string;

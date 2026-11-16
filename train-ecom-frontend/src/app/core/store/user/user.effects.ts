@@ -1,14 +1,9 @@
 import { inject, Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { UserService } from "../../services/user.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
 import * as UserActions from './user.actions';
 import { exhaustMap, map, catchError, of } from "rxjs";
 import { NotificationService } from "../../services/notification.service";
-
-
-
-
 import { extractBackendMessage } from "../../utils/error.utils";
 
 @Injectable()
@@ -25,8 +20,7 @@ export class UserEffects {
             exhaustMap(() =>
                 this.userService.getUserProfile().pipe(
                     map((profile) => (
-
-                        UserActions.loadProfileSuccess({ profile })),
+                        UserActions.loadProfileSuccess({ profile }))
                     ),
                     catchError((error) => {
                         const errorMsg = extractBackendMessage(error, 'Failed to load profile');

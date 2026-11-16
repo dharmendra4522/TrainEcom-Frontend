@@ -419,3 +419,12 @@ tr.cursor-pointer {
 .table-row-hover:hover .order-link {
   color: #0d6efd !important;
 }
+.custom-mat-table .mat-column-statusDisplay {
+  min-width: 140px !important;
+  width: 140px !important;
+}
+
+.custom-mat-table .mat-column-requestStatusDisplay {
+  min-width: 140px !important;
+  width: 140px !important;
+}

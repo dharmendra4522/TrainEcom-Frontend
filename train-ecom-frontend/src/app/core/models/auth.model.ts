@@ -139,7 +139,7 @@ export interface VendorRegisterFormValues {
   state: string;
   postalCode: string;
   bankAccountNumber?: string | number;
-  acountHolderName?: string;
+  accountHolderName?: string;
   ifscCode?: string;
 }
 
@@ -163,6 +163,8 @@ export interface NominatimAddress {
   postcode?: string;
   road?: string;
   house_number?: string;
+  industrial?: string;
+  suburb?: string;
 }
 
 export interface AutoFilledAddress {

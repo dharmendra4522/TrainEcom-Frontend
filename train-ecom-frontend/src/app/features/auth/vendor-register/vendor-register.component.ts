@@ -125,7 +125,7 @@ export class VendorRegisterComponent implements OnInit {
         ],
 
         bankAccountNumber: ['', [Validators.pattern(/^\d{9,18}$/)]],
-        acountHolderName: [
+        accountHolderName: [
           '',
           Validators.compose([Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()])
         ],
@@ -283,7 +283,7 @@ export class VendorRegisterComponent implements OnInit {
     const isBankGroupValid = !this.registerForm.errors?.['bankIncomplete'];
     const areBankFieldsValid =
       !!this.registerForm.get('bankAccountNumber')?.valid &&
-      !!this.registerForm.get('acountHolderName')?.valid &&
+      !!this.registerForm.get('accountHolderName')?.valid &&
       !!this.registerForm.get('ifscCode')?.valid;
 
     return isGstPanValid && isBankGroupValid && areBankFieldsValid;

@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { VendorService } from '../../../../core/services/vendor.service';
 import { ActivatedRoute } from '@angular/router';
-import { VendorDetails, VendorDocument } from '../../../../core/models/vendor.model';
+import { DocumentType, VendorDetails, VendorDocument, VendorStatus } from '../../../../core/models/vendor.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ApprovalStatus, DocumentType } from '../../../../core/models/user.model';
+import { ApprovalStatus } from '../../../../core/models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
 import { Location } from '@angular/common';
+import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
 
 @Component({
   selector: 'app-user-details',
@@ -45,7 +46,7 @@ export class UserDetailsComponent {
     this.isLoading = true;
     this.vendorService.getVendorById(this.vendorId).subscribe({
       next: (response: VendorDetails) => {
-       if (response && response.documents) {
+        if (response && response.documents) {
           response.documents = response.documents.map((doc: VendorDocument) => ({
             ...doc,
             documentLabel: this.getDocumentLabel(doc.documentType)
@@ -57,15 +58,11 @@ export class UserDetailsComponent {
       error: (err) => {
         this.notificationService.showError(
           'Failed to load vendor details',
-          String(err),
+          String(err)
         );
         this.isLoading = false;
       },
     });
-  }
-
-  transformId(id: number | string): string {
-    return String(id).substring(0, 6).concat('...');
   }
 
   getDocumentUrl(
@@ -76,54 +73,62 @@ export class UserDetailsComponent {
     return documentUrl?.trim() || null;
   }
 
-  private updateStatus(status: ApprovalStatus): void {
-    if (!this.vendorId && !this.vendorDetails) {
-      return;
-    }
-    const isApprove = status === ApprovalStatus.Approved;
-    const vendorName =
-      this.vendorDetails?.vendorName || this.vendorDetails?.bussinessName;
+  // handle approve action
+  public onApprove(): void {
+    const vendorName = this.vendorDetails?.vendorName;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
-        message: `Are you sure want to ${isApprove ? 'approve' : 'reject'} ${vendorName}?`,
-        yesLabel: isApprove ? 'Approve' : 'Reject',
-        noLabel: 'Cancel',
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        const payload = {
-          status: status,
-          rejectionReason: isApprove ? '' : 'Rejected By Admin',
-        };
-
-        this.vendorService
-          .updateVendorStatus(this.vendorId, payload)
-          .subscribe({
-            next: (response) => {
-              this.notificationService.showSuccess(
-                response.message ||
-                `Vendor ${isApprove ? 'approved' : 'rejected'} successfully`,
-              );
-              this.loadVendorDetail();
-            },
-            error: (err) => {
-              this.notificationService.showError(
-                String(err) || 'Failed to update vendor status',
-              );
-            },
-          });
+        message: `Are you sure you want to approve ${vendorName}?`,
+        yesLabel: 'Approve',
+        noLabel: 'Cancel'
       }
-    });
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        return;
+      }
+      const payload = { status: ApprovalStatus.Approved, rejectionReason: '' };
+      this.vendorService.updateVendorStatus(this.vendorId, payload).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Vendor profile create request is approved', 'close');
+          this.loadVendorDetail();
+        },
+
+        error: () => {
+          this.notificationService.showError('faild to update vendor profile update request', 'close');
+        }
+      })
+    })
   }
 
-  onApprove(): void {
-    this.updateStatus(ApprovalStatus.Approved);
-  }
-  onReject(): void {
-    this.updateStatus(ApprovalStatus.Rejected);
+  // handle reject action
+  public onReject(): void {
+    const vendorName = this.vendorDetails?.vendorName;
+    const dialogRef = this.dialog.open(VendorActionDialogComponent, {
+      width: '500px',
+      data: {
+        vendorName: vendorName,
+        actionType: 'reject'
+      }
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.confirmed) {
+        return;
+      }
+      const payload = {
+        status: ApprovalStatus.Rejected,
+        rejectionReason: result.message
+      }
+      this.vendorService.updateVendorStatus(this.vendorId, payload).subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Vendor profile create request is reject', 'close');
+          this.loadVendorDetail();
+        }, error: () => {
+          this.notificationService.showError('faild to update vendor profile update request', 'close');
+        }
+      })
+    })
   }
 
   get vendorStatusDisplay(): string {
@@ -146,9 +151,9 @@ export class UserDetailsComponent {
   getDocumentLabel(type: number): string {
     switch (type) {
       case DocumentType.Logo:
-        return 'Business Logo / Other Document';
+        return 'Business Logo';
       case DocumentType.BussinessDocument:
-        return 'Business Registration Document';
+        return 'Business Document';
       case DocumentType.GSTDocument:
         return 'GST Document';
       default:

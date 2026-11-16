@@ -17,6 +17,8 @@ import { VendorProfileComponent } from './components/vendor-profile/vendor-profi
 import { AuthModule } from '../auth/auth.module';
 import { AddUsersComponent } from './components/add-users/add-users.component';
 import { AllStaffUsersComponent } from './components/all-staff-users/all-staff-users.component';
+import { RequestApprovalComponent } from './components/request-approval/request-approval.component';
+import { VendorProfileEditComponent } from './components/vendor-profile-edit/vendor-profile-edit.component';
 @NgModule({
   declarations: [
     AddressComponent,
@@ -29,7 +31,9 @@ import { AllStaffUsersComponent } from './components/all-staff-users/all-staff-u
     ProfileEditComponent,
     VendorProfileComponent,
     AddUsersComponent,
-    AllStaffUsersComponent
+    AllStaffUsersComponent,
+    RequestApprovalComponent,
+    VendorProfileEditComponent
   ],
   imports: [
     CommonModule,
@@ -37,7 +41,7 @@ import { AllStaffUsersComponent } from './components/all-staff-users/all-staff-u
     SharedModule,
     ReactiveFormsModule,
     FormsModule,
-    AuthModule,
+    AuthModule
   ],
 })
 export class UsersModule {}
