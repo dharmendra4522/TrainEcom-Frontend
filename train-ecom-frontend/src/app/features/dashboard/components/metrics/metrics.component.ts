@@ -56,6 +56,10 @@ export class MetricsComponent {
     });
   }
 
+  navigateToStaffUsers(): void {
+    this.router.navigate(this.portalRoutes.users(this.portal, 'manage'));
+  }
+
   navigateToActiveOrders(): void {
     this.router.navigate(this.portalRoutes.orders(this.portal, 'manage'), {
       queryParams: { orderStatus: OrderStatus.Active }

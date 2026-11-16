@@ -194,13 +194,13 @@ export class UserService {
     userId: number,
     payload: UpdateUserStatusPayload,
   ): Observable<void> {
-    const url = `${environment.apiBaseUrl}/admin/users/${userId}/update-status`;
+    const url = `${environment.apiBaseUrl}/users/${userId}/update-status`;
     return this.http.patch<void>(url, payload);
   }
 
   // delete api
   deleteUser(userId: number): Observable<{ status: boolean; message: string }> {
-    const url = `${environment.apiBaseUrl}/admin/users/${userId}/delete`;
+    const url = `${environment.apiBaseUrl}/users/${userId}/delete`;
     return this.http.delete<{ status: boolean; message: string }>(url);
   }
 }

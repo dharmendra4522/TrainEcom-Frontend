@@ -81,7 +81,7 @@ export class DashboardComponent implements OnInit {
         this.isLoadingStats = false;
         return;
       }
-      
+
       this.isApproved = true;
     }
     this.isApproved = true;

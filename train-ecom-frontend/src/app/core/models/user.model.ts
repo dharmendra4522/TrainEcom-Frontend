@@ -133,6 +133,7 @@ export interface AdminVendorBusinessDetail {
   postalCode?: string;
   rejectionReason?: string | null;
   bussinessCategories?: string[];
+  staffUsers?: number;
 }
 
 export interface AdminUser extends Record<string, unknown> {
