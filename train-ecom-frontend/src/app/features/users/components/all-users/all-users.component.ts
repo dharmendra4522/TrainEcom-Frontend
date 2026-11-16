@@ -263,7 +263,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         width: '400px',
         data: {
-          message: `Kya aap sach mein ${user.name} ko delete karna chahte hain?`,
+          message: `Are you sure you want to delete ${user.name}?`,
           yesLabel: 'Delete',
           noLabel: 'Cancel'
         },

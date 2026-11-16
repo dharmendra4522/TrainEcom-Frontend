@@ -118,7 +118,7 @@
                     cdkConnectedOverlay
                     [cdkConnectedOverlayOrigin]="trigger"
                     [cdkConnectedOverlayOpen]="activeDropdownCol === col.key"
-                      [cdkConnectedOverlayPanelClass]="
+                    [cdkConnectedOverlayPanelClass]="
                       'custom-multiselect-overlay'
                     "
                     (overlayOutsideClick)="activeDropdownCol = null"
@@ -311,10 +311,8 @@
                 ? row[col.badgeClassKey]
                 : 'bg-primary-subtle text-primary'
             "
-            [matTooltip]="
-              row['rejectionReason'] ? row['rejectionReason'] + '' : ''
-            "
-            [matTooltipDisabled]="!row['rejectionReason']"
+            [matTooltip]="col.tooltipKey ? (row[col.tooltipKey] ?? '') : ''"
+            [matTooltipDisabled]="!col.tooltipKey"
           >
             {{ row[col.key] || "General" }}
           </span>
@@ -385,7 +383,9 @@
                       [ngClass]="{
                         'text-danger': act.color === 'warn',
                         'text-primary': act.color === 'primary',
-                        'text-accent': act.color === 'accent'
+                        'text-accent': act.color === 'accent',
+                        'text-info': act.color === 'info',
+                        'text-success': act.color === 'secondary'
                       }"
                       >{{ getActionIcon(act, row) }}</mat-icon
                     >
@@ -393,7 +393,9 @@
                       [ngClass]="{
                         'text-danger': act.color === 'warn',
                         'text-primary': act.color === 'primary',
-                        'text-accent': act.color === 'accent'
+                        'text-accent': act.color === 'accent',
+                        'text-info': act.color === 'info',
+                        'text-success': act.color === 'secondary'
                       }"
                       >{{ getActionLabel(act, row) | titlecase }}</span
                     >

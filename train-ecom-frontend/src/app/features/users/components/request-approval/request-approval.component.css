@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+:host ::ng-deep .table-scroll-container {
+  max-height: 700px !important;
+}
+
+.request-dialog {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  flex-shrink: 0;
+  background: white;
+  z-index: 10;
+}
+
+.mat-mdc-dialog-title {
+  padding: 0 !important;
+}
+
+.table-wrapper {
+  max-height: 55vh;
+  overflow: hidden;
+}

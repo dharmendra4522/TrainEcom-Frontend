@@ -1,4 +1,5 @@
-import type { ApprovalStatus } from './user.model';
+import { RequestStatus, RequestType } from './request-approve.model';
+import type { AdminUser, ApprovalStatus } from './user.model';
 
 export enum VendorStatus {
   Active = 1,
@@ -7,51 +8,31 @@ export enum VendorStatus {
   Blocked = 4,
 }
 
-export interface VendorItem {
-  vendorId: number;
-  userId: number;
-  name?: string;
-  businessName?: string;
-  email: string;
-  phoneNumber: string;
-  city?: string;
-  gstin?: string;
-  pan?: string;
-  storeName?: string;
-  productCount?: number;
-  isBlocked?: boolean;
-  categories?: string[];
-  status?: VendorStatus | number;
-  approvalStatus?: ApprovalStatus | number;
-  rejectionReason?: string | null;
-  businessDetail?: {
-    businessName?: string;
-    categories?: string[];
-    storeName?: string;
-    gstin?: string;
-    pan?: string;
-    city?: string;
-    rejectionReason?: string | null;
-  };
-}
-export interface VendorTableItem extends VendorItem {
-  id: number;
-  statusDisplay: string;
-  vendorStatusClass: string;
-  [key: string]: unknown;
+export enum DocumentType {
+  Logo = 1,
+  BussinessDocument = 2,
+  GSTDocument = 3
 }
 
-export interface VendorListResponse {
-  items: VendorItem[];
-  pageNumber: number;
-  pageSize: number;
-  totalRecords: number;
-  totalPages: number;
+export interface VendorTableItem extends AdminUser {
+  id: number;
+  vendorId: number;
+  bussinessName: string;
+  storeName: string;
+  categoriesDisplay: string;
+  gstinNumber: string;
+  panNumber: string;
+  rejectionReason: string | null;
+  statusDisplay: string;
+  vendorStatusClass: string;
+  requestStatusDisplay: string;
+  vendorRequestClass: string;
 }
 
 export interface VendorDocument {
   documentType: number;
   documentUrl: string;
+  newDocumentUrl?: string
   documentLabel?: string;
 }
 
@@ -60,9 +41,11 @@ export interface VendorDetails {
   vendorName: string;
   email: string;
   phoneNumber: string;
+  newPhoneNumber?: string | null;
   bussinessName: string;
   bussinessDescription: string;
   storeName: string;
+  newStoreName?: string | null;
   gstin: string;
   pan: string;
   addressLine1: string;
@@ -72,10 +55,14 @@ export interface VendorDetails {
   country: string;
   postalCode: number;
   bankAccountNumber: string;
+  newBankAccountNumber?: string | null;
   ifscCode: string;
+  newIfscCode?: string | null;
   accountHolderName: string;
+  newAccountHolderName?: string | null;
   documents: VendorDocument[];
   categories: string[];
+  newCategories?: string[];
   status?: ApprovalStatus | number;
 }
 
@@ -105,9 +92,25 @@ export interface VendorProfileEditValues {
   city: string;
   country: string;
   state: string;
-  postalCode: string | number;
-  bankAccountNumber: string | number;
-  acountHolderName: string;
+  postalCode: string;
+  bankAccountNumber: string;
+  accountHolderName: string;
   ifscCode: string;
+  businessDocument: File | string | null;
+  gstDocument: File | string | null;
+  businessLogo: File | string | null;
   rejectionReason: string;
+}
+
+export interface ProfileFieldConfig {
+  label: string;
+  key: string;
+  isList?: boolean;
+  isLink?: boolean;
+  docType?: DocumentType;
+}
+
+export interface VendorTabConfig {
+  label: string;
+  fields: ProfileFieldConfig[];
 }

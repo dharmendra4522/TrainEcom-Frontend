@@ -21,11 +21,11 @@ import { SKIP_ERROR_HANDLING } from '../interceptors/error.context';
 })
 export class AuthService {
   private loginAPI = `${environment.apiBaseUrl}/auth/login`;
-  private registerAPI = `${environment.apiBaseUrl}/auth/register`;
+  private registerAPI = `${environment.apiBaseUrl}/users/register`;
   private forgotPasswordAPI = `${environment.apiBaseUrl}/auth/forgot-password`;
   private resetPasswordAPI = `${environment.apiBaseUrl}/auth/reset-password`;
-  private vendorRegistrationAPI = `${environment.apiBaseUrl}/auth/register`;
 
+  
   private http = inject(HttpClient);
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -60,7 +60,7 @@ export class AuthService {
 
   vendorRegister(formData: FormData): Observable<VendorRegisterResponse> {
     return this.http.post<VendorRegisterResponse>(
-      this.vendorRegistrationAPI,
+      this.registerAPI,
       formData,
       {
         context: new HttpContext().set(SKIP_ERROR_HANDLING, true)
