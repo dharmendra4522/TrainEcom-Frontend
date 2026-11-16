@@ -11,13 +11,16 @@ import { NotificationService } from '../../../../../core/services/notification.s
 export class PersonalDetailsComponent {
   private notificationService = inject(NotificationService);
 
-  selectedImage: File | null = null;
   @Input() registerForm!: FormGroup;
   @Input() isStep1Valid: boolean = false;
   @Input() isPasswordView: boolean = false;
   @Input() isConfirmPassView: boolean = false;
   @Input() isEditMode: boolean = false;
   @Input() isPasswordChangeMode: boolean = false;
+  @Input() currentProfileImage: string | null = null;
+  
+  selectedImage: File | null = null;
+  previewImage: string | null = null;
 
   // Naye flags edit mode ke password fields ke liye
   @Input() isOldPassView: boolean = false;
@@ -63,7 +66,7 @@ export class PersonalDetailsComponent {
     }
     const file = input.files[0];
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxFileSize = 3 * 1024 * 1024;
+    const maxFileSize = 5 * 1024 * 1024;
     if (!allowedTypes.includes(file.type)) {
       this.notificationService.showError('Only JPG, JPEG, PNG and WEBP images are allowed');
       return;
@@ -73,6 +76,11 @@ export class PersonalDetailsComponent {
       return;
     }
     this.selectedImage = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
     this.imageSelected.emit(file);
   }
 }

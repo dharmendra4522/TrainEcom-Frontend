@@ -31,14 +31,17 @@ export class ProfileEditComponent {
   hideNewPassword: boolean = true;
   hideConfirmPassword: boolean = true;
   isFormChanged: boolean = false;
+  isLoading: boolean = false;
   selectedImage: File | null = null;
+  previewImage: string | null = null;
+  currentProfileImage: string | null = null;
   private readonly allowedTypes = [
     'image/jpeg',
     'image/jpg',
     'image/png',
     'image/webp'
   ];
-  private readonly maxFileSize = 3 * 1024 * 1024;
+  private readonly maxFileSize = 5 * 1024 * 1024;
 
   ngOnInit() {
     this.initializeForm();
@@ -48,6 +51,7 @@ export class ProfileEditComponent {
     this.setupFormChange();
   }
 
+  // Initialize the form with validators
   private initializeForm(): void {
     this.profileForm = this.fb.group(
       {
@@ -65,10 +69,12 @@ export class ProfileEditComponent {
     );
   }
 
+  // Patch the form with user profile data
   private patchFormWithUserProfile(profile: UserProfile): void {
     const address = profile.defaultAddress || profile.vendorDetails;
     const countryName = address?.country;
     const stateName = address?.state;
+    this.currentProfileImage = profile.profileImage ?? null;
 
     this.profileForm.patchValue({
       name: profile.name,
@@ -117,6 +123,7 @@ export class ProfileEditComponent {
 
   // handle form submission and update user profile
   onSubmit(): void {
+    this.isLoading = true;
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       return;
@@ -141,10 +148,12 @@ export class ProfileEditComponent {
 
     this.useService.updateUserProfile(payload).subscribe({
       next: () => {
+        this.isLoading = false;
         this.notification.showSuccess('Profile updated successfully', 'Close');
         this.profileUpdated.emit();
       },
       error: (error) => {
+        this.isLoading = false;
         const errorMessage = error?.error?.message || 'Failed to update profile. Please try again.';
         this.notification.showError(errorMessage, 'Close');
       },
@@ -186,6 +195,9 @@ export class ProfileEditComponent {
       return;
     }
     this.selectedImage = file;
+    const reader = new FileReader();
+    reader.onload = () => this.previewImage = reader.result as string;
+    reader.readAsDataURL(file);
     this.isFormChanged = true;
   }
 }

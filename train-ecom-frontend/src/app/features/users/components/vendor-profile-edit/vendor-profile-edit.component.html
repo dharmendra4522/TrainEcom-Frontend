@@ -20,6 +20,7 @@
               [isOldPassView]="isOldPasswordVisible"
               [isNewPassView]="isNewPasswordVisible"
               [isEditConfirmPassView]="isConfirmPasswordVisible"
+              [currentProfileImage]="userProfileData?.profileImage ?? null"
               (togglePasswordChange)="togglePasswordChange()"
               (toggleOldPassword)="toggleOldPasswordVisibility()"
               (toggleNewPassword)="toggleNewPasswordVisibility()"
