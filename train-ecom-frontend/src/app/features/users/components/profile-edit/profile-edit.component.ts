@@ -31,6 +31,14 @@ export class ProfileEditComponent {
   hideNewPassword: boolean = true;
   hideConfirmPassword: boolean = true;
   isFormChanged: boolean = false;
+  selectedImage: File | null = null;
+  private readonly allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp'
+  ];
+  private readonly maxFileSize = 3 * 1024 * 1024;
 
   ngOnInit() {
     this.initializeForm();
@@ -38,14 +46,6 @@ export class ProfileEditComponent {
       this.patchFormWithUserProfile(this.userProfile);
     }
     this.setupFormChange();
-    this.findInvalidControls();
-  }
-
-  findInvalidControls(): void {
-    const invalid = Object.keys(this.profileForm.controls).filter(
-      (name) => this.profileForm.controls[name].invalid
-    );
-    console.log('Invalid controls: ', invalid);
   }
 
   private initializeForm(): void {
@@ -54,6 +54,7 @@ export class ProfileEditComponent {
         name: ['', [Validators.required, noSpaceAllow(), Validators.pattern(/^[a-zA-Z\s]+$/)]],
         email: [{ value: '', disabled: true }],
         phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+        profileImage: [''],
 
         // Password fields
         oldPassword: [''],
@@ -73,6 +74,7 @@ export class ProfileEditComponent {
       name: profile.name,
       email: profile.email,
       phoneNumber: profile.phoneNumber,
+      profileImage: profile.profileImage,
       addressLine1: address?.addressLine1,
       addressLine2: address?.addressLine2,
       city: address?.city,
@@ -87,14 +89,15 @@ export class ProfileEditComponent {
     this.profileForm.valueChanges.subscribe(() => {
       const formvalue = this.profileForm.value;
 
-      const isBasicInfoChanged = formvalue.name !== this.userProfile?.name ||
-        formvalue.phoneNumber !== this.userProfile?.phoneNumber;
+      const isBasicInfoChanged =
+        formvalue.name !== this.userProfile?.name ||
+        formvalue.phoneNumber !== this.userProfile?.phoneNumber ||
+        formvalue.profileImage !== this.userProfile?.profileImage;
 
       const isPasswordEntered = !!formvalue.oldPassword || !!formvalue.newPassword || !!formvalue.confirmPassword;
 
       this.isFormChanged = isBasicInfoChanged || isPasswordEntered;
-
-    })
+    });
   }
 
   togglePasswordFields(): void {
@@ -112,7 +115,6 @@ export class ProfileEditComponent {
     return getFieldError(this.profileForm.get(controlName), label);
   }
 
-
   // handle form submission and update user profile
   onSubmit(): void {
     if (this.profileForm.invalid) {
@@ -121,10 +123,16 @@ export class ProfileEditComponent {
     }
 
     const formValue = this.profileForm.getRawValue();
-    const payload: UpdateProfilePayload = {
-      name: formValue.name,
-      phoneNumber: formValue.phoneNumber,
-    };
+    const payload: UpdateProfilePayload = {};
+    if (formValue.name !== this.userProfile?.name) {
+      payload.name = formValue.name;
+    }
+    if (formValue.phoneNumber !== this.userProfile?.phoneNumber) {
+      payload.phoneNumber = formValue.phoneNumber;
+    }
+    if (this.selectedImage) {
+      payload.profileImage = this.selectedImage;
+    }
     if (this.isChangePasswordMode && formValue.oldPassword) {
       payload.oldPassword = formValue.oldPassword;
       payload.newPassword = formValue.newPassword;
@@ -155,8 +163,29 @@ export class ProfileEditComponent {
     this.hideConfirmPassword = !this.hideConfirmPassword;
   }
 
-   onBlurTrim(controlName: string): void {
-      const control = this.profileForm.get(controlName);
-      trimControlValue(control);
+  onBlurTrim(controlName: string): void {
+    const control = this.profileForm.get(controlName);
+    trimControlValue(control);
+  }
+
+  // handle image selection and validate the selected file
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) {
+      return;
     }
+    const file = input.files[0];
+    if (!this.allowedTypes.includes(file.type)) {
+      this.notification.showError(
+        'Only JPG, JPEG, PNG and WEBP images are allowed'
+      );
+      return;
+    }
+    if (file.size > this.maxFileSize) {
+      this.notification.showError('Image size must be less than 2 MB');
+      return;
+    }
+    this.selectedImage = file;
+    this.isFormChanged = true;
+  }
 }

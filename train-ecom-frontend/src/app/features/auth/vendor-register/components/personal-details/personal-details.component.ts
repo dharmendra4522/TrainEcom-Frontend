@@ -1,13 +1,17 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { getFieldError, trimControlValue } from '../../../register.utils';
+import { NotificationService } from '../../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-personal-details',
   templateUrl: './personal-details.component.html',
-  styleUrl: './personal-details.component.css'
+  styleUrl: './personal-details.component.css',
 })
 export class PersonalDetailsComponent {
+  private notificationService = inject(NotificationService);
+
+  selectedImage: File | null = null;
   @Input() registerForm!: FormGroup;
   @Input() isStep1Valid: boolean = false;
   @Input() isPasswordView: boolean = false;
@@ -30,6 +34,7 @@ export class PersonalDetailsComponent {
   @Output() toggleEditConfirmPassword = new EventEmitter<void>();
 
   @Output() next = new EventEmitter<void>();
+  @Output() imageSelected = new EventEmitter<File>();
 
   onTogglePassword(): void { this.togglePassword.emit(); }
   onToggleConfirmPassword(): void { this.toggleConfirmPassword.emit(); }
@@ -47,5 +52,27 @@ export class PersonalDetailsComponent {
   onBlurTrim(controlName: string): void {
     const control = this.registerForm.get(controlName);
     trimControlValue(control);
+  }
+
+  // Method to handle image selection
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) {
+      this.selectedImage = null;
+      return;
+    }
+    const file = input.files[0];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxFileSize = 3 * 1024 * 1024;
+    if (!allowedTypes.includes(file.type)) {
+      this.notificationService.showError('Only JPG, JPEG, PNG and WEBP images are allowed');
+      return;
+    }
+    if (file.size > maxFileSize) {
+      this.notificationService.showError('File size should not exceed 3MB');
+      return;
+    }
+    this.selectedImage = file;
+    this.imageSelected.emit(file);
   }
 }

@@ -77,6 +77,24 @@
       </mat-form-field>
     </div>
   </div>
+  <!-- image upload section -->
+   <ng-container *ngIf="isEditMode">
+    <button mat-stroked-button type="button" (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon>
+      Upload Image
+    </button>
+    <input
+      #fileInput
+      hidden
+      type="file"
+      accept="image/*"
+      (change)="onImageSelected($event)"
+    />
+    <div *ngIf="selectedImage" class="mt-2">
+      <span class="fw-medium">Selected Image:</span>
+      <span class="text-break">{{ selectedImage.name }}</span>
+    </div>
+  </ng-container>
 
   <div class="row gx-4 gy-3 justify-content-between" *ngIf="!isEditMode">
     <div

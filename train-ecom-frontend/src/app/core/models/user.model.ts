@@ -56,6 +56,7 @@ export interface UserProfile {
   email: string;
   phoneNumber: string;
   newPhoneNumber?: string | null;
+  profileImage?: string | null;
   defaultAddress: Address | null;
   role: Role | number;
   vendorDetails?: ProfileVendorDetails | null;
@@ -88,6 +89,7 @@ export interface UpdateProfilePayload {
   phoneNumber?: string;
   oldPassword?: string;
   newPassword?: string;
+  profileImage?: File | null;
   confirmPassword?: string;
   bussinessDetails?: {
     bussinessName?: string | null;

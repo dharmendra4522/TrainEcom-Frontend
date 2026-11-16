@@ -153,7 +153,18 @@
           <span class="user-name fw-bold text-dark fs-7" *ngIf="auth.profile">
             {{ auth.profile.name }}
           </span>
+
+          <!-- Profile Image -->
+          <img
+            *ngIf="auth.profile?.profileImage"
+            [src]="auth.profile?.profileImage"
+            [alt]="auth.profile?.name"
+            class="avatar-image rounded-circle"
+          />
+
+          <!-- if profile image is not available -->
           <div
+            *ngIf="!auth.profile?.profileImage"
             class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-7"
           >
             {{ (auth.profile?.name || "U").charAt(0).toUpperCase() }}
