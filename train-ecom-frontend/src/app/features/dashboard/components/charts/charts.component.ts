@@ -33,14 +33,25 @@ export class ChartsComponent implements OnInit {
   public userChartOptions = getUserChartOptions(
     this.router,
     this.portalRoutes,
-    this.portal
   );
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['totalCustomers'] || changes['totalVendors'] || changes['totalAdminUsers'] || changes['totalStaffUsers'] || changes['isVendor']) {
+    this.userChartOptions = getUserChartOptions(
+      this.router,
+      this.portalRoutes,
+    );
+
+    if (
+      changes['totalCustomers'] ||
+      changes['totalVendors'] ||
+      changes['totalAdminUsers'] ||
+      changes['totalStaffUsers'] ||
+      changes['isVendor']
+    ) {
       this.initUserChart();
     }
   }
+
 
   ngOnInit(): void {
     Chart.register(...registerables, ChartDataLabels);

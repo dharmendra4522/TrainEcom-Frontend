@@ -17,7 +17,6 @@ import { normalizeRole } from '../../../../core/utils/role.utils';
 export class NotificationHistoryComponent {
   private store = inject(Store);
   private notificationStream = inject(NotificationStreamService);
-
   private router = inject(Router);
 
   userRole$: Observable<string | number | null> = this.store.select(selectUserRole);
@@ -114,10 +113,23 @@ export class NotificationHistoryComponent {
         const adminRoutes: Record<string, string> = {
           'Order': '/admin/orders/details',
           'Product': '/admin/products/view',
-          'User': '/admin/users'
+          'User': '/admin/users/manage',
+          'Vendor': '/admin/users/manage',
+          'Vendor Request': '/admin/users/manage'
         };
 
-        const routeMap = normalizedRole === Role.Admin ? adminRoutes : customerRoutes;
+        const vendorRoutes: Record<string, string> = {
+          'Order': '/vendor/orders/details',
+          'Product': '/vendor/products/view',
+          'User': '/vendor/users'
+        };
+
+        const routeMap =
+          normalizedRole === Role.Admin
+            ? adminRoutes
+            : normalizedRole === Role.Vendor
+              ? vendorRoutes
+              : customerRoutes;
         const basePath = routeMap[type];
 
         if (basePath) {
@@ -144,14 +156,22 @@ export class NotificationHistoryComponent {
   }
 
   markAllAsRead(): void {
-    const now = new Date().toISOString();
-    this.notifications.forEach(n => {
-      n.isRead = true;
-      n.readAt = now;
+    this.notificationStream.markAllAsRead().subscribe({
+      next: () => {
+        const now = new Date().toISOString();
+        this.notifications.forEach(n => {
+          n.isRead = true;
+          n.readAt = now;
+        });
+        this.unreadCount = 0;
+      },
+      error: (error) => {
+        console.error('Failed to mark all notifications as read', error);
+      }
     });
   }
 
-  deleteNotification(id: string | number, event: MouseEvent): void {
+  deleteNotification(id: number, event: MouseEvent): void {
     event.stopPropagation();
     this.notifications = this.notifications.filter(n => n.id !== id);
   }

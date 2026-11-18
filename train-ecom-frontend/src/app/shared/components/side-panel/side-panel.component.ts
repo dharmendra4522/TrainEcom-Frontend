@@ -31,7 +31,7 @@ import { Role } from '../../../core/models/auth.model';
 import { normalizeRole } from '../../../core/utils/role.utils';
 
 export interface SidePanelItem {
-  id: string | number;
+  id: number;
   productId?: number;
   productName?: string;
   name: string;
@@ -151,7 +151,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         const adminRoutes: Record<string, string> = {
           'Order': '/admin/orders/details',
           'Product': '/products',
-          'User': '/admin/users'
+          'User': '/admin/users/manage',
+          'Vendor': '/admin/users/manage',
+          'Vendor Request': '/admin/users/manage'
         };
 
         const routeMap = normalizedRole === Role.Admin ? adminRoutes : customerRoutes;
@@ -212,7 +214,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         next: (items: CartItem[]) => {
           this.items = (items || []).map((item: CartItem) => ({
             ...item,
-            id: item.itemId || item.productId.toString(),
+            id: item.itemId ?? item.productId,
             name: item.productName,
             price: item.unitPrice,
             image: item.thumbnailUrl,

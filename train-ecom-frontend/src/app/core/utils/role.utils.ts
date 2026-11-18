@@ -1,6 +1,7 @@
 import { Role, ROLE_NAME_MAP } from '../models/auth.model';
 import { OrderStatus, PaymentMethod, PaymentStatus } from '../models/order.model';
 import { ApprovalStatus } from '../models/user.model';
+import { VendorStatus } from '../models/vendor.model';
 
 export function normalizeRole(
   value: string | number | Role | null | undefined,
@@ -89,6 +90,42 @@ export function approvalStatusToLabel(
   }
 }
 
+export function normalizeVendorStatus(
+  value: VendorStatus | string | number | null | undefined,
+): VendorStatus | null {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    return Object.values(VendorStatus).includes(value as VendorStatus)
+      ? value as VendorStatus
+      : null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'all') {
+    return null;
+  }
+
+  const statusMap: Record<string, VendorStatus> = {
+    active: VendorStatus.Active,
+    pending: VendorStatus.Pending,
+    rejected: VendorStatus.Rejected,
+    blocked: VendorStatus.Blocked,
+  };
+
+  if (statusMap[normalized]) {
+    return statusMap[normalized];
+  }
+
+  const numericValue = Number(normalized);
+  return Number.isFinite(numericValue) &&
+    Object.values(VendorStatus).includes(numericValue as VendorStatus)
+    ? numericValue as VendorStatus
+    : null;
+}
+
 
 // Order Normalize
 export function normalizeOrderStatus(status: OrderStatus | string | number): string {
@@ -130,7 +167,6 @@ export function normalizePaymentMethod(method: PaymentMethod | string | number |
 
   return str;
 }
-
 
 
 export function normalizePaymentStatus(status: PaymentStatus | string | number | null | undefined): string {

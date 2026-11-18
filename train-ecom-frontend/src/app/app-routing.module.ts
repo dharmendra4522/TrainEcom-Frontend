@@ -21,7 +21,7 @@ const routes: Routes = [
         pathMatch: 'full',
         canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
-          import('./features/home/home.module').then((m) => m.HomeModule),
+          import('./features/home/home.module').then((m) => m.HomeModule)
       },
       // customer routes
       {
@@ -33,7 +33,7 @@ const routes: Routes = [
             path: 'cart',
             canActivate: [customerGuard],
             loadChildren: () =>
-              import('./features/cart/cart.module').then((m) => m.CartModule),
+              import('./features/cart/cart.module').then((m) => m.CartModule)
           },
           {
             path: 'orders',
@@ -44,27 +44,27 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/orders/orders.module').then(
-                    (m) => m.OrdersModule,
-                  ),
-              },
-            ],
+                    (m) => m.OrdersModule
+                  )
+              }
+            ]
           },
           {
             path: 'notifications-history',
             canActivate: [customerGuard],
             loadChildren: () =>
               import('./features/notification/notification.module').then(
-                (m) => m.NotificationModule,
-              ),
+                (m) => m.NotificationModule
+              )
           },
           {
             path: '',
             loadChildren: () =>
               import('./features/users/users.module').then(
-                (m) => m.UsersModule,
-              ),
-          },
-        ],
+                (m) => m.UsersModule
+              )
+          }
+        ]
       },
 
       // vendor guard
@@ -78,8 +78,8 @@ const routes: Routes = [
             path: 'dashboard',
             loadChildren: () =>
               import('./features/dashboard/dashboard.module').then(
-                (m) => m.DashboardModule,
-              ),
+                (m) => m.DashboardModule
+              )
           },
           {
             path: 'products',
@@ -90,10 +90,10 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/products/products.module').then(
-                    (m) => m.ProductsModule,
-                  ),
-              },
-            ],
+                    (m) => m.ProductsModule
+                  )
+              }
+            ]
           },
           {
             path: 'orders',
@@ -104,10 +104,10 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/orders/orders.module').then(
-                    (m) => m.OrdersModule,
-                  ),
-              },
-            ],
+                    (m) => m.OrdersModule
+                  )
+              }
+            ]
           },
           {
             path: 'users',
@@ -124,10 +124,18 @@ const routes: Routes = [
             path: 'profile',
             loadChildren: () =>
               import('./features/users/users.module').then(
-                (m) => m.UsersModule,
-              ),
+                (m) => m.UsersModule
+              )
           },
-        ],
+          {
+            path: 'notifications-history',
+            canActivate: [vendorApprovedGuard],
+            loadChildren: () =>
+              import('./features/notification/notification.module').then(
+                (m) => m.NotificationModule
+              )
+          }
+        ]
       },
 
       {
@@ -135,23 +143,23 @@ const routes: Routes = [
         canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
           import('./features/products/products.module').then(
-            (m) => m.ProductsModule,
-          ),
+            (m) => m.ProductsModule
+          )
       },
 
       {
         path: 'cart',
         canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
-          import('./features/cart/cart.module').then((m) => m.CartModule),
+          import('./features/cart/cart.module').then((m) => m.CartModule)
       },
       {
         path: 'checkout',
         canActivate: [guestOrCustomerGuard],
         loadChildren: () =>
           import('./features/checkout/checkout.module').then(
-            (m) => m.CheckoutModule,
-          ),
+            (m) => m.CheckoutModule
+          )
       },
       {
         path: 'orders',
@@ -161,10 +169,10 @@ const routes: Routes = [
             path: '',
             loadChildren: () =>
               import('./features/orders/orders.module').then(
-                (m) => m.OrdersModule,
-              ),
-          },
-        ],
+                (m) => m.OrdersModule
+              )
+          }
+        ]
       },
 
       // admin routes
@@ -177,8 +185,8 @@ const routes: Routes = [
             path: 'dashboard',
             loadChildren: () =>
               import('./features/dashboard/dashboard.module').then(
-                (m) => m.DashboardModule,
-              ),
+                (m) => m.DashboardModule
+              )
           },
           {
             path: 'products',
@@ -188,31 +196,31 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/products/products.module').then(
-                    (m) => m.ProductsModule,
-                  ),
-              },
-            ],
+                    (m) => m.ProductsModule
+                  )
+              }
+            ]
           },
           {
             path: 'brands',
             loadChildren: () =>
               import('./features/brand/brand.module').then(
-                (m) => m.BrandModule,
-              ),
+                (m) => m.BrandModule
+              )
           },
           {
             path: 'categories',
             loadChildren: () =>
               import('./features/category/category.module').then(
-                (m) => m.CategoryModule,
-              ),
+                (m) => m.CategoryModule
+              )
           },
           {
             path: 'profile',
             loadChildren: () =>
               import('./features/users/users.module').then(
-                (m) => m.UsersModule,
-              ),
+                (m) => m.UsersModule
+              )
           },
           {
             path: 'users',
@@ -222,10 +230,10 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/users/users.module').then(
-                    (m) => m.UsersModule,
-                  ),
-              },
-            ],
+                    (m) => m.UsersModule
+                  )
+              }
+            ]
           },
           {
             path: 'orders',
@@ -235,40 +243,40 @@ const routes: Routes = [
                 path: '',
                 loadChildren: () =>
                   import('./features/orders/orders.module').then(
-                    (m) => m.OrdersModule,
-                  ),
-              },
-            ],
+                    (m) => m.OrdersModule
+                  )
+              }
+            ]
           },
           {
             path: 'reports',
             loadChildren: () =>
               import('./features/reports/reports.module').then(
-                (m) => m.ReportsModule,
-              ),
+                (m) => m.ReportsModule
+              )
           },
           {
             path: 'notifications-history',
             canActivate: [adminGuard],
             loadChildren: () =>
               import('./features/notification/notification.module').then(
-                (m) => m.NotificationModule,
-              ),
+                (m) => m.NotificationModule
+              )
           },
           {
             path: 'settings',
             canActivate: [adminGuard],
             loadChildren: () =>
               import('./features/settings/settings.module').then(
-                (m) => m.SettingsModule,
-              ),
-          },
-        ],
+                (m) => m.SettingsModule
+              )
+          }
+        ]
       },
       {
         path: '404',
-        component: NotFoundComponent,
-      },
+        component: NotFoundComponent
+      }
     ],
   },
   {
@@ -276,18 +284,18 @@ const routes: Routes = [
     component: AuthLayoutComponent,
     canActivate: [publicGuard],
     loadChildren: () =>
-      import('./features/auth/auth.module').then((m) => m.AuthModule),
+      import('./features/auth/auth.module').then((m) => m.AuthModule)
   },
   {
     path: '**',
-    component: NotFoundComponent,
+    component: NotFoundComponent
   },
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' }),
+    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled' })
   ],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class AppRoutingModule { }

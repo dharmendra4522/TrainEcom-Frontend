@@ -9,23 +9,40 @@ import { OrderStatus } from '../../../../core/models/order.model';
 export function getUserChartOptions(
   router: Router,
   portalRoutes: PortalRouteService,
-  portal: PortalKey,
+  // portal: PortalKey,
 ): ChartConfiguration['options'] {
   return {
     responsive: true,
     maintainAspectRatio: false,
     onClick: (event, elements, chart) => {
+      const currentPortal =
+        portalRoutes.currentPortal() ?? 'admin';
+
       if (elements && elements.length > 0) {
         const index = elements[0].index;
         const label = chart.data.labels?.[index];
         if (label === 'Customers') {
-          router.navigate(portalRoutes.users(portal, 'manage'), {
-            queryParams: { role: Role.Customer }
-          });
-        } else if (label === 'Vendors') {
-          router.navigate(portalRoutes.users(portal, 'manage'), {
-            queryParams: { role: Role.Vendor }
-          });
+          router.navigate(
+            portalRoutes.users(currentPortal, 'manage'),
+            {
+              queryParams: { role: Role.Customer }
+            }
+          );
+        }
+        else if (label === 'Vendors') {
+          router.navigate(
+            portalRoutes.users(currentPortal, 'manage'),
+            {
+              queryParams: { role: Role.Vendor }
+            }
+          );
+        }
+        else if (
+          label === 'Staff Users'
+        ) {
+          router.navigate(
+            portalRoutes.users(currentPortal, 'manage')
+          );
         }
       }
     },

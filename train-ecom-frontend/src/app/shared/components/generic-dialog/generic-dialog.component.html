@@ -3,6 +3,19 @@
 </div>
 
 <mat-dialog-content class="px-4 py-3">
+    <button
+        *ngIf="data.enableCurrentLocation"
+        mat-stroked-button
+        color="primary"
+        type="button"
+        class="mb-3"
+        [disabled]="isLoadingLocation"
+        (click)="getCurrentLocation()"
+    >
+        <mat-icon>{{ isLoadingLocation ? 'autorenew' : 'my_location' }}</mat-icon>
+        {{ isLoadingLocation ? 'Fetching Location...' : 'Use Current Location' }}
+    </button>
+
     <form [formGroup]="dynamicForm" class="dialog-form ">
 
         <ng-container *ngFor="let field of data.fields">
