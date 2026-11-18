@@ -33,7 +33,11 @@ import { AllStaffUsersComponent } from './components/all-staff-users/all-staff-u
     RequestApprovalComponent,
     VendorProfileEditComponent,
     AddUsersComponent,
-    AllStaffUsersComponent
+    AllStaffUsersComponent,
+    AddUsersComponent,
+    AllStaffUsersComponent,
+    RequestApprovalComponent,
+    VendorProfileEditComponent
   ],
   imports: [
     CommonModule,

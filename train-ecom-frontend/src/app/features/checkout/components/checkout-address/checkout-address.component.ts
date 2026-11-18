@@ -100,7 +100,8 @@ export class CheckoutAddressComponent {
     return {
       title: isEdit ? 'Update Address' : 'Add New Address',
       submitButtonText: isEdit ? 'Update Address' : 'Save Address',
-      fields: this.getAddressFields(address)
+      fields: this.getAddressFields(address),
+      enableCurrentLocation: true
     };
   }
 

@@ -42,13 +42,13 @@
   background-color: #ffffff;
 }
 
+.custom-add-button {
+  height: 48px !important;
+}
 .request-btn{
   white-space: nowrap;
 }
 
 .header-container{
   padding: 15px;
-}
-.custom-add-button {
-  height: 48px !important;
 }

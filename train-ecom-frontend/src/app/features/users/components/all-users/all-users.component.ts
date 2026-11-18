@@ -281,7 +281,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
             error: (err) => {
               const errorMessage =
                 err?.error?.message ||
-                'User delete karne mein safalta nahi mili.';
+                'Failed to delete user. Please try again.';
               this.notification.showError(errorMessage);
             }
           });

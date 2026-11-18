@@ -101,7 +101,7 @@ export class AddressComponent implements OnInit, OnDestroy {
         label: 'Postal Code',
         type: 'text',
         value: address?.postalCode || '',
-        validation: [Validators.required],
+        validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
         maxLength: 6,
       },
     ];
@@ -113,6 +113,7 @@ export class AddressComponent implements OnInit, OnDestroy {
       title: isEdit ? 'Update Address' : 'Add New Address',
       submitButtonText: isEdit ? 'Update Address' : 'Save Address',
       fields: this.getAddressFields(address),
+      enableCurrentLocation: true,
     };
   }
 

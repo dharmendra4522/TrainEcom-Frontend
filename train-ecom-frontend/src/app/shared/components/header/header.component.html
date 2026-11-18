@@ -5,6 +5,7 @@
     profile: userProfile$ | async,
     wishlistCount: wishlistCount$ | async,
     cartCount: cartCount$ | async,
+    notificationCount: notificationUnreadCount$ | async,
     isAdmin: isAdminRole$ | async,
     isVendor: isVendorRole$ | async,
     isCustomer: isCustomerRole$ | async,
@@ -119,8 +120,8 @@
         </mat-menu>
       </ng-container>
 
-      <!-- Notifications: for admin & customers (not vendors) -->
-      <ng-container *ngIf="auth.loggedIn && !auth.isVendor">
+      <!-- Notifications for authenticated users -->
+      <ng-container *ngIf="auth.loggedIn">
         <button
           mat-icon-button
           matTooltip="Notifications"
@@ -128,7 +129,13 @@
           (click)="onOpenNotificationClick()"
           aria-label="Notifications"
         >
-          <mat-icon>notifications_none</mat-icon>
+          <mat-icon
+            [matBadge]="auth.notificationCount"
+            [matBadgeHidden]="(auth.notificationCount ?? 0) === 0"
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            >notifications_none</mat-icon
+          >
         </button>
       </ng-container>
 

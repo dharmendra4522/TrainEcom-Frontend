@@ -28,4 +28,5 @@ export interface DialogData {
   title: string;
   fields: FieldConfig[];
   submitButtonText: string;
+  enableCurrentLocation?: boolean;
 }

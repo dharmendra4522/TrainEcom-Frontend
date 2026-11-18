@@ -18,7 +18,11 @@ export class NotificationStreamService {
     return this.http.get<NotificationResponse>(`${this.BASEAPI}/getAll`, { params });
   }
 
-  markAsRead(notificationId: string | number): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.BASEAPI}/${String(notificationId)}/read`, {});
+  markAsRead(notificationId: number): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.BASEAPI}/${notificationId}/read`, {});
+  }
+
+  markAllAsRead(): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.BASEAPI}/read-all`, {});
   }
 }

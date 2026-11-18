@@ -1,11 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Address, UserProfile, UpdateProfilePayload, AdminUserFilterParams, AdminUserListResponse, UpdateUserStatusPayload, ApprovalStatus } from '../models/user.model';
+import { Address, UserProfile, UpdateProfilePayload, AdminUserFilterParams, AdminUserListResponse, UpdateUserStatusPayload } from '../models/user.model';
 import { Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Role } from '../models/auth.model';
-import { VendorStatus } from '../models/vendor.model';
 import { createVendorFormData } from '../../features/users/components/vendor-profile-edit/vendor-profile-edit.utils';
+import {
+  normalizeApprovalStatus,
+  normalizeRole,
+  normalizeVendorStatus,
+} from '../utils/role.utils';
 @Injectable({
   providedIn: 'root'
 })
@@ -72,68 +75,6 @@ export class UserService {
 
 
   // normalize the status, role, and approval status values to ensure they are in the correct format for API requests
-  public normalizeStatus(
-    status: string | number | undefined,
-  ): number | undefined {
-    if (status === undefined || status === null || status === '') {
-      return undefined;
-    }
-    if (typeof status === 'number') {
-      return status;
-    }
-    const value = status.trim().toLowerCase();
-    const statusMap: Record<string, number> = {
-      active: VendorStatus.Active,
-      pending: VendorStatus.Pending,
-      rejected: VendorStatus.Rejected,
-      blocked: VendorStatus.Blocked
-    };
-    if (value === 'all') return undefined;
-    const numericStatus = Number(value);
-    return (
-      statusMap[value] ??
-      (Number.isFinite(numericStatus) ? numericStatus : undefined)
-    );
-  }
-
-  private normalizeRole(
-    role: Role | string | number | undefined,
-  ): number | undefined {
-    if (role === undefined || role === null || role === '') {
-      return undefined;
-    }
-    if (typeof role === 'number') {
-      return role;
-    }
-    const normalized = role.trim();
-    const roleMap: Record<string, number> = {
-      customer: Role.Customer,
-      vendor: Role.Vendor,
-      admin: Role.Admin,
-      accounting: Role.Accountant,
-      officeadmin: Role.OfficeAdmin
-    };
-    return roleMap[normalized.toLowerCase()] ?? Number(normalized) ?? undefined;
-  }
-
-  private normalizeApprovalStatus(
-    status: ApprovalStatus | string | number | undefined,
-  ): number | undefined {
-    if (status === undefined || status === null || status === '') {
-      return undefined;
-    }
-    if (typeof status === 'number') {
-      return status;
-    }
-    const normalized = status.trim().toLowerCase();
-    const statusMap: Record<string, number> = {
-      pending: ApprovalStatus.Pending,
-      approved: ApprovalStatus.Approved,
-      rejected: ApprovalStatus.Rejected
-    };
-    return statusMap[normalized] ?? Number(normalized) ?? undefined;
-  }
-
   // Admin: Fetch all users
   getAllUsers(
     filter?: AdminUserFilterParams
@@ -152,24 +93,24 @@ export class UserService {
       filter.requestFilterIds?.forEach((id) => {
         params = params.append('requestFilterIds', id.toString());
       })
-      const normalizedRole = this.normalizeRole(filter.role);
-      if (normalizedRole !== undefined) {
+      const normalizedRole = normalizeRole(filter.role);
+      if (normalizedRole !== null) {
         params = params.set('role', String(normalizedRole));
       }
       filter.status?.forEach((status) => {
-        const normalizedStatus = this.normalizeStatus(status);
+        const normalizedStatus = normalizeVendorStatus(status);
 
-        if (normalizedStatus !== undefined) {
+        if (normalizedStatus !== null) {
           params = params.append(
             'statusIds',
             normalizedStatus.toString()
           );
         }
       });
-      const normalizedApproval = this.normalizeApprovalStatus(
+      const normalizedApproval = normalizeApprovalStatus(
         filter.approvalStatus,
       );
-      if (normalizedApproval !== undefined) {
+      if (normalizedApproval !== null) {
         params = params.set('approvalStatus', String(normalizedApproval));
       };
       filter.filterIds?.forEach((id) => {
@@ -194,13 +135,13 @@ export class UserService {
     userId: number,
     payload: UpdateUserStatusPayload,
   ): Observable<void> {
-    const url = `${environment.apiBaseUrl}/admin/users/${userId}/update-status`;
+    const url = `${environment.apiBaseUrl}/users/${userId}/update-status`;
     return this.http.patch<void>(url, payload);
   }
 
   // delete api
   deleteUser(userId: number): Observable<{ status: boolean; message: string }> {
-    const url = `${environment.apiBaseUrl}/admin/users/${userId}/delete`;
+    const url = `${environment.apiBaseUrl}/users/${userId}/delete`;
     return this.http.delete<{ status: boolean; message: string }>(url);
   }
 }

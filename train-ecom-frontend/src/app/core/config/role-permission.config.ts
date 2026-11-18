@@ -18,7 +18,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'dashboard',
     route: '/vendor/dashboard',
     allowedRoles: [Role.Vendor],
-    allowInPendingState: true,
+    allowInPendingState: true
   },
   {
     key: 'vendor-products',
@@ -26,7 +26,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'inventory_2',
     route: '/vendor/products',
     allowedRoles: [Role.Vendor],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'vendor-orders',
@@ -34,10 +34,10 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'shopping_cart',
     route: '/vendor/orders',
     allowedRoles: [Role.Vendor],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
-    key: 'admin-users',
+    key: 'vendor-users',
     label: 'Manage Users',
     icon: 'people',
     route: '/vendor/users',
@@ -50,7 +50,15 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'person',
     route: '/vendor/profile',
     allowedRoles: [Role.Vendor],
-    allowInPendingState: true,
+    allowInPendingState: true
+  },
+  {
+    key: 'vendor-notifications',
+    label: 'Notifications',
+    icon: 'notifications',
+    route: '/vendor/notifications-history',
+    allowedRoles: [Role.Vendor],
+    allowInPendingState: false
   },
 
   // Admin menu
@@ -60,7 +68,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'dashboard',
     route: '/admin/dashboard',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-products',
@@ -68,7 +76,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'inventory_2',
     route: '/admin/products',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-brands',
@@ -76,7 +84,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'branding_watermark',
     route: '/admin/brands',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-categories',
@@ -84,7 +92,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'category',
     route: '/admin/categories',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-users',
@@ -92,7 +100,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'people',
     route: '/admin/users',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-orders',
@@ -100,7 +108,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'shopping_cart',
     route: '/admin/orders',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-profile',
@@ -108,7 +116,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'person',
     route: '/admin/profile',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'admin-analytics',
@@ -116,7 +124,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'bar_chart',
     route: '/admin/reports',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 
   {
@@ -125,7 +133,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'notifications',
     route: '/admin/notifications-history',
     allowedRoles: [Role.Admin],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 
   // Customer menu
@@ -135,7 +143,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'person',
     route: '/account/profile',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 
   {
@@ -144,7 +152,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'location_on',
     route: '/account/address',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 
   {
@@ -153,7 +161,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'shopping_bag',
     route: '/account/orders',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'customer-wishlist',
@@ -161,7 +169,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'favorite',
     route: '/account/wishlist',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 
   {
@@ -170,7 +178,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'shopping_cart',
     route: '/account/cart',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
   {
     key: 'customer-notification',
@@ -178,7 +186,7 @@ export const ALL_MENU_ITEMS: MenuItemConfig[] = [
     icon: 'notifications',
     route: '/account/notifications-history',
     allowedRoles: [Role.Customer],
-    allowInPendingState: false,
+    allowInPendingState: false
   },
 ];
 
@@ -190,8 +198,8 @@ export function getRoleMenuItems(
 
   const status = normalizeApprovalStatus(vendorStatus);
 
-  const isApprovedVendor = role === Role.Vendor && status === ApprovalStatus.Approved;
-  const isPendingVendor = role === Role.Vendor && status === ApprovalStatus.Pending;
+  const isApprovedVendor: boolean = role === Role.Vendor && status === ApprovalStatus.Approved;
+  const isPendingVendor: boolean = role === Role.Vendor && status === ApprovalStatus.Pending;
 
   return ALL_MENU_ITEMS.filter((item) => item.allowedRoles.includes(role)).map(
     (item) => {
@@ -209,7 +217,7 @@ export function getRoleMenuItems(
         label: item.label,
         icon: item.icon,
         route: item.route,
-        disabled: isDisabled,
+        disabled: isDisabled
       };
     },
   );

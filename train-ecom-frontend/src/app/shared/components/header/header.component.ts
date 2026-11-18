@@ -26,12 +26,17 @@ import {
   map,
   startWith,
   filter,
+  switchMap,
+  catchError,
+  of,
+  shareReplay,
 } from 'rxjs';
 import { selectCartTotalQuantity } from '../../../core/store/cart/cart.selectors';
 import { NavigationEnd, Router } from '@angular/router';
 import { Role } from '../../../core/models/auth.model';
 import { ApprovalStatus } from '../../../core/models/user.model';
 import { normalizeApprovalStatus, normalizeRole } from '../../../core/utils/role.utils';
+import { NotificationStreamService } from '../../../core/services/notification-stream.service';
 
 @Component({
   selector: 'app-header',
@@ -41,6 +46,7 @@ import { normalizeApprovalStatus, normalizeRole } from '../../../core/utils/role
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
   private router = inject(Router);
+  private notificationStream = inject(NotificationStreamService);
   private destroy$ = new Subject<void>();
 
   @Input() showMenuButton: boolean = false;
@@ -55,6 +61,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   wishlistCount$ = this.store.select(selectWishlistCount);
   cartCount$ = this.store.select(selectCartTotalQuantity);
+  notificationUnreadCount$ = combineLatest([this.isLoggedIn$, this.userRole$]).pipe(
+    switchMap(([isLoggedIn]) =>
+      isLoggedIn
+        ? this.notificationStream.getAllNotifications(1, 1).pipe(
+            map((response) => response.unreadCount),
+          )
+        : of(0),
+    ),
+    startWith(0),
+    catchError((error) => {
+      console.error('Failed to load notification count', error);
+      return of(null);
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   isAdminRole$ = this.userRole$.pipe(
     map((role) => normalizeRole(role as string | number | null | undefined) === Role.Admin),
