@@ -25,4 +25,9 @@ export class NotificationStreamService {
   markAllAsRead(): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.BASEAPI}/read-all`, {});
   }
+
+  hideNotification(notificationId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.BASEAPI}/${notificationId}/hide`, {});
+  }
+
 }

@@ -11,8 +11,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { ConfirmDialogServiceService } from '../../../../core/services/confirm-dialog.service';
 import { Subject, takeUntil } from 'rxjs';
 import { OnDestroy } from '@angular/core';
+import { noSpaceAllow, phoneNumberValidator, postalCodeValidator } from '../../../auth/register.utils';
 
-type AddressFormResult = Omit<Address, 'id' | 'country'>;
+type AddressFormResult = Omit<Address, 'id'>;
 
 @Component({
   selector: 'app-address',
@@ -59,14 +60,14 @@ export class AddressComponent implements OnInit, OnDestroy {
         label: 'Full Name',
         type: 'text',
         value: address?.fullName || '',
-        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)],
+        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()],
       },
       {
         key: 'phone',
         label: 'Phone Number',
         type: 'text',
         value: address?.phone || '',
-        validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
+        validation: phoneNumberValidator,
         maxLength: 10,
       },
       {
@@ -74,7 +75,7 @@ export class AddressComponent implements OnInit, OnDestroy {
         label: 'Address Line 1',
         type: 'text',
         value: address?.addressLine1 || '',
-        validation: [Validators.required],
+        validation: [Validators.required, noSpaceAllow()],
       },
       {
         key: 'addressLine2',
@@ -83,17 +84,24 @@ export class AddressComponent implements OnInit, OnDestroy {
         value: address?.addressLine2 || '',
       },
       {
-        key: 'city',
-        label: 'City',
-        type: 'text',
-        value: address?.city || '',
+        key: 'country',
+        label: 'Country',
+        type: 'select',
+        value: address?.country || 'India',
         validation: [Validators.required],
       },
       {
         key: 'state',
         label: 'State',
-        type: 'text',
+        type: 'select',
         value: address?.state || '',
+        validation: [Validators.required],
+      },
+      {
+        key: 'city',
+        label: 'City',
+        type: 'select',
+        value: address?.city || '',
         validation: [Validators.required],
       },
       {
@@ -101,7 +109,7 @@ export class AddressComponent implements OnInit, OnDestroy {
         label: 'Postal Code',
         type: 'text',
         value: address?.postalCode || '',
-        validation: [Validators.required, Validators.pattern(/^\d{6}$/)],
+        validation: postalCodeValidator,
         maxLength: 6,
       },
     ];
@@ -126,7 +134,7 @@ export class AddressComponent implements OnInit, OnDestroy {
       id: originalAddress?.id || '',
       phone: String(result.phone),
       postalCode: String(result.postalCode),
-      country: 'India',
+      country: result.country || 'India',
       isDefault: originalAddress?.isDefault || false,
     } as Address;
   }

@@ -218,7 +218,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       id: 0,
       phone: String(formResult.phone),
       postalCode: String(formResult.postalCode),
-      country: 'India',
+      country: formResult.country || 'India',
       isDefault: false
     };
 
@@ -411,7 +411,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       id: addressId,
       phone: String(event.address.phone),
       postalCode: String(event.address.postalCode),
-      country: 'India',
+      country: event.address.country || 'India',
       isDefault: false
     };
     this.userService

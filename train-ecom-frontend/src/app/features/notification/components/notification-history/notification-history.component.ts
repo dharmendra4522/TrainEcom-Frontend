@@ -173,7 +173,19 @@ export class NotificationHistoryComponent {
 
   deleteNotification(id: number, event: MouseEvent): void {
     event.stopPropagation();
-    this.notifications = this.notifications.filter(n => n.id !== id);
+    this.notificationStream.hideNotification(id).subscribe({
+      next: () => {
+        const notification = this.notifications.find(n => n.id === id);
+        if (notification && !notification.isRead && this.unreadCount > 0) {
+          this.unreadCount--;
+        }
+        this.notifications = this.notifications.filter(n => n.id !== id);
+        this.totalRecords = Math.max(0, this.totalRecords - 1);
+      },
+      error: (error) => {
+        console.error('Failed to hide notification', error);
+      }
+    });
   }
 
   clearAll(): void {

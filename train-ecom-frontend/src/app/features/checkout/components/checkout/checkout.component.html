@@ -13,9 +13,9 @@
 </div>
 
 <div class="checkout-container py-4 px-2 px-md-4">
-  <div class="d-flex flex-column align-items-start mb-4 flex-wrap gap-3">
-    <button mat-stroked-button color="primary" class="d-flex align-items-center gap-1" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon> Back to Cart
+  <div class="d-flex flex-row align-items-center mb-4 flex-wrap gap-3">
+    <button mat-icon-button color="primary" class="d-flex align-items-center gap-1" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
     </button>
     <app-breadcrumb [items]="checkoutBreadcrumbs"></app-breadcrumb>
   </div>

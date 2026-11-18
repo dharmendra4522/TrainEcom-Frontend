@@ -29,6 +29,7 @@ import { ConfirmDialogServiceService } from '../../../core/services/confirm-dial
 import { NotificationStreamService } from '../../../core/services/notification-stream.service';
 import { Role } from '../../../core/models/auth.model';
 import { normalizeRole } from '../../../core/utils/role.utils';
+import { PortalRouteService } from '../../../core/services/portal-route.service';
 
 export interface SidePanelItem {
   id: number;
@@ -62,6 +63,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
   private actions$ = inject(Actions);
   private confirmDialog = inject(ConfirmDialogServiceService);
   private notificationStream = inject(NotificationStreamService);
+  private portalService = inject(PortalRouteService);
 
   private destroy$ = new Subject<void>();
 
@@ -503,15 +505,32 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     );
   }
 
-  removeNotification(id: string | number): void {
+  removeNotification(id: number): void {
     if (this.type !== 'Notification') return;
-    this.items = this.items.filter(item => item.id !== id);
-    this.cdr.detectChanges();
+    this.notificationStream.hideNotification(id).subscribe({
+      next: () => {
+        this.items = this.items.filter(item => item.id !== id);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to hide side-panel notification', error);
+      }
+    });
   }
 
-  clearAllNotifications(): void {
-    if (this.type !== 'Notification') return;
-    this.items = [];
-    this.cdr.detectChanges();
+  viewAllNotifications(): void {
+    this.store.select(selectUserRole).pipe(take(1)).subscribe(role => {
+      const normalizedRole = normalizeRole(role);
+      let route = '/account/notifications-history';
+
+      if (normalizedRole === Role.Admin) {
+        route = '/admin/notifications-history';
+      } else if (normalizedRole === Role.Vendor) {
+        route = '/vendor/notifications-history';
+      }
+
+      this.router.navigate([route]);
+      this.close();
+    });
   }
 }

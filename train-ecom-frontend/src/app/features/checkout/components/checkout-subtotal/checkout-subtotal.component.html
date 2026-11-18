@@ -61,10 +61,12 @@
           <div class="fw-bold text-dark">
             ₹{{ item.unitPrice * item.quantity | number: "1.2-2" }}
           </div>
-          <button mat-button class="remove-item-btn" (click)="onRemove(item)">
-            <mat-icon>delete_outline</mat-icon>
-            <span>Remove</span>
-          </button>
+          <ng-container *ngIf="items.length > 1">
+            <button mat-button class="remove-item-btn" (click)="onRemove(item)">
+              <mat-icon>delete_outline</mat-icon>
+              <span>Remove</span>
+            </button>
+          </ng-container>
         </div>
       </div>
     </div>

@@ -40,6 +40,19 @@
   background-color: #ffffff;
   border-left: 4px solid transparent !important;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.notification-action-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.empty-notification-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
 }
 
 .notification-card:hover {

@@ -5,6 +5,8 @@ import { DialogData } from '../../../core/models/dialog.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { NominatimAddress } from '../../../core/models/auth.model';
+import { City, Country, ICity, ICountry, IState, State } from 'country-state-city';
+import { getFieldError, trimControlValue } from '../../../features/auth/register.utils';
 
 @Component({
   selector: 'app-generic-dialog',
@@ -17,6 +19,9 @@ export class GenericDialogComponent {
   private notificationService = inject(NotificationService);
   dynamicForm!: FormGroup;
   isLoadingLocation = false;
+  countries: ICountry[] = Country.getAllCountries();
+  states: IState[] = [];
+  cities: ICity[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
@@ -25,6 +30,50 @@ export class GenericDialogComponent {
 
   ngOnInit(): void {
     this.buildDynamicForm();
+    this.initializeLocationFields();
+  }
+
+  private initializeLocationFields(): void {
+    if (!this.dynamicForm?.contains('country')) return;
+
+    const countryName = this.dynamicForm.get('country')?.value || 'India';
+    this.dynamicForm.get('country')?.setValue(countryName);
+    this.loadStates(countryName);
+
+    const stateName = this.dynamicForm.get('state')?.value;
+    if (stateName) {
+      this.loadCities(countryName, stateName);
+    }
+  }
+
+  onCountryChange(countryName: string): void {
+    this.dynamicForm.get('state')?.reset('');
+    this.dynamicForm.get('city')?.reset('');
+    this.states = [];
+    this.cities = [];
+    this.loadStates(countryName);
+  }
+
+  onStateChange(stateName: string): void {
+    this.dynamicForm.get('city')?.reset('');
+    this.cities = [];
+    const countryName = this.dynamicForm.get('country')?.value;
+    this.loadCities(countryName, stateName);
+  }
+
+  private loadStates(countryName: string): void {
+    const country = this.countries.find(item => item.name === countryName);
+    this.states = country ? State.getStatesOfCountry(country.isoCode) : [];
+  }
+
+  private loadCities(countryName: string, stateName: string): void {
+    const country = this.countries.find(item => item.name === countryName);
+    const state = this.states.find(item => item.name === stateName);
+    if (!country || !state) {
+      this.cities = [];
+      return;
+    }
+    this.cities = City.getCitiesOfState(country.isoCode, state.isoCode);
   }
 
   buildDynamicForm(): void {
@@ -49,6 +98,14 @@ export class GenericDialogComponent {
     if (this.dynamicForm.valid) {
       this.dialogRef.close(this.dynamicForm.value);
     }
+  }
+
+  getFieldError(fieldKey: string, fieldLabel: string): string {
+    return getFieldError(this.dynamicForm.get(fieldKey), fieldLabel);
+  }
+
+  trimControlValue(fieldKey: string): void {
+    trimControlValue(this.dynamicForm.get(fieldKey));
   }
 
   getCurrentLocation(): void {
@@ -90,11 +147,14 @@ export class GenericDialogComponent {
       .filter((value): value is string => !!value)
       .join(', ');
     const city = address.city || address.town || address.village || address.hamlet || '';
+    const country = address.country || 'India';
+    const state = address.state || '';
 
     const locationValues: Record<string, string> = {
       addressLine1,
       city,
-      state: address.state || '',
+      country,
+      state,
       postalCode: address.postcode || '',
     };
 
@@ -105,5 +165,8 @@ export class GenericDialogComponent {
         this.dynamicForm.get(key)?.markAsTouched();
       }
     });
+
+    this.loadStates(country);
+    this.loadCities(country, state);
   }
 }

@@ -16,7 +16,7 @@
       <!-- Action Buttons -->
       <div class="d-flex align-items-center gap-2" *ngIf="notifications.length > 0">
         <button mat-stroked-button color="primary" class="rounded-3 btn-sm-custom" (click)="markAllAsRead()" [disabled]="unreadCount === 0">
-          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">done_all</mat-icon>
+          <mat-icon class="notification-action-icon">done_all</mat-icon>
           <span>Mark all as read</span>
         </button>
         <button mat-icon-button color="warn" matTooltip="Clear All Notifications" (click)="clearAll()">
@@ -54,8 +54,7 @@
       *ngFor="let notification of filteredNotifications()"
       class="card border-0 shadow-sm rounded-3 mb-2 p-3 notification-card transition-all"
       [class.unread-card]="!notification.isRead"
-      (click)="handleNotificationClick(notification)"
-      style="cursor: pointer;">
+      (click)="handleNotificationClick(notification)">
       <div class="d-flex align-items-start gap-3">
         <!-- Icon Badge -->
         <div class="icon-avatar rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center bg-primary-subtle text-primary">
@@ -69,7 +68,17 @@
               <span>{{ notification.title }}</span>
               <span class="unread-dot" *ngIf="!notification.isRead" title="Unread"></span>
             </h6>
-            <span class="text-muted small text-nowrap fs-7">{{ notification.time }}</span>
+            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+              <span class="text-muted small text-nowrap fs-7">{{ notification.time }}</span>
+              <button
+                type="button"
+                class="btn btn-sm text-secondary border-0 p-1"
+                (click)="deleteNotification(notification.id, $event)"
+                title="Hide notification"
+                aria-label="Hide notification">
+                <mat-icon class="notification-action-icon">close</mat-icon>
+              </button>
+            </div>
           </div>
           <p class="text-secondary small mb-2 lh-sm">{{ notification.message }}</p>
           
@@ -89,14 +98,7 @@
                 *ngIf="!notification.isRead"
                 (click)="markAsRead(notification, $event)" 
                 title="Mark as Read">
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">done</mat-icon>
-              </button>
-              <button 
-                type="button" 
-                class="btn btn-sm text-danger border-0 p-1" 
-                (click)="deleteNotification(notification.id, $event)" 
-                title="Delete">
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">close</mat-icon>
+                <mat-icon class="notification-action-icon">done</mat-icon>
               </button>
             </div>
           </div>
@@ -109,7 +111,7 @@
   <ng-template #emptyState>
     <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-3">
       <div class="empty-icon-circle mx-auto mb-3 bg-light rounded-circle d-flex align-items-center justify-content-center">
-        <mat-icon class="text-muted" style="font-size: 40px; width: 40px; height: 40px;">notifications_off</mat-icon>
+        <mat-icon class="text-muted empty-notification-icon">notifications_off</mat-icon>
       </div>
       <h5 class="fw-bold text-dark mb-1">No notifications found</h5>
       <p class="text-muted small mb-0">You're all caught up! Check back later for new updates.</p>

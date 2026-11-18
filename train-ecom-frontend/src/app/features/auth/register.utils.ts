@@ -286,3 +286,13 @@ export const nameValidator = Validators.compose([
   Validators.pattern(/^[a-zA-Z\s]+$/)
 ])
 
+export const phoneNumberValidator: ValidatorFn[] = [
+  Validators.required,
+  Validators.pattern(/^\d{10}$/)
+];
+
+export const postalCodeValidator: ValidatorFn[] = [
+  Validators.required,
+  Validators.pattern(/^(?!0{6})\d{6}$/)
+];
+

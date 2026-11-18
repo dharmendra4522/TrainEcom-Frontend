@@ -9,8 +9,9 @@ import { DialogData, FieldConfig } from '../../../../core/models/dialog.model';
 import { Validators } from '@angular/forms';
 import { GenericDialogComponent } from '../../../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/internal/operators/take';
+import { noSpaceAllow, phoneNumberValidator, postalCodeValidator } from '../../../auth/register.utils';
 
-export type AddressFormResult = Omit<Address, 'id' | 'country' | 'isDefault'>;
+export type AddressFormResult = Omit<Address, 'id' | 'isDefault'>;
 
 @Component({
   selector: 'app-checkout-address',
@@ -47,14 +48,14 @@ export class CheckoutAddressComponent {
         label: 'Full Name',
         type: 'text',
         value: address?.fullName || '',
-        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]
+        validation: [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), noSpaceAllow()]
       },
       {
         key: 'phone',
         label: 'Phone Number',
         type: 'text',
         value: address?.phone || '',
-        validation: [Validators.required, Validators.pattern(/^\d{10}$/)],
+        validation: phoneNumberValidator,
         maxLength: 10
       },
       {
@@ -62,7 +63,7 @@ export class CheckoutAddressComponent {
         label: 'Address Line 1',
         type: 'text',
         value: address?.addressLine1 || '',
-        validation: [Validators.required]
+        validation: [Validators.required, noSpaceAllow()]
       },
       {
         key: 'addressLine2',
@@ -71,17 +72,24 @@ export class CheckoutAddressComponent {
         value: address?.addressLine2 || ''
       },
       {
-        key: 'city',
-        label: 'City',
-        type: 'text',
-        value: address?.city || '',
+        key: 'country',
+        label: 'Country',
+        type: 'select',
+        value: address?.country || 'India',
         validation: [Validators.required]
       },
       {
         key: 'state',
         label: 'State',
-        type: 'text',
+        type: 'select',
         value: address?.state || '',
+        validation: [Validators.required]
+      },
+      {
+        key: 'city',
+        label: 'City',
+        type: 'select',
+        value: address?.city || '',
         validation: [Validators.required]
       },
       {
@@ -90,7 +98,7 @@ export class CheckoutAddressComponent {
         type: 'text',
         value: address?.postalCode || '',
         maxLength: 6,
-        validation: [Validators.required, Validators.pattern(/^\d{6}$/)]
+        validation: postalCodeValidator
       }
     ];
   }

@@ -21,30 +21,46 @@
         <ng-container *ngFor="let field of data.fields">
 
             <mat-form-field *ngIf="field.type !== 'checkbox'" appearance="outline"
-                [ngClass]="(field.key === 'city' || field.key === 'state') ? 'half-width' : 'full-width'">
+                [ngClass]="(field.key === 'country' || field.key === 'state' || field.key === 'city' || field.key === 'postalCode') ? 'half-width' : 'full-width'">
                 <mat-label>{{ field.label }}</mat-label>
                 <span matPrefix *ngIf="field.key === 'phone' || field.key === 'phoneNumber'" class="text-secondary fw-semibold ps-2 pe-1">+91</span>
-                <input matInput [type]="field.type" [formControlName]="field.key"
-                    [attr.maxLength]="field.maxLength ? field.maxLength : null">
+                <mat-select
+                    *ngIf="field.type === 'select'"
+                    [formControlName]="field.key"
+                    (selectionChange)="
+                        field.key === 'country'
+                            ? onCountryChange($event.value)
+                            : field.key === 'state'
+                                ? onStateChange($event.value)
+                                : null
+                    ">
+                    <ng-container *ngIf="field.key === 'country'">
+                        <mat-option *ngFor="let country of countries" [value]="country.name">
+                            {{ country.name }}
+                        </mat-option>
+                    </ng-container>
+                    <ng-container *ngIf="field.key === 'state'">
+                        <mat-option *ngFor="let state of states" [value]="state.name">
+                            {{ state.name }}
+                        </mat-option>
+                    </ng-container>
+                    <ng-container *ngIf="field.key === 'city'">
+                        <mat-option *ngFor="let city of cities" [value]="city.name">
+                            {{ city.name }}
+                        </mat-option>
+                    </ng-container>
+                    <ng-container *ngIf="field.key !== 'country' && field.key !== 'state' && field.key !== 'city'">
+                        <mat-option *ngFor="let option of field.options || []" [value]="option.value">
+                            {{ option.label }}
+                        </mat-option>
+                    </ng-container>
+                </mat-select>
+                <input *ngIf="field.type !== 'select'" matInput [type]="field.type" [formControlName]="field.key"
+                    [attr.maxLength]="field.maxLength ? field.maxLength : null"
+                    (blur)="trimControlValue(field.key)">
 
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('required')">
-                    {{ field.label }} is required.
-                </mat-error>
-
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'fullName'">
-                    Only alphabets and spaces are allowed.
-                </mat-error>
-
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && (field.key === 'phone' || field.key === 'phoneNumber')">
-                    Please enter a valid 10-digit phone number (only numbers allowed).
-                </mat-error>
-
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('pattern') && field.key === 'postalCode'">
-                    Please enter a valid 6-digit postal code.
-                </mat-error>
-
-                <mat-error *ngIf="dynamicForm.get(field.key)?.hasError('minlength')">
-                    Minimum length requirement not met.
+                <mat-error>
+                    {{ getFieldError(field.key, field.label) }}
                 </mat-error>
 
             </mat-form-field>
