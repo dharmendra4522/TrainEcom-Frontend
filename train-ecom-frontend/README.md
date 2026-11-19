@@ -1,27 +1,164 @@
-# TrainEcomFrontend
+# TrainEcom Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
+Angular frontend for the TrainEcom e-commerce platform. It provides shopping flows for customers and management portals for administrators and vendors.
 
-## Development server
+## Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Customer authentication, profile management, and account pages
+- Product, brand, and category browsing
+- Shopping cart and wishlist
+- Checkout and order history
+- Vendor dashboard, product management, order management, and profile management
+- Admin dashboard, users, brands, categories, products, orders, reports, notifications, and settings
+- Role-based routing and management-access guards
+- JWT authentication with HTTP interceptors
+- NgRx state management and Store Devtools support
+- Angular Material and Bootstrap UI components
+- Server-sent event support for real-time notifications
 
-## Code scaffolding
+## Tech Stack
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Angular 18
+- TypeScript 5.5
+- Angular Material
+- Bootstrap 5
+- NgRx Store and Effects
+- RxJS
+- Chart.js and ng2-charts
+- Angular CLI 18
+- Karma and Jasmine
+
+## Prerequisites
+
+- Node.js 18 or newer
+- npm
+- Angular CLI 18
+
+Install the Angular CLI globally if it is not already available:
+
+```bash
+npm install -g @angular/cli@18
+```
+
+## Getting Started
+
+1. Clone the repository.
+2. Open a terminal in the project directory.
+3. Install dependencies:
+
+```bash
+npm install
+```
+
+4. Start the development server:
+
+```bash
+npm start
+```
+
+5. Open `https://train-ecom-frontend-fawn.vercel.app/`.
+
+The development server reloads automatically when source files change.
+
+## Backend Configuration
+
+API settings are stored in `src/environments/environment.ts`.
+
+The default development configuration uses:
+
+```text
+https://ecomm-cddbdhgwe9feadgw.centralindia-01.azurewebsites.net/api
+```
+
+To use a local backend, update `apiBaseUrl` in `src/environments/environment.ts`:
+
+```typescript
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://localhost:5009/api'
+};
+```
+
+Authentication requests, protected API calls, and HTTP error handling are configured through the interceptors in `src/app/core/interceptors/`.
+
+## Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm start` | Starts the development server |
+| `npm run build` | Creates a production build |
+| `npm run watch` | Builds continuously using the development configuration |
+| `npm test` | Runs unit tests with Karma |
+
+You can also use Angular CLI commands directly, for example:
+
+```bash
+npx ng build
+npx ng test
+npx ng generate component component-name
+```
+
+## Project Structure
+
+```text
+src/
+  app/
+    core/
+      config/       Application configuration
+      guards/       Authentication and role-based route guards
+      interceptors/ HTTP authentication and error interceptors
+      models/       Shared TypeScript models
+      services/     Shared application services
+      store/        NgRx reducers, actions, and effects
+      utils/        Core utility helpers
+    features/
+      auth/         Login, registration, and password flows
+      brand/        Brand management
+      cart/         Shopping cart
+      checkout/     Checkout flow
+      dashboard/    Admin and vendor dashboards
+      home/         Storefront home page
+      notification/ Notification history
+      orders/       Customer, vendor, and admin order flows
+      products/     Product browsing and management
+      reports/      Administrative reports
+      settings/     Application settings
+      users/        User and profile management
+    shared/
+      components/   Reusable components
+      layouts/      Main and authentication layouts
+      directives/   Shared directives
+      utils/        Shared utility helpers
+  environments/   Environment configuration
+  public/         Static assets
+```
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Create a production build:
 
-## Running unit tests
+```bash
+npm run build
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Build output is written to `dist/train-ecom-frontend/`.
 
-## Running end-to-end tests
+## Testing
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Run the unit test suite:
 
-## Further help
+```bash
+npm test
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Tests are written with Jasmine and executed in a Chrome browser through Karma.
+
+## Route Areas
+
+- `/` - Storefront home
+- `/products` - Product catalog
+- `/cart` - Shopping cart
+- `/checkout` - Checkout
+- `/account/*` - Customer account pages
+- `/vendor/*` - Vendor portal
+- `/admin/*` - Administration portal
