@@ -12,11 +12,11 @@ export class ReviewService {
   private baseAPI = `${environment.apiBaseUrl}/products`;
   private http = inject(HttpClient);
 
-  addReview(productId: string | number, createReviewRequest: CreateReviewRequest): Observable<CreateReviewResponse> {
+  addReview(productId: number, createReviewRequest: CreateReviewRequest): Observable<CreateReviewResponse> {
     return this.http.post<CreateReviewResponse>(`${this.baseAPI}/${productId}/add/reviews`, createReviewRequest);
   }
 
-  getProductReviews(productId: string | number, pageNumber: number = 1, pageSize: number = 5): Observable<ProductReviewsResponse> {
+  getProductReviews(productId: number, pageNumber: number = 1, pageSize: number = 5): Observable<ProductReviewsResponse> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
@@ -24,15 +24,15 @@ export class ReviewService {
     return this.http.get<ProductReviewsResponse>(`${environment.apiBaseUrl}/products/${productId}/reviews`, { params });
   }
 
-  getReviewById(reviewId: string | number): Observable<Review> {
+  getReviewById(reviewId: number): Observable<Review> {
     return this.http.get<Review>(`${this.baseAPI}/getById/reviews/${reviewId}`);
   }
 
-  updateReview(reviewId: string | number, updateReviewRequest: UpdateReviewRequest): Observable<UpdateReviewResponse> {
+  updateReview(reviewId: number, updateReviewRequest: UpdateReviewRequest): Observable<UpdateReviewResponse> {
     return this.http.put<UpdateReviewResponse>(`${this.baseAPI}/update/reviews/${reviewId}`, updateReviewRequest);
   }
 
-  deleteReview(reviewId: string | number): Observable<void> {
+  deleteReview(reviewId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseAPI}/delete/reviews/${reviewId}`);
   }
 

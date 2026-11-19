@@ -21,12 +21,12 @@ export const loadWishlistFailure = createAction(
 // actions for adding to wishlist
 export const addToWishlist = createAction(
     `[Wishlist] Add To Wishlist`,
-    props<{ productId: string }>()
+    props<{ productId: number }>()
 )
 
 export const addToWishlistSuccess = createAction(
     `[Wishlist] Add To Wishlist Success`,
-    props<{ productId: string }>()
+    props<{ productId: number }>()
 )
 
 export const addToWishlistFailure = createAction(
@@ -39,12 +39,12 @@ export const addToWishlistFailure = createAction(
 
 export const removeFromWishlist = createAction(
     `[Wishlist] Remove From Wishlist`,
-    props<{ productId: string }>()
+    props<{ productId: number }>()
 )
 
 export const removeFromWishlistSuccess = createAction(
     `[Wishlist] Remove From Wishlist Success`,
-    props<{ productId: string }>()
+    props<{ productId: number }>()
 )
 
 export const removeFromWishlistFailure = createAction(

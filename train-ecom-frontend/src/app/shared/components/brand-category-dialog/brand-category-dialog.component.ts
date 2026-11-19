@@ -40,7 +40,7 @@ export class BrandCategoryDialogComponent implements OnInit, OnDestroy {
 
   form!: FormGroup;
   parentCategories: Array<{ id: number; name: string }> = [];
-  filteredParentCategories: Array<{ id: number | string; name: string }> = [];
+  filteredParentCategories: Array<{ id: number; name: string }> = [];
   parentCategorySearchControl = new FormControl('', { nonNullable: true });
   private hasParentCategoriesLoaded = false;
 

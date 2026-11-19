@@ -1,4 +1,3 @@
-import { RequestStatus, RequestType } from './request-approve.model';
 import type { AdminUser, ApprovalStatus } from './user.model';
 
 export enum VendorStatus {

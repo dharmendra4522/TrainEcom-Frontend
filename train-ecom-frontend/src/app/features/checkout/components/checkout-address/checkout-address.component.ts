@@ -23,16 +23,16 @@ export class CheckoutAddressComponent {
 
   // take addresses list  and selectedAddressId as input from parent component
   @Input() addresses: Address[] = [];
-  @Input() selectedAddressId: string | number | null = null;
+  @Input() selectedAddressId: number | null = null;
 
   //  Events to notify the parent component of an action
-  @Output() selectAddress = new EventEmitter<string | number>();
+  @Output() selectAddress = new EventEmitter<number>();
   @Output() addAddress = new EventEmitter<AddressFormResult>();
   @Output() updateAddress = new EventEmitter<{
-    id: string | number;
+    id: number;
     address: AddressFormResult;
   }>();
-  @Output() removeAddress = new EventEmitter<string | number>();
+  @Output() removeAddress = new EventEmitter<number>();
 
   //Returns the currently selected address object for display in the UI.
   get selectedAddress(): Address | undefined {
@@ -143,14 +143,14 @@ export class CheckoutAddressComponent {
           } else if (typeof result === 'object' && result.action === 'delete' && result.item) {
             this.deleteAddress(result.item.id); // Delete method call
           } else if (typeof result === 'object' && result.id !== undefined) {
-            this.selectAddress.emit(result.id);
+            this.selectAddress.emit(Number(result.id));
           }
         }, 50);
       });
   }
 
-  deleteAddress(id: string | number): void {
-    this.removeAddress.emit(id);
+  deleteAddress(id: number): void {
+    this.removeAddress.emit(Number(id));
   }
 
   onAddNewAddress(address?: Address): void {

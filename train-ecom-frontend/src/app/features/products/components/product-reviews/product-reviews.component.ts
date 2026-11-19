@@ -20,7 +20,7 @@ export class ProductReviewsComponent {
   private route = inject(ActivatedRoute);
 
   // Input property to receive the productId from the parent component
-  @Input() productId!: string | number;
+  @Input() productId!: number;
 
   destroy$ = new Subject<void>();
 
@@ -91,11 +91,11 @@ export class ProductReviewsComponent {
   }
 
   // Method to handle review deletion with confirmation dialog by admin only
-  onDeleteReview(reviewId: string | number): void {
+  onDeleteReview(reviewId: number): void {
     const dialogRef = this.confirmDialog.confirm('Are you sure you want to delete this review?', 'Yes', 'No');
     dialogRef.subscribe((confirmed) => {
       if (confirmed) {
-        this.reviewService.deleteReview(String(reviewId)).subscribe({
+        this.reviewService.deleteReview(reviewId).subscribe({
           next: () => {
             this.notificationService.showSuccess('Review deleted successfully.');
             this.reviews = this.reviews.filter(review => review.reviewId !== reviewId);

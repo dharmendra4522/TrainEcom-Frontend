@@ -170,9 +170,9 @@ export class OrderDetailsComponent {
   }
 
   // Open dialog for user to add/edit review or admin to view review details
-  openReviewDialog(productId: string | number, productName: string, reviewSummary?: { reviewId: string | number; rating: number; review: string }): void {
+  openReviewDialog(productId: number, productName: string, reviewSummary?: { reviewId: number; rating: number; review: string }): void {
     if (reviewSummary?.reviewId) {
-      this.reviewService.getReviewById(String(reviewSummary.reviewId)).subscribe({
+      this.reviewService.getReviewById(reviewSummary.reviewId).subscribe({
         next: (reviewData: Review) => {
           this.showDialog(productId, productName, reviewData.rating, reviewData.review, true, reviewSummary.reviewId);
         }, error: (error) => {
@@ -187,12 +187,12 @@ export class OrderDetailsComponent {
   }
 
   // show dialog for adding/editing review
-  private showDialog(productId: string | number,
+  private showDialog(productId: number,
     productName: string,
     existingRating?: number,
     existingReview?: string,
     isEdit: boolean = false,
-    reviewId?: string | number): void {
+    reviewId?: number): void {
     const dialogRef = this.dialog.open(ReviewRatingDialogComponent, {
       width: '420px',
       data: { productId, productName, existingRating, existingReview, isEdit, reviewId }
@@ -206,15 +206,15 @@ export class OrderDetailsComponent {
 
   // Handles the submission of a review, either adding a new one or updating an existing one.
   private handleReviewSubmission(
-    productId: string | number,
+    productId: number,
     result: { rating: number; review: string },
     isEdit: boolean,
-    reviewId?: string | number
+    reviewId?: number
   ): void {
     const pauload = { rating: result.rating, review: result.review };
 
     if (isEdit && reviewId) {
-      this.reviewService.updateReview(String(reviewId), pauload).subscribe({
+      this.reviewService.updateReview(reviewId, pauload).subscribe({
         next: (response) => {
           this.notification.showSuccess(response.Message || 'Review updated successfully');
           this.reloadDetails();
@@ -248,7 +248,7 @@ export class OrderDetailsComponent {
 
 
   // Method to handle review deletion with confirmation dialog by admin only
-  onDeleteReview(reviewId?: string | number): void {
+  onDeleteReview(reviewId?: number): void {
     if (!reviewId) return;
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -264,7 +264,7 @@ export class OrderDetailsComponent {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         // String mein convert kar rahe hain kyunki API ko string reviewId chahiye
-        this.reviewService.deleteReview(reviewId.toString()).subscribe({
+        this.reviewService.deleteReview(reviewId).subscribe({
           next: () => {
             this.notification.showSuccess('Review deleted successfully.');
             this.reloadDetails();

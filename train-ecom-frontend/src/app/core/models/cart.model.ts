@@ -31,7 +31,7 @@ export interface CartResponse {
 }
 
 export interface MergeCartItemRequest {
-    productId: number | string;
+    productId: number;
     quantity: number;
 }
 

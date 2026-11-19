@@ -339,7 +339,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleRemove(itemId: string | number): void {
+  handleRemove(itemId: number): void {
     if (this.type === 'Cart') {
       this.confirmDialog
         .confirm(
@@ -365,16 +365,16 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private removeCartItem(itemId: string | number): void {
-    this.store.dispatch(CartActions.deleteCartItem({ itemId: String(itemId) }));
+  private removeCartItem(itemId: number): void {
+    this.store.dispatch(CartActions.deleteCartItem({ itemId: itemId }));
   }
 
-  private removeWishlistItem(productId: string | number): void {
-    this.store.dispatch(WishlistActions.removeFromWishlist({ productId: String(productId) }));
+  private removeWishlistItem(productId: number): void {
+    this.store.dispatch(WishlistActions.removeFromWishlist({ productId: productId }));
   }
 
   handleQuantity(event: {
-    id: string | number;
+    id: number;
     action: 'add' | 'subtract';
   }): void {
     if (this.type !== 'Cart') return;
@@ -397,7 +397,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  private confirmAndRemoveItem(itemId: string | number): void {
+  private confirmAndRemoveItem(itemId: number): void {
     this.confirmDialog
       .confirm(
         'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
@@ -451,9 +451,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       });
   }
 
-  private updateCartItemQuantity(itemId: string | number, newQty: number): void {
+  private updateCartItemQuantity(itemId: number, newQty: number): void {
     this.store.dispatch(
-      CartActions.updateCartItem({ itemId: String(itemId), quantity: newQty }),
+      CartActions.updateCartItem({ itemId: itemId, quantity: newQty }),
     );
   }
 
@@ -469,9 +469,9 @@ export class SidePanelComponent implements OnInit, OnDestroy {
       thumbnailUrl: item.thumbnailUrl || item.image,
     };
 
-    this.store.dispatch(
+   this.store.dispatch(
       CartActions.addToCart({
-        productId: productId.toString(),
+        productId: productId,
         quantity: 1,
         productDetails,
       }),
@@ -516,7 +516,7 @@ export class SidePanelComponent implements OnInit, OnDestroy {
         console.error('Failed to hide side-panel notification', error);
       }
     });
-  }
+   }
 
   viewAllNotifications(): void {
     this.store.select(selectUserRole).pipe(take(1)).subscribe(role => {

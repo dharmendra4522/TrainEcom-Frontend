@@ -35,6 +35,7 @@ import {
 } from '../../../../core/models/table.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-all-users',
@@ -54,6 +55,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   private destroy$ = new Subject<void>();
   private userLoadRequests$ = new Subject<void>();
@@ -216,6 +218,16 @@ export class AllUsersComponent implements OnInit, OnDestroy {
       this.pageIndex++;
       this.loadUsers();
     }
+  }
+
+  onRowClick(row: AdminUser | Record<string, unknown>): void {
+    const user = row as AdminUser;
+    const userId = Number(user.userId);
+    if (!Number.isFinite(userId) || userId <= 0) return;
+
+    this.router.navigate(['/admin/users/manage', userId], {
+      queryParams: { role: Role.Customer },
+    });
   }
 
   toggleUserStatus(user: AdminUser): void {

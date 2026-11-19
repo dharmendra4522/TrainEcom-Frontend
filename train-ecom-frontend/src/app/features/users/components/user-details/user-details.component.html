@@ -7,6 +7,75 @@
   </div>
 
   <div *ngIf="!isLoading">
+    <ng-container *ngIf="isCustomer && customerDetails as customer">
+      <div
+        class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom"
+      >
+        <div class="d-flex align-items-center gap-2">
+          <button mat-icon-button color="primary" aria-label="Go back" (click)="onBack()">
+            <mat-icon>arrow_back_ios</mat-icon>
+          </button>
+          <h3 class="fw-bold mb-0 text-nowrap fs-4">
+            Customer ID: {{ customer.userId }}
+          </h3>
+        </div>
+        <span
+          class="badge rounded-pill py-1 px-2"
+          [class.bg-danger-subtle]="customer.isBlocked"
+          [class.text-danger]="customer.isBlocked"
+          [class.bg-success-subtle]="!customer.isBlocked"
+          [class.text-success]="!customer.isBlocked"
+        >
+          {{ customerStatusDisplay }}
+        </span>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-12 col-lg-7">
+          <mat-card class="rounded-3 p-4">
+            <h5 class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2">
+              <mat-icon class="text-primary fs-5">person</mat-icon>
+              Basic & Contact Information
+            </h5>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Customer Name</label>
+                <span class="fw-semibold text-dark">{{ customer.name || "-" }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Email Address</label>
+                <span class="fw-semibold text-dark text-break">{{ customer.email || "-" }}</span>
+              </div>
+              <div class="col-md-4">
+                <label class="text-muted small d-block">Phone Number</label>
+                <span class="fw-semibold text-dark">{{ customer.phoneNumber || "-" }}</span>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <mat-card class="rounded-3 p-4">
+            <h5 class="fw-bold text-secondary mb-3 fs-6 d-flex align-items-center gap-2">
+              <mat-icon class="text-primary fs-5">location_on</mat-icon>
+              Address
+            </h5>
+            <ng-container *ngIf="customer.address as address">
+              <p class="text-dark mb-0 small">
+                {{ address.addressLine1 }}
+                <span *ngIf="address.addressLine2">, {{ address.addressLine2 }}</span><br />
+                {{ address.city }}, {{ address.state }} - {{ address.postalCode }}<br />
+                {{ address.country }}
+              </p>
+            </ng-container>
+            <span *ngIf="!customer.address" class="text-muted small">
+              No address available.
+            </span>
+          </mat-card>
+        </div>
+      </div>
+    </ng-container>
+
     <ng-container *ngIf="vendorDetails as vendor">
       <!-- header section -->
       <div

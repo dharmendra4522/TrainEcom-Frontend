@@ -26,7 +26,7 @@ export interface WishlistApiResponse {
 }
 
 export interface WishlistActionResponse {
-    wishlistId: number | string;
+    wishlistId: number;
     productId: number;
     addedAt: string;
 }

@@ -4,7 +4,7 @@ export interface SalesReportRequest {
 }
 
 export interface TopProducts {
-    productId: string;
+    productId: number;
     productName: string;
     thumbnailUrl: string;
     quantitySold: number;

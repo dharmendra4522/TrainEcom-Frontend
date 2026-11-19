@@ -255,7 +255,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // Cart and Wishlist Actions
   addToCart(): void {
     if (!this.product?.id) return;
-    const productId = this.product.id.toString();
+    const productId = this.product.id;
     const productDetails: CartProductDetails = {
       productName: this.product.name,
       unitPrice: this.product.price,
@@ -269,7 +269,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // Wishlist Actions
   addToWishlist(): void {
     if (!this.product?.id) return;
-    const productId = this.product.id.toString();
+    const productId = this.product.id;
 
     this.executeWithAuth(
       () => {

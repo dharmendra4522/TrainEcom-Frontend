@@ -1,7 +1,7 @@
 import { OrderStatus } from "./checkout.model";
 
 export interface RecentOrder {
-  orderId: string;
+  orderId: number;
   customerName: string;
   totalPrice: number;
   orderStatus: OrderStatus;
@@ -33,7 +33,7 @@ export interface DashboardStatItem {
 
 export type DashboardOrderRow = {
   [key: string]: unknown;
-  orderId: string;
+  orderId: number;
   customerName: string;
   orderDate: string;
   totalAmount: number;

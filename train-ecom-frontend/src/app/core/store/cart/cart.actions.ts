@@ -19,7 +19,7 @@ export const loadCartFailure = createAction(
 
 export const addToCart = createAction(
   '[Cart] Add To Cart',
-  props<{ productId: string | number; quantity: number; productDetails?: CartProductDetails }>()
+  props<{ productId: number; quantity: number; productDetails?: CartProductDetails }>()
 );
 
 export const addToCartSuccess = createAction(
@@ -38,7 +38,7 @@ export const addToCartFailure = createAction(
 
 export const updateCartItem = createAction(
   '[Cart] Update Cart Item',
-  props<{ itemId: string | number; quantity: number }>()
+  props<{ itemId: number; quantity: number }>()
 );
 
 
@@ -56,7 +56,7 @@ export const updateCartItemFailure = createAction(
 
 export const deleteCartItem = createAction(
   '[Cart] Delete Cart Item',
-  props<{ itemId: string | number }>()
+  props<{ itemId: number }>()
 );
 
 

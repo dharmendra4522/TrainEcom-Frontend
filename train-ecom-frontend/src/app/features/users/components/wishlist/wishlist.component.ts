@@ -103,7 +103,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
 
   removeFromWishlist(item: Product): void {
     this.store.dispatch(
-      WishlistActions.removeFromWishlist({ productId: item.id.toString() }),
+      WishlistActions.removeFromWishlist({ productId: item.id}),
     );
   }
 
@@ -118,7 +118,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
 
     this.store.dispatch(
       CartActions.addToCart({
-        productId: item.id.toString(),
+        productId: item.id,
         quantity: 1,
         productDetails,
       }),

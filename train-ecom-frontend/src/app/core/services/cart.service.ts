@@ -89,11 +89,11 @@ export class CartService {
     this.store.dispatch(CartActions.loadCart());
   }
 
-  addToCart(productId: string | number, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
-    const normalizedProductId = Number(productId);
+  addToCart(productId: number, quantity: number, productDetails?: CartProductDetails): Observable<CartResponse> {
+    const normalizedProductId = productId;
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
-      const existing = items.find((i: CartItem) => Number(i.productId) === normalizedProductId);
+      const existing = items.find((i: CartItem) => i.productId === normalizedProductId);
       if (existing) {
         existing.quantity += quantity;
       } else {
@@ -113,13 +113,13 @@ export class CartService {
       .post<CartResponse>(`${this.baseAPI}/addItem`, { productId: normalizedProductId, quantity });
   }
 
-  updateCartItem(itemId: string | number, quantity: number): Observable<CartResponse> {
-    const normalizedItemId = Number(itemId);
+  updateCartItem(itemId: number, quantity: number): Observable<CartResponse> {
+    const normalizedItemId = itemId;
     if (!this.isUserLoggedIn()) {
       const items = this.getLocalCartItems();
       const existing = items.find(
         (i: CartItem) =>
-          Number(i.itemId || i.productId) === normalizedItemId,
+          (i.itemId || i.productId) === normalizedItemId,
       );
       if (existing) {
         existing.quantity = quantity;
@@ -131,11 +131,11 @@ export class CartService {
       .put<CartResponse>(`${this.baseAPI}/updateItem/${normalizedItemId}`, { quantity });
   }
 
-  deleteCartItem(itemId: string | number): Observable<CartResponse> {
-    const normalizedItemId = Number(itemId);
+  deleteCartItem(itemId: number): Observable<CartResponse> {
+    const normalizedItemId = itemId;
     if (!this.isUserLoggedIn()) {
       let items = this.getLocalCartItems();
-      items = items.filter((i: CartItem) => Number(i.productId) !== normalizedItemId);
+      items = items.filter((i: CartItem) => (i.productId) !== normalizedItemId);
       this.saveLocalCartItems(items);
       return of(this.buildLocalCartResponse(items));
     }

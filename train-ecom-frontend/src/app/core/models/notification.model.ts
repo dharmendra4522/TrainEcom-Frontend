@@ -3,7 +3,7 @@ export interface NotificationItem {
     type: NotificationType | string;
     title: string;
     message: string;
-    referenceId: string | number | null;
+    referenceId: number | null;
     referenceType: string | null;
     isRead: boolean;
     readAt: string | null;

@@ -34,15 +34,15 @@ export class WishListService {
     );
   }
 
-  addToWishlist(productId: string): Observable<WishlistActionResponse> {
+  addToWishlist(productId: number): Observable<WishlistActionResponse> {
     return this.http.post<WishlistActionResponse>(`${this.baseAPI}/add/products/${productId}`, {});
   }
 
-  removeFromWishlist(productId: string): Observable<WishlistActionResponse> {
+  removeFromWishlist(productId: number): Observable<WishlistActionResponse> {
     return this.http.delete<WishlistActionResponse>(`${this.baseAPI}/delete/products/${productId}`);
   }
 
-  checkInWishlist(productId: string): Observable<boolean> {
+  checkInWishlist(productId: number): Observable<boolean> {
     return this.http.get<{ isWishlisted: boolean }>(`${this.baseAPI}/products/${productId}/status`).pipe(
       map(res => !!res?.isWishlisted)
     );

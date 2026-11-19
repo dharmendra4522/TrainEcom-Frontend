@@ -9,6 +9,9 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { approvalStatusToLabel } from '../../../../core/utils/role.utils';
 import { Location } from '@angular/common';
 import { VendorActionDialogComponent } from '../../../../shared/components/vendor-action-dialog/vendor-action-dialog.component';
+import { AdminUser } from '../../../../core/models/user.model';
+import { UserService } from '../../../../core/services/user.service';
+import { Role } from '../../../../core/models/auth.model';
 
 @Component({
   selector: 'app-user-details',
@@ -21,15 +24,29 @@ export class UserDetailsComponent {
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
   private location = inject(Location);
+  private userService = inject(UserService);
 
   private vendorId: number = 0;
   vendorDetails: VendorDetails | null = null;
+  customerDetails: AdminUser | null = null;
+  isCustomer: boolean = false;
+  isVendor: boolean = false;
   isLoading: boolean = false;
 
   ngOnInit(): void {
     this.fetchVendorId();
     if (this.vendorId) {
-      this.loadVendorDetail();
+      this.route.queryParamMap.subscribe(params => {
+        const role = Number(params.get('role'));
+        this.isCustomer = role === Role.Customer;
+        this.isVendor = role === Role.Vendor || !role;
+
+        if (this.isCustomer) {
+          this.loadCustomerDetail();
+        } else {
+          this.loadVendorDetail();
+        }
+      });
     }
   }
 
@@ -63,6 +80,35 @@ export class UserDetailsComponent {
         this.isLoading = false;
       },
     });
+  }
+
+  private loadCustomerDetail(): void {
+    if (!this.vendorId) return;
+    this.isLoading = true;
+    this.userService
+      .getAllUsers({
+        role: Role.Customer,
+        pageNumber: 1,
+        pageSize: 1000
+      })
+      .subscribe({
+        next: (response) => {
+          this.customerDetails =
+            response.items.find(user => Number(user.userId) === this.vendorId) || null;
+          if (!this.customerDetails) {
+            this.notificationService.showError('Customer details not found.');
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.notificationService.showError('Failed to load customer details.');
+          this.isLoading = false;
+        },
+      });
+  }
+
+  get customerStatusDisplay(): string {
+    return this.customerDetails?.isBlocked ? 'Blocked' : 'Active';
   }
 
   getDocumentUrl(

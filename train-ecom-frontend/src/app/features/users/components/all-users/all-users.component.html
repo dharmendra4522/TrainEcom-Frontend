@@ -9,6 +9,7 @@
     [showPaginator]="false"
     [showInlineActions]="false"
     [totalRecords]="totalRecords"
+    (rowClick)="onRowClick($event)"
     (loadMore)="onTableScroll()"
     (actionClick)="onActionClick($event)"
     emptyMessage="Users will appear here once the API is connected."

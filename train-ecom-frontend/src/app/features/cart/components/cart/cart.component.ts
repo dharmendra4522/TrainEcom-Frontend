@@ -48,7 +48,7 @@ export class CartComponent implements OnInit {
     this.store.dispatch(CartActions.loadCart());
   }
 
-  updateQuantity(productId: string | number, action: 'add' | 'subtract'): void {
+  updateQuantity(productId: number, action: 'add' | 'subtract'): void {
     this.cartItems$.pipe(take(1)).subscribe((items) => {
       const item = items.find(
         (i) => i.productId === productId || i.itemId === productId
@@ -70,7 +70,7 @@ export class CartComponent implements OnInit {
     });
   }
 
-  private confirmAndDeleteItem(productId: string | number): void {
+  private confirmAndDeleteItem(productId: number): void {
     this.confirmDialog
       .confirm(
         'Setting the quantity to 0 will delete this item from your cart. Do you want to proceed?',
@@ -115,15 +115,15 @@ export class CartComponent implements OnInit {
 
   private executeCartUpdate(item: CartItem, newQty: number): void {
     const targetId = item.itemId
-      ? item.itemId.toString()
-      : item.productId.toString();
+      ? item.itemId
+      : item.productId;
 
     this.store.dispatch(
       CartActions.updateCartItem({ itemId: targetId, quantity: newQty }),
     );
   }
 
-  removeItem(productId: string | number, forceConfirm: boolean = true): void {
+  removeItem(productId: number, forceConfirm: boolean = true): void {
     this.cartItems$.pipe(take(1)).subscribe((items) => {
       const item = items.find(
         (i) => i.productId === productId || i.itemId === productId,
@@ -167,8 +167,8 @@ export class CartComponent implements OnInit {
 
   private dispatchRemoveItem(item: CartItem): void {
     const targetId = item.itemId
-      ? item.itemId.toString()
-      : item.productId.toString();
+      ? item.itemId
+      : item.productId;
 
     this.store.dispatch(CartActions.deleteCartItem({ itemId: targetId }));
   }

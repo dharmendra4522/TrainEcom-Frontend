@@ -30,7 +30,7 @@ export class ProductCardComponent implements OnInit {
   private router = inject(Router);
 
   @Input() product!: Product;
-  @Output() wishListToggle = new EventEmitter<string>();
+  @Output() wishListToggle = new EventEmitter<number>();
   @Output() addToCartEvent = new EventEmitter<Product>();
 
   isFavorite$!: Observable<boolean>;
@@ -64,7 +64,7 @@ export class ProductCardComponent implements OnInit {
   onToggleWishlist(event: Event): void {
     event.stopPropagation();
     if (!this.product?.id) return;
-    const productId = this.product.id.toString();
+    const productId = this.product.id;
 
     this.store
       .select(selectIsLoggedIn)
@@ -103,7 +103,7 @@ export class ProductCardComponent implements OnInit {
       };
       this.store.dispatch(
         CartActions.addToCart({
-          productId: product.id.toString(),
+          productId: product.id,
           quantity: 1,
           productDetails,
         }),

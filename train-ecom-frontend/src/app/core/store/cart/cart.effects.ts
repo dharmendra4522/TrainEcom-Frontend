@@ -93,7 +93,7 @@ export class CartEffects {
       ofType(CartActions.addToCart),
       mergeMap((action) => {
         return this.cartService
-          .addToCart(String(action.productId), action.quantity, action.productDetails)
+          .addToCart(action.productId, action.quantity, action.productDetails)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -127,7 +127,7 @@ export class CartEffects {
       ofType(CartActions.updateCartItem),
       concatMap((action) => {
         return this.cartService
-          .updateCartItem(String(action.itemId), action.quantity)
+          .updateCartItem(action.itemId, action.quantity)
           .pipe(
             switchMap((response) => {
               return this.cartService.getCartItems().pipe(
@@ -164,7 +164,7 @@ export class CartEffects {
     return this.actions$.pipe(
       ofType(CartActions.deleteCartItem),
       mergeMap((action) => {
-        return this.cartService.deleteCartItem(String(action.itemId)).pipe(
+        return this.cartService.deleteCartItem(action.itemId).pipe(
           switchMap((response) => {
             return this.cartService.getCartItems().pipe(
               map((cartResponse) => {
